@@ -54,8 +54,12 @@ def render_map():
             peek = x, y = start[0] + scanline_x, start[1] + scanline_y
 
             # translate to origin
-            p = np.array([[peek[0] - viewer[0]], [peek[1] - viewer[1]]])
+            # it is slightly faster to start with a zeroed array
+            p = np.zeros((2, 1))
+            p[0][0] = peek[0] - viewer[0]
+            p[1][0] = peek[1] - viewer[1]
             rotated = rotations[viewer_angle].dot(p)
+
             # translate back
             peek = int(rotated[0] + viewer[0]), int(rotated[1] + viewer[1])
 
