@@ -20,17 +20,19 @@ viewer_angle = 55
 world = None
 scroll_speed = 2
 math_table = []
+rotations = []
 
 pygame.init()
 clock = pygame.time.Clock()
 
 
-def build_table():
-    global math_table
+def build_tables():
+    global math_table, rotations
     for n in range(0, 360, 1):
         c = math.cos(n * math.pi / 180)
         s = math.sin(n * math.pi / 180)
         math_table.append((c, s))
+        rotations.append(np.array([[c, -s], [s, c]]))
 
 
 def render_map():
@@ -45,7 +47,7 @@ def render_map():
 
             # translate to origin
             p = np.array([[peek[0] - viewer[0]], [peek[1] - viewer[1]]])
-            rotated = get_rotation(viewer_angle).dot(p)
+            rotated = rotations[viewer_angle].dot(p)
             # translate back
             peek = int(rotated[0] + viewer[0]), int(rotated[1] + viewer[1])
 
@@ -65,7 +67,7 @@ def render_viz():
     global angle
     p = np.array([[20], [10]])
 
-    rotated = get_rotation(angle).dot(p)
+    rotated = rotations[angle].dot(p)
     plot = x, y = int(rotated[0][0] + center[0]), int(rotated[1][0] + center[1])
     print(plot)
     screen.set_at((plot), (20, 100, 50))
@@ -118,13 +120,6 @@ def handle_input():
         viwer_angle = 0
 
 
-def get_rotation(angle):
-    global math_table
-    c = math_table[angle][0]
-    s = math_table[angle][1]
-    return np.array([[c, -s], [s, c]])
-
-
 if __name__ == "__main__":
-    build_table()
+    build_tables()
     main_loop()
