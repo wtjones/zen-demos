@@ -13,18 +13,28 @@ black = 0, 0, 0
 screen = None
 zeors_array = np.zeros((2, 3))
 print(zeors_array)
-map = None
+map_surface = None
 angle = 0
 viewer = x, y = center[0], center[1]
+viewer_angle = 55
 world = None
 scroll_speed = 2
+math_table = []
 
 pygame.init()
 clock = pygame.time.Clock()
 
 
+def build_table():
+    global math_table
+    for n in range(0, 360, 1):
+        c = math.cos(n * math.pi / 180)
+        s = math.sin(n * math.pi / 180)
+        math_table.append((c, s))
+
+
 def render_map():
-    global screen, map, size, viewer, world
+    global screen, map_surface, size, viewer, viewer_angle, world
 
     # get top-left starting coord of world map
     start = x, y = viewer[0] - center[0], viewer[1] - center[1]
@@ -32,13 +42,20 @@ def render_map():
         for scanline_x in range(size[0]):
 
             peek = x, y = start[0] + scanline_x, start[1] + scanline_y
+
+            # translate to origin
+            p = np.array([[peek[0] - viewer[0]], [peek[1] - viewer[1]]])
+            rotated = get_rotation(viewer_angle).dot(p)
+            # translate back
+            peek = int(rotated[0] + viewer[0]), int(rotated[1] + viewer[1])
+
             if (
                 peek[0] >= 0
                 and peek[0] < world[0]
                 and peek[1] >= 0
                 and peek[1] < world[1]
             ):
-                color = map.get_at(peek)
+                color = map_surface.get_at(peek)
             else:
                 color = (0, 0, 0)
             screen.set_at((scanline_x, scanline_y), color)
@@ -61,11 +78,11 @@ def render_viz():
 
 def main_loop():
 
-    global screen, map, viewer, world
+    global screen, map_surface, viewer, world
     screen = pygame.display.set_mode(size, pygame.SCALED)
 
-    map = pygame.image.load(map_image).convert()
-    world = x, y = map.get_width(), map.get_height()
+    map_surface = pygame.image.load(map_image).convert()
+    world = x, y = map_surface.get_width(), map_surface.get_height()
     viewer = x, y = world[0] // 2, world[1] // 2
 
     while 1:
@@ -78,7 +95,7 @@ def main_loop():
 
 
 def handle_input():
-    global viewer, scroll_speed
+    global viewer, viewer_angle, scroll_speed
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
@@ -96,12 +113,18 @@ def handle_input():
     if key[pygame.K_DOWN]:
         viewer = viewer[0], viewer[1] + scroll_speed
 
+    viewer_angle += 1
+    if viewer_angle > 359:
+        viwer_angle = 0
+
 
 def get_rotation(angle):
-    c = math.cos(angle * math.pi / 180)
-    s = math.sin(angle * math.pi / 180)
+    global math_table
+    c = math_table[angle][0]
+    s = math_table[angle][1]
     return np.array([[c, -s], [s, c]])
 
 
 if __name__ == "__main__":
+    build_table()
     main_loop()
