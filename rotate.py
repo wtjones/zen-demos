@@ -6,7 +6,7 @@ import pygame
 from pathlib import Path
 
 map_image = os.path.join(Path.home(), "Dropbox/finalmap_0.png")
-size = width, height = 160, 144
+size = width, height = 40, 32
 print(size)
 center = x, y = size[0] // 2, size[1] // 2
 black = 0, 0, 0
@@ -24,6 +24,14 @@ rotations = []
 
 pygame.init()
 clock = pygame.time.Clock()
+screen = pygame.display.set_mode(size, pygame.SCALED)
+font = pygame.font.Font(pygame.font.get_default_font(), 8)
+
+
+def update_fps():
+    fps = str(int(clock.get_fps()))
+    fps_text = font.render(fps, 1, pygame.Color("coral"))
+    return fps_text
 
 
 def build_tables():
@@ -81,7 +89,6 @@ def render_viz():
 def main_loop():
 
     global screen, map_surface, viewer, world
-    screen = pygame.display.set_mode(size, pygame.SCALED)
 
     map_surface = pygame.image.load(map_image).convert()
     world = x, y = map_surface.get_width(), map_surface.get_height()
@@ -91,6 +98,7 @@ def main_loop():
         screen.fill(black)
 
         render_map()
+        screen.blit(update_fps(), (2, 0))
         pygame.display.flip()
         clock.tick(60)
         handle_input()
@@ -117,7 +125,7 @@ def handle_input():
 
     viewer_angle += 1
     if viewer_angle > 359:
-        viwer_angle = 0
+        viewer_angle = 0
 
 
 if __name__ == "__main__":
