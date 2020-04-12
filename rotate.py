@@ -6,7 +6,9 @@ import pygame
 from pathlib import Path
 
 map_image = os.path.join(Path.home(), "Dropbox/finalmap_0.png")
-size = width, height = 40, 32
+size = width, height = 160, 144
+fov = size[0]
+horizon = size[1] // 10
 print(size)
 center = x, y = size[0] // 2, size[1] // 2
 black = 0, 0, 0
@@ -75,6 +77,40 @@ def render_map():
             screen.set_at((scanline_x, scanline_y), color)
 
 
+def render_map_3d():
+    global screen, map_surface, size, viewer, viewer_angle, world, fov, horizon
+
+    # get top-left starting coord of world map
+    start = x, y = viewer[0] - center[0], viewer[1] - center[1]
+    for scanline_y in range(size[1] // 2, size[1]):
+        for scanline_x in range(size[0]):
+
+            px = scanline_x
+            py = fov
+            pz = (scanline_y) + horizon
+
+            # projection
+            sx = px / pz
+            sy = py / pz
+
+            # print(sx, sy)
+            scaling = 100
+            peek = int(sx * scaling), int(sy * scaling)
+            # print(peek)
+            if (
+                peek[0] >= 0
+                and peek[0] < world[0]
+                and peek[1] >= 0
+                and peek[1] < world[1]
+            ):
+                color = map_surface.get_at(peek)
+            else:
+                color = (200, 0, 0)
+
+            # color = (pz, 0, 0)
+            screen.set_at((scanline_x, scanline_y), color)
+
+
 def render_viz():
     global angle
     p = np.array([[20], [10]])
@@ -101,7 +137,7 @@ def main_loop():
     while 1:
         screen.fill(black)
 
-        render_map()
+        render_map_3d()
         screen.blit(update_fps(), (2, 0))
         pygame.display.flip()
         clock.tick(60)
@@ -109,7 +145,7 @@ def main_loop():
 
 
 def handle_input():
-    global viewer, viewer_angle, scroll_speed
+    global viewer, viewer_angle, scroll_speed, fov, horizon
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
@@ -126,6 +162,18 @@ def handle_input():
         viewer = viewer[0], viewer[1] - scroll_speed
     if key[pygame.K_DOWN]:
         viewer = viewer[0], viewer[1] + scroll_speed
+    if key[pygame.K_f]:
+        fov += 1
+        print(f"FOV: {fov}")
+    if key[pygame.K_g]:
+        fov -= 1
+        print(f"FOV: {fov}")
+    if key[pygame.K_h]:
+        horizon += 1
+        print(f"Horiz: {horizon}")
+    if key[pygame.K_j]:
+        horizon -= 1
+        print(f"Horiz: {horizon}")
 
     viewer_angle += 1
     if viewer_angle > 359:
