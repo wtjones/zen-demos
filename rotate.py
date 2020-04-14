@@ -8,7 +8,10 @@ from pathlib import Path
 map_image = os.path.join(Path.home(), "Dropbox/finalmap_0.png")
 size = width, height = 160, 144
 fov = size[0]
-horizon = size[1] // 10
+# Number of pixels scanline 0 is below the horizon. Since 0 is at the top,
+# the value will generally be negative.
+min_horizon = size[1] // -2 + 2
+horizon = min_horizon
 print(size)
 center = x, y = size[0] // 2, size[1] // 2
 black = 0, 0, 0
@@ -17,7 +20,7 @@ zeors_array = np.zeros((2, 3))
 print(zeors_array)
 map_surface = None
 angle = 0
-viewer = x, y = center[0], center[1]
+viewer = x, y, z = 0, 0, 0
 viewer_angle = 55
 world = None
 scroll_speed = 2
@@ -80,23 +83,30 @@ def render_map():
 def render_map_3d():
     global screen, map_surface, size, viewer, viewer_angle, world, fov, horizon
 
-    # get top-left starting coord of world map
-    start = x, y = viewer[0] - center[0], viewer[1] - center[1]
+    scale_y = 200
+    scale_x = 200
+
+    space_x = 0
+    space_y = 0
+    space_z = viewer[2]
+    angle = viewer_angle
+
     for scanline_y in range(size[1] // 2, size[1]):
+
+        distance = space_z * scale_y / (scanline_y + horizon)
+        horizonal_scale = distance / scale_x
+
+        s = math_table[angle][0]
+        c = math_table[angle][1]
+
+        line_dx = -s * horizonal_scale
+        line_dy = c * horizonal_scale
+
+        space_x = viewer[0] + distance * c - size[0] // 2 * line_dx
+        space_y = viewer[1] + distance * s - size[1] // 2 * line_dy
+
         for scanline_x in range(size[0]):
-
-            px = scanline_x
-            py = fov
-            pz = (scanline_y) + horizon
-
-            # projection
-            sx = px / pz
-            sy = py / pz
-
-            # print(sx, sy)
-            scaling = 100
-            peek = int(sx * scaling), int(sy * scaling)
-            # print(peek)
+            peek = int(space_x), int(space_y)
             if (
                 peek[0] >= 0
                 and peek[0] < world[0]
@@ -107,8 +117,9 @@ def render_map_3d():
             else:
                 color = (200, 0, 0)
 
-            # color = (pz, 0, 0)
             screen.set_at((scanline_x, scanline_y), color)
+            space_x += line_dx
+            space_y += line_dy
 
 
 def render_viz():
@@ -132,7 +143,7 @@ def main_loop():
 
     map_surface = pygame.image.load(map_image).convert()
     world = x, y = map_surface.get_width(), map_surface.get_height()
-    viewer = x, y = world[0] // 2, world[1] // 2
+    viewer = x, y, z = world[0] // 2, world[1] // 2, 10
 
     while 1:
         screen.fill(black)
@@ -155,13 +166,13 @@ def handle_input():
     key = pygame.key.get_pressed()
 
     if key[pygame.K_LEFT]:
-        viewer = viewer[0] - scroll_speed, viewer[1]
+        viewer = viewer[0] - scroll_speed, viewer[1], viewer[2]
     if key[pygame.K_RIGHT]:
-        viewer = viewer[0] + scroll_speed, viewer[1]
+        viewer = viewer[0] + scroll_speed, viewer[1], viewer[2]
     if key[pygame.K_UP]:
-        viewer = viewer[0], viewer[1] - scroll_speed
+        viewer = viewer[0], viewer[1] - scroll_speed, viewer[2]
     if key[pygame.K_DOWN]:
-        viewer = viewer[0], viewer[1] + scroll_speed
+        viewer = viewer[0], viewer[1] + scroll_speed, viewer[2]
     if key[pygame.K_f]:
         fov += 1
         print(f"FOV: {fov}")
@@ -172,8 +183,12 @@ def handle_input():
         horizon += 1
         print(f"Horiz: {horizon}")
     if key[pygame.K_j]:
-        horizon -= 1
+        horizon = horizon - 1 if horizon - 1 >= min_horizon else min_horizon
         print(f"Horiz: {horizon}")
+    if key[pygame.K_a]:
+        viewer = viewer[0], viewer[1], viewer[2] + 1
+    if key[pygame.K_z]:
+        viewer = viewer[0], viewer[1], viewer[2] - 1
 
     viewer_angle += 1
     if viewer_angle > 359:
