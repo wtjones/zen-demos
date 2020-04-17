@@ -11,19 +11,12 @@ for tile in range(16):
     byte = 0
     byte = byte | 0b11110000 if 0b00000001 & tile > 0 else byte
     byte = byte | 0b00001111 if 0b00000010 & tile > 0 else byte
-    result.append(byte)
-    result.append(byte)
-    result.append(byte)
-    result.append(byte)
+    result.extend([byte] * 4)
 
     byte = 0
     byte = byte | 0b11110000 if 0b00000100 & tile > 0 else byte
     byte = byte | 0b00001111 if 0b00001000 & tile > 0 else byte
-    result.append(byte)
-    result.append(byte)
-    result.append(byte)
-    result.append(byte)
-
+    result.extend([byte] * 4)
 
 tile = 0
 print(f"; tile {tile}")
