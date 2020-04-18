@@ -36,7 +36,7 @@ start::
 .main_loop:
 
     call    wait_vblank
-    call    apply_command_list
+    ;call    apply_command_list
     jr      .main_loop
 
 draw:
