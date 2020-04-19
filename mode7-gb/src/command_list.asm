@@ -2,18 +2,16 @@ INCLUDE	"gbhw.inc"
 INCLUDE "memory.inc"
 INCLUDE "debug.inc"
 
-COMMANDS_PER_FRAME_MAX  EQU 12
+COMMANDS_PER_FRAME_MAX  EQU SCRN_X_B * 3
 COMMAND_LIST_MAX        EQU (SCRN_X_B * SCRN_Y_B) / 2
 COMMAND_LIST_SIZE       EQU 1
 DEST_VRAM_START         EQU $9920 ; middle of screen
-TILE_OFFSET_TO_NEXT_ROW EQU $C;12 * 16
+TILE_OFFSET_TO_NEXT_ROW EQU $C
 
 SECTION "command list vars", WRAM0
 
 command_list:: DS COMMAND_LIST_MAX * COMMAND_LIST_SIZE
-push_value:: DS 1
-next_item_high: DS 1
-next_item_low: DS 1
+applied_this_frame: DS 1
 
 SECTION "command list utility", ROM0
 
@@ -28,8 +26,10 @@ init_command_list::
 apply_command_list::
     ld      hl, command_list
     ld      de, DEST_VRAM_START
+    xor     a
+    ld      [applied_this_frame], a
 
-    ld      c, 3;SCRN_Y_B
+    ld      c, SCRN_Y_B / 2     ; half of the screen
     inc     c
     jr      .skip_outer
 
@@ -39,25 +39,10 @@ apply_command_list::
     jr      .skip_inner
 
 .loop_inner
-    push    bc
-    ; ld      c, COMMANDS_PER_FRAME_MAX
-    ; inc     c
-    ; jr      .skip_frame
-;
-; .loop_frame
     ld      a, [hl+]
     ld      [de], a
     inc     de
 
-
-    ; pop     hl
-
-; .skip_frame
-;     dec     c
-;     jr      nz, .loop_frame
-
-;     call    wait_vblank
-    pop     bc
 .skip_inner
     dec     b
     jr      nz, .loop_inner
@@ -71,6 +56,18 @@ apply_command_list::
     push    hl
     pop     de  ; de = start of next row
     pop     hl
+
+    ld      a, [applied_this_frame]
+    add     SCRN_X_B
+    cp      COMMANDS_PER_FRAME_MAX
+    jr      nz, .skip_list_limit        ; if applied_this_frame = limit
+    push    hl
+    call    wait_vblank
+    pop     hl
+    xor     a
+.skip_list_limit                        ; end if
+    ld      [applied_this_frame], a
+
 .skip_outer
     dec     c
     jr      nz, .loop_outer
