@@ -34,9 +34,9 @@ start::
     DELAY   10
     DBGMSG "ran init!"
 .main_loop:
-
+    call    render
     call    wait_vblank
-    ;call    apply_command_list
+    call    apply_command_list
     jr      .main_loop
 
 draw:
