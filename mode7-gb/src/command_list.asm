@@ -1,5 +1,6 @@
 INCLUDE	"gbhw.inc"
 INCLUDE "memory.inc"
+INCLUDE "command_list.inc"
 INCLUDE "debug.inc"
 
 COMMANDS_PER_FRAME_MAX  EQU SCRN_X_B * 3
@@ -23,52 +24,88 @@ init_command_list::
     call    mem_Set
     ret
 
+; Writes tiles in the list over two frames.
+; First frame = 4 rows
+; Second frame = 5 rows
 apply_command_list::
     ld      hl, command_list
     ld      de, DEST_VRAM_START
-    xor     a
-    ld      [applied_this_frame], a
+    ld      b, HIGH(TILE_OFFSET_TO_NEXT_ROW)
+    ld      c, LOW(TILE_OFFSET_TO_NEXT_ROW)
 
-    ld      c, SCRN_Y_B / 2     ; half of the screen
-    inc     c
-    jr      .skip_outer
+    REPT 20
+        ld      a, [hl+]
+        ld      [de], a
+        inc     de
+    ENDR
 
-.loop_outer
-    ld      b, SCRN_X_B
-    inc     b
-    jr      .skip_inner
+    ADD_ROW_OFFSET
 
-.loop_inner
-    ld      a, [hl+]
-    ld      [de], a
-    inc     de
+    REPT 20
+        ld      a, [hl+]
+        ld      [de], a
+        inc     de
+    ENDR
 
-.skip_inner
-    dec     b
-    jr      nz, .loop_inner
+    ADD_ROW_OFFSET
 
-    ; Tile vram is 32*32 vs the visible 20 * 18. Advance to the next visible
-    ; tile.
-    push    hl
-    ld      h, HIGH(TILE_OFFSET_TO_NEXT_ROW)
-    ld      l, LOW(TILE_OFFSET_TO_NEXT_ROW)
-    add     hl, de
-    push    hl
-    pop     de  ; de = start of next row
-    pop     hl
+    REPT 20
+        ld      a, [hl+]
+        ld      [de], a
+        inc     de
+    ENDR
 
-    ld      a, [applied_this_frame]
-    add     SCRN_X_B
-    cp      COMMANDS_PER_FRAME_MAX
-    jr      nz, .skip_list_limit        ; if applied_this_frame = limit
+   ADD_ROW_OFFSET
+
+     REPT 20
+        ld      a, [hl+]
+        ld      [de], a
+        inc     de
+    ENDR
+
+    ADD_ROW_OFFSET
+
+    ; Wait for vblank around halfway
     push    hl
     call    wait_vblank
     pop     hl
-    xor     a
-.skip_list_limit                        ; end if
-    ld      [applied_this_frame], a
 
-.skip_outer
-    dec     c
-    jr      nz, .loop_outer
+     REPT 20
+        ld      a, [hl+]
+        ld      [de], a
+        inc     de
+    ENDR
+
+     ADD_ROW_OFFSET
+
+     REPT 20
+        ld      a, [hl+]
+        ld      [de], a
+        inc     de
+    ENDR
+
+    ADD_ROW_OFFSET
+
+     REPT 20
+        ld      a, [hl+]
+        ld      [de], a
+        inc     de
+    ENDR
+
+     ADD_ROW_OFFSET
+
+     REPT 20
+        ld      a, [hl+]
+        ld      [de], a
+        inc     de
+    ENDR
+
+      ADD_ROW_OFFSET
+
+     REPT 20
+        ld      a, [hl+]
+        ld      [de], a
+        inc     de
+    ENDR
+
     ret
