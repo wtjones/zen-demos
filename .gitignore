@@ -1,1 +1,7 @@
 .vscode/
+*.pyc
+.venv/
+.cache/
+.mypy_cache/*
+.env
+.ropeproject/

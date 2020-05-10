@@ -80,63 +80,6 @@ def render_map():
             screen.set_at((scanline_x, scanline_y), color)
 
 
-def render_map_3d():
-    global screen, map_surface, size, viewer, viewer_angle, world, fov, horizon
-
-    scale_y = 200
-    scale_x = 200
-
-    space_x = 0
-    space_y = 0
-    space_z = viewer[2]
-    angle = viewer_angle
-
-    for scanline_y in range(size[1] // 2, size[1]):
-
-        distance = space_z * scale_y / (scanline_y + horizon)
-        horizonal_scale = distance / scale_x
-
-        s = math_table[angle][0]
-        c = math_table[angle][1]
-
-        line_dx = -s * horizonal_scale
-        line_dy = c * horizonal_scale
-
-        space_x = viewer[0] + distance * c - size[0] // 2 * line_dx
-        space_y = viewer[1] + distance * s - size[1] // 2 * line_dy
-
-        for scanline_x in range(size[0]):
-            peek = int(space_x), int(space_y)
-            if (
-                peek[0] >= 0
-                and peek[0] < world[0]
-                and peek[1] >= 0
-                and peek[1] < world[1]
-            ):
-                color = map_surface.get_at(peek)
-            else:
-                color = (200, 0, 0)
-
-            screen.set_at((scanline_x, scanline_y), color)
-            space_x += line_dx
-            space_y += line_dy
-
-
-def render_viz():
-    global angle
-    p = np.array([[20], [10]])
-
-    rotated = rotations[angle].dot(p)
-    plot = x, y = int(rotated[0][0] + center[0]), int(rotated[1][0] + center[1])
-    print(plot)
-    screen.set_at((plot), (20, 100, 50))
-    pygame.draw.circle(screen, 3000, plot, 5)
-
-    angle += 1
-    if angle > 359:
-        angle = 0
-
-
 def main_loop():
 
     global screen, map_surface, viewer, world
@@ -148,7 +91,7 @@ def main_loop():
     while 1:
         screen.fill(black)
 
-        render_map_3d()
+        render_map()
         screen.blit(update_fps(), (2, 0))
         pygame.display.flip()
         clock.tick(60)
@@ -173,18 +116,6 @@ def handle_input():
         viewer = viewer[0], viewer[1] - scroll_speed, viewer[2]
     if key[pygame.K_DOWN]:
         viewer = viewer[0], viewer[1] + scroll_speed, viewer[2]
-    if key[pygame.K_f]:
-        fov += 1
-        print(f"FOV: {fov}")
-    if key[pygame.K_g]:
-        fov -= 1
-        print(f"FOV: {fov}")
-    if key[pygame.K_h]:
-        horizon += 1
-        print(f"Horiz: {horizon}")
-    if key[pygame.K_j]:
-        horizon = horizon - 1 if horizon - 1 >= min_horizon else min_horizon
-        print(f"Horiz: {horizon}")
     if key[pygame.K_a]:
         viewer = viewer[0], viewer[1], viewer[2] + 1
     if key[pygame.K_z]:
