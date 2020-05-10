@@ -1,7 +1,6 @@
 import math
 import sys
 import os
-import numpy as np
 import pygame
 from pathlib import Path
 
@@ -12,12 +11,9 @@ fov = size[0]
 # the value will generally be negative.
 min_horizon = size[1] // -2 + 2
 horizon = min_horizon
-print(size)
 center = x, y = size[0] // 2, size[1] // 2
 black = 0, 0, 0
 screen = None
-zeors_array = np.zeros((2, 3))
-print(zeors_array)
 map_surface = None
 angle = 0
 viewer = x, y, z = 0, 0, 0
@@ -45,7 +41,6 @@ def build_tables():
         c = math.cos(n * math.pi / 180)
         s = math.sin(n * math.pi / 180)
         math_table.append((c, s))
-        rotations.append(np.array([[c, -s], [s, c]]))
 
 
 def render_map():
@@ -59,11 +54,10 @@ def render_map():
             peek = x, y = start[0] + scanline_x, start[1] + scanline_y
 
             # translate to origin
-            # it is slightly faster to start with a zeroed array
-            p = np.zeros((2, 1))
-            p[0][0] = peek[0] - viewer[0]
-            p[1][0] = peek[1] - viewer[1]
-            rotated = rotations[viewer_angle].dot(p)
+            p = (peek[0] - viewer[0], peek[1] - viewer[1])
+            c = math_table[viewer_angle][0]
+            s = math_table[viewer_angle][1]
+            rotated = (c * p[0] - s * p[1], c * p[1] + s * p[0])
 
             # translate back
             peek = int(rotated[0] + viewer[0]), int(rotated[1] + viewer[1])
