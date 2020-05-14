@@ -48,29 +48,32 @@ def render_map():
 
     # get top-left starting coord of world map
     start = x, y = viewer[0] - center[0], viewer[1] - center[1]
+    scanline_y = 0
+
+    scanline_x = 0
+    peek = x, y = start[0] + scanline_x, start[1] + scanline_y
+    # translate to origin
+    p = (peek[0] - viewer[0], peek[1] - viewer[1])
+
+    c = math_table[viewer_angle][0]
+    s = math_table[viewer_angle][1]
+
+    rotated = c * p[0] - s * p[1], c * p[1] + s * p[0]
+
+    # rotate the adjacent pixel for the delta
+    rotated2 = c * (p[0] + 1) - s * p[1], c * p[1] + s * (p[0] + 1)
+
+    line_dx = rotated2[0] - rotated[0]
+    line_dy = rotated2[1] - rotated[1]
+
+    # translate back
+    peek = rotated[0] + viewer[0], rotated[1] + viewer[1]
 
     for scanline_y in range(size[1]):
-        scanline_x = 0
-        peek = x, y = start[0] + scanline_x, start[1] + scanline_y
-        # translate to origin
-        p = (peek[0] - viewer[0], peek[1] - viewer[1])
 
-        c = math_table[viewer_angle][0]
-        s = math_table[viewer_angle][1]
-
-        rotated = c * p[0] - s * p[1], c * p[1] + s * p[0]
-
-        # rotate the adjacent pixel for the delta
-        rotated2 = c * (p[0] + 1) - s * p[1], c * p[1] + s * (p[0] + 1)
-
-        line_dx = rotated2[0] - rotated[0]
-        line_dy = rotated2[1] - rotated[1]
-
-        # translate back
-        peek = rotated[0] + viewer[0], rotated[1] + viewer[1]
-
+        peek_row = peek
         for scanline_x in range(size[0]):
-            peek_map = int(peek[0]), int(peek[1])
+            peek_map = int(peek_row[0]), int(peek_row[1])
 
             if (
                 peek_map[0] >= 0
@@ -82,7 +85,10 @@ def render_map():
             else:
                 color = (0, 0, 0)
             screen.set_at((scanline_x, scanline_y), color)
-            peek = (peek[0] + line_dx, peek[1] + line_dy)
+            peek_row = (peek_row[0] + line_dx, peek_row[1] + line_dy)
+
+        # move down a row
+        peek = (peek[0] + -line_dy, peek[1] + line_dx)
 
 
 def main_loop():
