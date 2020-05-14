@@ -48,30 +48,41 @@ def render_map():
 
     # get top-left starting coord of world map
     start = x, y = viewer[0] - center[0], viewer[1] - center[1]
+
     for scanline_y in range(size[1]):
+        scanline_x = 0
+        peek = x, y = start[0] + scanline_x, start[1] + scanline_y
+        # translate to origin
+        p = (peek[0] - viewer[0], peek[1] - viewer[1])
+
+        c = math_table[viewer_angle][0]
+        s = math_table[viewer_angle][1]
+
+        rotated = c * p[0] - s * p[1], c * p[1] + s * p[0]
+
+        # rotate the adjacent pixel for the delta
+        rotated2 = c * (p[0] + 1) - s * p[1], c * p[1] + s * (p[0] + 1)
+
+        line_dx = rotated2[0] - rotated[0]
+        line_dy = rotated2[1] - rotated[1]
+
+        # translate back
+        peek = rotated[0] + viewer[0], rotated[1] + viewer[1]
+
         for scanline_x in range(size[0]):
-
-            peek = x, y = start[0] + scanline_x, start[1] + scanline_y
-
-            # translate to origin
-            p = (peek[0] - viewer[0], peek[1] - viewer[1])
-            c = math_table[viewer_angle][0]
-            s = math_table[viewer_angle][1]
-            rotated = (c * p[0] - s * p[1], c * p[1] + s * p[0])
-
-            # translate back
-            peek = int(rotated[0] + viewer[0]), int(rotated[1] + viewer[1])
+            peek_map = int(peek[0]), int(peek[1])
 
             if (
-                peek[0] >= 0
-                and peek[0] < world[0]
-                and peek[1] >= 0
-                and peek[1] < world[1]
+                peek_map[0] >= 0
+                and peek_map[0] < world[0]
+                and peek_map[1] >= 0
+                and peek_map[1] < world[1]
             ):
-                color = map_surface.get_at(peek)
+                color = map_surface.get_at(peek_map)
             else:
                 color = (0, 0, 0)
             screen.set_at((scanline_x, scanline_y), color)
+            peek = (peek[0] + line_dx, peek[1] + line_dy)
 
 
 def main_loop():
