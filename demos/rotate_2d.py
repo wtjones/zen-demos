@@ -35,7 +35,7 @@ def update_fps():
     return fps_text
 
 
-def build_tables():
+def build_math_table():
     global math_table, rotations
     for n in range(0, 360, 1):
         c = math.cos(n * math.pi / 180)
@@ -43,10 +43,13 @@ def build_tables():
         math_table.append((c, s))
 
 
-def render_map():
-    global screen, map_surface, size, viewer, viewer_angle, world
-
-    # get top-left starting coord of world map
+def build_rotations_table():
+    """Create a table by angle of:
+        - rotation relative to top left pixel
+        - delta to next pixel
+    This approach does not support scaling currently.
+    """
+    global math_table, rotations, viewer
     start = x, y = viewer[0] - center[0], viewer[1] - center[1]
     scanline_y = 0
 
@@ -55,16 +58,28 @@ def render_map():
     # translate to origin
     p = (peek[0] - viewer[0], peek[1] - viewer[1])
 
-    c = math_table[viewer_angle][0]
-    s = math_table[viewer_angle][1]
+    for n in range(0, 360, 1):
+        c = math_table[n][0]
+        s = math_table[n][1]
 
-    rotated = c * p[0] - s * p[1], c * p[1] + s * p[0]
+        rotated = c * p[0] - s * p[1], c * p[1] + s * p[0]
 
-    # rotate the adjacent pixel for the delta
-    rotated2 = c * (p[0] + 1) - s * p[1], c * p[1] + s * (p[0] + 1)
+        # rotate the adjacent pixel for the delta
+        rotated2 = c * (p[0] + 1) - s * p[1], c * p[1] + s * (p[0] + 1)
 
-    line_dx = rotated2[0] - rotated[0]
-    line_dy = rotated2[1] - rotated[1]
+        line_dx = rotated2[0] - rotated[0]
+        line_dy = rotated2[1] - rotated[1]
+
+        rotations.append((rotated, (line_dx, line_dy)))
+
+
+def render_map():
+    global screen, map_surface, size, viewer, viewer_angle, world, rotations
+
+    rotation = rotations[viewer_angle]
+    rotated = rotation[0]
+    line_dx = rotation[1][0]
+    line_dy = rotation[1][1]
 
     # translate back
     peek = rotated[0] + viewer[0], rotated[1] + viewer[1]
@@ -138,5 +153,6 @@ def handle_input():
 
 
 if __name__ == "__main__":
-    build_tables()
+    build_math_table()
+    build_rotations_table()
     main_loop()
