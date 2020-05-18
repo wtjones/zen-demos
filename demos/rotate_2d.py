@@ -84,6 +84,8 @@ def render_map():
     # translate back
     peek = rotated[0] + viewer[0], rotated[1] + viewer[1]
 
+    pixels = pygame.PixelArray(pygame.display.get_surface())
+
     for scanline_y in range(size[1]):
 
         peek_row = peek
@@ -99,7 +101,7 @@ def render_map():
                 color = map_surface.get_at(peek_map)
             else:
                 color = (0, 0, 0)
-            screen.set_at((scanline_x, scanline_y), color)
+            pixels[scanline_x, scanline_y] = color
             peek_row = (peek_row[0] + line_dx, peek_row[1] + line_dy)
 
         # move down a row
