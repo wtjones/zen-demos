@@ -85,6 +85,7 @@ def render_map():
     peek = rotated[0] + viewer[0], rotated[1] + viewer[1]
 
     pixels = pygame.PixelArray(pygame.display.get_surface())
+    map_pixels = pygame.PixelArray(map_surface)
 
     for scanline_y in range(size[1]):
 
@@ -98,7 +99,7 @@ def render_map():
                 and peek_map[1] >= 0
                 and peek_map[1] < world[1]
             ):
-                color = map_surface.get_at(peek_map)
+                color = map_pixels[peek_map[0], peek_map[1]]
             else:
                 color = (0, 0, 0)
             pixels[scanline_x, scanline_y] = color
