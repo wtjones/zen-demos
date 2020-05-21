@@ -3,8 +3,12 @@ import sys
 import pprint
 
 
-def fixed_8_8_to_8(n):
+def fixed_8_8_to_int_8(n):
     return n >> 8
+
+
+def int_8_to_fixed_8_8(n):
+    return n << 8
 
 
 def float_to_fixed_8_8(n):

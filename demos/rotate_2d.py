@@ -3,6 +3,7 @@ import sys
 import os
 import pygame
 from pathlib import Path
+import demos.fixed_math as fixed_math
 
 map_image = os.path.join(Path.home(), "Dropbox/finalmap_0.png")
 size = width, height = 160, 144
@@ -70,7 +71,20 @@ def build_rotations_table():
         line_dx = rotated2[0] - rotated[0]
         line_dy = rotated2[1] - rotated[1]
 
-        rotations.append((rotated, (line_dx, line_dy)))
+        rotated_fixed = (
+            fixed_math.float_to_fixed_8_8(rotated[0]),
+            fixed_math.float_to_fixed_8_8(rotated[1]),
+        )
+
+        rotations.append(
+            (
+                rotated_fixed,
+                (
+                    fixed_math.float_to_fixed_8_8(line_dx),
+                    fixed_math.float_to_fixed_8_8(line_dy),
+                ),
+            )
+        )
 
 
 def render_map():
@@ -82,7 +96,10 @@ def render_map():
     line_dy = rotation[1][1]
 
     # translate back
-    peek = rotated[0] + viewer[0], rotated[1] + viewer[1]
+    peek = (
+        rotated[0] + fixed_math.int_8_to_fixed_8_8(viewer[0]),
+        rotated[1] + fixed_math.int_8_to_fixed_8_8(viewer[1]),
+    )
 
     pixels = pygame.PixelArray(pygame.display.get_surface())
     map_pixels = pygame.PixelArray(map_surface)
@@ -91,7 +108,10 @@ def render_map():
 
         peek_row = peek
         for scanline_x in range(size[0]):
-            peek_map = int(peek_row[0]), int(peek_row[1])
+            peek_map = (
+                fixed_math.fixed_8_8_to_int_8(peek_row[0]),
+                fixed_math.fixed_8_8_to_int_8(peek_row[1]),
+            )
 
             if (
                 peek_map[0] >= 0
