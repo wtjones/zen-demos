@@ -5,6 +5,8 @@ import pygame
 from pathlib import Path
 import demos.fixed_math as fixed_math
 
+NUM_ANGLES = 256
+
 map_image = os.path.join(Path.home(), "Dropbox/finalmap_0.png")
 size = width, height = 160, 144
 fov = size[0]
@@ -18,7 +20,7 @@ screen = None
 map_surface = None
 angle = 0
 viewer = x, y, z = 0, 0, 0
-viewer_angle = 55
+viewer_angle = 0
 world = None
 scroll_speed = 2
 math_table = []
@@ -38,9 +40,9 @@ def update_fps():
 
 def build_math_table():
     global math_table, rotations
-    for n in range(0, 360, 1):
-        c = math.cos(n * math.pi / 180)
-        s = math.sin(n * math.pi / 180)
+    for n in range(0, NUM_ANGLES, 1):
+        c = math.cos(n * math.pi / (NUM_ANGLES // 2))
+        s = math.sin(n * math.pi / (NUM_ANGLES // 2))
         math_table.append((c, s))
 
 
@@ -59,7 +61,7 @@ def build_rotations_table():
     # translate to origin
     p = (peek[0] - viewer[0], peek[1] - viewer[1])
 
-    for n in range(0, 360, 1):
+    for n in range(0, len(math_table), 1):
         c = math_table[n][0]
         s = math_table[n][1]
 
@@ -171,7 +173,7 @@ def handle_input():
         viewer = viewer[0], viewer[1], viewer[2] - 1
 
     viewer_angle += 1
-    if viewer_angle > 359:
+    if viewer_angle > NUM_ANGLES - 1:
         viewer_angle = 0
 
 
