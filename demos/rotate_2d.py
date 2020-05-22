@@ -1,6 +1,7 @@
 import math
 import sys
 import os
+import pprint
 import pygame
 from pathlib import Path
 import demos.fixed_math as fixed_math
@@ -19,8 +20,9 @@ black = 0, 0, 0
 screen = None
 map_surface = None
 angle = 0
-viewer = x, y, z = 0, 0, 0
+viewer = x, y, z = 0.0, 0.0, 1.0
 viewer_angle = 0
+
 world = None
 scroll_speed = 2
 math_table = []
@@ -53,6 +55,7 @@ def build_rotations_table():
     This approach does not support scaling currently.
     """
     global math_table, rotations, viewer
+    rotations = []
     start = x, y = viewer[0] - center[0], viewer[1] - center[1]
     scanline_y = 0
 
@@ -69,6 +72,9 @@ def build_rotations_table():
 
         # rotate the adjacent pixel for the delta
         rotated2 = c * (p[0] + 1) - s * p[1], c * p[1] + s * (p[0] + 1)
+
+        rotated = rotated[0] * viewer[2], rotated[1] * viewer[2]
+        rotated2 = rotated2[0] * viewer[2], rotated2[1] * viewer[2]
 
         line_dx = rotated2[0] - rotated[0]
         line_dy = rotated2[1] - rotated[1]
@@ -99,8 +105,8 @@ def render_map():
 
     # translate back
     peek = (
-        rotated[0] + fixed_math.int_8_to_fixed_8_8(viewer[0]),
-        rotated[1] + fixed_math.int_8_to_fixed_8_8(viewer[1]),
+        rotated[0] + fixed_math.int_8_to_fixed_8_8(int(viewer[0])),
+        rotated[1] + fixed_math.int_8_to_fixed_8_8(int(viewer[1])),
     )
 
     pixels = pygame.PixelArray(pygame.display.get_surface())
@@ -137,7 +143,7 @@ def main_loop():
 
     map_surface = pygame.image.load(map_image).convert()
     world = x, y = map_surface.get_width(), map_surface.get_height()
-    viewer = x, y, z = world[0] // 2, world[1] // 2, 10
+    viewer = x, y, z = world[0] / 2, world[1] / 2, 1.0
 
     while 1:
         screen.fill(black)
@@ -168,9 +174,13 @@ def handle_input():
     if key[pygame.K_DOWN]:
         viewer = viewer[0], viewer[1] + scroll_speed, viewer[2]
     if key[pygame.K_a]:
-        viewer = viewer[0], viewer[1], viewer[2] + 1
+        viewer = viewer[0], viewer[1], viewer[2] + 0.1
+        build_rotations_table()
+        pprint.pprint(viewer)
     if key[pygame.K_z]:
-        viewer = viewer[0], viewer[1], viewer[2] - 1
+        viewer = viewer[0], viewer[1], viewer[2] - 0.1
+        build_rotations_table()
+        pprint.pprint(viewer)
 
     viewer_angle += 1
     if viewer_angle > NUM_ANGLES - 1:
