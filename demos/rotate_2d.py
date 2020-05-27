@@ -187,7 +187,27 @@ def handle_input():
         viewer_angle = 0
 
 
+def int_to_rgbds_hex(n):
+    padding = 4
+    value = n & 0xFFFF
+    return f"${value:0{padding}x}"
+
+
+def dump():
+    global rotations
+    for i, item in enumerate(rotations):
+        rotated = item[0]
+        delta = item[1]
+        n = rotated[0]
+        print(
+            f"    DB {int_to_rgbds_hex(rotated[0])}, {int_to_rgbds_hex(rotated[1])}, {int_to_rgbds_hex(delta[0])}, {int_to_rgbds_hex(delta[1])}"
+        )
+
+
 if __name__ == "__main__":
     build_math_table()
     build_rotations_table()
-    main_loop()
+    if len(sys.argv) == 2 and sys.argv[1] == "-dump":
+        dump()
+    else:
+        main_loop()
