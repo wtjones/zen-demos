@@ -15,8 +15,19 @@ SOURCES     = $(foreach dir,$(SRC_DIR),$(wildcard $(dir)/*.asm))
 FIX_FLAGS   = -v -p0
 OUTPUT      = $(BUILD_DIR)/$(ROM_NAME)
 
+SOURCE := src data
+# List of relative paths to all folders and subfolders with code or data.
+SOURCE_ALL_DIRS := $(shell find $(SOURCE) -type d -print)
+
+# All files with extension asm are assembled.
+ASMFILES := $(foreach dir,$(SOURCE_ALL_DIRS),$(wildcard $(dir)/*.asm))
+
+OBJ := $(ASMFILES:.asm=.obj)
+
+
 INCDIR = include
-OBJECTS = $(SOURCES:src/%.asm=build/%.obj)
+#OBJECTS = $(SOURCES:src/%.asm=build/%.obj)
+OBJECTS := $(ASMFILES:.asm=.obj)
 
 .PHONY: all clean
 
@@ -35,7 +46,7 @@ $(OUTPUT): $(OBJECTS)
 	$(LINK) -m $@.map -o $@.gb -n $@.sym $(OBJECTS)
 	$(FIX) $(FIX_FLAGS) $@.gb
 
-build/%.obj: src/%.asm
+%.obj: %.asm
 	$(ASM) -D mode=$(MODE) -i$(INCDIR)/ -o$@ $<
 
 clean:
