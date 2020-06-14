@@ -22,7 +22,7 @@ init::
     call    init_random
     call    init_palette
     call    init_checkered_tiles
-
+    call    init_map
     call    init_command_list
     xor     a
     ld      [frame_count], a

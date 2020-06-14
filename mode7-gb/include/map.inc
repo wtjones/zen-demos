@@ -1,0 +1,20 @@
+IF      !DEF(MAP_INC)
+MAP_INC     SET  1
+
+MAP_BITS_PER_TILE       EQU 8
+MAP_WIDTH               EQU 32
+MAP_HEIGHT              EQU MAP_WIDTH
+MAP_BYTES_PER_ROW       EQU MAP_WIDTH * MAP_BITS_PER_TILE / 8
+
+GENERATE_MAP_LOOKUP: MACRO
+ROW =  0
+    REPT MAP_HEIGHT
+        db    HIGH(map_data + (ROW * MAP_BYTES_PER_ROW))
+        db    LOW(map_data + (ROW * MAP_BYTES_PER_ROW))
+ROW = ROW + 1
+    ENDR
+
+    ENDM
+
+ENDC    ;MAP_INC
+
