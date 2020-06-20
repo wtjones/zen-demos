@@ -15,17 +15,37 @@ init_map::
 ;   d = x value
 ;   e = y coord
 ; Outputs:
-;   hl = address of pixel in tilemap
+;   d = tile value
 ; Destroys:
 ;   bc
-get_map_addr::
+get_map_tile::
     ld      a, d
     ld      [map_x], a
     ld      a, e
     ld      [map_y], a
 
-    ; get start of y row addr = MAP_WIDTH * y
-    ;
+    ; generate offset for tile address
+    ; hl = y
+    xor     a
+    ld      h, a
+    ld      l, e
+
+    ; hl = y * MAP_BYTES_PER_ROW
+    add     hl, hl
+    add     hl, hl
+    add     hl, hl
+    add     hl, hl
+    add     hl, hl
+
+    ; hl = hl + x
+    ld      e, d
+    ld      d, 0
+    add     hl, de
+
+    ; add offset to start of map
+    ld      de, map_data
+    add     hl, de
+    ld      d, [hl]
     ret
 
 map_lookup::
