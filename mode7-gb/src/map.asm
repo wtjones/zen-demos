@@ -36,6 +36,9 @@ get_map_tile::
     add     hl, hl
     add     hl, hl
     add     hl, hl
+IF MAP_BYTES_PER_ROW == 64
+    add     hl, hl
+ENDC
 
     ; hl = hl + x
     ld      e, d
