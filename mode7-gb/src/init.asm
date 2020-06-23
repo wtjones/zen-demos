@@ -27,4 +27,6 @@ init::
     xor     a
     ld      [frame_count], a
     ld      [joypad_state], a
+    ld      [viewer_x], a
+    ld      [viewer_y], a
 ret

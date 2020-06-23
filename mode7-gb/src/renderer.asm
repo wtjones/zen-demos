@@ -14,7 +14,9 @@ SECTION "renderer code", ROM0
 
 render::
     xor     a
-    ld      [screen_x], a
+    ld      a, [viewer_x]       ; this is not correct, at least as
+    ld      [screen_x], a       ; far as naming
+    xor     a
     ld      [screen_y], a
     ld      de, command_list
     ld      c, SCRN_Y_B / 2     ; render half of the screen
@@ -129,8 +131,9 @@ render::
     jr      nz, .loop_inner
 
     ; end of vram tile row - move sub-tile to top-left of next row
-    xor     a
+    ld      a, [viewer_x]   ; TODO fix
     ld      [screen_x], a
+    xor     a
     ld      a, [screen_y]
     add     2
     ld      [screen_y], a

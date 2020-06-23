@@ -1,5 +1,7 @@
 include "map.inc"
 
+EMPTY_TILE              EQU 0
+
 SECTION "map vars", WRAM0
 
 map_x: DS 1
@@ -20,9 +22,11 @@ init_map::
 ;   bc
 get_map_tile::
     ld      a, d
-    ld      [map_x], a
-    ld      a, e
-    ld      [map_y], a
+    cp      a, MAP_WIDTH
+    jr      c, .skip_oob           ; if MAP_WIDTH <= x
+    ld      d, EMPTY_TILE
+    ret
+.skip_oob                           ; end if
 
     ; generate offset for tile address
     ; hl = y

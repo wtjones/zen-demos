@@ -37,6 +37,7 @@ start::
     call    render
     call    wait_vblank
     call    apply_command_list
+    call    update_viewer
     jr      .main_loop
 
 draw:
