@@ -2,6 +2,7 @@
     "python.formatting.provider": "black",
     "files.exclude": {
         "**/__pycache__": true,
-        "**/*.obj": true
+        "**/*.obj": true,
+        "**/fixed-rs": true
     }
 }
