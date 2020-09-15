@@ -17,6 +17,7 @@ render::
     ld      a, [viewer_x]       ; this is not correct, at least as
     ld      [screen_x], a       ; far as naming
     xor     a
+    ld      a, [viewer_y]
     ld      [screen_y], a
     ld      de, command_list
     ld      c, SCRN_Y_B / 2     ; render half of the screen

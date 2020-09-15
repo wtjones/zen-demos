@@ -11,9 +11,4 @@ SECTION "viewer code", ROM0
 update_viewer::
     ld      a, [viewer_x]
     inc     a
-    cp      a, MAP_WIDTH
-    jr      c, .skip_wrap_viewer    ; if MAP_WIDTH <= x
-    xor     a
-.skip_wrap_viewer                   ; end ifs
-    ld      [viewer_x], a
     ret
