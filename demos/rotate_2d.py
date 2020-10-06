@@ -200,7 +200,7 @@ def dump():
         delta = item[1]
         n = rotated[0]
         print(
-            f"    DB {int_to_rgbds_hex(rotated[0])}, {int_to_rgbds_hex(rotated[1])}, {int_to_rgbds_hex(delta[0])}, {int_to_rgbds_hex(delta[1])}"
+            f"    DW {int_to_rgbds_hex(rotated[0])}, {int_to_rgbds_hex(rotated[1])}, {int_to_rgbds_hex(delta[0])}, {int_to_rgbds_hex(delta[1])}"
         )
 
 
