@@ -4,141 +4,174 @@ INCLUDE "debug.inc"
 
 SECTION "renderer vars", WRAM0
 
-point_x:: DS 1
-point_y:: DS 1
 screen_x:: DS 1
 screen_y:: DS 1
-current_tile:: DS 1
+peek_x:: DS 1
+peek_y:: DS 1
+current_tile:: DS 1     ; the tile to be appended to command buffer
+render_buffer: DS SCRN_X_B * 2 * SCRN_Y_B
 
 SECTION "renderer code", ROM0
 
 render::
+    call render_to_buffer
+    call render_to_command_list
+    ret
+    
+render_to_buffer:
     xor     a
-    ld      a, [viewer_x]       ; this is not correct, at least as
-    ld      [screen_x], a       ; far as naming
-    xor     a
-    ld      a, [viewer_y]
+    ld      [screen_x], a
     ld      [screen_y], a
-    ld      de, command_list
-    ld      c, SCRN_Y_B / 2     ; render half of the screen
+    
+    ld      a, [viewer_x]       ; this is not correct, at least as
+    ld      [peek_x], a       ; far as naming
+    
+    ld      a, [viewer_y]
+    ld      [peek_y], a
+    ld      de, render_buffer
+    
+    ld      c, SCRN_Y_B         ; Outer loop on sub-tiles (4x4 pixels).
+                                ; Currently just render half of the screen.
     inc     c
-    jr      .skip_outer
+    jp      .skip_outer
 
-.loop_outer
-    ld      b, SCRN_X_B
+.loop_outer 
+    ld      b, SCRN_X_B * 2     ;Inner loop on sub-tiles (4x4 pixels).
     inc     b
     jr      .skip_inner
 
-.loop_inner
+.loop_inner 
     push    bc
     push    de
 
-    ;xor     a
-    ;ld      [current_tile], a
-
-    ;
-    ; top-left sub-tile
-    ;
-    ld      a, [screen_x]
+    ld      a, [peek_x]
     ld      d, a
-    ld      b, a
-    ld      a, [screen_y]
+    ld      a, [peek_y]
     ld      e, a
-    ld      c, a
 
-    call    get_map_tile   ; d = map tile
-
-    ; set bit %00000001 if d = 1
+    call    get_map_tile    ; d = map tile
     ld      a, d
     ld      [current_tile], a
 
-    ;
-    ; top-right sub-tile
-    ;
-    ; screen_x++
-    inc     b
-    ld      d, b
-    ld      e, c
-
-    call    get_map_tile   ; d = map tile
-
-    ; set bit %00000010 if d = 1
-    ld      a, d
-    sla     a
-    ld      hl, current_tile
-    or      a, [hl]
-    ld      [current_tile], a
-
-    ;
-    ; bottom-left sub-tile
-    ;
-    ; screen_x++
-    dec     b
-    ld      d, b
-    ; screen_y--
-    inc     c
-    ld      e, c
-
-    call    get_map_tile   ; d = map tile
-
-    ; set bit %00000100 if d = 1
-    ld      a, d
-    sla     a
-    sla     a
-    ld      hl, current_tile
-    or      a, [hl]
-    ld      [current_tile], a
-
-    ;
-    ; bottom-right sub-tile
-    ;
-    ; screen_x++
-    inc     b
-    ld      d, b
-    ld      e, c
-
-    call    get_map_tile   ; d = map tile
-
-    ; set bit %00001000 if d = 1
-    ld      a, d
-    sla     a
-    sla     a
-    sla     a
-    ld      hl, current_tile
-    or      a, [hl]
-
-    ld      [current_tile], a
-
-    ; move screen_x to top-left of next tile
-    inc     b
-    ld      a, b
+    ld      a, [peek_x]
+    inc     a
+    ld      [peek_x], a
+    
+    ld      a, [screen_x]
+    inc     a
     ld      [screen_x], a
-
-    ; move screen_y to top left of next tile
-    dec     c
-    ld      a, c
-    ld      [screen_y], a
-
+    
     pop     de
     pop     bc
 
     ; write tile result to command buffer
     ld      a, [current_tile]
-    ;ld      a, %00001101
     ld      [de], a
     inc     de  ; move to next byte in command buffer
 .skip_inner
     dec     b
     jr      nz, .loop_inner
 
-    ; end of vram tile row - move sub-tile to top-left of next row
+    ; end of sub-tile row
     ld      a, [viewer_x]   ; TODO fix
-    ld      [screen_x], a
-    xor     a
+    ld      [peek_x], a
+    
+    ld      a, [peek_y]
+    inc     a
+    ld      [peek_y], a
+    
     ld      a, [screen_y]
-    add     2
+    inc     a
     ld      [screen_y], a
+    
 .skip_outer
     dec     c
-    jr      nz, .loop_outer
+    jp      nz, .loop_outer
     ret
+
+; Apply render buffer to command list by mapping to 2x2 subtiles
+;
+render_to_command_list:
+    ld      hl, render_buffer
+    ld      de, command_list
+    
+    ld      c, SCRN_Y_B / 2     ; Currently just render half of the screen.
+    inc     c
+    jp      .skip_outer
+
+.loop_outer 
+    ld      b, SCRN_X_B
+    inc     b
+    jr      .skip_inner
+
+.loop_inner 
+    push    bc
+    push    de
+
+    ;
+    ; top-left sub-tile
+    ;    
+    ld      a, [hl]
+
+    ; set bit %00000001 if a = 1
+    ld      [current_tile], a
+    ld      b, a
+
+    ;
+    ; bottom-left sub-tile
+    ;
+    push    hl
+    ld      de, SCRN_X_B * 2
+    add     hl, de
+    ld      a, [hl+]
+    ; set bit %00000100 if a = 1
+    sla     a
+    sla     a
+    or      a, b
+    ld      b, a
+    
+    ;
+    ; bottom-right sub-tile
+    ;
+    ld      a, [hl]
+    ; set bit %00001000 if a = 1
+    sla     a
+    sla     a
+    sla     a
+    or      a, b
+    ld      b, a
+
+    ;
+    ; top-right sub-tile
+    ;
+    pop     hl
+    inc     hl
+     
+    ld      a, [hl+]
+    ; set bit %00000010 if a = 1
+    sla     a
+    or      a, b
+
+    ld      [current_tile], a
+    
+    pop     de
+    pop     bc
+
+    ; write tile result to command buffer
+    ld      a, [current_tile]
+    ld      [de], a
+    inc     de  ; move to next byte in command buffer
+.skip_inner
+    dec     b
+    jr      nz, .loop_inner
+    
+    push    de
+    ld      de, SCRN_X_B * 2
+    add     hl, de
+    pop     de
+
+.skip_outer
+    dec     c
+    jp      nz, .loop_outer
+    ret
+ret
