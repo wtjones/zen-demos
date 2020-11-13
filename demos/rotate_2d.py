@@ -63,7 +63,8 @@ def build_rotations_table():
     peek = x, y = start[0] + scanline_x, start[1] + scanline_y
     # translate to origin
     p = (peek[0] - viewer[0], peek[1] - viewer[1])
-
+    # TODO: The first coord in the table isn't even needed
+    p = (0.0, 0.0)
     for n in range(0, len(math_table), 1):
         c = math_table[n][0]
         s = math_table[n][1]

@@ -11,56 +11,154 @@ peek_y:: DS 1
 current_tile:: DS 1     ; the tile to be appended to command buffer
 render_buffer: DS SCRN_X_B * 2 * SCRN_Y_B
 
+peek_row_x_whole: DS 1
+peek_row_x_frac: DS 1
+
+peek_row_y_whole: DS 1
+peek_row_y_frac: DS 1
+
+peek_x_whole: DS 1
+peek_x_frac: DS 1
+
+peek_y_whole: DS 1
+peek_y_frac: DS 1
+
+
 SECTION "renderer code", ROM0
 
 render::
+    call set_rotation
     call render_to_buffer
     call render_to_command_list
     ret
-    
+
 render_to_buffer:
     xor     a
     ld      [screen_x], a
     ld      [screen_y], a
-    
+
     ld      a, [viewer_x]       ; this is not correct, at least as
-    ld      [peek_x], a       ; far as naming
-    
+    ld      [peek_x], a         ; far as naming
+
     ld      a, [viewer_y]
     ld      [peek_y], a
+
+    ;
+    ; Translate the first sub-tile by adding the viewer and rotated lookup
+    ;
+    ; Convert viewer x to fixed 8.8
+    ld      a, [viewer_x]
+    ld      d, a
+    ld      e, 0
+
+    ld      a, [rotated_x_whole]
+    ld      h, a
+    ld      a, [rotated_x_frac]
+    ld      l, a
+
+    add     hl, de              ; hl = translated peek map y
+
+    ld      a, h
+    ld      [peek_x_whole], a
+    ld      a, l
+    ld      [peek_x_frac], a
+
+     ; Convert viewer y to fixed 8.8
+    ld      a, [viewer_y]
+    ld      d, a
+    ld      e, 0
+
+    ld      a, [rotated_y_whole]
+    ld      h, a
+    ld      a, [rotated_y_frac]
+    ld      l, a
+
+    add     hl, de              ; hl = translated map peek x
+
+    ld      a, h
+    ld      [peek_y_whole], a
+    ld      a, l
+    ld      [peek_y_frac], a
+
     ld      de, render_buffer
-    
+
     ld      c, SCRN_Y_B         ; Outer loop on sub-tiles (4x4 pixels).
                                 ; Currently just render half of the screen.
     inc     c
     jp      .skip_outer
 
-.loop_outer 
+.loop_outer
+
+    ; copy to a separate peek var for row iteration
+    ld      a, [peek_x_whole]
+    ld      [peek_row_x_whole], a
+    ld      a, [peek_x_frac]
+    ld      [peek_row_x_frac], a
+    ld      a, [peek_y_whole]
+    ld      [peek_row_y_whole], a
+    ld      a, [peek_y_frac]
+    ld      [peek_row_y_frac], a
+
     ld      b, SCRN_X_B * 2     ;Inner loop on sub-tiles (4x4 pixels).
     inc     b
     jr      .skip_inner
 
-.loop_inner 
+.loop_inner
     push    bc
     push    de
 
-    ld      a, [peek_x]
+    ; use the whole part for the map lookup
+    ld      a, [peek_row_x_whole]
     ld      d, a
-    ld      a, [peek_y]
+    ld      a, [peek_row_y_whole]
     ld      e, a
 
     call    get_map_tile    ; d = map tile
     ld      a, d
     ld      [current_tile], a
 
-    ld      a, [peek_x]
-    inc     a
-    ld      [peek_x], a
-    
+    ;
+    ; increment peek x by delta from rotation table
+    ;
+    ld      a, [delta_x_whole]
+    ld      d, a
+    ld      a, [delta_x_frac]
+    ld      e, a
+    ld      a, [peek_row_x_whole]
+    ld      h, a
+    ld      a, [peek_row_x_frac]
+    ld      l, a
+
+    add     hl, de  ; hl = peek x + delta x
+
+    ld      a, h
+    ld      [peek_row_x_whole], a
+    ld      a, l
+    ld      [peek_row_x_frac], a
+
+    ;
+    ; increment peek y by delta from rotation table
+    ;
+    ld      a, [delta_y_whole]
+    ld      d, a
+    ld      a, [delta_y_frac]
+    ld      e, a
+    ld      a, [peek_row_y_whole]
+    ld      h, a
+    ld      a, [peek_row_y_frac]
+    ld      l, a
+
+    add     hl, de  ; hl = peek y + delta x
+
+    ld      a, h
+    ld      [peek_row_y_whole], a
+    ld      a, l
+    ld      [peek_row_y_frac], a
+
     ld      a, [screen_x]
     inc     a
     ld      [screen_x], a
-    
+
     pop     de
     pop     bc
 
@@ -75,15 +173,64 @@ render_to_buffer:
     ; end of sub-tile row
     ld      a, [viewer_x]   ; TODO fix
     ld      [peek_x], a
-    
+
     ld      a, [peek_y]
     inc     a
     ld      [peek_y], a
-    
+
     ld      a, [screen_y]
     inc     a
     ld      [screen_y], a
-    
+
+    ;
+    ; move down a row
+    ;
+    ; peek = (peek[0] + -line_dy, peek[1] + line_dx)
+
+    push de
+    ; handle x
+    ld      a, [delta_y_whole]
+    cpl
+    ld      h, a
+    ld      a, [delta_y_frac]
+    cpl
+    ld      l, a
+    inc     hl    ; hl = -delta_y
+
+    ld      a, [peek_x_whole]
+    ld      d, a
+    ld      a, [peek_x_frac]
+    ld      e, a
+
+    add     hl, de  ; hl = peek_x + -delta_y
+
+    ; store result
+    ld      a, h
+    ld      [peek_x_whole], a
+    ld      a, l
+    ld      [peek_x_frac], a
+
+    ; handle y
+    ld      a, [delta_x_whole]
+    ld      h, a
+    ld      a, [delta_x_frac]
+    ld      l, a
+
+    ld      a, [peek_y_whole]
+    ld      d, a
+    ld      a, [peek_y_frac]
+    ld      e, a
+
+    add     hl, de  ; hl = peek_y + delta_x
+
+    ; store result
+    ld      a, h
+    ld      [peek_y_whole], a
+    ld      a, l
+    ld      [peek_y_frac], a
+
+    pop     de
+
 .skip_outer
     dec     c
     jp      nz, .loop_outer
@@ -94,23 +241,23 @@ render_to_buffer:
 render_to_command_list:
     ld      hl, render_buffer
     ld      de, command_list
-    
+
     ld      c, SCRN_Y_B / 2     ; Currently just render half of the screen.
     inc     c
     jp      .skip_outer
 
-.loop_outer 
+.loop_outer
     ld      b, SCRN_X_B
     inc     b
     jr      .skip_inner
 
-.loop_inner 
+.loop_inner
     push    bc
     push    de
 
     ;
     ; top-left sub-tile
-    ;    
+    ;
     ld      a, [hl]
 
     ; set bit %00000001 if a = 1
@@ -129,7 +276,7 @@ render_to_command_list:
     sla     a
     or      a, b
     ld      b, a
-    
+
     ;
     ; bottom-right sub-tile
     ;
@@ -146,14 +293,14 @@ render_to_command_list:
     ;
     pop     hl
     inc     hl
-     
+
     ld      a, [hl+]
     ; set bit %00000010 if a = 1
     sla     a
     or      a, b
 
     ld      [current_tile], a
-    
+
     pop     de
     pop     bc
 
@@ -164,7 +311,7 @@ render_to_command_list:
 .skip_inner
     dec     b
     jr      nz, .loop_inner
-    
+
     push    de
     ld      de, SCRN_X_B * 2
     add     hl, de

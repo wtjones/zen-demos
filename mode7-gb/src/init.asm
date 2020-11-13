@@ -24,9 +24,12 @@ init::
     call    init_checkered_tiles
     call    init_map
     call    init_command_list
+    call    init_rotation_lookup
     xor     a
     ld      [frame_count], a
     ld      [joypad_state], a
     ld      [viewer_x], a
     ld      [viewer_y], a
+    ld      a, 4
+    ld      [viewer_angle], a
 ret
