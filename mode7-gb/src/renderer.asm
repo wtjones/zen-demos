@@ -4,12 +4,16 @@ INCLUDE "debug.inc"
 
 SECTION "renderer vars", WRAM0
 
+; Sub-tiles are the 2x2 "pixels" of each BG tile
+SUB_TILE_X      EQU SCRN_X_B * 2
+SUB_TILE_Y      EQU SCRN_Y_B * 1
+
 screen_x:: DS 1
 screen_y:: DS 1
 peek_x:: DS 1
 peek_y:: DS 1
 current_tile:: DS 1     ; the tile to be appended to command buffer
-render_buffer: DS SCRN_X_B * 2 * SCRN_Y_B
+render_buffer: DS SUB_TILE_X * SUB_TILE_Y
 
 peek_row_x_whole: DS 1
 peek_row_x_frac: DS 1
@@ -82,7 +86,7 @@ render_to_buffer:
 
     ld      de, render_buffer
 
-    ld      c, SCRN_Y_B         ; Outer loop on sub-tiles (4x4 pixels).
+    ld      c, SUB_TILE_Y     ; Outer loop on sub-tiles (4x4 pixels).
                                 ; Currently just render half of the screen.
     inc     c
     jp      .skip_outer
@@ -99,7 +103,7 @@ render_to_buffer:
     ld      a, [peek_y_frac]
     ld      [peek_row_y_frac], a
 
-    ld      b, SCRN_X_B * 2     ;Inner loop on sub-tiles (4x4 pixels).
+    ld      b, SUB_TILE_X       ; Inner loop on sub-tiles (4x4 pixels).
     inc     b
     jr      .skip_inner
 
@@ -268,7 +272,7 @@ render_to_command_list:
     ; bottom-left sub-tile
     ;
     push    hl
-    ld      de, SCRN_X_B * 2
+    ld      de, SUB_TILE_X
     add     hl, de
     ld      a, [hl+]
     ; set bit %00000100 if a = 1
@@ -313,7 +317,7 @@ render_to_command_list:
     jr      nz, .loop_inner
 
     push    de
-    ld      de, SCRN_X_B * 2
+    ld      de, SUB_TILE_X
     add     hl, de
     pop     de
 
