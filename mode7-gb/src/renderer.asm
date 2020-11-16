@@ -27,7 +27,6 @@ peek_x_frac: DS 1
 peek_y_whole: DS 1
 peek_y_frac: DS 1
 
-
 SECTION "renderer code", ROM0
 
 render::
@@ -87,7 +86,6 @@ render_to_buffer:
     ld      de, render_buffer
 
     ld      c, SUB_TILE_Y     ; Outer loop on sub-tiles (4x4 pixels).
-                                ; Currently just render half of the screen.
     inc     c
     jp      .skip_outer
 
