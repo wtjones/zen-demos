@@ -6,7 +6,7 @@ SECTION "renderer vars", WRAM0
 
 ; Sub-tiles are the 2x2 "pixels" of each BG tile
 SUB_TILE_X      EQU SCRN_X_B * 2
-SUB_TILE_Y      EQU SCRN_Y_B * 1
+SUB_TILE_Y      EQU SCRN_Y_B * 2
 
 screen_x:: DS 1
 screen_y:: DS 1
@@ -246,7 +246,7 @@ render_to_command_list:
     ld      hl, render_buffer
     ld      de, command_list
 
-    ld      c, SCRN_Y_B / 2     ; Currently just render half of the screen.
+    ld      c, SCRN_Y_B
     inc     c
     jp      .skip_outer
 

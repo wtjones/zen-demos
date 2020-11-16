@@ -4,9 +4,9 @@ INCLUDE "command_list.inc"
 INCLUDE "debug.inc"
 
 COMMANDS_PER_FRAME_MAX  EQU SCRN_X_B * 3
-COMMAND_LIST_MAX        EQU (SCRN_X_B * SCRN_Y_B) / 2
+COMMAND_LIST_MAX        EQU SCRN_X_B * SCRN_Y_B
 COMMAND_LIST_SIZE       EQU 1
-DEST_VRAM_START         EQU $9920 ; middle of screen
+DEST_VRAM_START         EQU _SCRN0
 TILE_OFFSET_TO_NEXT_ROW EQU $C
 
 SECTION "command list vars", WRAM0
@@ -24,9 +24,10 @@ init_command_list::
     call    mem_Set
     ret
 
-; Writes tiles in the list over two frames.
-; First frame = 4 rows
-; Second frame = 5 rows
+; Writes tiles in the list over three frames.
+; First frame = 6 rows
+; Second frame = 6 rows
+; Third frame = 6 rows
 apply_command_list::
     ld      hl, command_list
     ld      de, DEST_VRAM_START
@@ -57,7 +58,7 @@ apply_command_list::
 
    ADD_ROW_OFFSET
 
-     REPT 20
+    REPT 20
         ld      a, [hl+]
         ld      [de], a
         inc     de
@@ -65,12 +66,44 @@ apply_command_list::
 
     ADD_ROW_OFFSET
 
-    ; Wait for vblank around halfway
+    REPT 20
+        ld      a, [hl+]
+        ld      [de], a
+        inc     de
+    ENDR
+
+    ADD_ROW_OFFSET
+
+    REPT 20
+        ld      a, [hl+]
+        ld      [de], a
+        inc     de
+    ENDR
+
+    ADD_ROW_OFFSET
+
+    ; Wait for vblank
     push    hl
     call    wait_vblank
     pop     hl
 
-     REPT 20
+    REPT 20
+        ld      a, [hl+]
+        ld      [de], a
+        inc     de
+    ENDR
+
+     ADD_ROW_OFFSET
+
+    REPT 20
+        ld      a, [hl+]
+        ld      [de], a
+        inc     de
+    ENDR
+
+    ADD_ROW_OFFSET
+
+    REPT 20
         ld      a, [hl+]
         ld      [de], a
         inc     de
@@ -86,7 +119,28 @@ apply_command_list::
 
     ADD_ROW_OFFSET
 
-     REPT 20
+    REPT 20
+        ld      a, [hl+]
+        ld      [de], a
+        inc     de
+    ENDR
+
+    ADD_ROW_OFFSET
+
+    REPT 20
+        ld      a, [hl+]
+        ld      [de], a
+        inc     de
+    ENDR
+
+    ADD_ROW_OFFSET
+
+    ; Wait for vblank
+    push    hl
+    call    wait_vblank
+    pop     hl
+
+    REPT 20
         ld      a, [hl+]
         ld      [de], a
         inc     de
@@ -100,9 +154,33 @@ apply_command_list::
         inc     de
     ENDR
 
-      ADD_ROW_OFFSET
+    ADD_ROW_OFFSET
 
-     REPT 20
+    REPT 20
+        ld      a, [hl+]
+        ld      [de], a
+        inc     de
+    ENDR
+
+     ADD_ROW_OFFSET
+
+    REPT 20
+        ld      a, [hl+]
+        ld      [de], a
+        inc     de
+    ENDR
+
+    ADD_ROW_OFFSET
+
+    REPT 20
+        ld      a, [hl+]
+        ld      [de], a
+        inc     de
+    ENDR
+
+    ADD_ROW_OFFSET
+
+    REPT 20
         ld      a, [hl+]
         ld      [de], a
         inc     de
