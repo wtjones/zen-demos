@@ -1,4 +1,5 @@
 INCLUDE	"gbhw.inc"
+INCLUDE "math.inc"
 INCLUDE "memory.inc"
 INCLUDE "debug.inc"
 
@@ -54,34 +55,24 @@ render_to_buffer:
     ld      d, a
     ld      e, 0
 
-    ld      a, [rotated_x_whole]
-    ld      h, a
-    ld      a, [rotated_x_frac]
-    ld      l, a
+    ; peek_x = rotated_x + viewer_x
+    ADD_N16_N16_DE \
+        peek_x_whole, \
+        peek_x_frac, \
+        rotated_x_whole, \
+        rotated_x_frac
 
-    add     hl, de              ; hl = translated peek map y
-
-    ld      a, h
-    ld      [peek_x_whole], a
-    ld      a, l
-    ld      [peek_x_frac], a
-
-     ; Convert viewer y to fixed 8.8
+    ; Convert viewer y to fixed 8.8
     ld      a, [viewer_y]
     ld      d, a
     ld      e, 0
 
-    ld      a, [rotated_y_whole]
-    ld      h, a
-    ld      a, [rotated_y_frac]
-    ld      l, a
-
-    add     hl, de              ; hl = translated map peek x
-
-    ld      a, h
-    ld      [peek_y_whole], a
-    ld      a, l
-    ld      [peek_y_frac], a
+    ; peek_y = rotated_y + viewer_y
+    ADD_N16_N16_DE \
+        peek_y_whole, \
+        peek_y_frac, \
+        rotated_y_whole, \
+        rotated_y_frac
 
     ld      de, render_buffer
 
@@ -191,45 +182,24 @@ render_to_buffer:
 
     push de
     ; handle x
-    ld      a, [delta_y_whole]
-    cpl
-    ld      h, a
-    ld      a, [delta_y_frac]
-    cpl
-    ld      l, a
-    inc     hl    ; hl = -delta_y
-
-    ld      a, [peek_x_whole]
-    ld      d, a
-    ld      a, [peek_x_frac]
-    ld      e, a
-
-    add     hl, de  ; hl = peek_x + -delta_y
-
-    ; store result
-    ld      a, h
-    ld      [peek_x_whole], a
-    ld      a, l
-    ld      [peek_x_frac], a
+    ; peek_x = peek_x + -delta_y
+    SUB_N16_N16_N16 \
+        peek_x_whole, \
+        peek_x_frac, \
+        peek_x_whole, \
+        peek_x_frac, \
+        delta_y_whole, \
+        delta_y_frac
 
     ; handle y
-    ld      a, [delta_x_whole]
-    ld      h, a
-    ld      a, [delta_x_frac]
-    ld      l, a
-
-    ld      a, [peek_y_whole]
-    ld      d, a
-    ld      a, [peek_y_frac]
-    ld      e, a
-
-    add     hl, de  ; hl = peek_y + delta_x
-
-    ; store result
-    ld      a, h
-    ld      [peek_y_whole], a
-    ld      a, l
-    ld      [peek_y_frac], a
+    ; peek_y = peek_y + delta_x
+    ADD_N16_N16_N16 \
+        peek_y_whole, \
+        peek_y_frac, \
+        peek_y_whole, \
+        peek_y_frac, \
+        delta_x_whole, \
+        delta_x_frac
 
     pop     de
 
