@@ -24,9 +24,22 @@ int main(int argc, char* argv[])
     while (1) {
         getmaxyx(stdscr, max_y, max_x);
         erase();
-        mvaddstr(1, 0, CHECK);
-        mvaddstr(2, 0, WALL);
-        mvprintw(y, x, WALL);
+
+        y = max_y / 2;
+
+        for (int i = 0; i < max_y; i++) {
+            mvprintw(i, 0, WALL);
+            mvprintw(i, max_x - 1, WALL);
+        }
+
+        for (int i = 0; i < max_x; i += 2) {
+            mvprintw(0, i, WALL);
+            mvprintw(0, i + 1, " ");
+            mvprintw(max_y - 1, i, WALL);
+            mvprintw(max_y - 1, i + 1, " ");
+        }
+
+        mvprintw(y, x, CHECK);
         refresh();
 
         usleep(DELAY);
