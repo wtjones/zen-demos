@@ -20,12 +20,11 @@ int main(int argc, char* argv[])
     curs_set(FALSE);
 
     getmaxyx(stdscr, max_y, max_x);
+    y = max_y / 2;
 
     while (1) {
         getmaxyx(stdscr, max_y, max_x);
         erase();
-
-        y = max_y / 2;
 
         for (int i = 0; i < max_y; i++) {
             mvprintw(i, 0, WALL);
@@ -50,6 +49,21 @@ int main(int argc, char* argv[])
             direction *= -1;
         } else {
             x += direction;
+        }
+
+        nodelay(stdscr, 1);
+        keypad(stdscr, 1);
+
+        int ch = getch();
+        if (ch != ERR) {
+            switch (ch) {
+            case KEY_UP:
+                y -= 1;
+                break;
+            case KEY_DOWN:
+                y += 1;
+                break;
+            }
         }
     }
 
