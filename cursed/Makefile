@@ -5,7 +5,7 @@ LDFLAGS := $(shell pkg-config --libs $(PKGS))
 AS      := as
 ASFLAGS := -gdbb --32
 PROG    := cursed
-SRCS    = main.c draw.c game.c
+SRCS    = main.c draw.c input.c game.c
 
 .PHONY: all clean
 
