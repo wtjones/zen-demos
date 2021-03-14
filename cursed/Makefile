@@ -4,8 +4,8 @@ CFLAGS  := -Wall -O2 -std=c99 $(shell pkg-config --cflags $(PKGS))
 LDFLAGS := $(shell pkg-config --libs $(PKGS))
 AS      := as
 ASFLAGS := -gdbb --32
-PROG    := demo
-SRCS    = demo.c
+PROG    := cursed
+SRCS    = main.c draw.c game.c
 
 .PHONY: all clean
 
