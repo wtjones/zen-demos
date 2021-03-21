@@ -6,13 +6,13 @@
 #include <ncurses.h>
 #include <unistd.h>
 
-#define DELAY 30000
+#define DELAY 200000
 
 int main(int argc, char* argv[])
 {
     draw_init();
 
-    game_init(g_max_x, g_max_y);
+    game_init(g_max_x / 2, g_max_y);
 
     while (1) {
         draw();

@@ -35,6 +35,11 @@ void draw()
 {
     erase();
     draw_wall();
-    mvprintw(y, x, CHECK);
+    mvprintw(snake.nodes[0].y, snake.nodes[0].x * 2, SNAKE_HEAD);
+    mvprintw(0, 0, "Window: %d %d Snake 0: %d %d",
+        g_max_x,
+        g_max_y,
+        snake.nodes[0].x,
+        snake.nodes[0].y);
     getmaxyx(stdscr, g_max_y, g_max_x);
 }
