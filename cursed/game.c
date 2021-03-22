@@ -1,17 +1,43 @@
 #include "game.h"
+#include <stdlib.h>
 
 int world_max_x, world_max_y;
 int game_keys[4];
-struct Snake snake;
+struct Snake snakes[MAX_SNAKES];
+int num_snakes;
 
 void game_init(int max_x, int max_y)
 {
     world_max_x = max_x;
     world_max_y = max_y;
-    snake.direction = Down;
-    snake.nodes[0].y = max_y / 2;
-    snake.nodes[0].x = world_max_x / 2;
-    snake.num_nodes = 1;
+
+    num_snakes = max_x / 5;
+
+    for (size_t i = 0; i < num_snakes; i++) {
+        struct Snake* snake = &snakes[i];
+        snake->head = &snake->nodes[0];
+        snake->direction = rand() % 4;
+        snake->head->x = rand() % world_max_y;
+        snake->head->y = rand() % world_max_x;
+        snake->num_nodes = 1;
+    }
+}
+
+Direction get_random_turn(Direction direction)
+{
+    int turn = rand() % 2;
+    if (direction == Up) {
+        return turn == 0 ? Left : Right;
+    }
+    if (direction == Down) {
+        return turn == 0 ? Left : Right;
+    }
+    if (direction == Left) {
+        return turn == 0 ? Up : Down;
+    }
+    if (direction == Right) {
+        return turn == 0 ? Up : Down;
+    }
 }
 
 void game_update(int max_x, int max_y)
@@ -19,23 +45,37 @@ void game_update(int max_x, int max_y)
     world_max_x = max_x;
     world_max_y = max_y;
 
-    if (game_keys[GAME_KEY_UP] == 1) {
-        snake.direction = Up;
-    }
-    if (game_keys[GAME_KEY_DOWN] == 1) {
-        snake.direction = Down;
-    }
-    if (game_keys[GAME_KEY_LEFT] == 1) {
-        snake.direction = Left;
-    }
-    if (game_keys[GAME_KEY_RIGHT] == 1) {
-        snake.direction = Right;
-    }
+    for (size_t i = 0; i < num_snakes; i++) {
+        Snake* snake = &snakes[i];
+        Direction next_direction = snake->direction;
 
-    SnakeNode* head = snake.nodes;
+        int avoidance_distance = (rand() % (world_max_x / 4)) + 2;
+        if (snake->direction == Up && snake->head->y < avoidance_distance) {
+            next_direction = get_random_turn(snake->direction);
+        }
 
-    head->y -= snake.direction == Up ? 1 : 0;
-    head->y += snake.direction == Down ? 1 : 0;
-    head->x -= snake.direction == Left ? 1 : 0;
-    head->x += snake.direction == Right ? 1 : 0;
+        if (snake->direction == Down && snake->head->y > world_max_y - avoidance_distance) {
+            next_direction = get_random_turn(snake->direction);
+        }
+
+        if (snake->direction == Left && snake->head->x < avoidance_distance) {
+            next_direction = get_random_turn(snake->direction);
+        }
+
+        if (snake->direction == Right && snake->head->x > world_max_x - avoidance_distance) {
+            next_direction = get_random_turn(snake->direction);
+        }
+
+        // if we haven't turned, maybe turn anyway
+        if (snake->direction == next_direction && rand() % 20 == 1) {
+            next_direction = get_random_turn(snake->direction);
+        }
+
+        snake->direction = next_direction;
+
+        snake->head->y -= snake->direction == Up ? 1 : 0;
+        snake->head->y += snake->direction == Down ? 1 : 0;
+        snake->head->x -= snake->direction == Left ? 1 : 0;
+        snake->head->x += snake->direction == Right ? 1 : 0;
+    }
 }

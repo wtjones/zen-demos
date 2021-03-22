@@ -9,31 +9,34 @@
 #define GAME_KEY_RIGHT 3
 #define GAME_MAX_KEYS 4
 #define MAX_SNAKE_NODES 50
+#define MAX_SNAKES 50
 
-enum Direction {
+typedef enum Direction {
     Up,
     Down,
     Left,
     Right
-};
+} Direction;
 
 typedef struct SnakeNode {
     int x;
     int y;
 } SnakeNode;
 
-struct Snake {
+typedef struct Snake {
     SnakeNode nodes[MAX_SNAKE_NODES];
+    SnakeNode* head;
     int num_nodes;
     enum Direction direction;
-};
+} Snake;
 
 extern int x, y;
 extern int next_x;
 extern int direction;
 extern int world_max_x, world_max_y;
 extern int game_keys[GAME_MAX_KEYS];
-extern struct Snake snake;
+extern struct Snake snakes[MAX_SNAKES];
+extern int num_snakes;
 
 extern void game_init(int, int);
 void game_update(int max_x, int max_y);
