@@ -24,15 +24,16 @@ int main(int argc, char* argv[])
 
     game_init(g_max_x / 2, g_max_y);
 
-    while (1) {
+    bool should_exit = false;
+    while (!should_exit) {
         draw();
         refresh();
 
         usleep(DELAY);
 
         input_update();
-        game_update(g_max_x, g_max_y);
+        should_exit = game_update(g_max_x, g_max_y);
     }
 
-    endwin();
+    draw_cleanup();
 }

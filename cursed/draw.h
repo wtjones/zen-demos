@@ -8,9 +8,8 @@
 extern int g_max_y, g_max_x;
 
 void draw_init();
-
+void draw_cleanup();
 void draw_wall();
-
 void draw();
 
 #endif

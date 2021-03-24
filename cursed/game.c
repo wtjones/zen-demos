@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 int world_max_x, world_max_y;
-int game_keys[4];
+int game_keys[GAME_MAX_KEYS];
 struct Snake snakes[MAX_SNAKES];
 int num_snakes;
 
@@ -32,8 +32,11 @@ Direction get_random_turn(Direction direction)
                           : Down;
 }
 
-void game_update(int max_x, int max_y)
+bool game_update(int max_x, int max_y)
 {
+    if (game_keys[GAME_KEY_Q] == true) {
+        return true;
+    }
     world_max_x = max_x;
     world_max_y = max_y;
 
@@ -70,4 +73,5 @@ void game_update(int max_x, int max_y)
         snake->head->x -= snake->direction == Left ? 1 : 0;
         snake->head->x += snake->direction == Right ? 1 : 0;
     }
+    return false;
 }

@@ -7,7 +7,8 @@
 #define GAME_KEY_DOWN 1
 #define GAME_KEY_LEFT 2
 #define GAME_KEY_RIGHT 3
-#define GAME_MAX_KEYS 4
+#define GAME_KEY_Q 4
+#define GAME_MAX_KEYS 5
 #define MAX_SNAKE_NODES 50
 #define MAX_SNAKES 50
 
@@ -39,6 +40,6 @@ extern struct Snake snakes[MAX_SNAKES];
 extern int num_snakes;
 
 extern void game_init(int, int);
-void game_update(int max_x, int max_y);
+bool game_update(int max_x, int max_y);
 
 #endif

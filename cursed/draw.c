@@ -5,15 +5,22 @@
 #include <ncurses.h>
 #include <unistd.h>
 
+WINDOW* mainwin;
 int g_max_y = 0, g_max_x = 0;
 
 void draw_init()
 {
     setlocale(LC_ALL, "");
-    initscr();
+    mainwin = initscr();
     noecho();
     curs_set(FALSE);
     getmaxyx(stdscr, g_max_y, g_max_x);
+}
+
+void draw_cleanup()
+{
+    delwin(mainwin);
+    endwin();
 }
 
 void draw_wall()
