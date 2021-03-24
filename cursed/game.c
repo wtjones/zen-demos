@@ -25,19 +25,11 @@ void game_init(int max_x, int max_y)
 
 Direction get_random_turn(Direction direction)
 {
-    int turn = rand() % 2;
-    if (direction == Up) {
-        return turn == 0 ? Left : Right;
-    }
-    if (direction == Down) {
-        return turn == 0 ? Left : Right;
-    }
-    if (direction == Left) {
-        return turn == 0 ? Up : Down;
-    }
-    if (direction == Right) {
-        return turn == 0 ? Up : Down;
-    }
+    return (direction == Up || direction == Down)
+        ? rand() % 2 == 0 ? Left
+                          : Right
+        : rand() % 2 == 0 ? Up
+                          : Down;
 }
 
 void game_update(int max_x, int max_y)
