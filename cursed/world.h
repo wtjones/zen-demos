@@ -26,8 +26,6 @@ typedef struct WorldNode {
 
 extern int world_max_x,
     world_max_y;
-//extern WorldNode* world_nodes;
-extern WorldNode world_nodes[WORLD_MAX_X][WORLD_MAX_Y];
 
 void world_init(int max_x, int max_y);
 WorldNode* get_world_node(int x, int y);
