@@ -25,16 +25,9 @@ void draw_cleanup()
 
 void draw_wall()
 {
-    for (int i = 0; i < g_max_y; i++) {
-        mvprintw(i, 0, WALL);
-        mvprintw(i, g_max_x - 1, WALL);
-    }
-
-    for (int i = 0; i < g_max_x; i += 2) {
-        mvprintw(0, i, WALL);
-        mvprintw(0, i + 1, " ");
-        mvprintw(g_max_y - 1, i, WALL);
-        mvprintw(g_max_y - 1, i + 1, " ");
+    for (size_t i = 0; i < num_walls; i++) {
+        struct Wall* wall = &walls[i];
+        mvprintw(wall->world_entity.y, wall->world_entity.x * 2, WALL);
     }
 }
 

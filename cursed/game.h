@@ -1,6 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include "world.h"
 #include <stdbool.h>
 
 #define GAME_KEY_UP 0
@@ -9,37 +10,37 @@
 #define GAME_KEY_RIGHT 3
 #define GAME_KEY_Q 4
 #define GAME_MAX_KEYS 5
-#define MAX_SNAKE_NODES 50
-#define MAX_SNAKES 50
+#define MAX_SNAKE_NODES 1
+#define MAX_SNAKES 8
+#define MAX_WALLS 300 * 200 // redefined because clang-format issue
 
 typedef enum Direction {
-    Up,
-    Down,
-    Left,
-    Right
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
 } Direction;
 
-typedef struct SnakeNode {
-    int x;
-    int y;
-} SnakeNode;
+typedef struct Wall {
+    WorldEntity world_entity;
+} Wall;
 
 typedef struct Snake {
-    SnakeNode nodes[MAX_SNAKE_NODES];
-    SnakeNode* head;
+    WorldEntity nodes[MAX_SNAKE_NODES];
+    WorldEntity* head;
     int num_nodes;
     enum Direction direction;
 } Snake;
 
-extern int x, y;
-extern int next_x;
-extern int direction;
-extern int world_max_x, world_max_y;
 extern int game_keys[GAME_MAX_KEYS];
-extern struct Snake snakes[MAX_SNAKES];
+extern Snake snakes[MAX_SNAKES];
+extern Wall walls[MAX_WALLS];
 extern int num_snakes;
+extern int num_walls;
 
 extern void game_init(int, int);
+void add_walls();
+void wall_init();
 bool game_update(int max_x, int max_y);
 
 #endif

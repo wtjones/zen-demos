@@ -16,6 +16,7 @@ int main(int argc, char* argv[])
         char* end;
         const long seed = strtol(argv[1], &end, 10);
         srand(seed);
+        srand(1);
     } else {
         time_t t;
         srand((unsigned)time(&t));
@@ -32,7 +33,7 @@ int main(int argc, char* argv[])
         usleep(DELAY);
 
         input_update();
-        should_exit = game_update(g_max_x, g_max_y);
+        should_exit = game_update(g_max_x / 2, g_max_y);
     }
 
     draw_cleanup();
