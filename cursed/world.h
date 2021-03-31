@@ -28,6 +28,7 @@ extern int world_max_x,
     world_max_y;
 
 void world_init(int max_x, int max_y);
+void world_cleanup();
 WorldNode* get_world_node(int x, int y);
 void move_to(int x, int y, WorldEntity* entity);
 #endif

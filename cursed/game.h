@@ -38,7 +38,8 @@ extern Wall walls[MAX_WALLS];
 extern int num_snakes;
 extern int num_walls;
 
-extern void game_init(int, int);
+void game_init(int, int);
+void game_cleanup();
 void add_walls();
 void wall_init();
 bool game_update(int max_x, int max_y);

@@ -28,7 +28,10 @@ void game_init(int max_x, int max_y)
         snake->num_nodes = 1;
     }
 }
-
+void game_cleanup()
+{
+    world_cleanup();
+}
 void add_walls()
 {
     Wall* wall;

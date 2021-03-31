@@ -21,6 +21,11 @@ void world_init(int max_x, int max_y)
     }
 }
 
+void world_cleanup()
+{
+    free(world_nodes);
+}
+
 WorldNode* get_world_node(int x, int y)
 {
     return &world_nodes[y * world_max_x + x];

@@ -35,6 +35,6 @@ int main(int argc, char* argv[])
         input_update();
         should_exit = game_update(g_max_x / 2, g_max_y);
     }
-
+    game_cleanup();
     draw_cleanup();
 }
