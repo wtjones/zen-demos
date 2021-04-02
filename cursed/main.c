@@ -11,8 +11,6 @@
 
 #define DELAY 200000
 
-static volatile sig_atomic_t signal_exit = false;
-
 void sigsegv_handler(int _)
 {
     draw_cleanup();
@@ -22,7 +20,7 @@ void sigint_handler(int _)
 {
     printf("sigint");
     draw_cleanup();
-    signal_exit = true;
+    exit(0);
 }
 
 int main(int argc, char* argv[])
@@ -43,7 +41,7 @@ int main(int argc, char* argv[])
 
     game_init(g_max_x / 2, g_max_y);
     bool should_exit = false;
-    while (!should_exit && !signal_exit) {
+    while (!should_exit) {
         draw();
         refresh();
 
