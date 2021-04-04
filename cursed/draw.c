@@ -15,6 +15,7 @@ void draw_init()
     noecho();
     curs_set(FALSE);
     getmaxyx(stdscr, g_max_y, g_max_x);
+    log_info("Init of ncurses with x = %d y = %d", g_max_x, g_max_y);
 }
 
 void draw_cleanup()

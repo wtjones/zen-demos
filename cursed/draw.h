@@ -1,6 +1,8 @@
 #ifndef DRAW_H
 #define DRAW_H
 
+#include "util.h"
+
 #define CHECK "\xe2\x9c\x93"
 #define WALL "\u25A3"
 #define SNAKE_HEAD "@"

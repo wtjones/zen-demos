@@ -2,6 +2,7 @@
 #include "draw.h"
 #include "game.h"
 #include "input.h"
+#include "util.h"
 #include <locale.h>
 #include <ncurses.h>
 #include <signal.h>
@@ -13,12 +14,14 @@
 
 void sigsegv_handler(int _)
 {
+    log_info("sigsegv handled");
     draw_cleanup();
 }
 
 void sigint_handler(int _)
 {
     printf("sigint");
+    log_info("sigint handled");
     draw_cleanup();
     exit(0);
 }
@@ -27,6 +30,10 @@ int main(int argc, char* argv[])
 {
     sigset(SIGSEGV, sigsegv_handler);
     sigset(SIGINT, sigint_handler);
+
+    FILE* log_file = fopen(LOG_PATH, "w");
+    log_add_fp(log_file, 0);
+    log_set_quiet(true);
 
     if (argc == 2) {
         char* end;
@@ -52,4 +59,5 @@ int main(int argc, char* argv[])
     }
     game_cleanup();
     draw_cleanup();
+    printf("Log file saved to %s\n", LOG_PATH);
 }
