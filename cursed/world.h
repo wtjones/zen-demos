@@ -10,7 +10,7 @@ typedef enum GameEntityType {
     NO_ENTITY,
     WALL_ENTITY,
     SNAKE_ENTITY,
-    FOOD_ENTITY
+    PELLET_ENTITY
 } GameEntityType;
 
 typedef struct WorldEntity {

@@ -10,9 +10,11 @@
 #define GAME_KEY_RIGHT 3
 #define GAME_KEY_Q 4
 #define GAME_MAX_KEYS 5
-#define MAX_SNAKE_NODES 1
+#define MAX_SNAKE_NODES 10
 #define MAX_SNAKES 8
 #define MAX_WALLS 300 * 200 // redefined because clang-format issue
+#define MAX_PELLETS 50
+#define PELLET_RATE 3
 
 typedef enum Direction {
     UP,
@@ -25,18 +27,25 @@ typedef struct Wall {
     WorldEntity world_entity;
 } Wall;
 
+typedef struct Pellet {
+    WorldEntity world_entity;
+} Pellet;
+
 typedef struct Snake {
     WorldEntity nodes[MAX_SNAKE_NODES];
     WorldEntity* head;
     int num_nodes;
+    int num_pellets;
     enum Direction direction;
 } Snake;
 
 extern int game_keys[GAME_MAX_KEYS];
 extern Snake snakes[MAX_SNAKES];
 extern Wall walls[MAX_WALLS];
+extern Pellet pellets[MAX_PELLETS];
 extern int num_snakes;
 extern int num_walls;
+extern int num_pellets;
 
 void game_init(int, int);
 void game_cleanup();

@@ -5,8 +5,11 @@
 int game_keys[GAME_MAX_KEYS];
 Snake snakes[MAX_SNAKES];
 Wall walls[MAX_WALLS];
+Pellet pellets[MAX_PELLETS];
 int num_snakes = 0;
 int num_walls = 0;
+int num_pellets = 0;
+int game_iteration = 0;
 
 void game_init(int max_x, int max_y)
 {
@@ -69,15 +72,23 @@ Direction get_random_turn(Direction direction)
                           : DOWN;
 }
 
-bool game_update(int max_x, int max_y)
+void add_pellets()
 {
-    // TODO: support resize
-    assert(world_max_x == max_x & world_max_y == max_y);
+    if (game_iteration % PELLET_RATE == 0 && num_pellets < MAX_PELLETS) {
+        int x = rand() % world_max_x;
+        int y = rand() % world_max_y;
+        if (get_world_node(x, y)->world_entity == NULL) {
+            Pellet* pellet = &pellets[num_pellets++];
+            pellet->world_entity.owner_type = PELLET_ENTITY;
+            pellet->world_entity.owner = pellet;
 
-    if (game_keys[GAME_KEY_Q] == true) {
-        return true;
+            move_to(x, y, &pellet->world_entity);
+        }
     }
+}
 
+void snake_update()
+{
     for (size_t i = 0; i < num_snakes; i++) {
         Snake* snake = &snakes[i];
         Direction next_direction = snake->direction;
@@ -106,8 +117,8 @@ bool game_update(int max_x, int max_y)
 
         snake->direction = next_direction;
 
-        int new_x = snake->head->x;
-        int new_y = snake->head->y;
+        int current_x, new_x = current_x = snake->head->x;
+        int current_y, new_y = current_y = snake->head->y;
 
         new_y -= snake->direction == UP ? 1 : 0;
         new_y += snake->direction == DOWN ? 1 : 0;
@@ -115,8 +126,58 @@ bool game_update(int max_x, int max_y)
         new_x += snake->direction == RIGHT ? 1 : 0;
 
         if (new_x > 1 && new_x < world_max_x - 1 && new_y > 1 && new_y < world_max_y - 1) {
-            move_to(new_x, new_y, snake->head);
+
+            // are we moving into a pellet?
+            WorldNode* target_node = get_world_node(new_x, new_y);
+            bool eating = target_node->world_entity != NULL
+                && target_node->world_entity->owner_type == PELLET_ENTITY;
+
+            if (eating) {
+                // flag the pellet as 'gone' by clearing the owner
+                target_node->world_entity->owner = NULL;
+            }
+            int new_node_x = new_x;
+            int new_node_y = new_y;
+            int last_node_x, last_node_y;
+            for (size_t j = 0; j < snake->num_nodes; j++) {
+                assert(j < 100);
+                WorldEntity* node = &snake->nodes[j];
+                last_node_x = node->x;
+                last_node_y = node->y;
+
+                move_to(new_node_x, new_node_y, node);
+                new_node_x = last_node_x;
+                new_node_y = last_node_y;
+            }
+
+            // if we have a pellet, consume to add a tail node
+            if (snake->num_pellets > 0 && snake->num_nodes < MAX_SNAKE_NODES) {
+                WorldEntity* node = &snake->nodes[++snake->num_nodes];
+                node->owner_type = SNAKE_ENTITY;
+                node->owner = snake;
+                move_to(current_x, current_y, node);
+                snake->num_pellets--;
+            }
+
+            if (eating) {
+                snake->num_pellets++;
+            }
         }
     }
+}
+
+bool game_update(int max_x, int max_y)
+{
+    // TODO: support resize
+    assert(world_max_x == max_x & world_max_y == max_y);
+
+    if (game_keys[GAME_KEY_Q] == true) {
+        return true;
+    }
+
+    add_pellets();
+    snake_update();
+
+    game_iteration++;
     return false;
 }

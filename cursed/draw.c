@@ -35,7 +35,12 @@ void draw_snakes()
 {
     for (size_t i = 0; i < num_snakes; i++) {
         struct Snake* snake = &snakes[i];
-        mvprintw(snake->nodes[0].y, snake->nodes[0].x * 2, SNAKE_HEAD);
+        for (size_t j = 0; j < snake->num_nodes; j++) {
+            mvprintw(
+                snake->nodes[j].y,
+                snake->nodes[j].x * 2,
+                j == 0 ? SNAKE_HEAD : SNAKE_BODY);
+        }
         mvprintw(0, 0, "Window: %d %d Snake 0: %d %d",
             g_max_x,
             g_max_y,
@@ -44,11 +49,22 @@ void draw_snakes()
     }
 }
 
+void draw_pellets()
+{
+    for (size_t i = 0; i < num_pellets; i++) {
+        struct Pellet* pellet = &pellets[i];
+        if (pellet->world_entity.owner != NULL) {
+            mvprintw(pellet->world_entity.y, pellet->world_entity.x * 2, PELLET);
+        }
+    }
+}
+
 void draw()
 {
     erase();
     draw_wall();
     draw_snakes();
+    draw_pellets();
 
     getmaxyx(stdscr, g_max_y, g_max_x);
 }
