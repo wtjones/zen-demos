@@ -1,6 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include "util.h"
 #include "world.h"
 #include <stdbool.h>
 
@@ -15,6 +16,7 @@
 #define MAX_WALLS 300 * 200 // redefined because clang-format issue
 #define MAX_PELLETS 50
 #define PELLET_RATE 3
+#define PELLET_DECAY 60
 
 typedef enum Direction {
     UP,

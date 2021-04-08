@@ -16,6 +16,7 @@ void sigsegv_handler(int _)
 {
     log_info("sigsegv handled");
     draw_cleanup();
+    exit(0);
 }
 
 void sigint_handler(int _)

@@ -38,3 +38,17 @@ void move_to(int x, int y, WorldEntity* entity)
     entity->y = y;
     node->world_entity = entity;
 }
+
+bool entity_exists(WorldEntity* entity)
+{
+    return entity != NULL && entity->owner_type != NO_ENTITY;
+}
+
+void clear_entity(WorldEntity* entity)
+{
+    entity->created_at = 0;
+    entity->owner = NULL;
+    entity->owner_type = NO_ENTITY;
+    entity->x = -1;
+    entity->y = -1;
+}

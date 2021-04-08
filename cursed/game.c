@@ -75,14 +75,40 @@ Direction get_random_turn(Direction direction)
 void add_pellets()
 {
     if (game_iteration % PELLET_RATE == 0 && num_pellets < MAX_PELLETS) {
+        int found_index = -1;
+        // find a free entry
+        for (size_t i = 0; i < MAX_PELLETS; i++) {
+            found_index = entity_exists(&pellets[i].world_entity) ? -1 : i;
+            if (found_index >= 0) {
+                break;
+            }
+        }
+
         int x = rand() % world_max_x;
         int y = rand() % world_max_y;
-        if (get_world_node(x, y)->world_entity == NULL) {
-            Pellet* pellet = &pellets[num_pellets++];
+        bool node_empty = !entity_exists(get_world_node(x, y)->world_entity);
+        if (found_index >= 0 && node_empty) {
+            Pellet* pellet = &pellets[found_index];
+            num_pellets++;
             pellet->world_entity.owner_type = PELLET_ENTITY;
             pellet->world_entity.owner = pellet;
+            pellet->world_entity.created_at = game_iteration;
 
             move_to(x, y, &pellet->world_entity);
+            log_trace("Pellet added. num_pellets: %d", num_pellets);
+        }
+    }
+}
+
+void pellet_update()
+{
+    for (size_t i = 0; i < MAX_PELLETS; i++) {
+        if (entity_exists(&pellets[i].world_entity)) {
+            Pellet* pellet = &pellets[i];
+
+            if (game_iteration - pellet->world_entity.created_at > PELLET_DECAY) {
+                clear_entity(&pellet->world_entity);
+            }
         }
     }
 }
@@ -92,7 +118,6 @@ void snake_update()
     for (size_t i = 0; i < num_snakes; i++) {
         Snake* snake = &snakes[i];
         Direction next_direction = snake->direction;
-
         int avoidance_distance = (rand() % (world_max_x / 4)) + 2;
         if (snake->direction == UP && snake->head->y < avoidance_distance) {
             next_direction = get_random_turn(snake->direction);
@@ -126,25 +151,27 @@ void snake_update()
         new_x += snake->direction == RIGHT ? 1 : 0;
 
         if (new_x > 1 && new_x < world_max_x - 1 && new_y > 1 && new_y < world_max_y - 1) {
-
             // are we moving into a pellet?
             WorldNode* target_node = get_world_node(new_x, new_y);
-            bool eating = target_node->world_entity != NULL
+            bool eating = entity_exists(target_node->world_entity)
                 && target_node->world_entity->owner_type == PELLET_ENTITY;
 
+            //eating = false;
             if (eating) {
-                // flag the pellet as 'gone' by clearing the owner
-                target_node->world_entity->owner = NULL;
+                log_trace("Removing pellet at x: %d, y: %d", new_x, new_y);
+                clear_entity(target_node->world_entity);
+                log_trace("Removed pellet at x: %d, y: %d", new_x, new_y);
+                num_pellets--;
             }
             int new_node_x = new_x;
             int new_node_y = new_y;
             int last_node_x, last_node_y;
+
             for (size_t j = 0; j < snake->num_nodes; j++) {
                 assert(j < 100);
                 WorldEntity* node = &snake->nodes[j];
                 last_node_x = node->x;
                 last_node_y = node->y;
-
                 move_to(new_node_x, new_node_y, node);
                 new_node_x = last_node_x;
                 new_node_y = last_node_y;
@@ -152,13 +179,13 @@ void snake_update()
 
             // if we have a pellet, consume to add a tail node
             if (snake->num_pellets > 0 && snake->num_nodes < MAX_SNAKE_NODES) {
-                WorldEntity* node = &snake->nodes[++snake->num_nodes];
+                WorldEntity* node = &snake->nodes[snake->num_nodes++];
+                clear_entity(node);
                 node->owner_type = SNAKE_ENTITY;
                 node->owner = snake;
                 move_to(current_x, current_y, node);
                 snake->num_pellets--;
             }
-
             if (eating) {
                 snake->num_pellets++;
             }
@@ -176,6 +203,7 @@ bool game_update(int max_x, int max_y)
     }
 
     add_pellets();
+    pellet_update();
     snake_update();
 
     game_iteration++;

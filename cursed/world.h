@@ -18,6 +18,7 @@ typedef struct WorldEntity {
     void* owner;
     int x;
     int y;
+    int created_at;
 } WorldEntity;
 
 typedef struct WorldNode {
@@ -31,4 +32,6 @@ void world_init(int max_x, int max_y);
 void world_cleanup();
 WorldNode* get_world_node(int x, int y);
 void move_to(int x, int y, WorldEntity* entity);
+bool entity_exists(WorldEntity* entity);
+void clear_entity(WorldEntity* entity);
 #endif
