@@ -39,8 +39,8 @@ int main(int argc, char* argv[])
     if (argc == 2) {
         char* end;
         const long seed = strtol(argv[1], &end, 10);
+        log_info("Using %d as random seed.", seed);
         srand(seed);
-        srand(1);
     } else {
         time_t t;
         srand((unsigned)time(&t));
