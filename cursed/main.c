@@ -1,3 +1,4 @@
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #define _X_OPEN_SOURCE_EXTENDED
 #include "draw.h"
 #include "game.h"

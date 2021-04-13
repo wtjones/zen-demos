@@ -226,7 +226,7 @@ void snake_update(Snake* snake)
 bool game_update(int max_x, int max_y)
 {
     // TODO: support resize
-    assert(world_max_x == max_x & world_max_y == max_y);
+    assert(world_max_x == max_x && world_max_y == max_y);
 
     if (game_keys[GAME_KEY_Q] == true) {
         return true;
