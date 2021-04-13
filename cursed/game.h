@@ -54,5 +54,7 @@ void game_cleanup();
 void add_walls();
 void wall_init();
 bool game_update(int max_x, int max_y);
+void snake_update(Snake* snake);
+void snakes_update();
 
 #endif

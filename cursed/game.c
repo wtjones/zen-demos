@@ -17,6 +17,8 @@ void game_init(int max_x, int max_y)
     add_walls();
 
     num_snakes = max_x / 5;
+    num_snakes = num_snakes <= MAX_SNAKES ? num_snakes : MAX_SNAKES;
+    log_info("Spawning in %d snakes", num_snakes);
     for (size_t i = 0; i < num_snakes; i++) {
         Snake* snake = &snakes[i];
         snake->head = &snake->nodes[0];
@@ -29,6 +31,7 @@ void game_init(int max_x, int max_y)
             (rand() % (world_max_y - 2)) + 1,
             snake->head);
         snake->num_nodes = 1;
+        snake->num_pellets = 0;
     }
 }
 void game_cleanup()
@@ -113,50 +116,77 @@ void pellet_update()
     }
 }
 
-void snake_update()
+void snakes_update()
 {
-    for (size_t i = 0; i < num_snakes; i++) {
+    for (size_t i = 0; i < MAX_SNAKES; i++) {
         Snake* snake = &snakes[i];
-        Direction next_direction = snake->direction;
-        int avoidance_distance = (rand() % (world_max_x / 4)) + 2;
-        if (snake->direction == UP && snake->head->y < avoidance_distance) {
-            next_direction = get_random_turn(snake->direction);
+        if (entity_exists(snake->head)) {
+            snake_update(snake);
         }
+    }
+}
 
-        if (snake->direction == DOWN && snake->head->y > world_max_y - avoidance_distance) {
-            next_direction = get_random_turn(snake->direction);
-        }
+void snake_update(Snake* snake)
+{
+    Direction next_direction = snake->direction;
+    int avoidance_distance = (rand() % (world_max_x / 4)) + 2;
+    if (snake->direction == UP && snake->head->y < avoidance_distance) {
+        next_direction = get_random_turn(snake->direction);
+    }
 
-        if (snake->direction == LEFT && snake->head->x < avoidance_distance) {
-            next_direction = get_random_turn(snake->direction);
-        }
+    if (snake->direction == DOWN && snake->head->y > world_max_y - avoidance_distance) {
+        next_direction = get_random_turn(snake->direction);
+    }
 
-        if (snake->direction == RIGHT && snake->head->x > world_max_x - avoidance_distance) {
-            next_direction = get_random_turn(snake->direction);
-        }
+    if (snake->direction == LEFT && snake->head->x < avoidance_distance) {
+        next_direction = get_random_turn(snake->direction);
+    }
 
-        // if we haven't turned, maybe turn anyway
-        if (snake->direction == next_direction && rand() % 20 == 1) {
-            next_direction = get_random_turn(snake->direction);
-        }
+    if (snake->direction == RIGHT && snake->head->x > world_max_x - avoidance_distance) {
+        next_direction = get_random_turn(snake->direction);
+    }
 
-        snake->direction = next_direction;
+    // if we haven't turned, maybe turn anyway
+    if (snake->direction == next_direction && rand() % 20 == 1) {
+        next_direction = get_random_turn(snake->direction);
+    }
 
-        int current_x, new_x = current_x = snake->head->x;
-        int current_y, new_y = current_y = snake->head->y;
+    snake->direction = next_direction;
 
-        new_y -= snake->direction == UP ? 1 : 0;
-        new_y += snake->direction == DOWN ? 1 : 0;
-        new_x -= snake->direction == LEFT ? 1 : 0;
-        new_x += snake->direction == RIGHT ? 1 : 0;
+    int current_x, new_x = current_x = snake->head->x;
+    int current_y, new_y = current_y = snake->head->y;
 
-        if (new_x > 1 && new_x < world_max_x - 1 && new_y > 1 && new_y < world_max_y - 1) {
+    new_y -= snake->direction == UP ? 1 : 0;
+    new_y += snake->direction == DOWN ? 1 : 0;
+    new_x -= snake->direction == LEFT ? 1 : 0;
+    new_x += snake->direction == RIGHT ? 1 : 0;
+
+    bool in_bounds = new_x > 1 && new_x < world_max_x - 1 && new_y > 1 && new_y < world_max_y - 1;
+    if (in_bounds) {
+        WorldNode* target_node = get_world_node(new_x, new_y);
+
+        // are we crashing into a snake?
+
+        bool crashing = entity_type_exists(
+            target_node->world_entity, SNAKE_ENTITY);
+
+        if (crashing) {
+            log_trace(
+                "Collision: cur %d %d new %d %d",
+                current_x, current_y, new_x, new_y);
+            for (size_t j = 0; j < snake->num_nodes; j++) {
+                WorldEntity* node = &snake->nodes[j];
+                clear_entity(node);
+            }
+            snake->num_nodes = 0;
+            snake->head = NULL;
+        } else {
+
             // are we moving into a pellet?
-            WorldNode* target_node = get_world_node(new_x, new_y);
-            bool eating = entity_exists(target_node->world_entity)
-                && target_node->world_entity->owner_type == PELLET_ENTITY;
+            bool eating
+                = entity_type_exists(
+                    target_node->world_entity, PELLET_ENTITY);
 
-            //eating = false;
             if (eating) {
                 log_trace("Removing pellet at x: %d, y: %d", new_x, new_y);
                 clear_entity(target_node->world_entity);
@@ -204,7 +234,7 @@ bool game_update(int max_x, int max_y)
 
     add_pellets();
     pellet_update();
-    snake_update();
+    snakes_update();
 
     game_iteration++;
     return false;

@@ -34,19 +34,21 @@ void draw_wall()
 
 void draw_snakes()
 {
-    for (size_t i = 0; i < num_snakes; i++) {
+    for (size_t i = 0; i < MAX_SNAKES; i++) {
         struct Snake* snake = &snakes[i];
-        for (size_t j = 0; j < snake->num_nodes; j++) {
-            mvprintw(
-                snake->nodes[j].y,
-                snake->nodes[j].x * 2,
-                j == 0 ? SNAKE_HEAD : SNAKE_BODY);
+        if (entity_exists(snake->head)) {
+            for (size_t j = 0; j < snake->num_nodes; j++) {
+                mvprintw(
+                    snake->nodes[j].y,
+                    snake->nodes[j].x * 2,
+                    j == 0 ? SNAKE_HEAD : SNAKE_BODY);
+            }
+            mvprintw(0, 0, "Window: %d %d Snake 0: %d %d",
+                g_max_x,
+                g_max_y,
+                snake->nodes[0].x,
+                snake->nodes[0].y);
         }
-        mvprintw(0, 0, "Window: %d %d Snake 0: %d %d",
-            g_max_x,
-            g_max_y,
-            snake->nodes[0].x,
-            snake->nodes[0].y);
     }
 }
 

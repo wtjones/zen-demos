@@ -33,5 +33,6 @@ void world_cleanup();
 WorldNode* get_world_node(int x, int y);
 void move_to(int x, int y, WorldEntity* entity);
 bool entity_exists(WorldEntity* entity);
+bool entity_type_exists(WorldEntity* entity, GameEntityType type);
 void clear_entity(WorldEntity* entity);
 #endif

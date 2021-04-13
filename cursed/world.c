@@ -32,8 +32,9 @@ WorldNode* get_world_node(int x, int y)
 }
 void move_to(int x, int y, WorldEntity* entity)
 {
-    WorldNode* node = get_world_node(x, y);
+    WorldNode* node = get_world_node(entity->x, entity->y);
     node->world_entity = NULL;
+    node = get_world_node(x, y);
     entity->x = x;
     entity->y = y;
     node->world_entity = entity;
@@ -42,6 +43,11 @@ void move_to(int x, int y, WorldEntity* entity)
 bool entity_exists(WorldEntity* entity)
 {
     return entity != NULL && entity->owner_type != NO_ENTITY;
+}
+
+bool entity_type_exists(WorldEntity* entity, GameEntityType type)
+{
+    return entity_exists(entity) && entity->owner_type == type;
 }
 
 void clear_entity(WorldEntity* entity)
