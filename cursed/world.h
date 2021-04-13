@@ -31,6 +31,7 @@ extern int world_max_x,
 void world_init(int max_x, int max_y);
 void world_cleanup();
 WorldNode* get_world_node(int x, int y);
+void spawn_at(int x, int y, WorldEntity* entity);
 void move_to(int x, int y, WorldEntity* entity);
 bool entity_exists(WorldEntity* entity);
 bool entity_type_exists(WorldEntity* entity, GameEntityType type);

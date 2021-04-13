@@ -30,14 +30,29 @@ WorldNode* get_world_node(int x, int y)
 {
     return &world_nodes[y * world_max_x + x];
 }
-void move_to(int x, int y, WorldEntity* entity)
+
+/**
+ * Set a new entity in the world
+ *
+ */
+void spawn_at(int x, int y, WorldEntity* entity)
 {
-    WorldNode* node = get_world_node(entity->x, entity->y);
-    node->world_entity = NULL;
-    node = get_world_node(x, y);
+    WorldNode* node = get_world_node(x, y);
     entity->x = x;
     entity->y = y;
     node->world_entity = entity;
+}
+
+/**
+ * Move an existing entity
+ *
+ */
+void move_to(int x, int y, WorldEntity* entity)
+{
+    assert(entity->x >= 0 && entity->y >= 0);
+    WorldNode* node = get_world_node(entity->x, entity->y);
+    node->world_entity = NULL;
+    spawn_at(x, y, entity);
 }
 
 bool entity_exists(WorldEntity* entity)

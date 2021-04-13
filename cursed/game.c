@@ -26,7 +26,7 @@ void game_init(int max_x, int max_y)
         snake->head->owner = snake;
 
         snake->direction = rand() % 4;
-        move_to(
+        spawn_at(
             (rand() % (world_max_x - 2)) + 1,
             (rand() % (world_max_y - 2)) + 1,
             snake->head);
@@ -63,7 +63,7 @@ void wall_init(Wall* wall, int x, int y)
 {
     wall->world_entity.owner_type = WALL_ENTITY;
     wall->world_entity.owner = wall;
-    move_to(x, y, &wall->world_entity);
+    spawn_at(x, y, &wall->world_entity);
 }
 
 Direction get_random_turn(Direction direction)
@@ -97,7 +97,7 @@ void add_pellets()
             pellet->world_entity.owner = pellet;
             pellet->world_entity.created_at = game_iteration;
 
-            move_to(x, y, &pellet->world_entity);
+            spawn_at(x, y, &pellet->world_entity);
             log_trace("Pellet added. num_pellets: %d", num_pellets);
         }
     }
@@ -213,7 +213,7 @@ void snake_update(Snake* snake)
                 clear_entity(node);
                 node->owner_type = SNAKE_ENTITY;
                 node->owner = snake;
-                move_to(current_x, current_y, node);
+                spawn_at(current_x, current_y, node);
                 snake->num_pellets--;
             }
             if (eating) {
