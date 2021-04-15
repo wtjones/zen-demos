@@ -111,6 +111,7 @@ void pellet_update()
 
             if (game_iteration - pellet->world_entity.created_at > PELLET_DECAY) {
                 clear_entity(&pellet->world_entity);
+                num_pellets--;
             }
         }
     }
