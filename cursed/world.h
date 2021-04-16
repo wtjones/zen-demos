@@ -4,26 +4,8 @@
 #define WORLD_MAX_X 300
 #define WORLD_MAX_Y 200
 
+#include "entity.h"
 #include <stdbool.h>
-
-typedef enum GameEntityType {
-    NO_ENTITY,
-    WALL_ENTITY,
-    SNAKE_ENTITY,
-    PELLET_ENTITY
-} GameEntityType;
-
-typedef struct WorldEntity {
-    GameEntityType owner_type;
-    void* owner;
-    int x;
-    int y;
-    int created_at;
-} WorldEntity;
-
-typedef struct WorldNode {
-    WorldEntity* world_entity;
-} WorldNode;
 
 extern int world_max_x,
     world_max_y;
