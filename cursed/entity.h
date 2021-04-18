@@ -43,6 +43,7 @@ typedef struct Snake {
     int num_nodes;
     int num_pellets;
     enum Direction direction;
+    Direction (*brain)(struct Snake*);
 } Snake;
 
 #endif

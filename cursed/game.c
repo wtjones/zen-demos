@@ -1,4 +1,5 @@
 #include "game.h"
+#include "brains/random_brain.h"
 #include "snake.h"
 #include <assert.h>
 #include <stdlib.h>
@@ -33,6 +34,7 @@ void game_init(int max_x, int max_y)
             snake->head);
         snake->num_nodes = 1;
         snake->num_pellets = 0;
+        snake->brain = &run_random_brain;
     }
 }
 void game_cleanup()

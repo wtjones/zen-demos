@@ -25,6 +25,7 @@ extern Pellet pellets[MAX_PELLETS];
 extern int num_snakes;
 extern int num_walls;
 extern int num_pellets;
+extern int game_iteration;
 
 void game_init(int, int);
 void game_cleanup();
