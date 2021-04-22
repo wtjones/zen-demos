@@ -5,7 +5,7 @@ LDFLAGS := $(shell pkg-config --libs $(PKGS))
 AS      := as
 ASFLAGS := -gdbb --32
 PROG    := cursed
-SRCS    = 3rdparty/log.c/src/log.c main.c brains/random_brain.c brains/alpha_brain.c snake.c world.c game.c draw.c input.c
+SRCS    := $(wildcard 3rdparty/log.c/src/log.c wildcard brains/*.c wildcard *.c)
 
 .PHONY: all clean
 
