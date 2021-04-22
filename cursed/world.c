@@ -26,6 +26,11 @@ void world_cleanup()
     free(world_nodes);
 }
 
+bool in_world_bounds(int x, int y)
+{
+    return x >= 0 && x <= world_max_x && y >= 0 && y <= world_max_y;
+}
+
 WorldNode* get_world_node(int x, int y)
 {
     return &world_nodes[y * world_max_x + x];
@@ -63,6 +68,13 @@ bool entity_exists(WorldEntity* entity)
 bool entity_type_exists(WorldEntity* entity, GameEntityType type)
 {
     return entity_exists(entity) && entity->owner_type == type;
+}
+
+WorldEntity* get_entity_at(int x, int y)
+{
+    return !in_world_bounds(x, y)
+        ? NULL
+        : get_world_node(x, y)->world_entity;
 }
 
 void clear_entity(WorldEntity* entity)

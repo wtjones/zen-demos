@@ -38,10 +38,11 @@ void draw_snakes()
         struct Snake* snake = &snakes[i];
         if (entity_exists(snake->head)) {
             for (size_t j = 0; j < snake->num_nodes; j++) {
+                char* head_char = i == 0 ? "$" : SNAKE_HEAD;
                 mvprintw(
                     snake->nodes[j].y,
                     snake->nodes[j].x * 2,
-                    j == 0 ? SNAKE_HEAD : SNAKE_BODY);
+                    j == 0 ? head_char : SNAKE_BODY);
             }
             mvprintw(0, 0, "Window: %d %d Snake 0: %d %d",
                 g_max_x,

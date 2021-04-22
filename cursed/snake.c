@@ -3,6 +3,16 @@
 #include <assert.h>
 #include <stdlib.h>
 
+void destroy_snake(Snake* snake)
+{
+    for (size_t j = 0; j < snake->num_nodes; j++) {
+        WorldEntity* node = &snake->nodes[j];
+        clear_entity(node);
+    }
+    snake->num_nodes = 0;
+    snake->head = NULL;
+}
+
 void snake_update(Snake* snake)
 {
     snake->direction = snake->brain(snake);
@@ -15,24 +25,20 @@ void snake_update(Snake* snake)
     new_x -= snake->direction == LEFT ? 1 : 0;
     new_x += snake->direction == RIGHT ? 1 : 0;
 
-    bool in_bounds = new_x > 1 && new_x < world_max_x - 1 && new_y > 1 && new_y < world_max_y - 1;
+    bool in_bounds = in_world_bounds(new_x, new_y);
     if (in_bounds) {
         WorldNode* target_node = get_world_node(new_x, new_y);
 
-        // are we crashing into a snake?
+        // are we colliding with something?
         bool crashing = entity_type_exists(
-            target_node->world_entity, SNAKE_ENTITY);
-
+                            target_node->world_entity, SNAKE_ENTITY)
+            || entity_type_exists(
+                target_node->world_entity, WALL_ENTITY);
         if (crashing) {
             log_trace(
                 "Collision: cur %d %d new %d %d",
                 current_x, current_y, new_x, new_y);
-            for (size_t j = 0; j < snake->num_nodes; j++) {
-                WorldEntity* node = &snake->nodes[j];
-                clear_entity(node);
-            }
-            snake->num_nodes = 0;
-            snake->head = NULL;
+            destroy_snake(snake);
         } else {
 
             // are we moving into a pellet?
@@ -73,6 +79,11 @@ void snake_update(Snake* snake)
                 snake->num_pellets++;
             }
         }
+    } else {
+        log_trace(
+            "Collision with wall: cur %d %d new %d %d",
+            current_x, current_y, new_x, new_y);
+        destroy_snake(snake);
     }
 }
 
