@@ -8,6 +8,12 @@
 #define SNAKE_HEAD "@"
 #define SNAKE_BODY "+"
 #define PELLET "o"
+#define WALL_COLOR 1
+#define SNAKE_COLOR 2
+#define PELLET_COLOR 3
+#define RANDOM_BRAIN_COLOR 4
+#define ALPHA_BRAIN_COLOR 5
+#define TEXT_COLOR 6
 
 extern int g_max_y, g_max_x;
 
