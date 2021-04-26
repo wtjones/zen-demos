@@ -5,9 +5,9 @@
 
 typedef enum Direction {
     UP,
+    RIGHT,
     DOWN,
-    LEFT,
-    RIGHT
+    LEFT
 } Direction;
 
 typedef enum GameEntityType {
