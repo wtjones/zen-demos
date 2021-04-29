@@ -11,7 +11,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#define DELAY 200000
+#define DELAY 16666 * 2 // 30 fps
 
 void sigsegv_handler(int _)
 {

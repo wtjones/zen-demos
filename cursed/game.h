@@ -15,8 +15,8 @@
 #define MAX_SNAKES 8
 #define MAX_WALLS 300 * 200 // redefined because clang-format issue
 #define MAX_PELLETS 50
-#define PELLET_RATE 3
-#define PELLET_DECAY 60
+#define PELLET_RATE 90
+#define PELLET_DECAY 600
 
 extern int game_keys[GAME_MAX_KEYS];
 extern Snake snakes[MAX_SNAKES];

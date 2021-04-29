@@ -13,6 +13,17 @@ void destroy_snake(Snake* snake)
     snake->head = NULL;
 }
 
+int get_speed(Snake* snake)
+{
+    int speed = INITIAL_SPEED - (SPEED_PER_NODE * snake->num_nodes);
+    return speed >= MINIMUM_SPEED ? speed : MINIMUM_SPEED;
+}
+
+bool should_move(Snake* snake)
+{
+    return game_iteration - snake->last_move >= get_speed(snake);
+}
+
 void snake_update(Snake* snake)
 {
     snake->direction = snake->brain(snake);
@@ -65,7 +76,7 @@ void snake_update(Snake* snake)
                 new_node_x = last_node_x;
                 new_node_y = last_node_y;
             }
-
+            snake->last_move = game_iteration;
             // if we have a pellet, consume to add a tail node
             if (snake->num_pellets > 0 && snake->num_nodes < MAX_SNAKE_NODES) {
                 WorldEntity* node = &snake->nodes[snake->num_nodes++];
@@ -91,7 +102,7 @@ void snakes_update()
 {
     for (size_t i = 0; i < MAX_SNAKES; i++) {
         Snake* snake = &snakes[i];
-        if (entity_exists(snake->head)) {
+        if (entity_exists(snake->head) && should_move(snake)) {
             snake_update(snake);
         }
     }

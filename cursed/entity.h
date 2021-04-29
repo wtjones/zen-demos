@@ -42,6 +42,7 @@ typedef struct Snake {
     WorldEntity* head;
     int num_nodes;
     int num_pellets;
+    int last_move;
     enum Direction direction;
     Direction (*brain)(struct Snake*);
 } Snake;
