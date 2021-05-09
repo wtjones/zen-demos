@@ -99,7 +99,7 @@ render_to_command_list:
     ;
     ; Start of even row loop
     ;
-    DBGMSG "* even row start"
+    ;DBGMSG "* even row start"
     ; copy to a separate peek var for row iteration
     ld      a, [peek_x_whole]
     ld      [peek_row_x_whole], a
@@ -215,7 +215,7 @@ render_to_command_list:
     ld      a, b
     and     %00000001
     jr     z, .skip_inc_de_even_row
-    DBGMSG "odd column - inc de"
+    ;DBGMSG "odd column - inc de"
     inc     de  ; move to next byte in command buffer
 .skip_inc_de_even_row
 
@@ -223,7 +223,7 @@ render_to_command_list:
 .skip_inner_even_row
     dec     b
     jp      nz, .loop_inner_even_row
-    DBGMSG "* end of even row"
+    ;DBGMSG "* end of even row"
 
     ld      a, [viewer_x]   ; TODO fix
     ld      [peek_x], a
@@ -280,7 +280,7 @@ render_to_command_list:
     ;
     ; Start of odd row loop
     ;
-    DBGMSG "* odd row start"
+    ;DBGMSG "* odd row start"
     ; copy to a separate peek var for row iteration
     ld      a, [peek_x_whole]
     ld      [peek_row_x_whole], a
@@ -323,7 +323,7 @@ render_to_command_list:
     jr      nz, .skip_bottom_left
 
     ; bottom left
-    DBGMSG "bottom left"
+    ;DBGMSG "bottom left"
     ld      a, [current_tile]
     ; set bit %00000100 if a = 1
     sla     a
@@ -334,7 +334,7 @@ render_to_command_list:
     jr      .end_odd_row_command
 .skip_bottom_left
     ; bottom right
-    DBGMSG "bottom right"
+    ;DBGMSG "bottom right"
     ld      a, [current_tile]
 
     ; set bit %00001000 if a = 1
@@ -403,7 +403,7 @@ render_to_command_list:
     ld      a, b
     and     %00000001
     jr     z, .skip_inc_de_odd_row
-    DBGMSG "column is odd - inc de"
+    ;DBGMSG "column is odd - inc de"
     inc     de  ; move to next byte in command buffer
 .skip_inc_de_odd_row
 
@@ -455,7 +455,7 @@ render_to_command_list:
     ; At the end of an odd row, move to the next byte in command buffer
     ; and preserve the start of the row
 
-    inc     de  ; move to next byte in command buffer
+    ;inc     de  ; move to next byte in command buffer
     ld      a, d
     ld      [row_start_hi], a
     ld      a, e
@@ -468,90 +468,3 @@ render_to_command_list:
     dec     c
     jp      nz, .loop_outer
     ret
-
-; ; Apply render buffer to command list by mapping to 2x2 subtiles
-; ;
-; render_to_command_list:
-;     ld      hl, render_buffer
-;     ld      de, command_list
-
-;     ld      c, SCRN_Y_B
-;     inc     c
-;     jp      .skip_outer
-
-; .loop_outer
-;     ld      b, SCRN_X_B
-;     inc     b
-;     jr      .skip_inner
-
-; .loop_inner
-;     push    bc
-;     push    de
-
-;     ;
-;     ; top-left sub-tile
-;     ;
-;     ld      a, [hl]
-
-;     ; set bit %00000001 if a = 1
-;     ld      [current_tile], a
-;     ld      b, a
-
-;     ;
-;     ; bottom-left sub-tile
-;     ;
-;     push    hl
-;     ld      de, SUB_TILE_X
-;     add     hl, de
-;     ld      a, [hl+]
-;     ; set bit %00000100 if a = 1
-;     sla     a
-;     sla     a
-;     or      a, b
-;     ld      b, a
-
-;     ;
-;     ; bottom-right sub-tile
-;     ;
-;     ld      a, [hl]
-;     ; set bit %00001000 if a = 1
-;     sla     a
-;     sla     a
-;     sla     a
-;     or      a, b
-;     ld      b, a
-
-;     ;
-;     ; top-right sub-tile
-;     ;
-;     pop     hl
-;     inc     hl
-
-;     ld      a, [hl+]
-;     ; set bit %00000010 if a = 1
-;     sla     a
-;     or      a, b
-
-;     ld      [current_tile], a
-
-;     pop     de
-;     pop     bc
-
-;     ; write tile result to command buffer
-;     ld      a, [current_tile]
-;     ld      [de], a
-;     inc     de  ; move to next byte in command buffer
-; .skip_inner
-;     dec     b
-;     jr      nz, .loop_inner
-
-;     push    de
-;     ld      de, SUB_TILE_X
-;     add     hl, de
-;     pop     de
-
-; .skip_outer
-;     dec     c
-;     jp      nz, .loop_outer
-;     ret
-; ret

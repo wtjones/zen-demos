@@ -41,8 +41,8 @@ start::
     call    apply_command_list
     call    update_viewer
 .derp
-    DELAY   10
-    jr      .derp
+    ;DELAY   10
+    ;jr      .derp
     jr      .main_loop
 
 draw:
