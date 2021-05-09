@@ -34,10 +34,15 @@ start::
     DELAY   10
     DBGMSG "ran init!"
 .main_loop:
+    DBGMSG "calling render!"
     call    render
+    DBGMSG "render done"
     call    wait_vblank
     call    apply_command_list
     call    update_viewer
+.derp
+    DELAY   10
+    jr      .derp
     jr      .main_loop
 
 draw:
