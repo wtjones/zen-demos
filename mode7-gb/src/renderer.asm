@@ -155,6 +155,9 @@ render_to_command_list:
     ld      [current_command], a
 .end_even_row_command
 
+    ld      a, [screen_x]
+    sub     SUB_TILE_X - 1
+    jr      z, .skip_even_x_inc
     ;
     ; increment peek x by delta from rotation table
     ;
@@ -193,6 +196,8 @@ render_to_command_list:
     ld      a, l
     ld      [peek_row_y_frac], a
 
+
+.skip_even_x_inc
     ld      a, [screen_x]
     inc     a
     ld      [screen_x], a
@@ -337,6 +342,11 @@ render_to_command_list:
     ld      [current_command], a
 .end_odd_row_command
 
+
+    ld      a, [screen_x]
+    sub     SUB_TILE_X - 1
+    jr      z, .skip_odd_x_inc
+
     ;
     ; increment peek x by delta from rotation table
     ;
@@ -375,6 +385,7 @@ render_to_command_list:
     ld      a, l
     ld      [peek_row_y_frac], a
 
+.skip_odd_x_inc
     ld      a, [screen_x]
     inc     a
     ld      [screen_x], a
