@@ -27,13 +27,11 @@ OBJECTS := $(ASMFILES:%.asm=build/%.obj)
 
 .PHONY: all clean
 
-MODE = 0			# default to game mode
-test1 : MODE = 1	# test mode 1
-test2 : MODE = 2	# test mode 2
-test3 : MODE = 3	# test mode 3
-test4 : MODE = 4	# test mode 4
+MODE = 0			# default to renderer a
+renderer_a : MODE = 0
+renderer_b : MODE = 1
 
-all test1 test2 test3 test4: create_build_dir $(OUTPUT)
+all renderer_a renderer_b: create_build_dir $(OUTPUT)
 
 create_build_dir:
 	mkdir -p $(BUILD_DIR)
@@ -45,7 +43,7 @@ $(OUTPUT): $(OBJECTS)
 	$(FIX) $(FIX_FLAGS) $@.gb
 
 build/%.obj: %.asm
-	$(ASM) -D mode=$(MODE) -i$(INCDIR)/ -o$@ $<
+	$(ASM) -D MODE=$(MODE) -i$(INCDIR)/ -o$@ $<
 
 clean:
 	rm -rf $(BUILD_DIR)/*

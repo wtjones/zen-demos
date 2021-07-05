@@ -46,6 +46,3 @@ timer:
 serial:
 joypad:
     reti
-
-initial_mode:
-    DB mode

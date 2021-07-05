@@ -1,5 +1,5 @@
 INCLUDE	"gbhw.inc"
-
+INCLUDE "debug.inc"
 
 SECTION "init", ROM0
 
@@ -32,4 +32,10 @@ init::
     ld      [viewer_y], a
     ld      a, 4
     ld      [viewer_angle], a
+
+    IF MODE == 0
+        DBGMSG "Using renderer A"
+    ELSE
+        DBGMSG "Using renderer B"
+    ENDC
 ret

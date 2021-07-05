@@ -1,3 +1,5 @@
+IF MODE == 1
+
 INCLUDE	"gbhw.inc"
 INCLUDE "math.inc"
 INCLUDE "memory.inc"
@@ -37,6 +39,7 @@ row_start_hi: DS 1
 row_start_low: DS 1
 
 SECTION "renderer code", ROM0
+
 
 render::
     call set_rotation
@@ -464,3 +467,5 @@ render_to_command_list:
     dec     c
     jp      nz, .loop_outer
     ret
+
+ENDC
