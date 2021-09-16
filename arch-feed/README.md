@@ -10,3 +10,8 @@ poetry install
 ### Get Metadata
 
 `poetry run get_metadata "identifier:the-kraken-wakes-by-john-wyndham" -o $TMPDIR/feed`
+
+
+### Generate Feed
+
+`poetry run generate_feed  $TMPDIR/feed/the-kraken-wakes-by-john-wyndham.json`
