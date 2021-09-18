@@ -30,23 +30,39 @@ def get_metadata(query: str, output: str):
 @click.command()
 @click.argument("metadata_path", type=str)
 def generate_feed(metadata_path: str):
-    f = open(metadata_path, "r")
     path = Path(metadata_path)
+    if path.is_dir():
+        for child in path.iterdir():
+            if child.suffix == ".json":
+                create_feed(child)
+    else:
+        create_feed(path)
+
+
+def create_feed(path: Path):
+    f = open(path, "r")
+
     rss_path = path.with_suffix('.rss')
     identifier = path.stem
     print(f"Creating feed for identifier: {identifier}")
+    print(f"Loading json file: {f.name}")
     ia_item = json.loads(f.read())
-
+    print(f"Loaded json file: {f.name}")
+    f.close()
     items = []
 
     link = f"https://archive.org/download/{identifier}"
     for ia_file in ia_item['files']:
+        name = ia_file['name'] if 'name' in ia_file else identifier
+        title = ia_file['title'] if 'title' in ia_file else name
         if ia_file['format'] == "VBR MP3":
+
+
             item_link = f"{link}/{ia_file['name']}"
             item1 = Item(
-                title = ia_file['title'],
+                title = title,
                 link = item_link,
-                description = ia_file['title'],
+                description = title,
                 guid = Guid(item_link),
                 pubDate = datetime.datetime.fromtimestamp(int(ia_file['mtime'])))
             items.append(item1)
@@ -63,4 +79,5 @@ def generate_feed(metadata_path: str):
     print(f"Writing feed to {rss_path}")
     o = open(rss_path, "w")
     o.write(feed.rss())
+    o.close()
 
