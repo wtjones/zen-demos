@@ -7,11 +7,13 @@
     /platform
         /posix
             /main.c     // calls demo_main()
-            /video.c
+            /ras_plat.c
         /dos
             /main.c
-            /video.c
-    /gfx
-        gfx.c           // uses video
+            /ras_plat.c
+    /raslib
+        ras.h
+        ras_plat.h
+        ras.c           // uses ras_plat.c
 
 ```
