@@ -2,6 +2,7 @@ import datetime
 import json
 from pathlib import Path
 from rfeed import *
+from .format_utl import strfdelta
 
 
 def generate_feed(metadata_path: str):
@@ -31,16 +32,33 @@ def _create_rss(json_path: Path):
         name = ia_file["name"] if "name" in ia_file else identifier
         title = ia_file["title"] if "title" in ia_file else name
         if ia_file["format"] == "VBR MP3":
+            length = float(ia_file["length"])
+            duration_formatted = strfdelta(
+                datetime.timedelta(0, seconds=length), "%H:%M:%S"
+            )
 
             item_link = f"{link}/{ia_file['name']}"
+
+            itunes_item = iTunesItem(
+                image="http://www.example.com/artwork.jpg",
+                duration=duration_formatted,
+                explicit="yes",
+            )
+
             item1 = Item(
                 title=title,
                 link=item_link,
                 description=title,
                 guid=Guid(item_link),
                 pubDate=datetime.datetime.fromtimestamp(int(ia_file["mtime"])),
+                extensions=[itunes_item],
             )
             items.append(item1)
+
+    itunes = iTunes(
+        image="http://www.example.com/artwork.jpg",
+        explicit="yes",
+    )
 
     feed = Feed(
         title=ia_item["metadata"]["title"],
@@ -50,6 +68,7 @@ def _create_rss(json_path: Path):
         pubDate=datetime.datetime.fromtimestamp(int(ia_item["created"])),
         lastBuildDate=datetime.datetime.now(),
         items=items,
+        extensions=[itunes],
     )
 
     print(f"Writing feed to {rss_path}")
