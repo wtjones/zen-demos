@@ -15,3 +15,8 @@ poetry install
 ### Generate Feed
 
 `poetry run generate_feed  $TMPDIR/feed/the-kraken-wakes-by-john-wyndham.json`
+
+## TODO
+
+- Support images per episode
+- Support multiple image types

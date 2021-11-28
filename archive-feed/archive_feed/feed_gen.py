@@ -28,6 +28,13 @@ def _create_rss(json_path: Path):
     items = []
 
     link = f"https://archive.org/download/{identifier}"
+
+    img_link = next(
+        f"{link}/{item['name']}"
+        for item in ia_item["files"]
+        if item["format"] == "JPEG"
+    )
+
     for ia_file in ia_item["files"]:
         name = ia_file["name"] if "name" in ia_file else identifier
         title = ia_file["title"] if "title" in ia_file else name
@@ -40,7 +47,7 @@ def _create_rss(json_path: Path):
             item_link = f"{link}/{ia_file['name']}"
 
             itunes_item = iTunesItem(
-                image="http://www.example.com/artwork.jpg",
+                image=img_link,
                 duration=duration_formatted,
                 explicit="yes",
             )
@@ -56,7 +63,7 @@ def _create_rss(json_path: Path):
             items.append(item1)
 
     itunes = iTunes(
-        image="http://www.example.com/artwork.jpg",
+        image=img_link,
         explicit="yes",
     )
 
