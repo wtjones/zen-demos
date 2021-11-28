@@ -1,18 +1,24 @@
 #define CATCH_CONFIG_RUNNER
+#include "loitar/core/atom_node.hpp"
 #include "loitar/core/parser.hpp"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/spdlog.h"
 #include <catch2/catch.hpp>
 #include <map>
+#include <memory>
 #include <string>
 
 using namespace loitar;
 
-TEST_CASE("String node should print", "[StringNode::to_string]")
+TEST_CASE("Atom should parse", "")
 {
-    auto expected = 42;
-    auto actual = get_val();
-    REQUIRE(expected == actual);
+    auto actual = parse("foo");
+
+    auto derived = std::dynamic_pointer_cast<AtomNode>(actual);
+    bool result = derived != NULL && derived->get_symbol() == "foo";
+    INFO(result);
+    //REQUIRE(1 == 1);
+    REQUIRE(result);
 }
 
 int main(int argc, char* argv[])
