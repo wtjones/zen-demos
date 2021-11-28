@@ -10,15 +10,22 @@
 
 using namespace loitar;
 
-TEST_CASE("Atom should parse", "")
-{
-    auto actual = parse("foo");
+// TEST_CASE("Atom should parse", "")
+// {
+//     auto actual = parse("foo");
 
-    auto derived = std::dynamic_pointer_cast<AtomNode>(actual);
-    bool result = derived != NULL && derived->get_symbol() == "foo";
-    INFO(result);
-    //REQUIRE(1 == 1);
-    REQUIRE(result);
+//     auto derived = std::dynamic_pointer_cast<AtomNode>(actual);
+//     bool result = derived != NULL && derived->get_symbol() == "foo";
+//     INFO(result);
+//     //REQUIRE(1 == 1);
+//     REQUIRE(result);
+// }
+
+TEST_CASE("Expression should parse", "")
+{
+    auto actual = parse("(1 2 3)");
+
+    REQUIRE(1 == 1);
 }
 
 int main(int argc, char* argv[])
