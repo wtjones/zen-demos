@@ -23,6 +23,7 @@ using namespace loitar;
 
 TEST_CASE("Expression should parse", "")
 {
+    spdlog::trace("test!!!!!!!!!!!!!");
     auto actual = parse("(1 2 3)");
 
     REQUIRE(1 == 1);
