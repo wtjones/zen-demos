@@ -23,7 +23,8 @@ using namespace loitar;
 
 TEST_CASE("Expression should parse", "")
 {
-    spdlog::trace("test!!!!!!!!!!!!!");
+    const std::string expression = "(1 2 3)";
+
     auto actual = parse("(1 2 3)");
 
     REQUIRE(1 == 1);
@@ -35,7 +36,7 @@ int main(int argc, char* argv[])
     auto logger = spdlog::basic_logger_mt("test_logger", "/tmp/loitar.log");
     spdlog::set_default_logger(logger);
     spdlog::set_level(spdlog::level::trace);
-
+    spdlog::trace("Starting tests...");
     int result = Catch::Session().run(argc, argv);
 
     // global clean-up...
