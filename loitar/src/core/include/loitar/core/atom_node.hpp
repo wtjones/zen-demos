@@ -7,10 +7,10 @@
 namespace loitar {
 class AtomNode : public Node {
 public:
-    AtomNode(std::string symbol);
-    std::string get_symbol();
+    AtomNode(std::string token);
+    std::string get_token();
 
 private:
-    std::string m_symbol;
+    std::string m_token;
 };
 }

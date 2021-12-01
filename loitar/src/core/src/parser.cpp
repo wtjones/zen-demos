@@ -55,7 +55,18 @@ std::shared_ptr<AtomNode> parse_atom(std::string input, int& pos, int depth)
 {
     spdlog::trace("parse_atom: pos: {}, depth {}", std::to_string(pos), std::to_string(depth));
 
-    return nullptr;
+    auto nextCharPos = input.find_first_of(" )", pos);
+    if (nextCharPos == std::string::npos) {
+        spdlog::warn("Atom: expected space or ')' but found npos.");
+        return nullptr;
+    }
+
+    auto nextChar = input.substr(nextCharPos, 1);
+    auto token = input.substr(pos, nextCharPos - pos);
+    spdlog::trace("Atom found '{}'", token);
+    pos = nextCharPos;
+
+    return std::make_shared<AtomNode>("");
 }
 
 std::shared_ptr<ListNode> parse_list(std::string input, int& pos, int depth)
