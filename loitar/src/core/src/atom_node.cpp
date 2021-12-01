@@ -2,13 +2,13 @@
 
 namespace loitar {
 
-AtomNode::AtomNode(std::string symbol)
+AtomNode::AtomNode(std::string token)
 {
-    m_symbol = symbol;
+    m_token = token;
 }
 //AtomNode::~AtomNode() { }
-std::string AtomNode::get_symbol()
+std::string AtomNode::get_token()
 {
-    return m_symbol;
+    return m_token;
 }
 }

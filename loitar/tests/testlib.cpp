@@ -23,9 +23,9 @@ using namespace loitar;
 
 TEST_CASE("Expression should parse", "")
 {
-    const std::string expression = "(1 2 3)";
+    const std::string expression = "(list 1 2 3)";
 
-    auto actual = parse("(1 2 3)");
+    auto actual = parse(expression);
 
     REQUIRE(1 == 1);
 }
