@@ -25,10 +25,14 @@ std::vector<std::shared_ptr<Node>> parse_expression(std::string input, int& pos,
 
     while (!done) {
         auto nextChar = input.substr(nextCharPos, 1);
+        spdlog::trace("parse_expression char: '{}' pos: {}, depth {}",
+            nextChar, std::to_string(pos), std::to_string(depth));
         if (nextChar == ")") {
             if (depth == 0) {
                 assert("Token ')' was not expected.");
             }
+            pos++;
+            spdlog::trace("end of expression found");
             done = true;
         } else if (nextChar == "(") {
             pos = nextCharPos;
@@ -39,7 +43,7 @@ std::vector<std::shared_ptr<Node>> parse_expression(std::string input, int& pos,
             auto atom = parse_atom(input, pos, depth + 1);
             result.push_back(atom);
         }
-        pos++;
+        //pos++;
         nextCharPos = input.find_first_not_of(" \n\t", pos);
         if (nextCharPos == std::string::npos) {
             if (depth > 0) {
@@ -48,6 +52,7 @@ std::vector<std::shared_ptr<Node>> parse_expression(std::string input, int& pos,
             done = true;
         }
     }
+    spdlog::trace("return from expression");
     return result;
 }
 

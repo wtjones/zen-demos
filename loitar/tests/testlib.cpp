@@ -23,7 +23,7 @@ using namespace loitar;
 
 TEST_CASE("Expression should parse", "")
 {
-    const std::string expression = "(list 1 2 3)";
+    const std::string expression = "(list 1 2 3) (5 6)";
 
     auto actual = parse(expression);
 
