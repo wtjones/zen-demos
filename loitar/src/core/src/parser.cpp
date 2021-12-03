@@ -71,7 +71,7 @@ std::shared_ptr<AtomNode> parse_atom(std::string input, int& pos, int depth)
     spdlog::trace("Atom found '{}'", token);
     pos = nextCharPos;
 
-    return std::make_shared<AtomNode>("");
+    return std::make_shared<AtomNode>(token);
 }
 
 std::shared_ptr<ListNode> parse_list(std::string input, int& pos, int depth)
