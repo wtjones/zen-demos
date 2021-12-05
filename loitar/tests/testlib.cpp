@@ -1,5 +1,6 @@
 #define CATCH_CONFIG_RUNNER
 #include "loitar/core/atom_node.hpp"
+#include "loitar/core/integer_node.hpp"
 #include "loitar/core/parser.hpp"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/spdlog.h"
@@ -28,6 +29,25 @@ TEST_CASE("Atoms should parse", "")
         && a2->get_token() == "2";
 
     REQUIRE(result);
+}
+
+TEST_CASE("Ints should parse", "")
+{
+    const std::string expression = "(+1 -2 3)";
+    auto actual = parse(expression);
+
+    auto elements = std::dynamic_pointer_cast<ListNode>(actual.front())->get_elements();
+
+    REQUIRE(elements.size() == 3);
+
+    auto a0 = std::dynamic_pointer_cast<IntegerNode>(elements[0]);
+    auto a1 = std::dynamic_pointer_cast<IntegerNode>(elements[1]);
+    auto a2 = std::dynamic_pointer_cast<IntegerNode>(elements[2]);
+    bool result = a0->get_token() == "+1";
+    REQUIRE(result);
+    REQUIRE(a0->get_value() == 1);
+    REQUIRE(a1->get_value() == -2);
+    REQUIRE(a2->get_value() == 3);
 }
 
 TEST_CASE("Lists should parse", "")
