@@ -1,8 +1,10 @@
 #include "loitar/core/parser.hpp"
 #include "loitar/core/atom_node.hpp"
+#include "loitar/core/integer_node.hpp"
 #include "loitar/core/list_node.hpp"
 #include <assert.h>
 #include <memory>
+#include <regex>
 #include <string>
 #include <vector>
 
@@ -60,6 +62,28 @@ std::shared_ptr<AtomNode> parse_atom(std::string input, int& pos, int depth)
 {
     spdlog::trace("parse_atom: pos: {}, depth {}", std::to_string(pos), std::to_string(depth));
 
+    // Match integer
+    std::string search_input = input.substr(pos, std::string::npos);
+    auto pattern = "^([\\-\\+0-9]?[0-9]+)";
+    std::regex r(pattern);
+    std::smatch m;
+    spdlog::trace("Regex pattern {} input: '{}'", pattern, search_input);
+    std::regex_search(search_input, m, r);
+    for (auto v : m) {
+        spdlog::trace("Regex: '{}'", v.str());
+    }
+    if (m.size() >= 2) {
+        auto token = m[1].str();
+        spdlog::trace("Integer match group found '{}'", token);
+        pos += token.length();
+        int value = 0;
+        value = std::stoi(token);
+        spdlog::trace("IntegerNode with value: '{}'", value);
+        return std::make_shared<IntegerNode>(token, value);
+    } else {
+        spdlog::trace("Integer match group not found '{}'", search_input);
+    }
+
     auto nextCharPos = input.find_first_of(" )", pos);
     if (nextCharPos == std::string::npos) {
         spdlog::warn("Atom: expected space or ')' but found npos.");
@@ -69,6 +93,7 @@ std::shared_ptr<AtomNode> parse_atom(std::string input, int& pos, int depth)
     auto nextChar = input.substr(nextCharPos, 1);
     auto token = input.substr(pos, nextCharPos - pos);
     spdlog::trace("Atom found '{}'", token);
+
     pos = nextCharPos;
 
     return std::make_shared<AtomNode>(token);
@@ -81,5 +106,4 @@ std::shared_ptr<ListNode> parse_list(std::string input, int& pos, int depth)
     auto elements = parse_expression(input, pos, depth + 1);
     return std::make_shared<ListNode>(elements);
 }
-
 }
