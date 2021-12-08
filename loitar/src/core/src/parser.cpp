@@ -22,6 +22,7 @@ std::vector<std::shared_ptr<Node>> parse_expression(std::string input, int& pos,
     assert(depth < max_depth);
 
     auto done = false;
+    auto parse_count = 0;
     auto nextCharPos = input.find_first_not_of(" \n\t", pos);
     done = nextCharPos == std::string::npos;
 
@@ -45,7 +46,7 @@ std::vector<std::shared_ptr<Node>> parse_expression(std::string input, int& pos,
             auto atom = parse_atom(input, pos, depth + 1);
             result.push_back(atom);
         }
-        //pos++;
+
         nextCharPos = input.find_first_not_of(" \n\t", pos);
         if (nextCharPos == std::string::npos) {
             if (depth > 0) {
@@ -53,6 +54,8 @@ std::vector<std::shared_ptr<Node>> parse_expression(std::string input, int& pos,
             }
             done = true;
         }
+        parse_count++;
+        assert(parse_count < max_parse);
     }
     spdlog::trace("return from expression");
     return result;

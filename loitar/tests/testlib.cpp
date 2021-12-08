@@ -71,6 +71,18 @@ TEST_CASE("Lists should parse", "")
         std::dynamic_pointer_cast<AtomNode>(list1_elements[1])->get_token() == "8");
 }
 
+TEST_CASE("Non-list should parse", "")
+{
+    const std::string expression = "1 2";
+    auto actual = parse(expression);
+
+    auto int0 = std::dynamic_pointer_cast<IntegerNode>(actual[0]);
+    auto int1 = std::dynamic_pointer_cast<IntegerNode>(actual[1]);
+
+    REQUIRE(int0->get_value() == 1);
+    REQUIRE(int1->get_value() == 2);
+}
+
 int main(int argc, char* argv[])
 {
     // global setup...
