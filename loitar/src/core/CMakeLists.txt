@@ -3,6 +3,7 @@ add_library(loitar_core
     src/node.cpp
     src/atom_node.cpp
     src/integer_node.cpp
+    src/string_node.cpp
     src/list_node.cpp)
 
 target_compile_features(loitar_core PUBLIC cxx_std_17)

@@ -2,6 +2,7 @@
 #include "loitar/core/atom_node.hpp"
 #include "loitar/core/integer_node.hpp"
 #include "loitar/core/parser.hpp"
+#include "loitar/core/string_node.hpp"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/spdlog.h"
 #include <catch2/catch.hpp>
@@ -81,6 +82,24 @@ TEST_CASE("Non-list should parse", "")
 
     REQUIRE(int0->get_value() == 1);
     REQUIRE(int1->get_value() == 2);
+}
+
+TEST_CASE("StringAtom should parse")
+{
+    const std::string expression = "\"Hello\"";
+    auto actual = parse(expression);
+    auto str0 = std::dynamic_pointer_cast<StringNode>(actual[0]);
+
+    REQUIRE(str0->get_value() == "Hello");
+}
+
+TEST_CASE("StringAtom should parse with escape")
+{
+    const std::string expression = "\"Hello, \\\"quoted\\\"\"";
+    auto actual = parse(expression);
+    auto str0 = std::dynamic_pointer_cast<StringNode>(actual[0]);
+
+    REQUIRE(str0->get_value() == "Hello, \"quoted\"");
 }
 
 int main(int argc, char* argv[])
