@@ -53,7 +53,7 @@ TEST_CASE("Ints should parse", "")
 
 TEST_CASE("Lists should parse", "")
 {
-    const std::string expression = "(list 1 2 (list 8 9))";
+    const std::string expression = "(list 1 \"hello\" (list 8 9))";
     auto actual = parse(expression);
 
     auto elements = std::dynamic_pointer_cast<ListNode>(actual.front())->get_elements();
@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
     auto logger = spdlog::basic_logger_mt("test_logger", "/tmp/loitar.log");
     spdlog::set_default_logger(logger);
     spdlog::set_level(spdlog::level::trace);
-    spdlog::trace("Starting tests...");
+    spdlog::info("|************* Starting tests... ************|");
     int result = Catch::Session().run(argc, argv);
 
     // global clean-up...

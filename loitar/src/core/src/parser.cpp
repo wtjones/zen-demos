@@ -101,7 +101,7 @@ std::shared_ptr<IntegerNode> parse_integer_atom(std::string input, int& pos)
 std::shared_ptr<StringNode> parse_string_node(std::string input, int& pos)
 {
     std::string search_input = input.substr(pos, std::string::npos);
-    auto pattern = "\"((?:\\\\\"|[^\"])*)\"";
+    auto pattern = "^\"((?:\\\\\"|[^\"])*)\"";
     std::regex r(pattern);
     std::smatch m;
     spdlog::trace("Regex pattern {} input: '{}'", pattern, search_input);
@@ -114,7 +114,7 @@ std::shared_ptr<StringNode> parse_string_node(std::string input, int& pos)
         return nullptr;
     }
     auto token = m[0].str();
-    auto match = m[1].str(); //.
+    auto match = m[1].str();
     match = std::regex_replace(match, std::regex("\\\\\""), "\"");
     spdlog::trace("String match group found '{}'", match);
     pos += token.length();
@@ -145,10 +145,9 @@ std::shared_ptr<AtomNode> parse_atom(std::string input, int& pos, int depth)
 
     auto nextChar = input.substr(nextCharPos, 1);
     auto token = input.substr(pos, nextCharPos - pos);
-    spdlog::trace("Atom found '{}'", token);
-
     pos = nextCharPos;
 
+    spdlog::trace("AtomNode with value '{}'", token);
     return std::make_shared<AtomNode>(token);
 }
 
