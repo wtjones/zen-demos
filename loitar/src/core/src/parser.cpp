@@ -40,10 +40,18 @@ std::vector<std::shared_ptr<Node>> parse_expression(std::string input, int& pos,
         } else if (nextChar == "(") {
             pos = nextCharPos;
             auto list = parse_list(input, pos, depth + 1);
+            if (list == nullptr) {
+                std::vector<std::shared_ptr<Node>> empty;
+                return empty;
+            }
             result.push_back(list);
         } else {
             pos = nextCharPos;
             auto atom = parse_atom(input, pos, depth + 1);
+            if (atom == nullptr) {
+                std::vector<std::shared_ptr<Node>> empty;
+                return empty;
+            }
             result.push_back(atom);
         }
 
