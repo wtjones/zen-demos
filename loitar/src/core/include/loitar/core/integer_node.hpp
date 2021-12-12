@@ -8,6 +8,7 @@ namespace loitar {
 class IntegerNode : public AtomNode {
 public:
     IntegerNode(std::string token, int64_t value);
+    std::string name() const;
     int64_t get_value();
 
 private:

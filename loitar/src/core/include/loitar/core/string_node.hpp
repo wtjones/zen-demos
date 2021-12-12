@@ -8,6 +8,7 @@ namespace loitar {
 class StringNode : public AtomNode {
 public:
     StringNode(std::string token, std::string value);
+    std::string name() const;
     std::string get_value();
 
 private:

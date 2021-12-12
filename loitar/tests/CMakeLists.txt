@@ -10,7 +10,7 @@ FetchContent_MakeAvailable(Catch2)
 
 
 #Tests need to be added as executables first
-add_executable(testlib testlib.cpp)
+add_executable(testlib testlib.cpp evaluator_tests.cpp)
 
 # I'm using C++17 in the test
 target_compile_features(testlib PRIVATE cxx_std_17)

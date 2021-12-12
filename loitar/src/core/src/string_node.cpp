@@ -8,6 +8,11 @@ StringNode::StringNode(std::string token, std::string value)
     m_value = value;
 }
 
+std::string StringNode::name() const
+{
+    return "StringNode";
+}
+
 std::string StringNode::get_value()
 {
     return m_value;

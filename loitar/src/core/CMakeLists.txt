@@ -1,10 +1,11 @@
 add_library(loitar_core
-    src/parser.cpp
-    src/node.cpp
     src/atom_node.cpp
+    src/evaluator.cpp
     src/integer_node.cpp
-    src/string_node.cpp
-    src/list_node.cpp)
+    src/list_node.cpp
+    src/node.cpp
+    src/parser.cpp
+    src/string_node.cpp)
 
 target_compile_features(loitar_core PUBLIC cxx_std_17)
 

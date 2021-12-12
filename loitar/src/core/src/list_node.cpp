@@ -7,6 +7,11 @@ ListNode::ListNode(
     m_elements = elements;
 }
 
+std::string ListNode::name() const
+{
+    return "ListNode";
+}
+
 std::vector<std::shared_ptr<Node>> ListNode::get_elements()
 {
     return m_elements;

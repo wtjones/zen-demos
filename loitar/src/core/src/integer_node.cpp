@@ -7,6 +7,10 @@ IntegerNode::IntegerNode(std::string token, int64_t value)
 {
     m_value = value;
 }
+std::string IntegerNode::name() const
+{
+    return "IntegerNode";
+}
 
 int64_t IntegerNode::get_value()
 {
