@@ -106,6 +106,7 @@ int main(int argc, char* argv[])
 {
     // global setup...
     auto logger = spdlog::basic_logger_mt("test_logger", "/tmp/loitar.log");
+    logger->flush_on(spdlog::level::trace);
     spdlog::set_default_logger(logger);
     spdlog::set_level(spdlog::level::trace);
     spdlog::info("|************* Starting tests... ************|");
