@@ -17,6 +17,24 @@ EvaluatorNodeResult operator_add(std::vector<std::shared_ptr<Node>> params)
             auto int_node = std::dynamic_pointer_cast<IntegerNode>(node);
             spdlog::trace("Summing {}", int_node->get_value());
             sum += int_node->get_value();
+        } else if (node->name() == "ListNode") {
+            auto list_node = std::dynamic_pointer_cast<ListNode>(node);
+            auto list_result = evaluate_list_node(list_node);
+
+            if (list_result.messages.size() > 0) {
+                std::copy(list_result.messages.begin(), list_result.messages.end(), std::back_inserter(result.messages));
+                return result;
+            }
+            if (list_result.value->name() != "IntegerNode") {
+                ResultMessage message { .level = error, .message = "Expected ListNode to evaluate to IntegerNode but received " + list_result.value->name() };
+                result.messages.push_back(message);
+                spdlog::error("{}", message.message);
+                return result;
+            } else {
+                auto int_node = std::dynamic_pointer_cast<IntegerNode>(list_result.value);
+                spdlog::trace("Summing {}", int_node->get_value());
+                sum += int_node->get_value();
+            }
         }
     }
     result.value = std::make_shared<IntegerNode>("", sum);
@@ -90,6 +108,7 @@ EvaluatorResult evaluate_expression(
         } else if (node->name() == "ListNode") {
             spdlog::trace("Eval ListNode");
             auto eval_result = evaluate_list_node(std::dynamic_pointer_cast<ListNode>(node));
+            spdlog::trace("back from evaluate_list_node");
             if (eval_result.messages.size() != 0) {
                 std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));
             } else {
