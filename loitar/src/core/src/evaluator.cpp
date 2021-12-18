@@ -17,24 +17,11 @@ EvaluatorNodeResult operator_add(std::vector<std::shared_ptr<Node>> params)
             auto int_node = std::dynamic_pointer_cast<IntegerNode>(node);
             spdlog::trace("Summing {}", int_node->get_value());
             sum += int_node->get_value();
-        } else if (node->name() == "ListNode") {
-            auto list_node = std::dynamic_pointer_cast<ListNode>(node);
-            auto list_result = evaluate_list_node(list_node);
-
-            if (list_result.messages.size() > 0) {
-                std::copy(list_result.messages.begin(), list_result.messages.end(), std::back_inserter(result.messages));
-                return result;
-            }
-            if (list_result.value->name() != "IntegerNode") {
-                ResultMessage message { .level = error, .message = "Expected ListNode to evaluate to IntegerNode but received " + list_result.value->name() };
-                result.messages.push_back(message);
-                spdlog::error("{}", message.message);
-                return result;
-            } else {
-                auto int_node = std::dynamic_pointer_cast<IntegerNode>(list_result.value);
-                spdlog::trace("Summing {}", int_node->get_value());
-                sum += int_node->get_value();
-            }
+        } else {
+            ResultMessage message { .level = error, .message = "Expected IntegerNode but received " + node->name() };
+            result.messages.push_back(message);
+            spdlog::error("{}", message.message);
+            return result;
         }
     }
     result.value = std::make_shared<IntegerNode>("", sum);
@@ -46,19 +33,31 @@ EvaluatorNodeResult evaluate_function(std::shared_ptr<ListNode> node)
 {
     spdlog::trace("evaluate_function");
     EvaluatorNodeResult result { .value = nullptr };
-    std::vector<std::shared_ptr<Node>> params;
+
+    std::vector<std::shared_ptr<Node>> eval_params;
 
     auto elements = node->get_elements();
     if (elements.size() > 1) {
+        std::vector<std::shared_ptr<Node>> params;
         for (auto i = elements.begin() + 1; i != elements.end(); ++i) {
             params.push_back(*i);
             spdlog::trace("add param...");
         }
+        auto param_result = evaluate_expression(params, 1); // FIXME: depth
+
+        for (auto p : param_result.value) {
+            eval_params.push_back(p);
+        }
+        if (param_result.messages.size() > 0) {
+            std::copy(param_result.messages.begin(), param_result.messages.end(), std::back_inserter(result.messages));
+            return result;
+        }
     }
+
     auto function_node = std::dynamic_pointer_cast<AtomNode>(node->get_elements().front());
     if (function_node->get_token() == "+") {
         spdlog::trace("Add operation...");
-        return operator_add(params);
+        return operator_add(eval_params);
     }
     result.messages.push_back({ .level = error, .message = "Atom " + function_node->get_token() + " is not a function" });
     spdlog::error("{}", result.messages.back().message);

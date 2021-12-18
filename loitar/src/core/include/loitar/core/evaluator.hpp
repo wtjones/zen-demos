@@ -12,5 +12,8 @@ typedef Result<std::shared_ptr<Node>> EvaluatorNodeResult;
 
 EvaluatorNodeResult evaluate_list_node(std::shared_ptr<ListNode> node);
 
+EvaluatorResult evaluate_expression(
+    std::vector<std::shared_ptr<Node>> expression, int depth);
+
 EvaluatorResult evaluate(std::vector<std::shared_ptr<Node>> expressions);
 }
