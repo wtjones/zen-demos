@@ -1,5 +1,15 @@
 # Loitar
 
+## Build
+
+`./run_build.sh`
+
+## Usage
+
+### Execute expression
+
+`./build/bin/loitar x "(+ 2 2)"`
+
 ## Development
 
 Run all tests

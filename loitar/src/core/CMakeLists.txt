@@ -5,6 +5,7 @@ add_library(loitar_core
     src/list_node.cpp
     src/node.cpp
     src/parser.cpp
+    src/repl.cpp
     src/string_node.cpp)
 
 target_compile_features(loitar_core PUBLIC cxx_std_17)

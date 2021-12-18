@@ -14,6 +14,8 @@ FetchContent_Declare(
     GIT_TAG v1.9.1)
     FetchContent_MakeAvailable(spdlog)
 
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 add_subdirectory(src)
 
 include(CTest)
