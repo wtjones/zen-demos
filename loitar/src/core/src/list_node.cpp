@@ -17,4 +17,14 @@ std::vector<std::shared_ptr<Node>> ListNode::get_elements()
     return m_elements;
 }
 
+void ListNode::print(std::ostream& out) const
+{
+    out << "(";
+    for (std::size_t i = 0; i != m_elements.size(); ++i) {
+        out << *(m_elements[i]);
+        out << (i == m_elements.size() - 1 ? "" : " ");
+    }
+    out << ")";
+}
+
 }

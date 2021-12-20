@@ -16,4 +16,9 @@ int64_t IntegerNode::get_value()
 {
     return m_value;
 }
+
+void IntegerNode::print(std::ostream& out) const
+{
+    out << std::to_string(m_value);
+}
 }

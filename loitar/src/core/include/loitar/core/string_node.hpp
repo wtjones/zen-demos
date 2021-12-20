@@ -11,6 +11,9 @@ public:
     std::string name() const;
     std::string get_value();
 
+protected:
+    void print(std::ostream& os) const;
+
 private:
     std::string m_token;
     std::string m_value;

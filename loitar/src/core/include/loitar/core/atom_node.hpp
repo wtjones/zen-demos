@@ -1,6 +1,7 @@
 #pragma once
 
 #include "node.hpp"
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -11,7 +12,11 @@ public:
     std::string name() const;
     std::string get_token();
 
+protected:
+    void print(std::ostream& os) const;
+
 private:
     std::string m_token;
 };
+
 }

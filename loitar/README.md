@@ -18,4 +18,4 @@ Run all tests
 
 Run a specific test
 
-`cmake --build build && ./build/tests/testlib "*Atom*"`
+`cmake --build build && ./build/bin/testlib "*Atom*"`

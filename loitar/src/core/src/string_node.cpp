@@ -17,4 +17,9 @@ std::string StringNode::get_value()
 {
     return m_value;
 }
+
+void StringNode::print(std::ostream& out) const
+{
+    out << m_value;
+}
 }
