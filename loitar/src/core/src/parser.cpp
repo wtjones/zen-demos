@@ -86,7 +86,7 @@ std::shared_ptr<IntegerNode> parse_integer_atom(std::string input, int& pos)
         spdlog::trace("Regex: '{}'", v.str());
     }
     if (m.size() < 2) {
-        spdlog::error("Integer match group not found '{}'", search_input);
+        spdlog::trace("Integer match group not found '{}'", search_input);
         return nullptr;
     }
     auto token = m[1].str();
@@ -110,7 +110,7 @@ std::shared_ptr<StringNode> parse_string_node(std::string input, int& pos)
         spdlog::trace("Regex: '{}'", v.str());
     }
     if (m.size() < 2) {
-        spdlog::error("String match group not found '{}'", search_input);
+        spdlog::trace("String match group not found '{}'", search_input);
         return nullptr;
     }
     auto token = m[0].str();

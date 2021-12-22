@@ -54,6 +54,20 @@ int execute(std::string input)
 {
     loitar::Repl repl;
     auto result = repl.execute(input);
+    for (auto e : result.value) {
+        std::cout << *e << std::endl;
+    }
+
+    for (auto m : result.messages) {
+
+        auto level = (const char*[]) {
+            "info",
+            "warning",
+            "error",
+        }[m.level];
+
+        std::cout << "[eval] [" << level << "] " << m.message << std::endl;
+    }
     return 0;
 }
 
