@@ -6,7 +6,7 @@ ListNode::ListNode(
 {
     m_elements = elements;
     for (auto node : elements) {
-        node->parent(shared_from_this());
+        node->parent(weak_from_this());
     }
 }
 

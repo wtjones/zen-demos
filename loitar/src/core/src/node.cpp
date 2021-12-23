@@ -5,9 +5,9 @@ namespace loitar {
 Node::Node() { }
 Node::~Node() { }
 
-std::shared_ptr<Node> Node::parent() { return m_parent; }
+std::weak_ptr<Node> Node::parent() { return m_parent; }
 
-void Node::parent(std::shared_ptr<Node> parent_node)
+void Node::parent(std::weak_ptr<Node> parent_node)
 {
     m_parent = parent_node;
 }
