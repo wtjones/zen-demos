@@ -2,10 +2,19 @@
 
 namespace loitar {
 
-Node::Node() { }
+Node::Node()
+    : m_id(next_id++)
+{
+}
+
 Node::~Node() { }
 
-std::weak_ptr<Node> Node::parent() { return m_parent; }
+unsigned int Node::id() const { return m_id; }
+
+std::weak_ptr<Node> Node::parent()
+{
+    return m_parent;
+}
 
 void Node::parent(std::weak_ptr<Node> parent_node)
 {
@@ -17,5 +26,5 @@ std::ostream& operator<<(std::ostream& os, const Node& p)
     p.print(os);
     return os;
 }
-
+unsigned int Node::next_id = 0;
 }

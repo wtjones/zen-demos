@@ -50,3 +50,12 @@ TEST_CASE("ListNode should support ostream")
 
     REQUIRE(ss.str() == expected);
 }
+
+TEST_CASE("Node id is unique")
+{
+    AtomNode sut0("test");
+    AtomNode sut1("test");
+
+    REQUIRE(sut0.id() > 0);
+    REQUIRE(sut1.id() > sut0.id());
+}
