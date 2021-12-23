@@ -5,6 +5,9 @@ ListNode::ListNode(
     std::vector<std::shared_ptr<Node>> elements)
 {
     m_elements = elements;
+    for (auto node : elements) {
+        node->parent(shared_from_this());
+    }
 }
 
 std::string ListNode::name() const
