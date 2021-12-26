@@ -14,7 +14,8 @@ add_executable(testlib
     testlib.cpp
     environment_tests.cpp
     evaluator_tests.cpp
-    node_tests.cpp)
+    node_tests.cpp
+    parser_tests.cpp)
 
 # I'm using C++17 in the test
 target_compile_features(testlib PRIVATE cxx_std_17)
