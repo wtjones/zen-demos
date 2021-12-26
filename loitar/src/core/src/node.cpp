@@ -3,13 +3,16 @@
 namespace loitar {
 
 Node::Node()
-    : m_id(next_id++)
+    : m_id(++next_id)
 {
 }
 
 Node::~Node() { }
 
-unsigned int Node::id() const { return m_id; }
+unsigned int Node::id() const
+{
+    return m_id;
+}
 
 std::weak_ptr<Node> Node::parent()
 {
