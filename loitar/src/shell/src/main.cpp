@@ -47,7 +47,7 @@ void init_logging()
 
     spdlog::set_default_logger(logger);
     spdlog::set_level(spdlog::level::trace);
-    logger->flush_on(spdlog::level::info);
+    logger->flush_on(spdlog::level::trace);
 }
 
 int execute(std::string input)
