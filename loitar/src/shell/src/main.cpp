@@ -55,7 +55,9 @@ int execute(std::string input)
     loitar::Repl repl;
     auto result = repl.execute(input);
     for (auto e : result.value) {
-        std::cout << *e << std::endl;
+        if (e != nullptr) {
+            std::cout << *e << std::endl;
+        }
     }
 
     for (auto m : result.messages) {

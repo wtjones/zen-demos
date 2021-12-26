@@ -7,29 +7,7 @@
 
 namespace loitar {
 
-EvaluatorNodeResult operator_add(std::vector<std::shared_ptr<Node>> params)
-{
-    spdlog::trace("operator_add with {} params", params.size());
-    EvaluatorNodeResult result { .value = nullptr };
-    auto sum = 0;
-    for (auto node : params) {
-        if (node->name() == "IntegerNode") {
-            auto int_node = std::dynamic_pointer_cast<IntegerNode>(node);
-            spdlog::trace("Summing {}", int_node->get_value());
-            sum += int_node->get_value();
-        } else {
-            ResultMessage message { .level = error, .message = "Expected IntegerNode but received " + node->name() };
-            result.messages.push_back(message);
-            spdlog::error("{}", message.message);
-            return result;
-        }
-    }
-    result.value = std::make_shared<IntegerNode>("", sum);
-    spdlog::trace("operator_add result with {}", sum);
-    return result;
-}
-
-EvaluatorNodeResult evaluate_function(std::shared_ptr<ListNode> node)
+EvaluatorNodeResult evaluate_function(Environment& env, std::shared_ptr<ListNode> node)
 {
     spdlog::trace("evaluate_function");
     EvaluatorNodeResult result { .value = nullptr };
@@ -41,11 +19,12 @@ EvaluatorNodeResult evaluate_function(std::shared_ptr<ListNode> node)
         std::vector<std::shared_ptr<Node>> params;
         for (auto i = elements.begin() + 1; i != elements.end(); ++i) {
             params.push_back(*i);
-            spdlog::trace("add param...");
+            spdlog::trace("added {} param...", (*i)->name());
         }
-        auto param_result = evaluate_expression(params, 1); // FIXME: depth
-
+        auto param_result = evaluate_expression(env, params, 1); // FIXME: depth
+        spdlog::debug("param_result size: {}", param_result.value.size());
         for (auto p : param_result.value) {
+            spdlog::trace("Adding param eval result: {}", p->name());
             eval_params.push_back(p);
         }
         if (param_result.messages.size() > 0) {
@@ -55,17 +34,21 @@ EvaluatorNodeResult evaluate_function(std::shared_ptr<ListNode> node)
     }
 
     auto function_node = std::dynamic_pointer_cast<AtomNode>(node->get_elements().front());
-    if (function_node->get_token() == "+") {
-        spdlog::trace("Add operation...");
-        return operator_add(eval_params);
+
+    spdlog::trace("Getting func {} from env", function_node->get_token());
+    if (env.has_function(function_node->get_token())) {
+        auto func = env.get_function(function_node->get_token());
+        spdlog::trace("Got func {} from env", function_node->get_token());
+        return func.body(eval_params);
     }
+
     result.messages.push_back({ .level = error, .message = "Atom " + function_node->get_token() + " is not a function" });
     spdlog::error("{}", result.messages.back().message);
 
     return result;
 }
 
-EvaluatorNodeResult evaluate_list_node(std::shared_ptr<ListNode> node)
+EvaluatorNodeResult evaluate_list_node(Environment& env, std::shared_ptr<ListNode> node)
 {
     EvaluatorNodeResult result { .value = nullptr };
 
@@ -80,7 +63,7 @@ EvaluatorNodeResult evaluate_list_node(std::shared_ptr<ListNode> node)
         return result;
     }
 
-    return evaluate_function(node);
+    return evaluate_function(env, node);
 }
 
 EvaluatorNodeResult evaluate_integer_node(std::shared_ptr<IntegerNode> node)
@@ -90,6 +73,7 @@ EvaluatorNodeResult evaluate_integer_node(std::shared_ptr<IntegerNode> node)
 }
 
 EvaluatorResult evaluate_expression(
+    Environment& env,
     std::vector<std::shared_ptr<Node>> expression, int depth)
 {
     spdlog::trace("evaluate_expression");
@@ -104,9 +88,11 @@ EvaluatorResult evaluate_expression(
             spdlog::trace("Eval IntegerNode");
             auto eval_result = evaluate_integer_node(int_node);
             result.value.push_back(eval_result.value);
+        } else if (node->name() == "StringNode") {
+            result.value.push_back(node);
         } else if (node->name() == "ListNode") {
             spdlog::trace("Eval ListNode");
-            auto eval_result = evaluate_list_node(std::dynamic_pointer_cast<ListNode>(node));
+            auto eval_result = evaluate_list_node(env, std::dynamic_pointer_cast<ListNode>(node));
             spdlog::trace("back from evaluate_list_node");
             if (eval_result.messages.size() != 0) {
                 std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));
@@ -119,8 +105,8 @@ EvaluatorResult evaluate_expression(
     return result;
 }
 
-EvaluatorResult evaluate(std::vector<std::shared_ptr<Node>> expression)
+EvaluatorResult evaluate(Environment& env, std::vector<std::shared_ptr<Node>> expression)
 {
-    return evaluate_expression(expression, 0);
+    return evaluate_expression(env, expression, 0);
 }
 }

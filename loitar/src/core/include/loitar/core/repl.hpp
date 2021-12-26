@@ -1,6 +1,8 @@
 #pragma once
 
+#include "environment.hpp"
 #include "evaluator.hpp"
+#include "evaluator_types.hpp"
 #include "parser.hpp"
 #include "spdlog/spdlog.h"
 #include <map>
@@ -11,6 +13,9 @@
 
 namespace loitar {
 class Repl {
+
+private:
+    Environment m_env;
 
 public:
     Repl();

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "environment.hpp"
+#include "evaluator_types.hpp"
 #include "list_node.hpp"
 #include "node.hpp"
 #include "result.hpp"
@@ -7,13 +9,13 @@
 #include <memory>
 
 namespace loitar {
-typedef Result<std::vector<std::shared_ptr<Node>>> EvaluatorResult;
-typedef Result<std::shared_ptr<Node>> EvaluatorNodeResult;
 
-EvaluatorNodeResult evaluate_list_node(std::shared_ptr<ListNode> node);
+EvaluatorNodeResult evaluate_list_node(Environment& env, std::shared_ptr<ListNode> node);
 
 EvaluatorResult evaluate_expression(
-    std::vector<std::shared_ptr<Node>> expression, int depth);
+    Environment& env,
+    std::vector<std::shared_ptr<Node>> expression,
+    int depth);
 
-EvaluatorResult evaluate(std::vector<std::shared_ptr<Node>> expressions);
+EvaluatorResult evaluate(Environment& env, std::vector<std::shared_ptr<Node>> expressions);
 }
