@@ -59,3 +59,15 @@ TEST_CASE("Node id is unique")
     REQUIRE(sut0.id() > 0);
     REQUIRE(sut1.id() > sut0.id());
 }
+
+TEST_CASE("AtomNode supports equality")
+{
+    AtomNode sut0("orange");
+    AtomNode sut1("apple");
+    AtomNode sut2("apple");
+
+    REQUIRE(!(sut0 == sut1));
+    REQUIRE(sut1 == sut2);
+    REQUIRE(sut0 != sut1);
+    REQUIRE(!(sut1 != sut2));
+}

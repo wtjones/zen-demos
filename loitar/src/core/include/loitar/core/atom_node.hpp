@@ -10,13 +10,13 @@ class AtomNode : public Node {
 public:
     AtomNode(std::string token);
     std::string name() const;
-    std::string get_token();
+    std::string get_token() const;
+    bool operator==(const Node& node) const;
+    bool operator!=(const Node& node) const;
 
 protected:
-    void print(std::ostream& os) const;
-
-private:
     std::string m_token;
+    void print(std::ostream& os) const;
 };
 
 }

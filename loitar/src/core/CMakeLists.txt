@@ -8,7 +8,8 @@ add_library(loitar_core
     src/parser.cpp
     src/repl.cpp
     src/string_node.cpp
-    src/syslib.cpp)
+    src/syslib.cpp
+    src/true_node.cpp)
 
 target_compile_features(loitar_core PUBLIC cxx_std_17)
 

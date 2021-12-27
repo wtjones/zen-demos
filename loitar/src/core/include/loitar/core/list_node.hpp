@@ -11,6 +11,8 @@ public:
         std::vector<std::shared_ptr<Node>> elements);
     std::string name() const;
     std::vector<std::shared_ptr<Node>> get_elements();
+    bool operator==(const Node& node) const;
+    bool operator!=(const Node& node) const;
 
 protected:
     void print(std::ostream& os) const;
