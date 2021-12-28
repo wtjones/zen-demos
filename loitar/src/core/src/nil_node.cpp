@@ -3,17 +3,13 @@
 namespace loitar {
 
 NilNode::NilNode()
+    : AtomNode("nil")
 {
 }
 
 std::string NilNode::name() const
 {
     return "NilNode";
-}
-
-std::vector<std::shared_ptr<Node>> NilNode::get_elements()
-{
-    return m_elements;
 }
 
 bool NilNode::operator==(const Node& node) const
