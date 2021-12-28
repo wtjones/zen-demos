@@ -66,12 +66,6 @@ EvaluatorNodeResult evaluate_list_node(Environment& env, std::shared_ptr<ListNod
     return evaluate_function(env, node);
 }
 
-EvaluatorNodeResult evaluate_integer_node(std::shared_ptr<IntegerNode> node)
-{
-    EvaluatorNodeResult result { .value = node };
-    return result;
-}
-
 EvaluatorResult evaluate_expression(
     Environment& env,
     std::vector<std::shared_ptr<Node>> expression, int depth)
@@ -83,14 +77,7 @@ EvaluatorResult evaluate_expression(
     for (auto node : expression) {
         spdlog::trace("Checking name of {}", node->name());
 
-        if (node->name() == "IntegerNode") {
-            auto int_node = std::dynamic_pointer_cast<IntegerNode>(node);
-            spdlog::trace("Eval IntegerNode");
-            auto eval_result = evaluate_integer_node(int_node);
-            result.value.push_back(eval_result.value);
-        } else if (node->name() == "StringNode") {
-            result.value.push_back(node);
-        } else if (node->name() == "ListNode") {
+        if (node->name() == "ListNode") {
             spdlog::trace("Eval ListNode");
             auto eval_result = evaluate_list_node(env, std::dynamic_pointer_cast<ListNode>(node));
             spdlog::trace("back from evaluate_list_node");
@@ -99,6 +86,8 @@ EvaluatorResult evaluate_expression(
             } else {
                 result.value.push_back(eval_result.value);
             }
+        } else {
+            result.value.push_back(node);
         }
     }
 

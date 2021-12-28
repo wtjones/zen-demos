@@ -1,6 +1,8 @@
 #include "loitar/core/list_node.hpp"
 
 namespace loitar {
+ListNode::ListNode() { }
+
 ListNode::ListNode(
     std::vector<std::shared_ptr<Node>> elements)
 {

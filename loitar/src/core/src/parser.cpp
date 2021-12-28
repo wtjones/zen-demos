@@ -48,7 +48,7 @@ std::vector<std::shared_ptr<Node>> parse_expression(std::string input, int& pos,
             result.push_back(list);
         } else {
             pos = nextCharPos;
-            auto atom = parse_atom(input, pos, depth + 1);
+            auto atom = parse_atom_or_nil(input, pos, depth + 1);
             if (atom == nullptr) {
                 std::vector<std::shared_ptr<Node>> empty;
                 return empty;
@@ -122,9 +122,9 @@ std::shared_ptr<StringNode> parse_string_node(std::string input, int& pos)
     return std::make_shared<StringNode>(token, match);
 }
 
-std::shared_ptr<AtomNode> parse_atom(std::string input, int& pos, int depth)
+std::shared_ptr<Node> parse_atom_or_nil(std::string input, int& pos, int depth)
 {
-    spdlog::trace("parse_atom: pos: {}, depth {}", std::to_string(pos), std::to_string(depth));
+    spdlog::trace("parse_atom_or_nil: pos: {}, depth {}", std::to_string(pos), std::to_string(depth));
 
     auto integer_atom = parse_integer_atom(input, pos);
     if (integer_atom != nullptr) {
@@ -136,16 +136,20 @@ std::shared_ptr<AtomNode> parse_atom(std::string input, int& pos, int depth)
         return string_node;
     }
 
-    // General atom
+    // General atom or nil
     auto nextCharPos = input.find_first_of(" )", pos);
-    if (nextCharPos == std::string::npos) {
-        spdlog::warn("Atom: expected space or ')' but found npos.");
-        return nullptr;
-    }
-
-    auto nextChar = input.substr(nextCharPos, 1);
     auto token = input.substr(pos, nextCharPos - pos);
     pos = nextCharPos;
+
+    if (token == "t") {
+        spdlog::trace("TrueNode with value '{}'", token);
+        return std::make_shared<TrueNode>();
+    }
+
+    if (token == "nil") {
+        spdlog::trace("NilNode with value '{}'", token);
+        return std::make_shared<NilNode>();
+    }
 
     spdlog::trace("AtomNode with value '{}'", token);
     return std::make_shared<AtomNode>(token);

@@ -4,6 +4,7 @@ add_library(loitar_core
     src/evaluator.cpp
     src/integer_node.cpp
     src/list_node.cpp
+    src/nil_node.cpp
     src/node.cpp
     src/parser.cpp
     src/repl.cpp

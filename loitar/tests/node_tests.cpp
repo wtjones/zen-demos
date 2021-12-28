@@ -1,6 +1,8 @@
 #include "loitar/core/atom_node.hpp"
 #include "loitar/core/integer_node.hpp"
 #include "loitar/core/list_node.hpp"
+#include "loitar/core/nil_node.hpp"
+#include "loitar/core/true_node.hpp"
 #include "spdlog/spdlog.h"
 #include <catch2/catch.hpp>
 #include <map>
@@ -70,4 +72,33 @@ TEST_CASE("AtomNode supports equality")
     REQUIRE(sut1 == sut2);
     REQUIRE(sut0 != sut1);
     REQUIRE(!(sut1 != sut2));
+}
+
+TEST_CASE("NilNode supports equality")
+{
+    NilNode sut0;
+    NilNode sut1;
+    TrueNode true0;
+    AtomNode atom0("orange");
+
+    REQUIRE(sut0 == sut1);
+    REQUIRE(sut0 != true0);
+    REQUIRE(sut0 != atom0);
+}
+
+TEST_CASE("NilNode equals emtpy list")
+{
+    NilNode sut0;
+    ListNode empty0;
+    std::vector<std::shared_ptr<Node>>
+        inner_elements = {
+            std::make_shared<AtomNode>("+"),
+            std::make_shared<IntegerNode>("1", 1),
+            std::make_shared<IntegerNode>("1", 1)
+        };
+    auto not_empty = ListNode(inner_elements);
+
+    REQUIRE(sut0 == empty0);
+    REQUIRE(empty0 == sut0);
+    REQUIRE(sut0 != not_empty);
 }

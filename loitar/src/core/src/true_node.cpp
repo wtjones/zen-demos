@@ -3,7 +3,7 @@
 namespace loitar {
 
 TrueNode::TrueNode()
-    : AtomNode("T")
+    : AtomNode("t")
 {
 }
 std::string TrueNode::name() const
