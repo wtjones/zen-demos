@@ -74,6 +74,32 @@ TEST_CASE("AtomNode supports equality")
     REQUIRE(!(sut1 != sut2));
 }
 
+TEST_CASE("IntegerNode supports equality")
+{
+    IntegerNode sut0("11", 11);
+    IntegerNode sut1("22", 22);
+    IntegerNode sut2("22", 22);
+    AtomNode atom0("apple");
+
+    REQUIRE(!(sut0 == sut1));
+    REQUIRE(sut1 == sut2);
+    REQUIRE(sut0 != sut1);
+    REQUIRE(sut0 != atom0);
+}
+
+TEST_CASE("IntegerNode shared_ptr supports equality")
+{
+    auto sut0 = std::make_shared<IntegerNode>("11", 11);
+    auto sut1 = std::make_shared<IntegerNode>("22", 22);
+    auto sut2 = std::make_shared<IntegerNode>("22", 22);
+    std::shared_ptr<Node> node0 = sut0;
+    std::shared_ptr<Node> node1 = sut1;
+    std::shared_ptr<Node> node2 = sut2;
+
+    REQUIRE(*node1 == *node2);
+    REQUIRE(*node0 != *node1);
+}
+
 TEST_CASE("NilNode supports equality")
 {
     NilNode sut0;

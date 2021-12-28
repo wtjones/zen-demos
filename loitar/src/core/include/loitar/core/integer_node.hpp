@@ -9,7 +9,8 @@ class IntegerNode : public AtomNode {
 public:
     IntegerNode(std::string token, int64_t value);
     std::string name() const;
-    int64_t get_value();
+    int64_t get_value() const;
+    bool operator==(const Node& node) const;
 
 protected:
     void print(std::ostream& os) const;
