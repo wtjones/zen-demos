@@ -25,6 +25,10 @@ public:
     friend std::ostream& operator<<(std::ostream& out, const Node& node);
     virtual bool operator==(const Node& node) const = 0;
     virtual bool operator!=(const Node& node) const = 0;
+    virtual bool operator<(const Node& node) const = 0;
+    virtual bool operator<=(const Node& node) const = 0;
+    virtual bool operator>(const Node& node) const = 0;
+    virtual bool operator>=(const Node& node) const = 0;
 
 protected:
     virtual void print(std::ostream& os) const = 0;

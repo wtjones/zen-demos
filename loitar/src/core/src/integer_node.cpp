@@ -26,6 +26,18 @@ bool IntegerNode::operator==(const Node& node) const
     return (dynamic_cast<const IntegerNode&>(node)).get_value() == m_value;
 }
 
+bool IntegerNode::operator<(const Node& node) const
+{
+    // can trigger std:bad_cast if types are not the same
+    return m_value < (dynamic_cast<const IntegerNode&>(node)).get_value();
+}
+
+bool IntegerNode::operator<=(const Node& node) const
+{
+    // can trigger std:bad_cast if types are not the same
+    return m_value <= (dynamic_cast<const IntegerNode&>(node)).get_value();
+}
+
 void IntegerNode::print(std::ostream& out) const
 {
     out << std::to_string(m_value);

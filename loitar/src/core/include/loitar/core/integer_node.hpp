@@ -11,6 +11,8 @@ public:
     std::string name() const;
     int64_t get_value() const;
     bool operator==(const Node& node) const;
+    bool operator<(const Node& node) const;
+    bool operator<=(const Node& node) const;
 
 protected:
     void print(std::ostream& os) const;

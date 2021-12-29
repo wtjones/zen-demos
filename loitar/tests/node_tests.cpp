@@ -128,3 +128,29 @@ TEST_CASE("NilNode equals emtpy list")
     REQUIRE(empty0 == sut0);
     REQUIRE(sut0 != not_empty);
 }
+
+TEST_CASE("AtomNode supports comparison")
+{
+    AtomNode sut0("orange");
+    AtomNode sut1("apple");
+    AtomNode sut2("apple");
+
+    REQUIRE(sut0 > sut1);
+    REQUIRE(sut2 < sut0);
+    REQUIRE(sut1 >= sut2);
+    REQUIRE(sut1 <= sut2);
+}
+
+TEST_CASE("IntegerNode supports comparisons")
+{
+    IntegerNode sut0("11", 11);
+    IntegerNode sut1("22", 22);
+    IntegerNode sut2("22", 22);
+
+    REQUIRE(sut0 < sut1);
+    REQUIRE(sut1 > sut0);
+    REQUIRE(sut0 <= sut1);
+    REQUIRE(sut1 >= sut0);
+    REQUIRE(sut1 >= sut1);
+    REQUIRE(sut1 <= sut1);
+}

@@ -31,6 +31,26 @@ bool AtomNode::operator!=(const Node& node) const
     return !(*this == node);
 }
 
+bool AtomNode::operator<(const Node& node) const
+{
+    return m_token < (dynamic_cast<const AtomNode&>(node)).get_token();
+}
+
+bool AtomNode::operator<=(const Node& node) const
+{
+    return m_token <= (dynamic_cast<const AtomNode&>(node)).get_token();
+}
+
+bool AtomNode::operator>(const Node& node) const
+{
+    return !(*this <= node);
+}
+
+bool AtomNode::operator>=(const Node& node) const
+{
+    return !(*this < node);
+}
+
 void AtomNode::print(std::ostream& out) const
 {
     out << m_token;

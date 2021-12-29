@@ -17,7 +17,7 @@ std::string ListNode::name() const
     return "ListNode";
 }
 
-std::vector<std::shared_ptr<Node>> ListNode::get_elements()
+std::vector<std::shared_ptr<Node>> ListNode::get_elements() const
 {
     return m_elements;
 }
@@ -30,6 +30,26 @@ bool ListNode::operator==(const Node& node) const
 bool ListNode::operator!=(const Node& node) const
 {
     return !(*this == node);
+}
+
+bool ListNode::operator<(const Node& node) const
+{
+    return m_elements < (dynamic_cast<const ListNode&>(node)).get_elements();
+}
+
+bool ListNode::operator<=(const Node& node) const
+{
+    return m_elements <= (dynamic_cast<const ListNode&>(node)).get_elements();
+}
+
+bool ListNode::operator>(const Node& node) const
+{
+    return !(*this <= node);
+}
+
+bool ListNode::operator>=(const Node& node) const
+{
+    return !(*this < node);
 }
 
 void ListNode::print(std::ostream& out) const

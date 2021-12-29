@@ -13,6 +13,10 @@ public:
     std::string get_token() const;
     bool operator==(const Node& node) const;
     bool operator!=(const Node& node) const;
+    bool operator<(const Node& node) const;
+    bool operator<=(const Node& node) const;
+    bool operator>(const Node& node) const;
+    bool operator>=(const Node& node) const;
 
 protected:
     std::string m_token;
