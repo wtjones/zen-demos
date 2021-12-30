@@ -11,6 +11,7 @@ namespace loitar {
 
 typedef struct Function {
     std::string name;
+    bool eval_params;
     std::function<EvaluatorNodeResult(std::vector<std::shared_ptr<Node>>)> body;
 } Function;
 

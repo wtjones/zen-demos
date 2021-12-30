@@ -19,6 +19,10 @@ int64_t IntegerNode::get_value() const
 
 bool IntegerNode::operator==(const Node& node) const
 {
+    if (node.name() == "TrueNode") {
+        return true;
+    }
+
     if (node.name() != this->name()) {
         return false;
     }

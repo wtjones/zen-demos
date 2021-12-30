@@ -14,6 +14,9 @@ std::string NilNode::name() const
 
 bool NilNode::operator==(const Node& node) const
 {
+    if (node.name() == "TrueNode") {
+        return false;
+    }
     if (node.name() == this->name()) {
         return true;
     }
