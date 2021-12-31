@@ -20,4 +20,17 @@ Function Environment::get_function(std::string name)
     return m_global_functions[name];
 }
 
+void Environment::set_variable(std::string name, std::shared_ptr<Node> node)
+{
+    m_global_variables.insert(std::pair<std::string, std::shared_ptr<Node>>(name, node));
+}
+bool Environment::has_variable(std::string name)
+{
+    return (m_global_variables.find(name) != m_global_variables.end());
+}
+
+std::shared_ptr<Node> Environment::get_variable(std::string name)
+{
+    return m_global_variables[name];
+}
 }
