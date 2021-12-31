@@ -141,7 +141,8 @@ Function print(Environment& env)
 {
     Function func {
         .name = "print",
-        .body = [env](std::vector<std::shared_ptr<Node>> params) -> EvaluatorNodeResult {
+        .eval_params = true,
+        .body = [&env](std::vector<std::shared_ptr<Node>> params) -> EvaluatorNodeResult {
             spdlog::trace("called syslib.print  with {} params", params.size());
             EvaluatorNodeResult result { .value = nullptr };
 
