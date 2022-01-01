@@ -94,6 +94,14 @@ EvaluatorResult evaluate_expression(
             } else {
                 result.value.push_back(eval_result.value);
             }
+        } else if (node->name() == "AtomNode") {
+            auto atom_node = std::dynamic_pointer_cast<AtomNode>(node);
+            if (!env.has_variable(atom_node->get_token())) {
+                result.messages.push_back({ .level = error, .message = "Atom " + atom_node->get_token() + " is not a variable" });
+                spdlog::error("{}", result.messages.back().message);
+                return result;
+            }
+            result.value.push_back(env.get_variable(atom_node->get_token()));
         } else {
             result.value.push_back(node);
         }
