@@ -72,7 +72,7 @@ Function operator_if(Environment& env)
             spdlog::trace("called syslib.operator_if with {} params", params.size());
             EvaluatorNodeResult result { .value = nullptr };
 
-            if (params.size() <= 2 || params.size() > 3) {
+            if (params.size() < 2 || params.size() > 3) {
                 ResultMessage message { .level = error, .message = "Expected 2-3 params but received " + std::to_string(params.size()) };
                 result.messages.push_back(message);
                 spdlog::info("{}", message.message);
