@@ -181,6 +181,29 @@ Function setq(Environment& env)
     return func;
 }
 
+Function quote(Environment& env)
+{
+    Function func {
+        .name = "quote",
+        .eval_params = false,
+        .body = [&env](std::vector<std::shared_ptr<Node>> params) -> EvaluatorNodeResult {
+            spdlog::trace("called syslib.quote with {} params", params.size());
+            EvaluatorNodeResult result { .value = nullptr };
+
+            if (params.size() != 1) {
+                ResultMessage message { .level = error, .message = "Expected 1 param but received " + std::to_string(params.size()) };
+                result.messages.push_back(message);
+                spdlog::info("{}", message.message);
+                return result;
+            }
+
+            result.value = params.front();
+            return result;
+        }
+    };
+    return func;
+}
+
 Function print(Environment& env)
 {
     Function func {
@@ -220,6 +243,7 @@ void apply_syslib(Environment& env)
     env.add_function(operator_eq(env));
     env.add_function(operator_if(env));
     env.add_function(setq(env));
+    env.add_function(quote(env));
     env.add_function(print(env));
 }
 
