@@ -2,6 +2,9 @@
 #include "loitar/core/evaluator.hpp"
 #include "loitar/core/list_node.hpp"
 #include <iostream>
+#include <memory>
+#include <sstream>
+#include <string>
 
 namespace loitar {
 
@@ -220,15 +223,9 @@ Function print(Environment& env)
                 return result;
             }
 
-            if (params.front()->name() != "StringNode") {
-                ResultMessage message { .level = error, .message = "Expected StringNode param but received " + params.front()->name() };
-                result.messages.push_back(message);
-                spdlog::info("{}", message.message);
-                return result;
-            }
-
-            auto string_node = std::dynamic_pointer_cast<StringNode>(params.front());
-
+            std::ostringstream ss;
+            ss << *(params.front());
+            auto string_node = std::make_shared<StringNode>("", ss.str());
             result.value = string_node;
             std::cout << string_node->get_value() << std::endl;
             return result;
