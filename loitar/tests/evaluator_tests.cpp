@@ -4,7 +4,7 @@
 #include "loitar/core/integer_node.hpp"
 #include "loitar/core/parser.hpp"
 #include "loitar/core/string_node.hpp"
-#include "loitar/core/syslib.hpp"
+#include "loitar/core/syslib/syslib.hpp"
 #include "spdlog/spdlog.h"
 #include <catch2/catch.hpp>
 #include <map>
@@ -16,7 +16,7 @@ using namespace loitar;
 TEST_CASE("Scalars should evaluate", "")
 {
     Environment env;
-    apply_syslib(env);
+    syslib::apply_syslib(env);
 
     std::vector<std::shared_ptr<Node>> expr {
         std::make_shared<IntegerNode>("100", 100),
@@ -34,7 +34,7 @@ TEST_CASE("Scalars should evaluate", "")
 TEST_CASE("List without function should not evaluate", "")
 {
     Environment env;
-    apply_syslib(env);
+    syslib::apply_syslib(env);
 
     std::vector<std::shared_ptr<Node>> elements = {
         std::make_shared<IntegerNode>("200", 200)
@@ -50,7 +50,7 @@ TEST_CASE("List without function should not evaluate", "")
 TEST_CASE("Add function should evaluate", "")
 {
     Environment env;
-    apply_syslib(env);
+    syslib::apply_syslib(env);
 
     std::vector<std::shared_ptr<Node>>
         elements = {
@@ -70,7 +70,7 @@ TEST_CASE("Add function should evaluate", "")
 TEST_CASE("List params should evaluate", "")
 {
     Environment env;
-    apply_syslib(env);
+    syslib::apply_syslib(env);
 
     std::vector<std::shared_ptr<Node>>
         inner_elements = {

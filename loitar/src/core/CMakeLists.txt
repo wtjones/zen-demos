@@ -9,8 +9,15 @@ add_library(loitar_core
     src/parser.cpp
     src/repl.cpp
     src/string_node.cpp
-    src/syslib.cpp
-    src/true_node.cpp)
+    src/true_node.cpp
+    src/syslib/comparison_ops.cpp
+    src/syslib/flow_control.cpp
+    src/syslib/input_output.cpp
+    src/syslib/math_ops.cpp
+    src/syslib/special_ops.cpp
+    src/syslib/syslib.cpp
+    src/syslib/variables.cpp)
+
 
 target_compile_features(loitar_core PUBLIC cxx_std_17)
 

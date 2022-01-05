@@ -1,13 +1,13 @@
 #include "loitar/core/repl.hpp"
 #include "loitar/core/function.hpp"
 #include "loitar/core/integer_node.hpp"
-#include "loitar/core/syslib.hpp"
+#include "loitar/core/syslib/syslib.hpp"
 
 namespace loitar {
 
 Repl::Repl()
 {
-    apply_syslib(m_env);
+    syslib::apply_syslib(m_env);
 }
 Repl::~Repl() { }
 
