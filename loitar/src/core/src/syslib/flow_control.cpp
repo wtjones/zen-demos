@@ -82,9 +82,76 @@ Function operator_if(Environment& env)
     return func;
 }
 
+Function construct_loop(Environment& env)
+{
+    Function func {
+        .name = "loop",
+        .eval_params = false,
+        .body = [&env](std::vector<std::shared_ptr<Node>> params) -> EvaluatorNodeResult {
+            spdlog::trace("called syslib.construct_loop with {} params", params.size());
+            EvaluatorNodeResult result { .value = nullptr };
+
+            auto block_level = env.push_block();
+            while (true) {
+                for (auto expression : params) {
+                    std::vector<std::shared_ptr<Node>> expressions;
+                    expressions.push_back(expression);
+                    auto eval_result = evaluate_expression(env, expressions, 0);
+                    result.value = eval_result.value.front();
+
+                    if (eval_result.messages.size() > 0) {
+                        std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));
+                        return result;
+                    }
+
+                    if (block_level != env.block_level()) {
+                        spdlog::trace("Block level changed during loop. Returning...");
+                        return result;
+                    }
+                }
+            }
+            return result;
+        }
+    };
+
+    return func;
+}
+
+Function construct_return(Environment& env)
+{
+    Function func {
+        .name = "return",
+        .eval_params = false,
+        .body = [&env](std::vector<std::shared_ptr<Node>> params) -> EvaluatorNodeResult {
+            spdlog::trace("called syslib.construct_return with {} params", params.size());
+            EvaluatorNodeResult result { .value = nullptr };
+
+            if (params.size() > 1) {
+                ResultMessage message { .level = error, .message = "Expected 0 or 1 params but received " + std::to_string(params.size()) };
+                result.messages.push_back(message);
+                spdlog::info("{}", message.message);
+                return result;
+            }
+
+            if (params.size() == 1) {
+                std::vector<std::shared_ptr<Node>> expressions;
+                expressions.push_back(params.front());
+                auto eval_result = evaluate_expression(env, expressions, 0);
+                result.value = eval_result.value.front();
+            }
+
+            env.pop_block();
+            return result;
+        }
+    };
+
+    return func;
+}
+
 void apply_syslib_flow_control(Environment& env)
 {
     env.add_function(operator_if(env));
+    env.add_function(construct_loop(env));
+    env.add_function(construct_return(env));
 }
-
 }

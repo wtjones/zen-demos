@@ -5,14 +5,21 @@
 #include "spdlog/spdlog.h"
 #include <map>
 #include <memory>
+#include <stack>
 
 namespace loitar {
+
+typedef struct Block {
+    std::map<std::string, Function> functions;
+    std::map<std::string, std::shared_ptr<Node>> variables;
+} Block;
 
 class Environment {
 
 private:
     std::map<std::string, Function> m_global_functions;
     std::map<std::string, std::shared_ptr<Node>> m_global_variables;
+    std::stack<Block> m_blocks;
 
 public:
     Environment();
@@ -23,6 +30,9 @@ public:
     void set_variable(std::string name, std::shared_ptr<Node> node);
     bool has_variable(std::string name);
     std::shared_ptr<Node> get_variable(std::string name);
+    size_t push_block();
+    size_t pop_block();
+    size_t block_level();
 };
 
 }
