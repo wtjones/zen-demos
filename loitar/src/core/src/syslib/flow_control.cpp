@@ -39,10 +39,6 @@ Function operator_if(Environment& env)
                 eval_param.push_back(params[1]);
 
                 auto eval_result = evaluate_expression(env, eval_param, 0);
-                if (eval_result.messages.size() > 0) {
-                    std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));
-                    return result;
-                }
 
                 spdlog::trace("evaluated true expression...");
                 if (eval_result.messages.size() > 0) {
@@ -60,10 +56,6 @@ Function operator_if(Environment& env)
                     eval_param.push_back(params[2]);
 
                     auto eval_result = evaluate_expression(env, eval_param, 0);
-                    if (eval_result.messages.size() > 0) {
-                        std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));
-                        return result;
-                    }
 
                     spdlog::trace("evaluated false expression...");
                     if (eval_result.messages.size() > 0) {
