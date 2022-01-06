@@ -73,6 +73,21 @@ int execute(std::string input)
     return 0;
 }
 
+int execute_file(std::string in_file_path)
+{
+    std::string input_source;
+
+    std::ifstream t(in_file_path);
+    if (t.fail()) {
+        spdlog::error("Unable to open input file " + in_file_path);
+        return 1;
+    }
+    std::stringstream buffer;
+    buffer << t.rdbuf();
+    input_source = buffer.str();
+    return execute(input_source);
+}
+
 int main(int argc, char** argv)
 {
     init_logging();
@@ -84,6 +99,8 @@ int main(int argc, char** argv)
     if (argc >= 2) {
         if (args[0] == std::string(execute_mode)) {
             return execute(args[1]);
+        } else {
+            return execute_file(args[0]);
         }
         return usage();
     }

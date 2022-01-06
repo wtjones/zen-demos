@@ -12,6 +12,10 @@ An experiment in Lisp
 
 `./build/bin/loitar x "(+ 2 2)"`
 
+### Execute from file
+
+`./build/bin/loitar examples/hello.lisp`
+
 ## Development
 
 Run all tests
