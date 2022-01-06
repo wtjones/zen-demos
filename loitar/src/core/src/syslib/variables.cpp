@@ -42,7 +42,10 @@ Function setq(Environment& env)
                 return result;
             }
             auto var_value = eval_result.value.front();
-            spdlog::trace("Setting variable {} {}", var_name, var_value->name());
+
+            std::ostringstream ss;
+            ss << *var_value;
+            spdlog::trace("Setting variable {} {} {}", var_name, var_value->name(), ss.str());
 
             env.set_variable(var_name, var_value);
             result.value = var_value;

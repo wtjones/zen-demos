@@ -22,7 +22,7 @@ Function Environment::get_function(std::string name)
 
 void Environment::set_variable(std::string name, std::shared_ptr<Node> node)
 {
-    m_global_variables.insert(std::pair<std::string, std::shared_ptr<Node>>(name, node));
+    m_global_variables[name] = node;
 }
 bool Environment::has_variable(std::string name)
 {
