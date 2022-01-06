@@ -97,12 +97,12 @@ Function construct_loop(Environment& env)
                     std::vector<std::shared_ptr<Node>> expressions;
                     expressions.push_back(expression);
                     auto eval_result = evaluate_expression(env, expressions, 0);
-                    result.value = eval_result.value.front();
 
                     if (eval_result.messages.size() > 0) {
                         std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));
                         return result;
                     }
+                    result.value = eval_result.value.front();
 
                     if (block_level != env.block_level()) {
                         spdlog::trace("Block level changed during loop. Returning...");
@@ -137,6 +137,10 @@ Function construct_return(Environment& env)
                 std::vector<std::shared_ptr<Node>> expressions;
                 expressions.push_back(params.front());
                 auto eval_result = evaluate_expression(env, expressions, 0);
+                if (eval_result.messages.size() > 0) {
+                    std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));
+                    return result;
+                }
                 result.value = eval_result.value.front();
             }
 
