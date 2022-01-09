@@ -47,7 +47,7 @@ Function setq(Environment& env)
             ss << *var_value;
             spdlog::trace("Setting variable {} {} {}", var_name, var_value->name(), ss.str());
 
-            env.set_variable(var_name, var_value);
+            env.set_variable(var_name, var_value, ScopeType::global);
             result.value = var_value;
             return result;
         }
