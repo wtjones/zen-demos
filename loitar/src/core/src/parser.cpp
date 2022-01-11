@@ -30,7 +30,7 @@ std::vector<std::shared_ptr<Node>> parse_expression(std::string input, int& pos,
     while (!done) {
         auto nextChar = input.substr(nextCharPos, 1);
         spdlog::trace("parse_expression char: '{}' pos: {}, depth {}",
-            nextChar, std::to_string(pos), std::to_string(depth));
+            nextChar, std::to_string(nextCharPos), std::to_string(depth));
         if (nextChar == ")") {
             if (depth == 0) {
                 assert("Token ')' was not expected.");
@@ -63,6 +63,7 @@ std::vector<std::shared_ptr<Node>> parse_expression(std::string input, int& pos,
             }
             done = true;
         }
+        pos = nextCharPos;
         parse_count++;
         assert(parse_count < max_parse);
     }
