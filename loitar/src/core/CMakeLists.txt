@@ -12,6 +12,7 @@ add_library(loitar_core
     src/true_node.cpp
     src/syslib/comparison_ops.cpp
     src/syslib/flow_control.cpp
+    src/syslib/functions.cpp
     src/syslib/input_output.cpp
     src/syslib/math_ops.cpp
     src/syslib/special_ops.cpp
