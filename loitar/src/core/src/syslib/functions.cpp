@@ -71,7 +71,7 @@ Function defun(Environment& env)
                 .name = func_name,
                 .eval_params = true,
                 .body = [&env, func_params, func_expressions](std::vector<std::shared_ptr<Node>> params) -> EvaluatorNodeResult {
-                    EvaluatorNodeResult result;
+                    EvaluatorNodeResult result { .value = std::make_shared<NilNode>() };
 
                     if (params.size() != func_params.size()) {
                         ResultMessage message {
