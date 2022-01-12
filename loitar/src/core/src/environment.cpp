@@ -11,6 +11,7 @@ Environment::~Environment() { }
 
 void Environment::add_function(Function func)
 {
+    spdlog::trace("adding function {}", func.name);
     m_global_functions.insert(
         std::pair<std::string, Function>(func.name, func));
 }

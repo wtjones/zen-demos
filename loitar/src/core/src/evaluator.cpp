@@ -78,7 +78,7 @@ EvaluatorResult evaluate_expression(
     Environment& env,
     std::vector<std::shared_ptr<Node>> expression, int depth)
 {
-    spdlog::trace("evaluate_expression");
+    spdlog::trace("evaluate_expression with size {}", expression.size());
 
     EvaluatorResult result;
 
