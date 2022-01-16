@@ -4,6 +4,7 @@
 #include "loitar/core/nil_node.hpp"
 #include "loitar/core/true_node.hpp"
 #include "spdlog/spdlog.h"
+#include <any>
 #include <catch2/catch.hpp>
 #include <map>
 #include <memory>
@@ -51,6 +52,23 @@ TEST_CASE("ListNode should support ostream")
     ss << *sut;
 
     REQUIRE(ss.str() == expected);
+}
+
+TEST_CASE("ListNode supports value()")
+{
+
+    std::vector<std::shared_ptr<Node>>
+        inner_elements = {
+            std::make_shared<AtomNode>("+"),
+            std::make_shared<IntegerNode>("1", 1),
+            std::make_shared<IntegerNode>("1", 1)
+        };
+    auto sut0 = std::make_shared<ListNode>(inner_elements);
+
+    auto actual = sut0->value();
+
+    REQUIRE(actual.has_value());
+    REQUIRE(std::any_cast<std::vector<std::any>>(actual).size() == 3);
 }
 
 TEST_CASE("Node id is unique")

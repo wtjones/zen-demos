@@ -12,6 +12,11 @@ std::string NilNode::name() const
     return "NilNode";
 }
 
+std::any NilNode::value() const
+{
+    return std::any(false);
+}
+
 bool NilNode::operator==(const Node& node) const
 {
     if (node.name() == "TrueNode") {
@@ -21,8 +26,8 @@ bool NilNode::operator==(const Node& node) const
         return true;
     }
     if (node.name() == "ListNode") {
-        auto list_node = dynamic_cast<const ListNode&>(node);
-        return list_node.get_elements().size() == 0;
+        auto list_node = std::any_cast<std::vector<std::any>>(node.value());
+        return list_node.size() == 0;
     }
     return false;
 }

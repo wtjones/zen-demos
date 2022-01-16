@@ -9,6 +9,7 @@ class TrueNode : public AtomNode {
 public:
     TrueNode();
     std::string name() const;
+    std::any value() const;
 
 protected:
     void print(std::ostream& os) const;

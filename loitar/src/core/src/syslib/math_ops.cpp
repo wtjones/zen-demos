@@ -19,9 +19,9 @@ Function operator_add(Environment& env)
             auto sum = 0;
             for (auto node : params) {
                 if (node->name() == "IntegerNode") {
-                    auto int_node = std::dynamic_pointer_cast<IntegerNode>(node);
-                    spdlog::trace("Summing {}", int_node->get_value());
-                    sum += int_node->get_value();
+                    auto int_node = std::any_cast<int64_t>(node->value());
+                    spdlog::trace("Summing {}", int_node);
+                    sum += int_node;
                 } else {
                     ResultMessage message { .level = error, .message = "Expected IntegerNode but received " + node->name() };
                     result.messages.push_back(message);

@@ -25,10 +25,11 @@ TEST_CASE("Scalars should evaluate", "")
     auto results = evaluate(env, expr);
     REQUIRE(expr.size() == results.value.size());
     REQUIRE(results.messages.size() == 0);
-    auto int0 = std::dynamic_pointer_cast<IntegerNode>(results.value[0]);
-    REQUIRE(int0->get_value() == 100);
-    auto int1 = std::dynamic_pointer_cast<IntegerNode>(results.value[1]);
-    REQUIRE(int1->get_value() == 200);
+
+    auto int0 = std::any_cast<int64_t>(results.value[0]->value());
+    REQUIRE(int0 == 100);
+    auto int1 = std::any_cast<int64_t>(results.value[1]->value());
+    REQUIRE(int1 == 200);
 }
 
 TEST_CASE("List without function should not evaluate", "")
@@ -63,8 +64,8 @@ TEST_CASE("Add function should evaluate", "")
     };
     auto results = evaluate(env, expr);
     REQUIRE(results.messages.size() == 0);
-    auto int0 = std::dynamic_pointer_cast<IntegerNode>(results.value[0]);
-    REQUIRE(int0->get_value() == 500);
+    auto int0 = std::any_cast<int64_t>(results.value[0]->value());
+    REQUIRE(int0 == 500);
 }
 
 TEST_CASE("List params should evaluate", "")
@@ -90,6 +91,6 @@ TEST_CASE("List params should evaluate", "")
     };
     auto results = evaluate(env, expr);
     REQUIRE(results.messages.size() == 0);
-    auto int0 = std::dynamic_pointer_cast<IntegerNode>(results.value[0]);
-    REQUIRE(int0->get_value() == 6);
+    auto int0 = std::any_cast<int64_t>(results.value[0]->value());
+    REQUIRE(int0 == 6);
 }

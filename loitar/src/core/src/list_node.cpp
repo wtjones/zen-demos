@@ -17,6 +17,15 @@ std::string ListNode::name() const
     return "ListNode";
 }
 
+std::any ListNode::value() const
+{
+    auto result = std::vector<std::any>();
+    for (auto node : m_elements) {
+        result.push_back(node->value());
+    }
+    return result;
+}
+
 std::vector<std::shared_ptr<Node>> ListNode::get_elements() const
 {
     return m_elements;
@@ -34,12 +43,12 @@ bool ListNode::operator!=(const Node& node) const
 
 bool ListNode::operator<(const Node& node) const
 {
-    return m_elements < (dynamic_cast<const ListNode&>(node)).get_elements();
+    return false;
 }
 
 bool ListNode::operator<=(const Node& node) const
 {
-    return m_elements <= (dynamic_cast<const ListNode&>(node)).get_elements();
+    return false;
 }
 
 bool ListNode::operator>(const Node& node) const

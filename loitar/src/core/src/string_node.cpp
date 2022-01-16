@@ -13,9 +13,9 @@ std::string StringNode::name() const
     return "StringNode";
 }
 
-std::string StringNode::get_value()
+std::any StringNode::value() const
 {
-    return m_value;
+    return std::any(m_value);
 }
 
 void StringNode::print(std::ostream& out) const

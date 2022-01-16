@@ -12,34 +12,30 @@ std::string IntegerNode::name() const
     return "IntegerNode";
 }
 
-int64_t IntegerNode::get_value() const
+std::any IntegerNode::value() const
 {
-    return m_value;
+    return std::any(m_value);
 }
 
 bool IntegerNode::operator==(const Node& node) const
 {
-    if (node.name() == "TrueNode") {
-        return true;
-    }
-
     if (node.name() != this->name()) {
         return false;
     }
 
-    return (dynamic_cast<const IntegerNode&>(node)).get_value() == m_value;
+    return m_value == std::any_cast<int64_t>(node.value());
 }
 
 bool IntegerNode::operator<(const Node& node) const
 {
     // can trigger std:bad_cast if types are not the same
-    return m_value < (dynamic_cast<const IntegerNode&>(node)).get_value();
+    return m_value < std::any_cast<int64_t>(node.value());
 }
 
 bool IntegerNode::operator<=(const Node& node) const
 {
     // can trigger std:bad_cast if types are not the same
-    return m_value <= (dynamic_cast<const IntegerNode&>(node)).get_value();
+    return m_value <= std::any_cast<int64_t>(node.value());
 }
 
 void IntegerNode::print(std::ostream& out) const

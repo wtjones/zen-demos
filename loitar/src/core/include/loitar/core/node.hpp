@@ -1,5 +1,6 @@
 #pragma once
 
+#include <any>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -20,6 +21,7 @@ public:
     virtual ~Node();
     unsigned int id() const;
     virtual std::string name() const = 0;
+    virtual std::any value() const = 0;
     std::weak_ptr<Node> parent();
     void parent(std::weak_ptr<Node> parent_node);
     friend std::ostream& operator<<(std::ostream& out, const Node& node);

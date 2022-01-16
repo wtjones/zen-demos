@@ -12,6 +12,7 @@ class NilNode : public AtomNode {
 public:
     NilNode();
     std::string name() const;
+    std::any value() const;
     bool operator==(const Node& node) const;
     bool operator!=(const Node& node) const;
 

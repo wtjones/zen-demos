@@ -11,6 +11,7 @@ public:
     ListNode(
         std::vector<std::shared_ptr<Node>> elements);
     std::string name() const;
+    std::any value() const;
     std::vector<std::shared_ptr<Node>> get_elements() const;
     bool operator==(const Node& node) const;
     bool operator!=(const Node& node) const;

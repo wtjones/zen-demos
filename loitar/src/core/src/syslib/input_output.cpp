@@ -28,7 +28,7 @@ Function print(Environment& env)
             ss << *(params.front());
             auto string_node = std::make_shared<StringNode>("", ss.str());
             result.value = string_node;
-            std::cout << string_node->get_value() << std::endl;
+            std::cout << ss.str() << std::endl;
             return result;
         }
     };

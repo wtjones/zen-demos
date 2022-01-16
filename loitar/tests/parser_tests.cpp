@@ -40,13 +40,16 @@ TEST_CASE("Ints should parse", "")
     REQUIRE(elements.size() == 3);
 
     auto a0 = std::dynamic_pointer_cast<IntegerNode>(elements[0]);
-    auto a1 = std::dynamic_pointer_cast<IntegerNode>(elements[1]);
-    auto a2 = std::dynamic_pointer_cast<IntegerNode>(elements[2]);
+
+    auto int0 = std::any_cast<int64_t>(elements[0]->value());
+    auto int1 = std::any_cast<int64_t>(elements[1]->value());
+    auto int2 = std::any_cast<int64_t>(elements[2]->value());
     bool result = a0->get_token() == "+1";
+
     REQUIRE(result);
-    REQUIRE(a0->get_value() == 1);
-    REQUIRE(a1->get_value() == -2);
-    REQUIRE(a2->get_value() == 3);
+    REQUIRE(int0 == 1);
+    REQUIRE(int1 == -2);
+    REQUIRE(int2 == 3);
 }
 
 TEST_CASE("Lists should parse", "")
@@ -75,27 +78,27 @@ TEST_CASE("Non-list should parse", "")
     const std::string expression = "1 2";
     auto actual = parse(expression);
 
-    auto int0 = std::dynamic_pointer_cast<IntegerNode>(actual[0]);
-    auto int1 = std::dynamic_pointer_cast<IntegerNode>(actual[1]);
+    auto int0 = std::any_cast<int64_t>(actual[0]->value());
+    auto int1 = std::any_cast<int64_t>(actual[1]->value());
 
-    REQUIRE(int0->get_value() == 1);
-    REQUIRE(int1->get_value() == 2);
+    REQUIRE(int0 == 1);
+    REQUIRE(int1 == 2);
 }
 
 TEST_CASE("StringAtom should parse")
 {
     const std::string expression = "\"Hello\"";
     auto actual = parse(expression);
-    auto str0 = std::dynamic_pointer_cast<StringNode>(actual[0]);
+    auto str0 = std::any_cast<std::string>(actual[0]->value());
 
-    REQUIRE(str0->get_value() == "Hello");
+    REQUIRE(str0 == "Hello");
 }
 
 TEST_CASE("StringAtom should parse with escape")
 {
     const std::string expression = "\"Hello, \\\"quoted\\\"\"";
     auto actual = parse(expression);
-    auto str0 = std::dynamic_pointer_cast<StringNode>(actual[0]);
+    auto str0 = std::any_cast<std::string>(actual[0]->value());
 
-    REQUIRE(str0->get_value() == "Hello, \"quoted\"");
+    REQUIRE(str0 == "Hello, \"quoted\"");
 }
