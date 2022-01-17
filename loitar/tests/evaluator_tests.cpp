@@ -68,6 +68,26 @@ TEST_CASE("Add function should evaluate", "")
     REQUIRE(int0 == 500);
 }
 
+TEST_CASE("Subtract function should evaluate", "")
+{
+    Environment env;
+    syslib::apply_syslib(env);
+
+    std::vector<std::shared_ptr<Node>>
+        elements = {
+            std::make_shared<AtomNode>("-"),
+            std::make_shared<IntegerNode>("200", 200),
+            std::make_shared<IntegerNode>("300", 300)
+        };
+    std::vector<std::shared_ptr<Node>> expr = {
+        std::make_shared<ListNode>(elements)
+    };
+    auto results = evaluate(env, expr);
+    REQUIRE(results.messages.size() == 0);
+    auto int0 = std::any_cast<int64_t>(results.value[0]->value());
+    REQUIRE(int0 == -100);
+}
+
 TEST_CASE("List params should evaluate", "")
 {
     Environment env;

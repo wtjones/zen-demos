@@ -8,20 +8,22 @@
 
 namespace loitar::syslib {
 
-Function operator_add(Environment& env)
+typedef std::function<std::shared_ptr<Node>(std::vector<std::any>)> OpFunc;
+
+Function operator_func(Environment& env, OpFunc op, std::string name)
 {
     Function func {
-        .name = "+",
+        .name = name,
         .eval_params = true,
-        .body = [env](std::vector<std::shared_ptr<Node>> params) -> EvaluatorNodeResult {
-            spdlog::trace("called syslib.operator_add with {} params", params.size());
+        .body = [env, name, op](std::vector<std::shared_ptr<Node>> params) -> EvaluatorNodeResult {
+            spdlog::trace("called syslib.operator_fun {} with {} params", name, params.size());
             EvaluatorNodeResult result { .value = nullptr };
             auto sum = 0;
+            std::vector<std::any> values;
+
             for (auto node : params) {
                 if (node->name() == "IntegerNode") {
-                    auto int_node = std::any_cast<int64_t>(node->value());
-                    spdlog::trace("Summing {}", int_node);
-                    sum += int_node;
+                    values.push_back(node->value());
                 } else {
                     ResultMessage message { .level = error, .message = "Expected IntegerNode but received " + node->name() };
                     result.messages.push_back(message);
@@ -29,17 +31,46 @@ Function operator_add(Environment& env)
                     return result;
                 }
             }
-            result.value = std::make_shared<IntegerNode>("", sum);
-            spdlog::trace("operator_add result with {}", sum);
+
+            result.value = op(values);
             return result;
         }
     };
     return func;
 }
 
+Function operator_add(Environment& env)
+{
+    OpFunc op([](std::vector<std::any> values) -> std::shared_ptr<Node> {
+        int64_t result = std::any_cast<int64_t>(values[0]);
+
+        for (auto i = values.begin() + 1; i != values.end(); ++i) {
+            result += std::any_cast<int64_t>(*i);
+        }
+        return std::make_shared<IntegerNode>("", result);
+    });
+
+    return operator_func(env, op, "+");
+}
+
+Function operator_subtract(Environment& env)
+{
+    OpFunc op([](std::vector<std::any> values) -> std::shared_ptr<Node> {
+        int64_t result = std::any_cast<int64_t>(values[0]);
+
+        for (auto i = values.begin() + 1; i != values.end(); ++i) {
+            result -= std::any_cast<int64_t>(*i);
+        }
+        return std::make_shared<IntegerNode>("", result);
+    });
+
+    return operator_func(env, op, "-");
+}
+
 void apply_syslib_math_ops(Environment& env)
 {
     env.add_function(operator_add(env));
+    env.add_function(operator_subtract(env));
 }
 
 }
