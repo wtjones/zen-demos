@@ -67,10 +67,25 @@ Function operator_subtract(Environment& env)
     return operator_func(env, op, "-");
 }
 
+Function operator_multiply(Environment& env)
+{
+    OpFunc op([](std::vector<std::any> values) -> std::shared_ptr<Node> {
+        int64_t result = std::any_cast<int64_t>(values[0]);
+
+        for (auto i = values.begin() + 1; i != values.end(); ++i) {
+            result *= std::any_cast<int64_t>(*i);
+        }
+        return std::make_shared<IntegerNode>("", result);
+    });
+
+    return operator_func(env, op, "*");
+}
+
 void apply_syslib_math_ops(Environment& env)
 {
     env.add_function(operator_add(env));
     env.add_function(operator_subtract(env));
+    env.add_function(operator_multiply(env));
 }
 
 }

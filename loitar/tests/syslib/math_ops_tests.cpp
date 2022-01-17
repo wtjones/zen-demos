@@ -13,58 +13,56 @@
 
 using namespace loitar;
 
-TEST_CASE("Scalars should evaluate", "")
+TEST_CASE("Add function should evaluate", "")
 {
     Environment env;
     syslib::apply_syslib(env);
 
-    std::vector<std::shared_ptr<Node>> expr {
-        std::make_shared<IntegerNode>("100", 100),
-        std::make_shared<IntegerNode>("200", 200)
-    };
-    auto results = evaluate(env, expr);
-    REQUIRE(expr.size() == results.value.size());
-    REQUIRE(results.messages.size() == 0);
-
-    auto int0 = std::any_cast<int64_t>(results.value[0]->value());
-    REQUIRE(int0 == 100);
-    auto int1 = std::any_cast<int64_t>(results.value[1]->value());
-    REQUIRE(int1 == 200);
-}
-
-TEST_CASE("List without function should not evaluate", "")
-{
-    Environment env;
-    syslib::apply_syslib(env);
-
-    std::vector<std::shared_ptr<Node>> elements = {
-        std::make_shared<IntegerNode>("200", 200)
-    };
+    std::vector<std::shared_ptr<Node>>
+        elements = {
+            std::make_shared<AtomNode>("+"),
+            std::make_shared<IntegerNode>("200", 200),
+            std::make_shared<IntegerNode>("300", 300)
+        };
     std::vector<std::shared_ptr<Node>> expr = {
         std::make_shared<ListNode>(elements)
     };
     auto results = evaluate(env, expr);
-    REQUIRE(results.value.size() == 0);
-    REQUIRE(results.messages.size() == 1);
+    REQUIRE(results.messages.size() == 0);
+    auto int0 = std::any_cast<int64_t>(results.value[0]->value());
+    REQUIRE(int0 == 500);
 }
 
-TEST_CASE("List params should evaluate", "")
+TEST_CASE("Subtract function should evaluate", "")
 {
     Environment env;
     syslib::apply_syslib(env);
 
     std::vector<std::shared_ptr<Node>>
-        inner_elements = {
-            std::make_shared<AtomNode>("+"),
-            std::make_shared<IntegerNode>("1", 1),
-            std::make_shared<IntegerNode>("1", 1)
+        elements = {
+            std::make_shared<AtomNode>("-"),
+            std::make_shared<IntegerNode>("200", 200),
+            std::make_shared<IntegerNode>("300", 300)
         };
+    std::vector<std::shared_ptr<Node>> expr = {
+        std::make_shared<ListNode>(elements)
+    };
+    auto results = evaluate(env, expr);
+    REQUIRE(results.messages.size() == 0);
+    auto int0 = std::any_cast<int64_t>(results.value[0]->value());
+    REQUIRE(int0 == -100);
+}
+
+TEST_CASE("Multiply function should evaluate", "")
+{
+    Environment env;
+    syslib::apply_syslib(env);
+
     std::vector<std::shared_ptr<Node>>
         elements = {
-            std::make_shared<AtomNode>("+"),
+            std::make_shared<AtomNode>("*"),
             std::make_shared<IntegerNode>("2", 2),
-            std::make_shared<IntegerNode>("2", 2),
-            std::make_shared<ListNode>(inner_elements)
+            std::make_shared<IntegerNode>("3", 3)
         };
     std::vector<std::shared_ptr<Node>> expr = {
         std::make_shared<ListNode>(elements)
