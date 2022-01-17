@@ -12,9 +12,11 @@ An experiment in Lisp
 
 `./build/bin/loitar x "(+ 2 2)"`
 
-### Execute from file
+### Execute examples
 
 `./build/bin/loitar examples/hello.lisp`
+
+`./build/bin/loitar examples/factorial.lisp`
 
 ## Development
 

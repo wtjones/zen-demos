@@ -65,7 +65,6 @@ std::vector<std::shared_ptr<Node>> parse_expression(std::string input, int& pos,
         }
         pos = nextCharPos;
         parse_count++;
-        assert(parse_count < max_parse);
     }
     spdlog::trace("return from expression");
     return result;

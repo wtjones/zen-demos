@@ -9,8 +9,7 @@
 
 namespace loitar {
 
-const int max_depth = 10;
-const int max_parse = 1000; // sanity check for development
+const int max_depth = 100;
 
 std::vector<std::shared_ptr<Node>> parse_expression(std::string input, int& pos, int depth);
 
