@@ -10,6 +10,7 @@ public:
     TrueNode();
     std::string name() const;
     std::any value() const;
+    bool operator==(const Node& node) const;
 
 protected:
     void print(std::ostream& os) const;

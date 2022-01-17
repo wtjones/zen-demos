@@ -2,6 +2,6 @@
 (loop
     (setq a (+ a 1))
     (print a)
-    (if (eq a 20) (return a))
+    (if (= a 20) (return a))
 )
 
