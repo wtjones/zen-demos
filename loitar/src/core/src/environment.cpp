@@ -46,13 +46,13 @@ std::shared_ptr<Node> Environment::get_variable(std::string name)
 size_t Environment::push_block()
 {
     m_blocks.push_back(Block());
-    spdlog::trace("Entering block level {}", m_blocks.size());
+    spdlog::trace("push_block() to level {}", m_blocks.size());
     return m_blocks.size();
 }
 size_t Environment::pop_block()
 {
     m_blocks.pop_back();
-    spdlog::trace("Entering block level {}", m_blocks.size());
+    spdlog::trace("pop_block() to level {}", m_blocks.size());
     return m_blocks.size();
 }
 size_t Environment::block_level()

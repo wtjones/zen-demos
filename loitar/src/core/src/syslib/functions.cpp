@@ -105,6 +105,7 @@ Function defun(Environment& env)
                             return result;
                         }
                     }
+                    env.pop_block();
                     return result;
                 }
             };
