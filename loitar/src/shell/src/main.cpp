@@ -50,16 +50,17 @@ void init_logging()
     logger->flush_on(spdlog::level::trace);
 }
 
-int execute(std::string input)
+void print_result(loitar::EvaluatorResult result)
 {
-    loitar::Repl repl;
-    auto result = repl.execute(input);
     for (auto e : result.value) {
         if (e != nullptr) {
             std::cout << *e << std::endl;
         }
     }
+}
 
+void print_messages(loitar::EvaluatorResult result)
+{
     for (auto m : result.messages) {
 
         auto level = (const char*[]) {
@@ -70,6 +71,16 @@ int execute(std::string input)
 
         std::cout << "[eval] [" << level << "] " << m.message << std::endl;
     }
+}
+
+int execute(std::string input)
+{
+    loitar::Repl repl;
+    auto result = repl.execute(input);
+
+    print_result(result);
+    print_messages(result);
+
     return 0;
 }
 
@@ -85,7 +96,12 @@ int execute_file(std::string in_file_path)
     std::stringstream buffer;
     buffer << t.rdbuf();
     input_source = buffer.str();
-    return execute(input_source);
+
+    loitar::Repl repl;
+    auto result = repl.execute(input_source);
+    print_messages(result);
+
+    return 0;
 }
 
 int main(int argc, char** argv)
