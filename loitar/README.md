@@ -18,6 +18,8 @@ An experiment in Lisp
 
 `./build/bin/loitar examples/factorial.lisp`
 
+`./build/bin/loitar examples/fibonacci.lisp`
+
 ## Development
 
 Run all tests
