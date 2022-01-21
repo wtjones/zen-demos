@@ -24,6 +24,13 @@ void Node::parent(std::weak_ptr<Node> parent_node)
     m_parent = parent_node;
 }
 
+std::string Node::to_string() const
+{
+    std::stringstream stream;
+    print(stream);
+    return stream.str();
+}
+
 std::ostream& operator<<(std::ostream& os, const Node& p)
 {
     p.print(os);

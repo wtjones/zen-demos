@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <typeinfo>
 #include <vector>
@@ -24,6 +25,7 @@ public:
     virtual std::any value() const = 0;
     std::weak_ptr<Node> parent();
     void parent(std::weak_ptr<Node> parent_node);
+    std::string to_string() const;
     friend std::ostream& operator<<(std::ostream& out, const Node& node);
     virtual bool operator==(const Node& node) const = 0;
     virtual bool operator!=(const Node& node) const = 0;

@@ -2,6 +2,7 @@
 #include "loitar/core/integer_node.hpp"
 #include "loitar/core/list_node.hpp"
 #include "loitar/core/nil_node.hpp"
+#include "loitar/core/parser.hpp"
 #include "loitar/core/true_node.hpp"
 #include "spdlog/spdlog.h"
 #include <any>
@@ -171,4 +172,21 @@ TEST_CASE("IntegerNode supports comparisons")
     REQUIRE(sut1 >= sut0);
     REQUIRE(sut1 >= sut1);
     REQUIRE(sut1 <= sut1);
+}
+
+TEST_CASE("AtomNode.to_string() stringifies")
+{
+    IntegerNode sut0("11", 11);
+    AtomNode sut1("apple");
+
+    REQUIRE(sut0.to_string() == "11");
+    REQUIRE(sut1.to_string() == "apple");
+}
+
+TEST_CASE("ListNode.to_string() stringifies")
+{
+    const std::string expression0 = "(+ 1 2 3)";
+    const std::string expected0 = expression0;
+    auto sut0 = parse(expression0);
+    REQUIRE(sut0.front()->to_string() == expected0);
 }
