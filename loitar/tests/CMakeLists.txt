@@ -13,6 +13,7 @@ add_executable(testlib
     evaluator_tests.cpp
     node_tests.cpp
     parser_tests.cpp
+    syslib/lists_tests.cpp
     syslib/math_ops_tests.cpp)
 
 target_compile_features(testlib PRIVATE cxx_std_17)

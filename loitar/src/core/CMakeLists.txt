@@ -14,6 +14,7 @@ add_library(loitar_core
     src/syslib/flow_control.cpp
     src/syslib/functions.cpp
     src/syslib/input_output.cpp
+    src/syslib/lists.cpp
     src/syslib/math_ops.cpp
     src/syslib/special_ops.cpp
     src/syslib/syslib.cpp
