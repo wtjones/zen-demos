@@ -1,6 +1,7 @@
 #include "loitar/core/atom_node.hpp"
 #include "loitar/core/integer_node.hpp"
 #include "loitar/core/parser.hpp"
+#include "loitar/core/repl.hpp"
 #include "loitar/core/string_node.hpp"
 #include "spdlog/spdlog.h"
 #include <catch2/catch.hpp>
@@ -101,4 +102,15 @@ TEST_CASE("StringAtom should parse with escape")
     auto str0 = std::any_cast<std::string>(actual[0]->value());
 
     REQUIRE(str0 == "Hello, \"quoted\"");
+}
+
+TEST_CASE("Adjacent atom and list should parse", "")
+{
+    const std::string expression = "(if t(print 2)(print 4))";
+    const std::string expected = "2";
+    Repl repl;
+
+    auto actual = repl.execute(expression).value.front()->to_string();
+
+    REQUIRE(expected == actual);
 }

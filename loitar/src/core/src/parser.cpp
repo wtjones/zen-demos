@@ -137,7 +137,7 @@ std::shared_ptr<AtomNode> parse_atom(std::string input, int& pos, int depth)
     }
 
     // General atom or nil
-    auto nextCharPos = input.find_first_of(" )\n", pos);
+    auto nextCharPos = input.find_first_of(" ())\n", pos);
     auto token = input.substr(pos, nextCharPos - pos);
     pos = nextCharPos;
 

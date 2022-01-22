@@ -38,7 +38,8 @@ Function defun(Environment& env)
             }
 
             if (params[1]->name() != "ListNode") {
-                ResultMessage message { .level = error, .message = "Expected AtomNode param but received " + params.back()->name() };
+                ResultMessage message { .level = error,
+                    .message = "Expected ListNode param but received " + params[1]->name() + ": " + params[1]->to_string() };
                 result.messages.push_back(message);
                 spdlog::info("{}", message.message);
                 return result;
