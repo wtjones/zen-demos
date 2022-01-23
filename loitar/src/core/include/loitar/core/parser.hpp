@@ -15,6 +15,8 @@ std::vector<std::shared_ptr<Node>> parse_expression(std::string input, int& pos,
 
 std::shared_ptr<AtomNode> parse_atom(std::string input, int& pos, int depth);
 
+void parse_comment(std::string input, int& pos, int depth);
+
 std::shared_ptr<ListNode> parse_list(std::string input, int& pos, int depth);
 
 std::vector<std::shared_ptr<Node>> parse(std::string input);

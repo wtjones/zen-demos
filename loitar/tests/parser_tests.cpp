@@ -114,3 +114,20 @@ TEST_CASE("Adjacent atom and list should parse", "")
 
     REQUIRE(expected == actual);
 }
+
+TEST_CASE("Comments should be ignored")
+{
+    const std::string expression = R"(
+; this is a comment
+(setq a 55) ;; another
+a           ;; return a
+; hello
+)";
+    const std::string expected = "55";
+    Repl repl;
+    auto result = repl.execute(expression);
+
+    REQUIRE(result.messages.size() == 0);
+    auto actual = result.value.back()->to_string();
+    REQUIRE(expected == actual);
+}

@@ -31,7 +31,9 @@ std::vector<std::shared_ptr<Node>> parse_expression(std::string input, int& pos,
         auto nextChar = input.substr(nextCharPos, 1);
         spdlog::trace("parse_expression char: '{}' pos: {}, depth {}",
             nextChar, std::to_string(nextCharPos), std::to_string(depth));
-        if (nextChar == ")") {
+        if (nextChar == ";") {
+            parse_comment(input, pos, depth + 1);
+        } else if (nextChar == ")") {
             if (depth == 0) {
                 assert("Token ')' was not expected.");
             }
@@ -153,6 +155,13 @@ std::shared_ptr<AtomNode> parse_atom(std::string input, int& pos, int depth)
 
     spdlog::trace("AtomNode with value '{}'", token);
     return std::make_shared<AtomNode>(token);
+}
+
+void parse_comment(std::string input, int& pos, int depth)
+{
+    spdlog::trace("parse_comment: pos: {}, depth {}", std::to_string(pos), std::to_string(depth));
+    auto nextCharPos = input.find_first_of("\n", pos);
+    pos = nextCharPos;
 }
 
 std::shared_ptr<ListNode> parse_list(std::string input, int& pos, int depth)
