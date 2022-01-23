@@ -135,6 +135,13 @@ Function construct_loop(Environment& env)
                         std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));
                         return result;
                     }
+
+                    result.value = eval_result.value.front();
+
+                    if (block_level != env.block_level()) {
+                        spdlog::trace("Block level changed during loop. Returning...");
+                        return result;
+                    }
                 }
                 env.pop_block();
             } else {

@@ -21,3 +21,16 @@ TEST_CASE("Loop for from construct iterates", "")
 
     REQUIRE(expected == actual);
 }
+
+TEST_CASE("Loop for from construct can return", "")
+{
+    const std::string expression = R"(
+(loop for a from 10 to 20
+    do (return a))
+)";
+    const std::string expected = "10";
+    Repl repl;
+    auto actual = repl.execute(expression).value.back()->to_string();
+
+    REQUIRE(expected == actual);
+}
