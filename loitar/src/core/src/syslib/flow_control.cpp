@@ -83,24 +83,65 @@ Function construct_loop(Environment& env)
             spdlog::trace("called syslib.construct_loop with {} params", params.size());
             EvaluatorNodeResult result { .value = nullptr };
 
-            auto block_level = env.push_block();
-            while (true) {
-                for (auto expression : params) {
+            if (params.size() == 0 || params.front()->name() == "ListNode") {
+                auto block_level = env.push_block();
+                while (true) {
+                    for (auto expression : params) {
+                        std::vector<std::shared_ptr<Node>> expressions;
+                        expressions.push_back(expression);
+                        auto eval_result = evaluate_expression(env, expressions, 0);
+
+                        if (eval_result.messages.size() > 0) {
+                            std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));
+                            return result;
+                        }
+                        result.value = eval_result.value.front();
+
+                        if (block_level != env.block_level()) {
+                            spdlog::trace("Block level changed during loop. Returning...");
+                            return result;
+                        }
+                    }
+                }
+            } else if (params.size() >= 8
+                && params.front()->to_string() == "for"
+                && params[1]->name() == "AtomNode"
+                && params[2]->to_string() == "from"
+                && params[3]->name() == "IntegerNode"
+                && params[4]->to_string() == "to"
+                && params[5]->name() == "IntegerNode"
+                && params[6]->to_string() == "do"
+                && params[7]->name() == "ListNode") {
+                spdlog::trace("Loop for x from n to n do construct..");
+
+                std::string var_name
+                    = params[1]->to_string();
+
+                auto from_n = std::any_cast<int64_t>(params[3]->value());
+                auto to_n = std::any_cast<int64_t>(params[5]->value());
+
+                spdlog::trace("Loop for {} from {} to {} do construct..", var_name, from_n, to_n);
+                auto action = params[7];
+
+                auto block_level = env.push_block();
+                for (auto i = from_n; i <= to_n; i++) {
+                    env.set_variable(var_name, std::make_shared<IntegerNode>("", i), ScopeType::local);
+                    spdlog::trace("Loop for construct: evaluating do expression...");
                     std::vector<std::shared_ptr<Node>> expressions;
-                    expressions.push_back(expression);
+                    expressions.push_back(action);
                     auto eval_result = evaluate_expression(env, expressions, 0);
 
                     if (eval_result.messages.size() > 0) {
                         std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));
                         return result;
                     }
-                    result.value = eval_result.value.front();
-
-                    if (block_level != env.block_level()) {
-                        spdlog::trace("Block level changed during loop. Returning...");
-                        return result;
-                    }
                 }
+                env.pop_block();
+            } else {
+                ResultMessage message { .level = error, .message = "Unsupported loop for construct." };
+                result.messages.push_back(message);
+                spdlog::info("{}", message.message);
+                return result;
             }
             return result;
         }
