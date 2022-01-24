@@ -8,6 +8,70 @@
 
 namespace loitar::syslib {
 
+Function operator_cond(Environment& env)
+{
+    Function func {
+        .name = "cond",
+        .eval_params = false,
+        .body = [&env](std::vector<std::shared_ptr<Node>> params) -> EvaluatorNodeResult {
+            spdlog::trace("called syslib.operator_cond with {} params", params.size());
+            EvaluatorNodeResult result { .value = std::make_shared<NilNode>() };
+
+            for (auto clause : params) {
+
+                if (clause->name() != "ListNode") {
+                    ResultMessage message { .level = error, .message = "operator_cond: Expected a ListNode but found " + clause->name() };
+                    result.messages.push_back(message);
+                    spdlog::info("{}", message.message);
+                    return result;
+                }
+
+                if (clause->to_string() == "()") {
+                    ResultMessage message { .level = error, .message = "operator_cond: Expected non-empty ListNode" };
+                    result.messages.push_back(message);
+                    spdlog::info("{}", message.message);
+                    return result;
+                }
+
+                auto clause_list = std::dynamic_pointer_cast<ListNode>(clause);
+
+                std::vector<std::shared_ptr<Node>> eval_param;
+                eval_param.push_back(clause_list->get_elements().front());
+
+                auto eval_result = evaluate_expression(env, eval_param, 0);
+
+                spdlog::trace("evaluated cond expression...");
+                if (eval_result.messages.size() > 0) {
+                    spdlog::trace("evaluated true condition... bad");
+                    std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));
+                    return result;
+                }
+
+                if (*(eval_result.value.front()) == TrueNode()) {
+                    spdlog::trace("operator_cond: Clause {} is true");
+                    eval_param.clear();
+                    eval_param.push_back(clause_list->get_elements().back());
+
+                    auto eval_result = evaluate_expression(env, eval_param, 0);
+
+                    spdlog::trace("evaluated cond true expression...");
+                    if (eval_result.messages.size() > 0) {
+                        spdlog::trace("evaluated true condition... bad");
+                        std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));
+                        return result;
+                    }
+
+                    result.value = eval_result.value.front();
+                    return result;
+                }
+            }
+            spdlog::trace("operator_cond result with {}", result.value->to_string());
+            return result;
+        }
+    };
+    return func;
+}
+
 Function operator_if(Environment& env)
 {
     Function func {
@@ -194,6 +258,7 @@ Function construct_return(Environment& env)
 
 void apply_syslib_flow_control(Environment& env)
 {
+    env.add_function(operator_cond(env));
     env.add_function(operator_if(env));
     env.add_function(construct_loop(env));
     env.add_function(construct_return(env));
