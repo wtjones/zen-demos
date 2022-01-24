@@ -15,7 +15,7 @@ Function operator_func(Environment& env, OpFunc op, std::string name)
     Function func {
         .name = name,
         .eval_params = true,
-        .body = [env, name, op](std::vector<std::shared_ptr<Node>> params) -> EvaluatorNodeResult {
+        .body = [name, op](std::vector<std::shared_ptr<Node>> params) -> EvaluatorNodeResult {
             spdlog::trace("called syslib.operator_eq with {} params", params.size());
             EvaluatorNodeResult result { .value = nullptr };
 
