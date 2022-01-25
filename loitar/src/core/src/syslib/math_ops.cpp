@@ -81,11 +81,44 @@ Function operator_multiply(Environment& env)
     return operator_func(env, op, "*");
 }
 
+Function operator_mod(Environment& env)
+{
+    Function func {
+        .name = "mod",
+        .eval_params = true,
+        .body = [&env](std::vector<std::shared_ptr<Node>> params) -> EvaluatorNodeResult {
+            spdlog::trace("called syslib.mod with {} params", params.size());
+            EvaluatorNodeResult result { .value = nullptr };
+
+            if (params.size() != 2) {
+                ResultMessage message { .level = error, .message = "Expected 2 param but received " + std::to_string(params.size()) };
+                result.messages.push_back(message);
+                spdlog::info("{}", message.message);
+                return result;
+            }
+
+            if (params.front()->name() != "IntegerNode" || params.back()->name() != "IntegerNode") {
+                ResultMessage message { .level = error, .message = "Expected a number but received " + params.front()->name() };
+                result.messages.push_back(message);
+                spdlog::info("{}", message.message);
+                return result;
+            }
+
+            int64_t op_result = std::any_cast<int64_t>(params[0]->value()) % std::any_cast<int64_t>(params[1]->value());
+            ;
+            result.value = std::make_shared<IntegerNode>("", op_result);
+            return result;
+        }
+    };
+    return func;
+}
+
 void apply_syslib_math_ops(Environment& env)
 {
     env.add_function(operator_add(env));
     env.add_function(operator_subtract(env));
     env.add_function(operator_multiply(env));
+    env.add_function(operator_mod(env));
 }
 
 }
