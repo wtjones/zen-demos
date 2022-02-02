@@ -17,8 +17,10 @@ TEST_CASE("Loop for from construct iterates", "")
 )";
     const std::string expected = "6";
     Repl repl;
-    auto actual = repl.execute(expression).value.back()->to_string();
 
+    auto result = repl.execute(expression);
+    REQUIRE(result.messages.size() == 0);
+    auto actual = result.value.back()->to_string();
     REQUIRE(expected == actual);
 }
 
@@ -30,8 +32,10 @@ TEST_CASE("Loop for from construct can return", "")
 )";
     const std::string expected = "10";
     Repl repl;
-    auto actual = repl.execute(expression).value.back()->to_string();
 
+    auto result = repl.execute(expression);
+    REQUIRE(result.messages.size() == 0);
+    auto actual = result.value.back()->to_string();
     REQUIRE(expected == actual);
 }
 

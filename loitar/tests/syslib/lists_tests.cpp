@@ -19,7 +19,8 @@ TEST_CASE("List function should return list", "")
     const std::string expected = "(1 2 3)";
     Repl repl;
 
-    auto actual = repl.execute(expression).value.front()->to_string();
-
+    auto result = repl.execute(expression);
+    REQUIRE(result.messages.size() == 0);
+    auto actual = result.value.back()->to_string();
     REQUIRE(expected == actual);
 }

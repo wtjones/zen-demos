@@ -110,8 +110,9 @@ TEST_CASE("Adjacent atom and list should parse", "")
     const std::string expected = "2";
     Repl repl;
 
-    auto actual = repl.execute(expression).value.front()->to_string();
-
+    auto result = repl.execute(expression);
+    REQUIRE(result.messages.size() == 0);
+    auto actual = result.value.back()->to_string();
     REQUIRE(expected == actual);
 }
 
@@ -125,8 +126,8 @@ a           ;; return a
 )";
     const std::string expected = "55";
     Repl repl;
-    auto result = repl.execute(expression);
 
+    auto result = repl.execute(expression);
     REQUIRE(result.messages.size() == 0);
     auto actual = result.value.back()->to_string();
     REQUIRE(expected == actual);
