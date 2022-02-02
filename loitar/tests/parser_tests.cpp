@@ -132,3 +132,15 @@ a           ;; return a
     auto actual = result.value.back()->to_string();
     REQUIRE(expected == actual);
 }
+
+TEST_CASE("Apostrophe wraps node in quote form", "")
+{
+    const std::string expression = "'(1 2 3)";
+    const std::string expected = "(1 2 3)";
+    Repl repl;
+
+    auto result = repl.execute(expression);
+    REQUIRE(result.messages.size() == 0);
+    auto actual = result.value.back()->to_string();
+    REQUIRE(expected == actual);
+}

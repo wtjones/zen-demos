@@ -16,6 +16,61 @@ std::vector<std::shared_ptr<Node>> parse(std::string input)
     return parse_expression(input, pos, 0);
 }
 
+/**
+ * Wrap the node following an apostrophe in a quote form
+ * '(1 2 3) becomes (quote (1 2 3))
+ */
+std::shared_ptr<Node> parse_quote(std::string input, int& pos, int depth)
+{
+    pos++;
+    std::vector<std::shared_ptr<Node>> quote_elements;
+    quote_elements.push_back(std::make_shared<AtomNode>("quote"));
+
+    auto node = parse_node(input, pos, depth + 1);
+
+    if (node == nullptr) {
+        spdlog::trace("parse_quote: parse_node was null");
+    } else {
+        quote_elements.push_back(node);
+    }
+    return std::make_shared<ListNode>(quote_elements);
+}
+
+std::shared_ptr<Node> parse_node(std::string input, int& pos, int depth)
+{
+
+    auto nextChar = input.substr(pos, 1);
+    auto nextCharPos = pos;
+
+    spdlog::trace("parse_node: pos: {}, depth {}, char {}", std::to_string(pos), std::to_string(depth), nextChar);
+
+    std::shared_ptr<Node> result;
+
+    if (nextChar == "(") {
+        pos = nextCharPos;
+        auto list = parse_list(input, pos, depth + 1);
+        if (list == nullptr) {
+            std::vector<std::shared_ptr<Node>> empty;
+            return nullptr;
+        }
+        result = list;
+    } else if (nextChar == "'") {
+        pos = nextCharPos;
+        result = parse_quote(input, pos, depth + 1);
+    } else {
+        pos = nextCharPos;
+        auto atom = parse_atom(input, pos, depth + 1);
+        if (atom == nullptr) {
+            std::vector<std::shared_ptr<Node>> empty;
+            return nullptr;
+        }
+
+        result = atom;
+    }
+    spdlog::trace("parse_node: returning with {}", result->name());
+    return result;
+}
+
 std::vector<std::shared_ptr<Node>> parse_expression(std::string input, int& pos, int depth)
 {
     std::vector<std::shared_ptr<Node>> result;
@@ -40,22 +95,16 @@ std::vector<std::shared_ptr<Node>> parse_expression(std::string input, int& pos,
             pos++;
             spdlog::trace("end of expression found");
             done = true;
-        } else if (nextChar == "(") {
-            pos = nextCharPos;
-            auto list = parse_list(input, pos, depth + 1);
-            if (list == nullptr) {
-                std::vector<std::shared_ptr<Node>> empty;
-                return empty;
-            }
-            result.push_back(list);
         } else {
             pos = nextCharPos;
-            auto atom = parse_atom(input, pos, depth + 1);
-            if (atom == nullptr) {
+            auto node = parse_node(input, pos, depth + 1);
+            if (node == nullptr) {
+                spdlog::trace("parse_expression: parse_node returned nullptr");
                 std::vector<std::shared_ptr<Node>> empty;
                 return empty;
             }
-            result.push_back(atom);
+
+            result.push_back(node);
         }
 
         nextCharPos = input.find_first_not_of(" \n\t", pos);
@@ -142,6 +191,11 @@ std::shared_ptr<AtomNode> parse_atom(std::string input, int& pos, int depth)
     auto nextCharPos = input.find_first_of(" ())\n", pos);
     auto token = input.substr(pos, nextCharPos - pos);
     pos = nextCharPos;
+
+    if (token.length() == 0) {
+        spdlog::trace("Valid atom not found");
+        return nullptr;
+    }
 
     if (token == "t") {
         spdlog::trace("TrueNode with value '{}'", token);

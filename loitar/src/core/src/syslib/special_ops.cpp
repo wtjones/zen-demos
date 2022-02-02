@@ -1,6 +1,6 @@
+#include "loitar/core/syslib/special_ops.hpp"
 #include "loitar/core/evaluator.hpp"
 #include "loitar/core/list_node.hpp"
-#include "loitar/core/syslib/special_ops.hpp"
 #include <iostream>
 #include <memory>
 #include <sstream>
@@ -18,7 +18,7 @@ Function quote(Environment& env)
             EvaluatorNodeResult result { .value = nullptr };
 
             if (params.size() != 1) {
-                ResultMessage message { .level = error, .message = "Expected 1 param but received " + std::to_string(params.size()) };
+                ResultMessage message { .level = error, .message = "syslib.quote: Expected 1 param but received " + std::to_string(params.size()) };
                 result.messages.push_back(message);
                 spdlog::info("{}", message.message);
                 return result;
