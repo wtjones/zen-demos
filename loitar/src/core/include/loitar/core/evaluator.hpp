@@ -10,7 +10,7 @@
 
 namespace loitar {
 
-EvaluatorNodeResult evaluate_list_node(Environment& env, std::shared_ptr<ListNode> node);
+EvaluatorNodeResult evaluate_list_node(Environment& env, std::shared_ptr<Node> node);
 
 EvaluatorResult evaluate_expression(
     Environment& env,

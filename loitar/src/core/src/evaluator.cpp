@@ -7,7 +7,7 @@
 
 namespace loitar {
 
-EvaluatorNodeResult evaluate_function(Environment& env, std::shared_ptr<ListNode> node)
+EvaluatorNodeResult evaluate_function(Environment& env, std::shared_ptr<Node> node)
 {
     spdlog::trace("evaluate_function");
     EvaluatorNodeResult result { .value = nullptr };
@@ -56,7 +56,7 @@ EvaluatorNodeResult evaluate_function(Environment& env, std::shared_ptr<ListNode
     return func.body(params);
 }
 
-EvaluatorNodeResult evaluate_list_node(Environment& env, std::shared_ptr<ListNode> node)
+EvaluatorNodeResult evaluate_list_node(Environment& env, std::shared_ptr<Node> node)
 {
     EvaluatorNodeResult result { .value = nullptr };
 
@@ -87,7 +87,7 @@ EvaluatorResult evaluate_expression(
 
         if (node->name() == "ListNode") {
             spdlog::trace("Eval ListNode");
-            auto eval_result = evaluate_list_node(env, std::dynamic_pointer_cast<ListNode>(node));
+            auto eval_result = evaluate_list_node(env, node);
             spdlog::trace("back from evaluate_list_node");
             if (eval_result.messages.size() != 0) {
                 std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));

@@ -12,6 +12,8 @@ public:
     std::string name() const;
     std::any value() const;
     std::string get_token() const;
+    bool is_container() const;
+    std::vector<std::shared_ptr<Node>> get_elements() const;
     bool operator==(const Node& node) const;
     bool operator!=(const Node& node) const;
     bool operator<(const Node& node) const;

@@ -33,10 +33,8 @@ Function operator_cond(Environment& env)
                     return result;
                 }
 
-                auto clause_list = std::dynamic_pointer_cast<ListNode>(clause);
-
                 std::vector<std::shared_ptr<Node>> eval_param;
-                eval_param.push_back(clause_list->get_elements().front());
+                eval_param.push_back(clause->get_elements().front());
 
                 auto eval_result = evaluate_expression(env, eval_param, 0);
 
@@ -50,7 +48,7 @@ Function operator_cond(Environment& env)
                 if (*(eval_result.value.front()) == TrueNode()) {
                     spdlog::trace("operator_cond: Clause {} is true");
                     eval_param.clear();
-                    eval_param.push_back(clause_list->get_elements().back());
+                    eval_param.push_back(clause->get_elements().back());
 
                     auto eval_result = evaluate_expression(env, eval_param, 0);
 

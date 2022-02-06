@@ -22,6 +22,16 @@ std::string AtomNode::get_token() const
     return m_token;
 }
 
+bool AtomNode::is_container() const
+{
+    return false;
+}
+
+std::vector<std::shared_ptr<Node>> AtomNode::get_elements() const
+{
+    return std::vector<std::shared_ptr<Node>>();
+}
+
 bool AtomNode::operator==(const Node& node) const
 {
     if (node.name() != this->name() || !node.value().has_value()) {

@@ -25,6 +25,8 @@ public:
     virtual std::any value() const = 0;
     std::weak_ptr<Node> parent();
     void parent(std::weak_ptr<Node> parent_node);
+    virtual bool is_container() const = 0;
+    virtual std::vector<std::shared_ptr<Node>> get_elements() const = 0;
     std::string to_string() const;
     friend std::ostream& operator<<(std::ostream& out, const Node& node);
     virtual bool operator==(const Node& node) const = 0;

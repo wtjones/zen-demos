@@ -26,6 +26,11 @@ std::any ListNode::value() const
     return result;
 }
 
+bool ListNode::is_container() const
+{
+    return true;
+}
+
 std::vector<std::shared_ptr<Node>> ListNode::get_elements() const
 {
     return m_elements;

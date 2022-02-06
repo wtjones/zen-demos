@@ -46,7 +46,7 @@ Function defun(Environment& env)
             }
 
             // The params should consist of an empty list or a list of atoms defining the param names
-            auto param_list = std::dynamic_pointer_cast<ListNode>(params[1]);
+            auto param_list = params[1];
             std::vector<std::shared_ptr<AtomNode>> func_params;
 
             for (auto element : param_list->get_elements()) {

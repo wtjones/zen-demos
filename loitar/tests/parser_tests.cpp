@@ -16,7 +16,7 @@ TEST_CASE("Atoms should parse", "")
     const std::string expression = "(list 1 2)";
     auto actual = parse(expression);
 
-    auto elements = std::dynamic_pointer_cast<ListNode>(actual.front())->get_elements();
+    auto elements = actual.front()->get_elements();
 
     REQUIRE(elements.size() == 3);
 
@@ -36,7 +36,7 @@ TEST_CASE("Ints should parse", "")
     const std::string expression = "(+1 -2 3)";
     auto actual = parse(expression);
 
-    auto elements = std::dynamic_pointer_cast<ListNode>(actual.front())->get_elements();
+    auto elements = actual.front()->get_elements();
 
     REQUIRE(elements.size() == 3);
 
@@ -58,7 +58,7 @@ TEST_CASE("Lists should parse", "")
     const std::string expression = "(list 1 \"hello\" (list 8 9))";
     auto actual = parse(expression);
 
-    auto elements = std::dynamic_pointer_cast<ListNode>(actual.front())->get_elements();
+    auto elements = actual.front()->get_elements();
     REQUIRE(elements.size() == 4);
 
     auto atom0 = std::dynamic_pointer_cast<AtomNode>(elements[0]);
@@ -68,7 +68,7 @@ TEST_CASE("Lists should parse", "")
         std::dynamic_pointer_cast<AtomNode>(elements[1])->get_token() == "1");
 
     // nested list
-    auto list1_elements = std::dynamic_pointer_cast<ListNode>(elements[3])->get_elements();
+    auto list1_elements = elements[3]->get_elements();
     REQUIRE(list1_elements.size() == 3);
     REQUIRE(
         std::dynamic_pointer_cast<AtomNode>(list1_elements[1])->get_token() == "8");
