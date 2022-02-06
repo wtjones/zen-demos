@@ -136,6 +136,103 @@ Function operator_if(Environment& env)
     return func;
 }
 
+Function construct_dotimes(Environment& env)
+{
+    Function func {
+        .name = "dotimes",
+        .eval_params = false,
+        .body = [&env](std::vector<std::shared_ptr<Node>> params) -> EvaluatorNodeResult {
+            spdlog::trace("called syslib.construct_dotimes with {} params", params.size());
+            EvaluatorNodeResult result { .value = nullptr };
+
+            if (params.size() < 1) {
+                ResultMessage message { .level = error, .message = "Expected at least 1 params but received " + std::to_string(params.size()) };
+                result.messages.push_back(message);
+                spdlog::info("{}", message.message);
+                return result;
+            }
+
+            if (params.front()->name() != "ListNode") {
+                ResultMessage message { .level = error, .message = "Expected first param as ListNode but received " + params.front()->name() };
+                result.messages.push_back(message);
+                spdlog::info("{}", message.message);
+                return result;
+            }
+
+            if (params.front()->get_elements().size() != 2) {
+                ResultMessage message {
+                    .level = error,
+                    .message = "Expected ListNode param with 2 elements but received " + std::to_string(params.front()->get_elements().size())
+                };
+                result.messages.push_back(message);
+                spdlog::info("{}", message.message);
+                return result;
+            }
+
+            if (params.front()->get_elements().front()->name() != "AtomNode") {
+                ResultMessage message {
+                    .level = error,
+                    .message = "Expected variable but received " + params.front()->to_string()
+                };
+                result.messages.push_back(message);
+                spdlog::info("{}", message.message);
+                return result;
+            }
+
+            auto loop_variable = params.front()->get_elements().front();
+
+            // evaluate n times param
+            std::vector<std::shared_ptr<Node>> expressions;
+            expressions.push_back(params.front()->get_elements().back());
+            auto eval_result = evaluate_expression(env, expressions, 0);
+
+            if (eval_result.messages.size() > 0) {
+                std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));
+                return result;
+            }
+
+            auto from_n = 0;
+            auto to_n = std::any_cast<int64_t>(eval_result.value.front()->value());
+
+            spdlog::trace("dotimes: Iterate variable {} {} times...", loop_variable->to_string(), to_n);
+
+            // Params 1..n are the expressions in the body
+            std::vector<std::shared_ptr<Node>> loop_expressions;
+            for (auto i = params.begin() + 1; i != params.end(); ++i) {
+                loop_expressions.push_back(*i);
+                spdlog::trace("added {} loop statement...", (*i)->name());
+            }
+
+            auto block_level = env.push_block();
+            for (auto i = from_n; i < to_n; i++) {
+                env.set_variable(loop_variable->to_string(), std::make_shared<IntegerNode>("", i), ScopeType::local);
+                for (auto expression : loop_expressions) {
+
+                    expressions.clear();
+                    expressions.push_back(expression);
+                    auto eval_result = evaluate_expression(env, expressions, 0);
+
+                    if (eval_result.messages.size() > 0) {
+                        std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));
+                        return result;
+                    }
+
+                    result.value = eval_result.value.front();
+
+                    if (block_level != env.block_level()) {
+                        spdlog::trace("Block level changed during loop. Returning...");
+                        return result;
+                    }
+                }
+            }
+            env.pop_block();
+
+            return result;
+        }
+    };
+    return func;
+}
+
 Function construct_loop(Environment& env)
 {
     Function func {
@@ -258,6 +355,7 @@ void apply_syslib_flow_control(Environment& env)
 {
     env.add_function(operator_cond(env));
     env.add_function(operator_if(env));
+    env.add_function(construct_dotimes(env));
     env.add_function(construct_loop(env));
     env.add_function(construct_return(env));
 }

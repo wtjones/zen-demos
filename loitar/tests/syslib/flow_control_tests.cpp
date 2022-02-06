@@ -7,7 +7,24 @@
 
 using namespace loitar;
 
-TEST_CASE("Loop for from construct iterates", "")
+TEST_CASE("Construct dotimes iterates", "")
+{
+    const std::string expression = R"(
+(setq *total* 0)
+(dotimes (n 2)
+    (setq *total* (+ 1 *total*))
+*total*
+)";
+    const std::string expected = "2";
+    Repl repl;
+
+    auto result = repl.execute(expression);
+    REQUIRE(result.messages.size() == 0);
+    auto actual = result.value.back()->to_string();
+    REQUIRE(expected == actual);
+}
+
+TEST_CASE("Construct loop for from iterates", "")
 {
     const std::string expression = R"(
 (setq *total* 0)
@@ -24,7 +41,7 @@ TEST_CASE("Loop for from construct iterates", "")
     REQUIRE(expected == actual);
 }
 
-TEST_CASE("Loop for from construct can return", "")
+TEST_CASE("Construct loop for from can return", "")
 {
     const std::string expression = R"(
 (loop for a from 10 to 20
