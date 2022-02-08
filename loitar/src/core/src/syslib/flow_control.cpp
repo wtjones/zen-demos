@@ -299,26 +299,33 @@ Function construct_loop(Environment& env)
                 auto to_n = std::any_cast<int64_t>(eval_result.value.front()->value());
 
                 spdlog::trace("Loop for {} from {} to {} do construct..", var_name, from_n, to_n);
-                auto action = params[7];
+
+                std::vector<std::shared_ptr<Node>> actions;
+                for (auto i = params.begin() + 7; i != params.end(); ++i) {
+                    actions.push_back(*i);
+                    spdlog::trace("added {} do statement...", (*i)->name());
+                }
 
                 auto block_level = env.push_block();
                 for (auto i = from_n; i <= to_n; i++) {
                     env.set_variable(var_name, std::make_shared<IntegerNode>("", i), ScopeType::local);
-                    spdlog::trace("Loop for construct: evaluating do expression...");
-                    std::vector<std::shared_ptr<Node>> expressions;
-                    expressions.push_back(action);
-                    auto eval_result = evaluate_expression(env, expressions, 0);
+                    for (auto action : actions) {
+                        spdlog::trace("Loop for construct: evaluating do expression...");
+                        std::vector<std::shared_ptr<Node>> expressions;
+                        expressions.push_back(action);
+                        auto eval_result = evaluate_expression(env, expressions, 0);
 
-                    if (eval_result.messages.size() > 0) {
-                        std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));
-                        return result;
-                    }
+                        if (eval_result.messages.size() > 0) {
+                            std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));
+                            return result;
+                        }
 
-                    result.value = eval_result.value.front();
+                        result.value = eval_result.value.front();
 
-                    if (block_level != env.block_level()) {
-                        spdlog::trace("Block level changed during loop. Returning...");
-                        return result;
+                        if (block_level != env.block_level()) {
+                            spdlog::trace("Block level changed during loop. Returning...");
+                            return result;
+                        }
                     }
                 }
                 env.pop_block();
