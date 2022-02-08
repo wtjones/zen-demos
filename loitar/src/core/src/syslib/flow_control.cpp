@@ -136,6 +136,13 @@ Function operator_if(Environment& env)
     return func;
 }
 
+/**
+ * Example:
+ *  In statement:
+ *      (dotimes (n 10) (print n))
+ *  Out statement:
+ *      (loop for n from 0 to 9 do (print n))
+ */
 Function construct_dotimes(Environment& env)
 {
     Function func {
@@ -180,52 +187,40 @@ Function construct_dotimes(Environment& env)
             }
 
             auto loop_variable = params.front()->get_elements().front();
+            auto to_n = params.front()->get_elements().back();
 
-            // evaluate n times param
+            std::vector<std::shared_ptr<Node>> mapped_elements {
+                std::make_shared<AtomNode>("loop"),
+                std::make_shared<AtomNode>("for"),
+                loop_variable,
+                std::make_shared<AtomNode>("from"),
+                std::make_shared<IntegerNode>("", 0),
+                std::make_shared<AtomNode>("to"),
+                std::make_shared<ListNode>(std::vector<std::shared_ptr<Node>> {
+                    std::make_shared<AtomNode>("-"),
+                    to_n,
+                    std::make_shared<IntegerNode>("", 1) }),
+                std::make_shared<AtomNode>("do")
+            };
+
+            // Params 1..n are the expressions in the body
+            std::vector<std::shared_ptr<Node>>
+                loop_expressions;
+            for (auto i = params.begin() + 1; i != params.end(); ++i) {
+                mapped_elements.push_back(*i);
+                spdlog::trace("added {} loop statement...", (*i)->name());
+            }
             std::vector<std::shared_ptr<Node>> expressions;
-            expressions.push_back(params.front()->get_elements().back());
+            expressions.push_back(std::make_shared<ListNode>(mapped_elements));
+            spdlog::trace("Mapped dotimes to: {}", expressions.front()->to_string());
+
             auto eval_result = evaluate_expression(env, expressions, 0);
 
             if (eval_result.messages.size() > 0) {
                 std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));
                 return result;
             }
-
-            auto from_n = 0;
-            auto to_n = std::any_cast<int64_t>(eval_result.value.front()->value());
-
-            spdlog::trace("dotimes: Iterate variable {} {} times...", loop_variable->to_string(), to_n);
-
-            // Params 1..n are the expressions in the body
-            std::vector<std::shared_ptr<Node>> loop_expressions;
-            for (auto i = params.begin() + 1; i != params.end(); ++i) {
-                loop_expressions.push_back(*i);
-                spdlog::trace("added {} loop statement...", (*i)->name());
-            }
-
-            auto block_level = env.push_block();
-            for (auto i = from_n; i < to_n; i++) {
-                env.set_variable(loop_variable->to_string(), std::make_shared<IntegerNode>("", i), ScopeType::local);
-                for (auto expression : loop_expressions) {
-
-                    expressions.clear();
-                    expressions.push_back(expression);
-                    auto eval_result = evaluate_expression(env, expressions, 0);
-
-                    if (eval_result.messages.size() > 0) {
-                        std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));
-                        return result;
-                    }
-
-                    result.value = eval_result.value.front();
-
-                    if (block_level != env.block_level()) {
-                        spdlog::trace("Block level changed during loop. Returning...");
-                        return result;
-                    }
-                }
-            }
-            env.pop_block();
+            result.value = eval_result.value.front();
 
             return result;
         }
