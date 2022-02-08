@@ -266,9 +266,7 @@ Function construct_loop(Environment& env)
                 && params.front()->to_string() == "for"
                 && params[1]->name() == "AtomNode"
                 && params[2]->to_string() == "from"
-                && params[3]->name() == "IntegerNode"
                 && params[4]->to_string() == "to"
-                && params[5]->name() == "IntegerNode"
                 && params[6]->to_string() == "do"
                 && params[7]->name() == "ListNode") {
                 spdlog::trace("Loop for x from n to n do construct..");
@@ -276,8 +274,29 @@ Function construct_loop(Environment& env)
                 std::string var_name
                     = params[1]->to_string();
 
-                auto from_n = std::any_cast<int64_t>(params[3]->value());
-                auto to_n = std::any_cast<int64_t>(params[5]->value());
+                // evaluate from n times param
+                std::vector<std::shared_ptr<Node>> expressions;
+                expressions.push_back(params[3]);
+                auto eval_result = evaluate_expression(env, expressions, 0);
+
+                if (eval_result.messages.size() > 0) {
+                    std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));
+                    return result;
+                }
+
+                auto from_n = std::any_cast<int64_t>(eval_result.value.front()->value());
+
+                // evaluate to n times param
+                expressions.clear();
+                expressions.push_back(params[5]);
+                eval_result = evaluate_expression(env, expressions, 0);
+
+                if (eval_result.messages.size() > 0) {
+                    std::copy(eval_result.messages.begin(), eval_result.messages.end(), std::back_inserter(result.messages));
+                    return result;
+                }
+
+                auto to_n = std::any_cast<int64_t>(eval_result.value.front()->value());
 
                 spdlog::trace("Loop for {} from {} to {} do construct..", var_name, from_n, to_n);
                 auto action = params[7];
