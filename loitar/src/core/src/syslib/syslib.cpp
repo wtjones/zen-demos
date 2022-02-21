@@ -1,4 +1,5 @@
 #include "loitar/core/syslib/syslib.hpp"
+#include "loitar/core/syslib/arrays.hpp"
 #include "loitar/core/syslib/comparison_ops.hpp"
 #include "loitar/core/syslib/flow_control.hpp"
 #include "loitar/core/syslib/functions.hpp"
@@ -13,6 +14,7 @@ namespace loitar::syslib {
 
 void apply_syslib(Environment& env)
 {
+    apply_syslib_arrays(env);
     apply_syslib_comparison_ops(env);
     apply_syslib_flow_control(env);
     apply_syslib_functions(env);

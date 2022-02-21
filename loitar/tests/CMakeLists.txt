@@ -9,6 +9,7 @@ FetchContent_MakeAvailable(Catch2)
 #Tests need to be added as executables first
 add_executable(testlib
     testlib.cpp
+    array_tests.cpp
     environment_tests.cpp
     evaluator_tests.cpp
     node_tests.cpp

@@ -1,4 +1,5 @@
 add_library(loitar_core
+    src/array_node.cpp
     src/atom_node.cpp
     src/environment.cpp
     src/evaluator.cpp
@@ -10,6 +11,7 @@ add_library(loitar_core
     src/repl.cpp
     src/string_node.cpp
     src/true_node.cpp
+    src/syslib/arrays.cpp
     src/syslib/comparison_ops.cpp
     src/syslib/flow_control.cpp
     src/syslib/functions.cpp
