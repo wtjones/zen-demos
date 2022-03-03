@@ -10,6 +10,7 @@ public:
     StringNode(std::string token, std::string value);
     std::string name() const;
     std::any value() const;
+    void accept(NodeVisitor& dv) { dv.visit(*this); }
 
 protected:
     void print(std::ostream& os) const;

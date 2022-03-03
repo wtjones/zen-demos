@@ -17,6 +17,11 @@ std::any IntegerNode::value() const
     return std::any(m_value);
 }
 
+int64_t IntegerNode::value2() const
+{
+    return m_value;
+}
+
 bool IntegerNode::operator==(const Node& node) const
 {
     if (node.name() != this->name()) {

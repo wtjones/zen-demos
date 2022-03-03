@@ -26,7 +26,7 @@ std::string ArrayNode::name() const
 
 std::any ArrayNode::value() const
 {
-     auto result = std::vector<std::any>();
+    auto result = std::vector<std::any>();
     for (auto node : m_elements) {
         result.push_back(node->value());
     }
@@ -68,6 +68,11 @@ void ArrayNode::set_element(std::vector<size_t> index, std::shared_ptr<Node> nod
     }
 
     m_elements[result_index] = node;
+}
+
+std::vector<size_t> ArrayNode::dimensions() const
+{
+    return m_dimensions;
 }
 
 void ArrayNode::print(std::ostream& out) const

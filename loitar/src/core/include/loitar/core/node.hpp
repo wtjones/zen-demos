@@ -1,5 +1,6 @@
 #pragma once
 
+#include "node_visitor.hpp"
 #include <any>
 #include <iostream>
 #include <map>
@@ -35,6 +36,7 @@ public:
     virtual bool operator<=(const Node& node) const = 0;
     virtual bool operator>(const Node& node) const = 0;
     virtual bool operator>=(const Node& node) const = 0;
+    virtual void accept(NodeVisitor&) = 0;
 
 protected:
     virtual void print(std::ostream& os) const = 0;

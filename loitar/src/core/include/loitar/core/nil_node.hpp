@@ -15,6 +15,7 @@ public:
     std::any value() const;
     bool operator==(const Node& node) const;
     bool operator!=(const Node& node) const;
+    void accept(NodeVisitor& dv) { dv.visit(*this); }
 
 protected:
     void print(std::ostream& os) const;

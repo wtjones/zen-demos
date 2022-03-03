@@ -15,6 +15,8 @@ public:
     std::string get_token() const;
     std::shared_ptr<Node> get_element(std::vector<size_t> index) const;
     void set_element(std::vector<size_t> index, std::shared_ptr<Node> node);
+    std::vector<size_t> dimensions() const;
+    void accept(NodeVisitor& dv) { dv.visit(*this); }
 
 protected:
     void print(std::ostream& os) const;

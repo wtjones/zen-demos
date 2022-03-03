@@ -20,6 +20,7 @@ public:
     bool operator<=(const Node& node) const;
     bool operator>(const Node& node) const;
     bool operator>=(const Node& node) const;
+    void accept(NodeVisitor& dv) { dv.visit(*this); }
 
 protected:
     std::string m_token;

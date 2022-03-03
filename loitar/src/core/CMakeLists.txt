@@ -12,6 +12,7 @@ add_library(loitar_core
     src/string_node.cpp
     src/true_node.cpp
     src/syslib/arrays.cpp
+    src/syslib/aref_evaluator.cpp
     src/syslib/comparison_ops.cpp
     src/syslib/flow_control.cpp
     src/syslib/functions.cpp
