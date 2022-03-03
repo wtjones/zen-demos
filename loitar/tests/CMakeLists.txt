@@ -18,7 +18,8 @@ add_executable(testlib
     syslib/flow_control_tests.cpp
     syslib/lists_tests.cpp
     syslib/math_ops_tests.cpp
-    syslib/predicates_tests.cpp)
+    syslib/predicates_tests.cpp
+    syslib/special_ops_tests.cpp)
 
 target_compile_features(testlib PRIVATE cxx_std_17)
 
