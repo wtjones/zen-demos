@@ -21,8 +21,8 @@ screen = None
 map_surface = None
 angle = 0
 viewer = x, y, z = 0.0, 0.0, 1.0
-viewer_angle = 0
-
+viewer_angle = 0.0
+rotation_speed = 1.0
 world = None
 scroll_speed = 2
 math_table = []
@@ -34,10 +34,11 @@ screen = pygame.display.set_mode(size, pygame.SCALED)
 font = pygame.font.Font(pygame.font.get_default_font(), 8)
 
 
-def update_fps():
+def render_hud():
     fps = str(int(clock.get_fps()))
-    fps_text = font.render(fps, 1, pygame.Color("coral"))
-    return fps_text
+    status = f"fps: {fps} angle: {int(viewer_angle)} rot speed: {rotation_speed}"
+    hud_text = font.render(status, 1, pygame.Color("coral"))
+    return hud_text
 
 
 def build_math_table():
@@ -99,7 +100,7 @@ def build_rotations_table():
 def render_map():
     global screen, map_surface, size, viewer, viewer_angle, world, rotations
 
-    rotation = rotations[viewer_angle]
+    rotation = rotations[int(viewer_angle)]
     rotated = rotation[0]
     line_dx = rotation[1][0]
     line_dy = rotation[1][1]
@@ -150,40 +151,45 @@ def main_loop():
         screen.fill(black)
 
         render_map()
-        screen.blit(update_fps(), (2, 0))
+        screen.blit(render_hud(), (2, 0))
         pygame.display.flip()
         clock.tick(60)
         handle_input()
 
 
 def handle_input():
-    global viewer, viewer_angle, scroll_speed, fov, horizon
+    global viewer, viewer_angle, scroll_speed, fov, horizon, rotation_speed
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN or event.key == pygame.K_ESCAPE:
                 sys.exit()
-    key = pygame.key.get_pressed()
+        if event.type == pygame.KEYUP:
+            key = event.key
+            if key == pygame.K_LEFT:
+                viewer = viewer[0] - scroll_speed, viewer[1], viewer[2]
+            if key ==pygame.K_RIGHT:
+                viewer = viewer[0] + scroll_speed, viewer[1], viewer[2]
+            if key == pygame.K_UP:
+                viewer = viewer[0], viewer[1] - scroll_speed, viewer[2]
+            if key ==pygame.K_DOWN:
+                viewer = viewer[0], viewer[1] + scroll_speed, viewer[2]
+            if key == pygame.K_a:
+                viewer = viewer[0], viewer[1], viewer[2] + 0.1
+                build_rotations_table()
+                pprint.pprint(viewer)
+            if key == pygame.K_z:
+                viewer = viewer[0], viewer[1], viewer[2] - 0.1
+                build_rotations_table()
+                pprint.pprint(viewer)
+            if key == pygame.K_EQUALS:
+                rotation_speed += 0.2
+            if key == pygame.K_MINUS:
+                rotation_speed -= 0.2
+                if rotation_speed < 0.0: rotation_speed = 0.0
 
-    if key[pygame.K_LEFT]:
-        viewer = viewer[0] - scroll_speed, viewer[1], viewer[2]
-    if key[pygame.K_RIGHT]:
-        viewer = viewer[0] + scroll_speed, viewer[1], viewer[2]
-    if key[pygame.K_UP]:
-        viewer = viewer[0], viewer[1] - scroll_speed, viewer[2]
-    if key[pygame.K_DOWN]:
-        viewer = viewer[0], viewer[1] + scroll_speed, viewer[2]
-    if key[pygame.K_a]:
-        viewer = viewer[0], viewer[1], viewer[2] + 0.1
-        build_rotations_table()
-        pprint.pprint(viewer)
-    if key[pygame.K_z]:
-        viewer = viewer[0], viewer[1], viewer[2] - 0.1
-        build_rotations_table()
-        pprint.pprint(viewer)
-
-    viewer_angle += 1
+    viewer_angle += rotation_speed
     if viewer_angle > NUM_ANGLES - 1:
         viewer_angle = 0
 
