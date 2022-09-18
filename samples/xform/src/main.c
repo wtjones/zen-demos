@@ -37,10 +37,10 @@ typedef struct WorldObject {
 Shape square = {
     .num_vertices = 4,
     .vertices = {
-        { .x = -12.0, .y = 12.0 },
-        { .x = 12.0, .y = 12.0 },
         { .x = -12.0, .y = -12.0 },
-        { .x = 12.0, .y = -12.0 } }
+        { .x = 12.0, .y = -12.0 },
+        { .x = 12.0, .y = 12.0 },
+        { .x = -12.0, .y = 12.0 } }
 };
 
 Shape triange = {
@@ -87,7 +87,7 @@ void update()
 
 void transform_objects(
     WorldObject objects[NUM_OBJECTS],
-    Point2f vertices_at_screen[MAX_SHAPE_VERTICES][NUM_OBJECTS])
+    Shape shapes_at_screen[NUM_OBJECTS])
 {
 
     Point2f vertex_xformed;
@@ -100,6 +100,10 @@ void transform_objects(
         float c = cos_table[o->angle];
         float s = sin_table[o->angle];
 
+        Shape* src_shape = o->shape;
+        Shape* dest_shape = &shapes_at_screen[i];
+        dest_shape->num_vertices = src_shape->num_vertices;
+
         for (int v = 0; v < o->shape->num_vertices; v++) {
             Point2f* source = &o->shape->vertices[v];
 
@@ -108,31 +112,35 @@ void transform_objects(
 
             vertex_at_world.x = vertex_xformed.x + o->position.x;
             vertex_at_world.y = vertex_xformed.y + o->position.y;
+            dest_shape->vertices[v].x = vertex_at_world.x + SCREEN_WIDTH / 2;
 
-            vertices_at_screen[v][i].x = vertex_at_world.x + SCREEN_WIDTH / 2;
-
-            vertices_at_screen[v][i].y = -vertex_at_world.y + SCREEN_HEIGHT / 2;
+            dest_shape->vertices[v].y = -vertex_at_world.y + SCREEN_HEIGHT / 2;
         }
     }
 }
 
 void render(
     SDL_Renderer* renderer,
-    WorldObject objects[NUM_OBJECTS],
-    Point2f vertices_at_screen[MAX_SHAPE_VERTICES][NUM_OBJECTS])
+    Shape shapes_at_screen[NUM_OBJECTS])
 {
 
     SDL_RenderClear(renderer);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
+    SDL_FPoint line_points[MAX_SHAPE_VERTICES + 1];
     for (int i = 0; i < NUM_OBJECTS; i++) {
+        Shape* shape = &shapes_at_screen[i];
 
-        WorldObject* o = &objects[i];
-
-        for (int v = 0; v < o->shape->num_vertices; v++) {
-            Point2f* vert = &vertices_at_screen[v][i];
-            SDL_RenderDrawPointF(renderer, vert->x, vert->y);
+        // map to SDL points
+        for (int vi = 0; vi < shape->num_vertices; vi++) {
+            line_points[vi].x = shape->vertices[vi].x;
+            line_points[vi].y = shape->vertices[vi].y;
         }
+        // close the loop
+        line_points[shape->num_vertices].x = shape->vertices[0].x;
+        line_points[shape->num_vertices].y = shape->vertices[0].y;
+
+        SDL_RenderDrawLinesF(renderer, line_points, shape->num_vertices + 1);
     }
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderPresent(renderer);
@@ -153,7 +161,7 @@ int main()
 
     SDL_Window* win = SDL_CreateWindow("Hello World!", 100, 100, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     SDL_Renderer* renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
-    Point2f vertices_at_screen[MAX_SHAPE_VERTICES][NUM_OBJECTS];
+    Shape shapes_at_screen[NUM_OBJECTS];
 
     int last_frame = SDL_GetTicks();
     while (!should_quit) {
@@ -169,8 +177,8 @@ int main()
             }
         }
 
-        transform_objects(objects, vertices_at_screen);
-        render(renderer, objects, vertices_at_screen);
+        transform_objects(objects, shapes_at_screen);
+        render(renderer, shapes_at_screen);
         update();
 
         while (SDL_GetTicks() - last_frame < 1000 / 60) {
