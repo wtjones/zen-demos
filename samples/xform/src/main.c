@@ -11,8 +11,11 @@
 
 const int MAX_SHAPE_VERTICES = 10;
 const int NUM_OBJECTS = 3;
+const int MAX_SHAPES = NUM_OBJECTS + 1;
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
+const int WORLD_WIDTH = 600;
+const int WORLD_HEIGHT = 400;
 
 typedef struct Point2f {
     float x;
@@ -34,6 +37,12 @@ typedef struct WorldObject {
     Shape* shape;
 } WorldObject;
 
+typedef struct WorldBoundary {
+    Point2f top_left;
+    Point2f bottom_right;
+    Shape* shape;
+} WorldBoundary;
+
 Shape square = {
     .num_vertices = 4,
     .vertices = {
@@ -41,6 +50,19 @@ Shape square = {
         { .x = 12.0, .y = -12.0 },
         { .x = 12.0, .y = 12.0 },
         { .x = -12.0, .y = 12.0 } }
+};
+
+Shape boundary = {
+    .num_vertices = 4,
+    .vertices = {
+        { .x = -WORLD_WIDTH / 2, .y = -WORLD_HEIGHT / 2 },
+        { .x = WORLD_WIDTH / 2, .y = -WORLD_HEIGHT / 2 },
+        { .x = WORLD_WIDTH / 2, .y = WORLD_HEIGHT / 2 },
+        { .x = -WORLD_WIDTH / 2, .y = WORLD_HEIGHT / 2 } }
+};
+
+WorldBoundary world_boundary = {
+    .shape = &boundary
 };
 
 Shape triange = {
@@ -87,7 +109,8 @@ void update()
 
 void transform_objects(
     WorldObject objects[NUM_OBJECTS],
-    Shape shapes_at_screen[NUM_OBJECTS])
+    Shape shapes_at_screen[MAX_SHAPES],
+    int* count_shapes)
 {
 
     Point2f vertex_xformed;
@@ -101,7 +124,7 @@ void transform_objects(
         float s = sin_table[o->angle];
 
         Shape* src_shape = o->shape;
-        Shape* dest_shape = &shapes_at_screen[i];
+        Shape* dest_shape = &shapes_at_screen[*count_shapes];
         dest_shape->num_vertices = src_shape->num_vertices;
 
         for (int v = 0; v < o->shape->num_vertices; v++) {
@@ -112,23 +135,43 @@ void transform_objects(
 
             vertex_at_world.x = vertex_xformed.x + o->position.x;
             vertex_at_world.y = vertex_xformed.y + o->position.y;
-            dest_shape->vertices[v].x = vertex_at_world.x + SCREEN_WIDTH / 2;
 
+            dest_shape->vertices[v].x = vertex_at_world.x + SCREEN_WIDTH / 2;
             dest_shape->vertices[v].y = -vertex_at_world.y + SCREEN_HEIGHT / 2;
         }
+        (*count_shapes)++;
     }
+}
+
+void transform_boundary(
+    WorldBoundary* boundary,
+    Shape shapes_at_screen[MAX_SHAPES],
+    int* count_shapes)
+{
+    Shape* src_shape = boundary->shape;
+    Shape* dest_shape = &shapes_at_screen[*count_shapes];
+    dest_shape->num_vertices = src_shape->num_vertices;
+
+    for (int v = 0; v < src_shape->num_vertices; v++) {
+        Point2f* source = &src_shape->vertices[v];
+
+        dest_shape->vertices[v].x = source->x + SCREEN_WIDTH / 2;
+        dest_shape->vertices[v].y = -source->y + SCREEN_HEIGHT / 2;
+    }
+    (*count_shapes)++;
 }
 
 void render(
     SDL_Renderer* renderer,
-    Shape shapes_at_screen[NUM_OBJECTS])
+    Shape shapes_at_screen[MAX_SHAPES],
+    int* count_shapes)
 {
 
     SDL_RenderClear(renderer);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
     SDL_FPoint line_points[MAX_SHAPE_VERTICES + 1];
-    for (int i = 0; i < NUM_OBJECTS; i++) {
+    for (int i = 0; i < *count_shapes; i++) {
         Shape* shape = &shapes_at_screen[i];
 
         // map to SDL points
@@ -161,7 +204,8 @@ int main()
 
     SDL_Window* win = SDL_CreateWindow("Hello World!", 100, 100, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     SDL_Renderer* renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
-    Shape shapes_at_screen[NUM_OBJECTS];
+    Shape shapes_at_screen[MAX_SHAPES];
+    int count_shapes = 0;
 
     int last_frame = SDL_GetTicks();
     while (!should_quit) {
@@ -176,9 +220,10 @@ int main()
                 should_quit = true;
             }
         }
-
-        transform_objects(objects, shapes_at_screen);
-        render(renderer, shapes_at_screen);
+        count_shapes = 0;
+        transform_objects(objects, shapes_at_screen, &count_shapes);
+        transform_boundary(&world_boundary, shapes_at_screen, &count_shapes);
+        render(renderer, shapes_at_screen, &count_shapes);
         update();
 
         while (SDL_GetTicks() - last_frame < 1000 / 60) {
