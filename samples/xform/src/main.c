@@ -130,14 +130,32 @@ void transform_objects(
         for (int v = 0; v < o->shape->num_vertices; v++) {
             Point2f* source = &o->shape->vertices[v];
 
-            vertex_xformed.x = c * source->x - s * source->y;
-            vertex_xformed.y = c * source->y + s * source->x;
+            float offset_x = o->position.x + SCREEN_WIDTH / 2;
+            float offset_y = o->position.y + SCREEN_HEIGHT / 2;
 
-            vertex_at_world.x = vertex_xformed.x + o->position.x;
-            vertex_at_world.y = vertex_xformed.y + o->position.y;
+            // Rotate and translate to world coord
+            float matrix[3][3] = {
+                { c, -s, o->position.x },
+                { s, c, o->position.y },
+                { 0, 0, 1.0 }
+            };
 
-            dest_shape->vertices[v].x = vertex_at_world.x + SCREEN_WIDTH / 2;
-            dest_shape->vertices[v].y = -vertex_at_world.y + SCREEN_HEIGHT / 2;
+            float pos[3] = { source->x, source->y, 1 };
+            float xform_result[3];
+            mat_mul_3x3_3x1(matrix, pos, xform_result);
+
+            // Scale and translate to screen coord
+            // TODO: add viewer coord
+            float scale_matrix[3][3] = {
+                { 1.0, 0.0, SCREEN_WIDTH / 2 },
+                { 0.0, 1.0, SCREEN_HEIGHT / 2 },
+                { 0.0, 0.0, 1.0 }
+            };
+            float scale_result[3];
+            mat_mul_3x3_3x1(scale_matrix, xform_result, scale_result);
+
+            dest_shape->vertices[v].x = scale_result[0];
+            dest_shape->vertices[v].y = scale_result[1];
         }
         (*count_shapes)++;
     }
