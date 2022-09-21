@@ -99,18 +99,24 @@ void init_math()
     }
 }
 
-void update()
+void update(WorldObject objects[NUM_OBJECTS], Viewer* viewer, const Uint8* keys)
 {
     for (int i = 0; i < NUM_OBJECTS; i++) {
         WorldObject* o = &objects[i];
         o->angle = (o->angle + 1) % 360;
     }
+
+    viewer->position.x += keys[SDL_SCANCODE_RIGHT] == 1 ? 1 : 0;
+    viewer->position.x -= keys[SDL_SCANCODE_LEFT] == 1 ? 1 : 0;
+    viewer->position.y += keys[SDL_SCANCODE_DOWN] == 1 ? 1 : 0;
+    viewer->position.y -= keys[SDL_SCANCODE_UP] == 1 ? 1 : 0;
 }
 
 void transform_objects(
     WorldObject objects[NUM_OBJECTS],
     Shape shapes_at_screen[MAX_SHAPES],
-    int* count_shapes)
+    int* count_shapes,
+    Viewer* viewer)
 {
 
     Point2f vertex_xformed;
@@ -130,9 +136,6 @@ void transform_objects(
         for (int v = 0; v < o->shape->num_vertices; v++) {
             Point2f* source = &o->shape->vertices[v];
 
-            float offset_x = o->position.x + SCREEN_WIDTH / 2;
-            float offset_y = o->position.y + SCREEN_HEIGHT / 2;
-
             // Rotate and translate to world coord
             float matrix[3][3] = {
                 { c, -s, o->position.x },
@@ -144,11 +147,13 @@ void transform_objects(
             float xform_result[3];
             mat_mul_3x3_3x1(matrix, pos, xform_result);
 
+            float offset_x = (SCREEN_WIDTH / 2) - viewer->position.x;
+            float offset_y = (SCREEN_HEIGHT / 2) - viewer->position.y;
+
             // Scale and translate to screen coord
-            // TODO: add viewer coord
             float scale_matrix[3][3] = {
-                { 1.0, 0.0, SCREEN_WIDTH / 2 },
-                { 0.0, 1.0, SCREEN_HEIGHT / 2 },
+                { 1.0, 0.0, offset_x },
+                { 0.0, 1.0, offset_y },
                 { 0.0, 0.0, 1.0 }
             };
             float scale_result[3];
@@ -164,7 +169,8 @@ void transform_objects(
 void transform_boundary(
     WorldBoundary* boundary,
     Shape shapes_at_screen[MAX_SHAPES],
-    int* count_shapes)
+    int* count_shapes,
+    Viewer* viewer)
 {
     Shape* src_shape = boundary->shape;
     Shape* dest_shape = &shapes_at_screen[*count_shapes];
@@ -173,8 +179,21 @@ void transform_boundary(
     for (int v = 0; v < src_shape->num_vertices; v++) {
         Point2f* source = &src_shape->vertices[v];
 
-        dest_shape->vertices[v].x = source->x + SCREEN_WIDTH / 2;
-        dest_shape->vertices[v].y = -source->y + SCREEN_HEIGHT / 2;
+        float pos[3] = { source->x, source->y, 1 };
+        float offset_x = (SCREEN_WIDTH / 2) - viewer->position.x;
+        float offset_y = (SCREEN_HEIGHT / 2) - viewer->position.y;
+
+        // Scale and translate to screen coord
+        float scale_matrix[3][3] = {
+            { 1.0, 0.0, offset_x },
+            { 0.0, 1.0, offset_y },
+            { 0.0, 0.0, 1.0 }
+        };
+        float scale_result[3];
+        mat_mul_3x3_3x1(scale_matrix, pos, scale_result);
+
+        dest_shape->vertices[v].x = scale_result[0];
+        dest_shape->vertices[v].y = scale_result[1];
     }
     (*count_shapes)++;
 }
@@ -224,6 +243,7 @@ int main()
     SDL_Renderer* renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
     Shape shapes_at_screen[MAX_SHAPES];
     int count_shapes = 0;
+    Viewer viewer = { .position = { .x = 0.0, .y = 0.0 } };
 
     int last_frame = SDL_GetTicks();
     while (!should_quit) {
@@ -235,14 +255,18 @@ int main()
                 break;
             case SDL_KEYUP:
                 should_quit = event.key.keysym.scancode == SDL_SCANCODE_ESCAPE;
-                should_quit = true;
             }
         }
+        int num_keys;
+        const Uint8* keys = SDL_GetKeyboardState(&num_keys);
+
         count_shapes = 0;
-        transform_objects(objects, shapes_at_screen, &count_shapes);
-        transform_boundary(&world_boundary, shapes_at_screen, &count_shapes);
+        transform_objects(
+            objects, shapes_at_screen, &count_shapes, &viewer);
+        transform_boundary(
+            &world_boundary, shapes_at_screen, &count_shapes, &viewer);
         render(renderer, shapes_at_screen, &count_shapes);
-        update();
+        update(objects, &viewer, keys);
 
         while (SDL_GetTicks() - last_frame < 1000 / 60) {
         }
