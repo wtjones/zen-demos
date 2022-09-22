@@ -16,14 +16,23 @@
 #define SCREEN_HEIGHT 480
 #define WORLD_WIDTH 600
 #define WORLD_HEIGHT 400
+#define ZOOM_SPEED 0.04
+#define ZOOM_MAX 8.0
+#define ZOOM_MIN 0.2
 
 typedef struct Point2f {
     float x;
     float y;
 } Point2f;
 
+typedef struct Point3f {
+    float x;
+    float y;
+    float z;
+} Point3f;
+
 typedef struct Viewer {
-    Point2f position;
+    Point3f position;
 } Viewer;
 
 typedef struct Shape {
@@ -110,6 +119,12 @@ void update(WorldObject objects[NUM_OBJECTS], Viewer* viewer, const Uint8* keys)
     viewer->position.x -= keys[SDL_SCANCODE_LEFT] == 1 ? 1 : 0;
     viewer->position.y += keys[SDL_SCANCODE_DOWN] == 1 ? 1 : 0;
     viewer->position.y -= keys[SDL_SCANCODE_UP] == 1 ? 1 : 0;
+    viewer->position.z += keys[SDL_SCANCODE_KP_PLUS] == 1
+        ? viewer->position.z < ZOOM_MAX ? ZOOM_SPEED : 0
+        : 0;
+    viewer->position.z -= keys[SDL_SCANCODE_KP_MINUS] == 1
+        ? viewer->position.z > ZOOM_MIN ? ZOOM_SPEED : 0
+        : 0;
 }
 
 void transform_objects(
@@ -152,8 +167,8 @@ void transform_objects(
 
             // Scale and translate to screen coord
             float scale_matrix[3][3] = {
-                { 1.0, 0.0, offset_x },
-                { 0.0, 1.0, offset_y },
+                { viewer->position.z, 0.0, offset_x },
+                { 0.0, viewer->position.z, offset_y },
                 { 0.0, 0.0, 1.0 }
             };
             float scale_result[3];
@@ -185,8 +200,8 @@ void transform_boundary(
 
         // Scale and translate to screen coord
         float scale_matrix[3][3] = {
-            { 1.0, 0.0, offset_x },
-            { 0.0, 1.0, offset_y },
+            { viewer->position.z, 0.0, offset_x },
+            { 0.0, viewer->position.z, offset_y },
             { 0.0, 0.0, 1.0 }
         };
         float scale_result[3];
@@ -243,7 +258,7 @@ int main()
     SDL_Renderer* renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
     Shape shapes_at_screen[MAX_SHAPES];
     int count_shapes = 0;
-    Viewer viewer = { .position = { .x = 0.0, .y = 0.0 } };
+    Viewer viewer = { .position = { .x = 0.0, .y = 0.0, .z = 1.0 } };
 
     int last_frame = SDL_GetTicks();
     while (!should_quit) {
