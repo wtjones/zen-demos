@@ -9,13 +9,13 @@
 #    define M_PI 3.14159265358979323846
 #endif
 
-const int MAX_SHAPE_VERTICES = 10;
-const int NUM_OBJECTS = 3;
-const int MAX_SHAPES = NUM_OBJECTS + 1;
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
-const int WORLD_WIDTH = 600;
-const int WORLD_HEIGHT = 400;
+#define MAX_SHAPE_VERTICES 10
+#define NUM_OBJECTS 3
+#define MAX_SHAPES NUM_OBJECTS + 1
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
+#define WORLD_WIDTH 600
+#define WORLD_HEIGHT 400
 
 typedef struct Point2f {
     float x;
