@@ -119,10 +119,10 @@ void update(WorldObject objects[NUM_OBJECTS], Viewer* viewer, const Uint8* keys)
     viewer->position.x -= keys[SDL_SCANCODE_LEFT] == 1 ? 1 : 0;
     viewer->position.y += keys[SDL_SCANCODE_DOWN] == 1 ? 1 : 0;
     viewer->position.y -= keys[SDL_SCANCODE_UP] == 1 ? 1 : 0;
-    viewer->position.z += keys[SDL_SCANCODE_KP_PLUS] == 1
+    viewer->position.z += (keys[SDL_SCANCODE_KP_PLUS] | keys[SDL_SCANCODE_EQUALS]) == 1
         ? viewer->position.z < ZOOM_MAX ? ZOOM_SPEED : 0
         : 0;
-    viewer->position.z -= keys[SDL_SCANCODE_KP_MINUS] == 1
+    viewer->position.z -= (keys[SDL_SCANCODE_KP_MINUS] | keys[SDL_SCANCODE_MINUS]) == 1
         ? viewer->position.z > ZOOM_MIN ? ZOOM_SPEED : 0
         : 0;
 }
