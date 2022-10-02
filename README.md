@@ -26,3 +26,7 @@ Default renderer. Uses a buffer to process the screen-space rotation.
 Performs rotation and 'sub-tile' translation in the same pass. Runs slightly slower.
 
 `make renderer_b -B`
+
+## Samples
+
+* [xform](samples/xform/README.md) Simple matrix transforms in C
