@@ -4,6 +4,7 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <time.h>
 
 #ifndef M_PI
 #    define M_PI 3.14159265358979323846
@@ -44,6 +45,7 @@ typedef struct WorldObject {
     Point2f position;
     int angle;
     Shape* shape;
+    Point2f vector;
 } WorldObject;
 
 typedef struct WorldBoundary {
@@ -108,11 +110,45 @@ void init_math()
     }
 }
 
+void init_objects()
+{
+    for (int i = 0; i < NUM_OBJECTS; i++) {
+        WorldObject* o = &objects[i];
+        int angle = rand() % 360;
+        float c = cos_table[angle];
+        float s = sin_table[angle];
+
+        float matrix[3][3] = {
+            { c, -s, o->position.x },
+            { s, c, o->position.y },
+            { 0, 0, 1.0 }
+        };
+
+        // unit vector
+        float pos[3] = { 0.0, 1.0, 1.0 };
+        float xform_result[3];
+        mat_mul_3x3_3x1(matrix, pos, xform_result);
+
+        o->vector.x = xform_result[0];
+        o->vector.y = xform_result[1];
+    }
+}
+
 void update(WorldObject objects[NUM_OBJECTS], Viewer* viewer, const Uint8* keys)
 {
     for (int i = 0; i < NUM_OBJECTS; i++) {
         WorldObject* o = &objects[i];
         o->angle = (o->angle + 1) % 360;
+
+        Point2f delta = {
+            (o->position.x - o->vector.x) / 2,
+            (o->position.y - o->vector.y) / 2
+        };
+
+        o->position.y += delta.y;
+        o->position.x += delta.x;
+        o->vector.x += delta.x;
+        o->vector.y += delta.y;
     }
 
     viewer->position.x += keys[SDL_SCANCODE_RIGHT] == 1 ? 1 : 0;
@@ -243,6 +279,7 @@ void render(
 
 int main()
 {
+    srand(time(NULL));
     init_math();
 
     SDL_bool should_quit = SDL_FALSE;
@@ -259,6 +296,7 @@ int main()
     Shape shapes_at_screen[MAX_SHAPES];
     int count_shapes = 0;
     Viewer viewer = { .position = { .x = 0.0, .y = 0.0, .z = 1.0 } };
+    init_objects();
 
     int last_frame = SDL_GetTicks();
     while (!should_quit) {
