@@ -110,45 +110,109 @@ void init_math()
     }
 }
 
+void apply_unit_vector(Point2f* src, int angle, Point2f* dest)
+{
+    float xform_result[3];
+    float c = cos_table[angle];
+    float s = sin_table[angle];
+
+    float matrix[3][3] = {
+        { c, -s, src->x },
+        { s, c, src->y },
+        { 0, 0, 1.0 }
+    };
+    float pos[3] = { 0.0, 1.0, 1.0 };
+    mat_mul_3x3_3x1(matrix, pos, xform_result);
+
+    dest->x = xform_result[0];
+    dest->y = xform_result[1];
+}
+
 void init_objects()
 {
     for (int i = 0; i < NUM_OBJECTS; i++) {
         WorldObject* o = &objects[i];
         int angle = rand() % 360;
-        float c = cos_table[angle];
-        float s = sin_table[angle];
-
-        float matrix[3][3] = {
-            { c, -s, o->position.x },
-            { s, c, o->position.y },
-            { 0, 0, 1.0 }
-        };
-
-        // unit vector
-        float pos[3] = { 0.0, 1.0, 1.0 };
-        float xform_result[3];
-        mat_mul_3x3_3x1(matrix, pos, xform_result);
-
-        o->vector.x = xform_result[0];
-        o->vector.y = xform_result[1];
+        // apply_unit_vector(&o->position, angle, &o->vector);
+        Point2f origin = { 0.0, 0.0 };
+        apply_unit_vector(&origin, angle, &o->vector);
     }
 }
 
-void update(WorldObject objects[NUM_OBJECTS], Viewer* viewer, const Uint8* keys)
+bool get_boundary_collision(
+    Point2f* position,
+    Shape* shape,
+    WorldBoundary* boundary,
+    Point2f* side_p1,
+    Point2f* side_p2)
+{
+    Point2f* boundary_point1;
+    Point2f* boundary_point2;
+    for (int ov = 0; ov < shape->num_vertices; ov++) {
+        // translate to world space
+        Point2f object_point = {
+            position->x + shape->vertices[ov].x,
+            position->y + shape->vertices[ov].y
+        };
+
+        Shape* src_shape = boundary->shape;
+        for (int v = 0; v < src_shape->num_vertices; v++) {
+            bool last = v == src_shape->num_vertices - 1;
+            int next_index = last ? 0 : v + 1;
+            boundary_point1 = &src_shape->vertices[v];
+            boundary_point2 = &src_shape->vertices[next_index];
+
+            float facing = (object_point.y - boundary_point1->y) * (boundary_point2->x - boundary_point1->x) - (object_point.x - boundary_point1->x) * (boundary_point2->y - boundary_point1->y);
+
+            if (facing < 0.0) {
+                side_p1->x = boundary_point1->x;
+                side_p1->y = boundary_point1->y;
+                side_p2->x = boundary_point2->x;
+                side_p2->y = boundary_point2->y;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void update(WorldObject objects[NUM_OBJECTS], WorldBoundary* boundary, Viewer* viewer, const Uint8* keys)
 {
     for (int i = 0; i < NUM_OBJECTS; i++) {
         WorldObject* o = &objects[i];
         o->angle = (o->angle + 1) % 360;
 
+        // translate direction vector to world space
+        Point2f vector = { o->position.x + o->vector.x, o->position.y + o->vector.y };
+
         Point2f delta = {
-            (o->position.x - o->vector.x) / 2,
-            (o->position.y - o->vector.y) / 2
+            (o->position.x - vector.x) / .5,
+            (o->position.y - vector.y) / .5
         };
+        Point2f new_position = { o->position.x + delta.x, o->position.y + delta.y };
+        Point2f side_p1, side_p2;
+        if (get_boundary_collision(
+                &new_position, o->shape, boundary, &side_p1, &side_p2)) {
+
+            if (side_p1.x == side_p2.x) {
+                printf("vertical!!!!");
+                o->vector.x -= o->vector.x * 2;
+            } else {
+                printf("horiz!!!!");
+                o->vector.y -= o->vector.y * 2;
+            }
+            // translate direction vector to world space
+            vector.x = o->position.x + o->vector.x;
+            vector.y = o->position.y + o->vector.y;
+
+            delta.x = (o->position.x - vector.x) / .5;
+            delta.y = (o->position.y - vector.y) / .5;
+
+        } else {
+        }
 
         o->position.y += delta.y;
         o->position.x += delta.x;
-        o->vector.x += delta.x;
-        o->vector.y += delta.y;
     }
 
     viewer->position.x += keys[SDL_SCANCODE_RIGHT] == 1 ? 1 : 0;
@@ -169,7 +233,6 @@ void transform_objects(
     int* count_shapes,
     Viewer* viewer)
 {
-
     Point2f vertex_xformed;
     Point2f vertex_at_world;
 
@@ -319,7 +382,7 @@ int main()
         transform_boundary(
             &world_boundary, shapes_at_screen, &count_shapes, &viewer);
         render(renderer, shapes_at_screen, &count_shapes);
-        update(objects, &viewer, keys);
+        update(objects, &world_boundary, &viewer, keys);
 
         while (SDL_GetTicks() - last_frame < 1000 / 60) {
         }
