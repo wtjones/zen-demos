@@ -1,14 +1,11 @@
 #include <SDL2/SDL.h>
-#define _USE_MATH_DEFINES
+//#define _USE_MATH_DEFINES
+#include "maths.h"
 #include "matrix.h"
-#include <math.h>
+//#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <time.h>
-
-#ifndef M_PI
-#    define M_PI 3.14159265358979323846
-#endif
 
 #define MAX_SHAPE_VERTICES 10
 #define NUM_OBJECTS 3
@@ -20,17 +17,6 @@
 #define ZOOM_SPEED 0.04
 #define ZOOM_MAX 8.0
 #define ZOOM_MIN 0.2
-
-typedef struct Point2f {
-    float x;
-    float y;
-} Point2f;
-
-typedef struct Point3f {
-    float x;
-    float y;
-    float z;
-} Point3f;
 
 typedef struct Viewer {
     Point3f position;
@@ -97,36 +83,6 @@ WorldObject objects[NUM_OBJECTS] = {
 };
 
 Viewer viewer = { .position = { .x = 0, .y = 0 } };
-
-float cos_table[360];
-float sin_table[360];
-
-void init_math()
-{
-
-    for (int i = 0; i < 360; i++) {
-        cos_table[i] = cos((float)i * M_PI / -180.0);
-        sin_table[i] = sin((float)i * M_PI / -180.0);
-    }
-}
-
-void apply_unit_vector(Point2f* src, int angle, Point2f* dest)
-{
-    float xform_result[3];
-    float c = cos_table[angle];
-    float s = sin_table[angle];
-
-    float matrix[3][3] = {
-        { c, -s, src->x },
-        { s, c, src->y },
-        { 0, 0, 1.0 }
-    };
-    float pos[3] = { 0.0, 1.0, 1.0 };
-    mat_mul_3x3_3x1(matrix, pos, xform_result);
-
-    dest->x = xform_result[0];
-    dest->y = xform_result[1];
-}
 
 void init_objects()
 {
@@ -195,10 +151,8 @@ void update(WorldObject objects[NUM_OBJECTS], WorldBoundary* boundary, Viewer* v
                 &new_position, o->shape, boundary, &side_p1, &side_p2)) {
 
             if (side_p1.x == side_p2.x) {
-                printf("vertical!!!!");
                 o->vector.x -= o->vector.x * 2;
             } else {
-                printf("horiz!!!!");
                 o->vector.y -= o->vector.y * 2;
             }
             // translate direction vector to world space
@@ -343,7 +297,7 @@ void render(
 int main()
 {
     srand(time(NULL));
-    init_math();
+    init_math_lookups();
 
     SDL_bool should_quit = SDL_FALSE;
     printf("Hello, World!2 \n");
