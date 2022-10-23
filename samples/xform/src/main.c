@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <time.h>
 
-#define MAX_SHAPE_VERTICES 10
 #define NUM_OBJECTS 3
 #define MAX_SHAPES NUM_OBJECTS + 1
 #define SCREEN_WIDTH 640
@@ -21,11 +20,6 @@
 typedef struct Viewer {
     Point3f position;
 } Viewer;
-
-typedef struct Shape {
-    int num_vertices;
-    Point2f vertices[MAX_SHAPE_VERTICES];
-} Shape;
 
 typedef struct WorldObject {
     Point2f position;
@@ -95,6 +89,17 @@ void init_objects()
     }
 }
 
+/**
+ * @brief Determine if any points of a shape collide with a wall
+ *
+ * @param position
+ * @param shape
+ * @param boundary
+ * @param side_p1 collision side
+ * @param side_p2 collision side
+ * @return true
+ * @return false
+ */
 bool get_boundary_collision(
     Point2f* position,
     Shape* shape,
@@ -111,22 +116,8 @@ bool get_boundary_collision(
             position->y + shape->vertices[ov].y
         };
 
-        Shape* src_shape = boundary->shape;
-        for (int v = 0; v < src_shape->num_vertices; v++) {
-            bool last = v == src_shape->num_vertices - 1;
-            int next_index = last ? 0 : v + 1;
-            boundary_point1 = &src_shape->vertices[v];
-            boundary_point2 = &src_shape->vertices[next_index];
-
-            float facing = (object_point.y - boundary_point1->y) * (boundary_point2->x - boundary_point1->x) - (object_point.x - boundary_point1->x) * (boundary_point2->y - boundary_point1->y);
-
-            if (facing < 0.0) {
-                side_p1->x = boundary_point1->x;
-                side_p1->y = boundary_point1->y;
-                side_p2->x = boundary_point2->x;
-                side_p2->y = boundary_point2->y;
-                return true;
-            }
+        if (point_in_polygon(&object_point, boundary->shape, side_p1, side_p2)) {
+            return true;
         }
     }
     return false;
