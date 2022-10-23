@@ -92,7 +92,7 @@ void init_objects()
 /**
  * @brief Determine if any points of a shape collide with a wall
  *
- * @param position
+ * Assumes world coordinates
  * @param shape
  * @param boundary
  * @param side_p1 collision side
@@ -101,7 +101,6 @@ void init_objects()
  * @return false
  */
 bool get_boundary_collision(
-    Point2f* position,
     Shape* shape,
     WorldBoundary* boundary,
     Point2f* side_p1,
@@ -110,13 +109,9 @@ bool get_boundary_collision(
     Point2f* boundary_point1;
     Point2f* boundary_point2;
     for (int ov = 0; ov < shape->num_vertices; ov++) {
-        // translate to world space
-        Point2f object_point = {
-            position->x + shape->vertices[ov].x,
-            position->y + shape->vertices[ov].y
-        };
+        Point2f* shape_point = &shape->vertices[ov];
 
-        if (point_in_polygon(&object_point, boundary->shape, side_p1, side_p2)) {
+        if (point_in_polygon(shape_point, boundary->shape, side_p1, side_p2)) {
             return true;
         }
     }
@@ -138,8 +133,30 @@ void update(WorldObject objects[NUM_OBJECTS], WorldBoundary* boundary, Viewer* v
         };
         Point2f new_position = { o->position.x + delta.x, o->position.y + delta.y };
         Point2f side_p1, side_p2;
+
+        // Transform object shape to new pos world coords
+        Shape world_shape = { .num_vertices = o->shape->num_vertices };
+
+        for (int sv = 0; sv < o->shape->num_vertices; sv++) {
+
+            float c = cos_table[o->angle];
+            float s = sin_table[o->angle];
+
+            float matrix[3][3] = {
+                { c, -s, new_position.x },
+                { s, c, new_position.y },
+                { 0, 0, 1.0 }
+            };
+            Point2f* source = &o->shape->vertices[sv];
+            float pos[3] = { source->x, source->y, 1 };
+            float xform_result[3];
+            mat_mul_3x3_3x1(matrix, pos, xform_result);
+            world_shape.vertices[sv].x = xform_result[0];
+            world_shape.vertices[sv].y = xform_result[1];
+        }
+
         if (get_boundary_collision(
-                &new_position, o->shape, boundary, &side_p1, &side_p2)) {
+                &world_shape, boundary, &side_p1, &side_p2)) {
 
             if (side_p1.x == side_p2.x) {
                 o->vector.x -= o->vector.x * 2;
