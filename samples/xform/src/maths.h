@@ -36,4 +36,10 @@ void apply_unit_vector(Point2f* src, int angle, Point2f* dest);
 float cross(Point2f* v1, Point2f* v2);
 bool point_in_polygon(
     Point2f* p, Shape* shape, Point2f* collide_p1, Point2f* collide_p2);
+void xform_to_world(
+    Point2f* position,
+    float angle_cos,
+    float angle_sin,
+    Point2f* point,
+    Point2f* dest);
 #endif
