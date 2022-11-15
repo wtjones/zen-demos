@@ -67,3 +67,24 @@ bool point_in_polygon(
     }
     return false;
 }
+
+void xform_to_world(
+    Point2f* position,
+    float angle_cos,
+    float angle_sin,
+    Point2f* source,
+    Point2f* dest)
+{
+    // Rotate and translate to world coord
+    float matrix[3][3] = {
+        { angle_cos, -angle_sin, position->x },
+        { angle_sin, angle_cos, position->y },
+        { 0, 0, 1.0 }
+    };
+
+    float pos[3] = { source->x, source->y, 1.0 };
+    float xform_result[3];
+    mat_mul_3x3_3x1(matrix, pos, xform_result);
+    dest->x = xform_result[0];
+    dest->y = xform_result[1];
+}

@@ -124,6 +124,9 @@ void update(WorldObject objects[NUM_OBJECTS], WorldBoundary* boundary, Viewer* v
         WorldObject* o = &objects[i];
         o->angle = (o->angle + 1) % 360;
 
+        float c = cos_table[o->angle];
+        float s = sin_table[o->angle];
+
         // translate direction vector to world space
         Point2f vector = { o->position.x + o->vector.x, o->position.y + o->vector.y };
 
@@ -139,20 +142,11 @@ void update(WorldObject objects[NUM_OBJECTS], WorldBoundary* boundary, Viewer* v
 
         for (int sv = 0; sv < o->shape->num_vertices; sv++) {
 
-            float c = cos_table[o->angle];
-            float s = sin_table[o->angle];
-
-            float matrix[3][3] = {
-                { c, -s, new_position.x },
-                { s, c, new_position.y },
-                { 0, 0, 1.0 }
-            };
             Point2f* source = &o->shape->vertices[sv];
-            float pos[3] = { source->x, source->y, 1 };
-            float xform_result[3];
-            mat_mul_3x3_3x1(matrix, pos, xform_result);
-            world_shape.vertices[sv].x = xform_result[0];
-            world_shape.vertices[sv].y = xform_result[1];
+            Point2f dest;
+            xform_to_world(&new_position, c, s, source, &dest);
+            world_shape.vertices[sv].x = dest.x;
+            world_shape.vertices[sv].y = dest.y;
         }
 
         if (get_boundary_collision(
@@ -211,17 +205,10 @@ void transform_objects(
 
         for (int v = 0; v < o->shape->num_vertices; v++) {
             Point2f* source = &o->shape->vertices[v];
+            Point2f dest;
+            xform_to_world(&o->position, c, s, source, &dest);
 
-            // Rotate and translate to world coord
-            float matrix[3][3] = {
-                { c, -s, o->position.x },
-                { s, c, o->position.y },
-                { 0, 0, 1.0 }
-            };
-
-            float pos[3] = { source->x, source->y, 1 };
-            float xform_result[3];
-            mat_mul_3x3_3x1(matrix, pos, xform_result);
+            float xform_result[3] = { dest.x, dest.y, 1.0 };
 
             float offset_x = (SCREEN_WIDTH / 2) - viewer->position.x;
             float offset_y = (SCREEN_HEIGHT / 2) - viewer->position.y;
