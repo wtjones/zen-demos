@@ -1,8 +1,6 @@
-#include <SDL2/SDL.h>
-//#define _USE_MATH_DEFINES
 #include "maths.h"
 #include "matrix.h"
-//#include <math.h>
+#include <SDL2/SDL.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <time.h>
@@ -83,7 +81,6 @@ void init_objects()
     for (int i = 0; i < NUM_OBJECTS; i++) {
         WorldObject* o = &objects[i];
         int angle = rand() % 360;
-        // apply_unit_vector(&o->position, angle, &o->vector);
         Point2f origin = { 0.0, 0.0 };
         apply_unit_vector(&origin, angle, &o->vector);
     }
@@ -276,7 +273,6 @@ int main()
     init_math_lookups();
 
     SDL_bool should_quit = SDL_FALSE;
-    printf("Hello, World!2 \n");
     char str[80];
 
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -284,7 +280,7 @@ int main()
         return 1;
     }
 
-    SDL_Window* win = SDL_CreateWindow("Hello World!", 100, 100, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    SDL_Window* win = SDL_CreateWindow("Transform Demo", 100, 100, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     SDL_Renderer* renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
     Shape shapes_at_screen[MAX_SHAPES];
     int count_shapes = 0;
