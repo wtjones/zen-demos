@@ -205,25 +205,15 @@ void transform_objects(
 
         for (int v = 0; v < o->shape->num_vertices; v++) {
             Point2f* source = &o->shape->vertices[v];
-            Point2f dest;
-            xform_to_world(&o->position, c, s, source, &dest);
+            Point2f world;
+            xform_to_world(&o->position, c, s, source, &world);
 
-            float xform_result[3] = { dest.x, dest.y, 1.0 };
-
-            float offset_x = (SCREEN_WIDTH / 2) - viewer->position.x;
-            float offset_y = (SCREEN_HEIGHT / 2) - viewer->position.y;
-
-            // Scale and translate to screen coord
-            float scale_matrix[3][3] = {
-                { viewer->position.z, 0.0, offset_x },
-                { 0.0, viewer->position.z, offset_y },
-                { 0.0, 0.0, 1.0 }
-            };
-            float scale_result[3];
-            mat_mul_3x3_3x1(scale_matrix, xform_result, scale_result);
-
-            dest_shape->vertices[v].x = scale_result[0];
-            dest_shape->vertices[v].y = scale_result[1];
+            xform_to_screen(
+                SCREEN_WIDTH,
+                SCREEN_HEIGHT,
+                &viewer->position,
+                &world,
+                &dest_shape->vertices[v]);
         }
         (*count_shapes)++;
     }
@@ -242,21 +232,12 @@ void transform_boundary(
     for (int v = 0; v < src_shape->num_vertices; v++) {
         Point2f* source = &src_shape->vertices[v];
 
-        float pos[3] = { source->x, source->y, 1 };
-        float offset_x = (SCREEN_WIDTH / 2) - viewer->position.x;
-        float offset_y = (SCREEN_HEIGHT / 2) - viewer->position.y;
-
-        // Scale and translate to screen coord
-        float scale_matrix[3][3] = {
-            { viewer->position.z, 0.0, offset_x },
-            { 0.0, viewer->position.z, offset_y },
-            { 0.0, 0.0, 1.0 }
-        };
-        float scale_result[3];
-        mat_mul_3x3_3x1(scale_matrix, pos, scale_result);
-
-        dest_shape->vertices[v].x = scale_result[0];
-        dest_shape->vertices[v].y = scale_result[1];
+        xform_to_screen(
+            SCREEN_WIDTH,
+            SCREEN_HEIGHT,
+            &viewer->position,
+            source,
+            &dest_shape->vertices[v]);
     }
     (*count_shapes)++;
 }

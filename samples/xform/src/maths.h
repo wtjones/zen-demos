@@ -42,4 +42,20 @@ void xform_to_world(
     float angle_sin,
     Point2f* point,
     Point2f* dest);
+
+/**
+ * @brief Scale and translate world space to view space
+ *
+ * @param screen_width
+ * @param screen_height
+ * @param viewer_pos
+ * @param source
+ * @param dest
+ */
+void xform_to_screen(
+    int screen_width,
+    int screen_height,
+    Point3f* viewer_pos,
+    Point2f* source,
+    Point2f* dest);
 #endif

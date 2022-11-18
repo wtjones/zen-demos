@@ -88,3 +88,27 @@ void xform_to_world(
     dest->x = xform_result[0];
     dest->y = xform_result[1];
 }
+
+void xform_to_screen(
+    int screen_width,
+    int screen_height,
+    Point3f* viewer_pos,
+    Point2f* source,
+    Point2f* dest)
+{
+    float offset_x = (screen_width / 2) - viewer_pos->x;
+    float offset_y = (screen_height / 2) - viewer_pos->y;
+
+    // Scale and translate to screen coord
+    float scale_matrix[3][3] = {
+        { viewer_pos->z, 0.0, offset_x },
+        { 0.0, viewer_pos->z, offset_y },
+        { 0.0, 0.0, 1.0 }
+    };
+    float scale_result[3];
+    float pos[3] = { source->x, source->y, 1.0 };
+    mat_mul_3x3_3x1(scale_matrix, pos, scale_result);
+
+    dest->x = scale_result[0];
+    dest->y = scale_result[1];
+}
