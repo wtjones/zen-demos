@@ -281,7 +281,7 @@ int main()
     }
 
     SDL_Window* win = SDL_CreateWindow("Transform Demo", 100, 100, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    SDL_Renderer* renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
+    SDL_Renderer* renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     Shape shapes_at_screen[MAX_SHAPES];
     int count_shapes = 0;
     Viewer viewer = { .position = { .x = 0.0, .y = 0.0, .z = 1.0 } };
