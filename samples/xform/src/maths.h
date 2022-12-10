@@ -28,8 +28,8 @@ typedef struct Shape {
     Point2f vertices[MAX_SHAPE_VERTICES];
 } Shape;
 
-extern float cos_table[360];
-extern float sin_table[360];
+extern float cos_table[3600];
+extern float sin_table[3600];
 
 void init_math_lookups();
 void apply_unit_vector(Point2f* src, int angle, Point2f* dest);

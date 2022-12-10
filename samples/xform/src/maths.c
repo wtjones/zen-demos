@@ -1,22 +1,22 @@
 #include "maths.h"
 
-float cos_table[360];
-float sin_table[360];
+float cos_table[3600];
+float sin_table[3600];
 
 void init_math_lookups()
 {
 
-    for (int i = 0; i < 360; i++) {
-        cos_table[i] = cos((float)i * M_PI / -180.0);
-        sin_table[i] = sin((float)i * M_PI / -180.0);
+    for (int i = 0; i < 3600; i++) {
+        cos_table[i] = cos((float)i * M_PI / -1800.0);
+        sin_table[i] = sin((float)i * M_PI / -1800.0);
     }
 }
 
 void apply_unit_vector(Point2f* src, int angle, Point2f* dest)
 {
     float xform_result[3];
-    float c = cos_table[angle];
-    float s = sin_table[angle];
+    float c = cos_table[angle * 10];
+    float s = sin_table[angle * 10];
 
     float matrix[3][3] = {
         { c, -s, src->x },

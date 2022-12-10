@@ -121,8 +121,8 @@ void update(WorldObject objects[NUM_OBJECTS], WorldBoundary* boundary, Viewer* v
         WorldObject* o = &objects[i];
         o->angle = (o->angle + 1) % 360;
 
-        float c = cos_table[o->angle];
-        float s = sin_table[o->angle];
+        float c = cos_table[o->angle * 10];
+        float s = sin_table[o->angle * 10];
 
         // translate direction vector to world space
         Point2f vector = { o->position.x + o->vector.x, o->position.y + o->vector.y };
@@ -193,8 +193,8 @@ void transform_objects(
 
         WorldObject* o = &objects[i];
 
-        float c = cos_table[o->angle];
-        float s = sin_table[o->angle];
+        float c = cos_table[o->angle * 10];
+        float s = sin_table[o->angle * 10];
 
         Shape* src_shape = o->shape;
         Shape* dest_shape = &shapes_at_screen[*count_shapes];
