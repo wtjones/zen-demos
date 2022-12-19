@@ -1,6 +1,6 @@
 # xform
 
-Simple matrix transforms in C
+Simple matrix transforms in C using fixed-point math.
 
 ## Run
 

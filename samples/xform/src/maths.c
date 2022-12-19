@@ -1,38 +1,54 @@
 #include "maths.h"
 
-float cos_table[3600];
-float sin_table[3600];
+int32_t cos_table[3600];
+int32_t sin_table[3600];
 
 void init_math_lookups()
 {
 
     for (int i = 0; i < 3600; i++) {
-        cos_table[i] = cos((float)i * M_PI / -1800.0);
-        sin_table[i] = sin((float)i * M_PI / -1800.0);
+        float c = cos((float)i * M_PI / -1800.0);
+        cos_table[i] = float_to_fixed_16_16(c);
+        float s = sin((float)i * M_PI / -1800.0);
+        sin_table[i] = float_to_fixed_16_16(s);
     }
 }
 
 void apply_unit_vector(Point2f* src, int angle, Point2f* dest)
 {
-    float xform_result[3];
-    float c = cos_table[angle * 10];
-    float s = sin_table[angle * 10];
+    int32_t xform_result[3];
+    int32_t c = cos_table[angle * 10];
+    int32_t s = sin_table[angle * 10];
 
-    float matrix[3][3] = {
+    int32_t matrix[3][3] = {
         { c, -s, src->x },
         { s, c, src->y },
-        { 0, 0, 1.0 }
+        { 0, 0, INT_32_TO_FIXED_16_16(1) }
     };
-    float pos[3] = { 0.0, 1.0, 1.0 };
+    int32_t pos[3] = {
+        0.0,
+        INT_32_TO_FIXED_16_16(1),
+        INT_32_TO_FIXED_16_16(1)
+    };
     mat_mul_3x3_3x1(matrix, pos, xform_result);
 
     dest->x = xform_result[0];
     dest->y = xform_result[1];
 }
 
-float cross(Point2f* v1, Point2f* v2)
+/**
+ * @brief v1->x * v2->y - v1->y * v2->x
+ *
+ * @param v1
+ * @param v2
+ * @return int64_t
+ */
+int64_t cross(Point2f* v1, Point2f* v2)
 {
-    return v1->x * v2->y - v1->y * v2->x;
+    int64_t xy = mul_fixed_16_16_to_fixed_32_32(v1->x, v2->y);
+    int64_t yx = mul_fixed_16_16_to_fixed_32_32(v1->y, v2->x);
+
+    return xy - yx;
 }
 
 bool point_in_polygon(
@@ -54,9 +70,9 @@ bool point_in_polygon(
             .y = p->y - side_p1->y
         };
 
-        float facing = cross(&v1, &v2);
+        int64_t facing = cross(&v1, &v2);
 
-        if (facing < 0.0) {
+        if (facing < 0) {
             collide_p1->x = side_p1->x;
             collide_p1->y = side_p1->y;
             collide_p2->x = side_p2->x;
@@ -70,20 +86,20 @@ bool point_in_polygon(
 
 void xform_to_world(
     Point2f* position,
-    float angle_cos,
-    float angle_sin,
+    int32_t angle_cos,
+    int32_t angle_sin,
     Point2f* source,
     Point2f* dest)
 {
     // Rotate and translate to world coord
-    float matrix[3][3] = {
+    int32_t matrix[3][3] = {
         { angle_cos, -angle_sin, position->x },
         { angle_sin, angle_cos, position->y },
-        { 0, 0, 1.0 }
+        { 0, 0, INT_32_TO_FIXED_16_16(1) }
     };
 
-    float pos[3] = { source->x, source->y, 1.0 };
-    float xform_result[3];
+    int32_t pos[3] = { source->x, source->y, INT_32_TO_FIXED_16_16(1) };
+    int32_t xform_result[3];
     mat_mul_3x3_3x1(matrix, pos, xform_result);
     dest->x = xform_result[0];
     dest->y = xform_result[1];
@@ -96,17 +112,19 @@ void xform_to_screen(
     Point2f* source,
     Point2f* dest)
 {
-    float offset_x = (screen_width / 2) - viewer_pos->x;
-    float offset_y = (screen_height / 2) - viewer_pos->y;
+    int32_t sw = INT_32_TO_FIXED_16_16(screen_width);
+    int32_t sh = INT_32_TO_FIXED_16_16(screen_height);
+    int32_t offset_x = (sw / (int32_t)2) - viewer_pos->x;
+    int32_t offset_y = (sh / (int32_t)2) - viewer_pos->y;
 
     // Scale and translate to screen coord
-    float scale_matrix[3][3] = {
-        { viewer_pos->z, 0.0, offset_x },
-        { 0.0, viewer_pos->z, offset_y },
-        { 0.0, 0.0, 1.0 }
+    int32_t scale_matrix[3][3] = {
+        { viewer_pos->z, 0, offset_x },
+        { 0, viewer_pos->z, offset_y },
+        { 0, 0, INT_32_TO_FIXED_16_16(1) }
     };
-    float scale_result[3];
-    float pos[3] = { source->x, source->y, 1.0 };
+    int32_t scale_result[3];
+    int32_t pos[3] = { source->x, source->y, INT_32_TO_FIXED_16_16(1) };
     mat_mul_3x3_3x1(scale_matrix, pos, scale_result);
 
     dest->x = scale_result[0];

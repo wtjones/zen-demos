@@ -1,10 +1,12 @@
 #ifndef MATHS_H
 #define MATHS_H
 
+#include "fixed_maths.h"
 #include "matrix.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #ifndef M_PI
 #    define M_PI 3.14159265358979323846
@@ -13,14 +15,14 @@
 #define MAX_SHAPE_VERTICES 10
 
 typedef struct Point2f {
-    float x;
-    float y;
+    int32_t x;
+    int32_t y;
 } Point2f;
 
 typedef struct Point3f {
-    float x;
-    float y;
-    float z;
+    int32_t x;
+    int32_t y;
+    int32_t z;
 } Point3f;
 
 typedef struct Shape {
@@ -28,18 +30,18 @@ typedef struct Shape {
     Point2f vertices[MAX_SHAPE_VERTICES];
 } Shape;
 
-extern float cos_table[3600];
-extern float sin_table[3600];
+extern int32_t cos_table[3600];
+extern int32_t sin_table[3600];
 
 void init_math_lookups();
 void apply_unit_vector(Point2f* src, int angle, Point2f* dest);
-float cross(Point2f* v1, Point2f* v2);
+int64_t cross(Point2f* v1, Point2f* v2);
 bool point_in_polygon(
     Point2f* p, Shape* shape, Point2f* collide_p1, Point2f* collide_p2);
 void xform_to_world(
     Point2f* position,
-    float angle_cos,
-    float angle_sin,
+    int32_t angle_cos,
+    int32_t angle_sin,
     Point2f* point,
     Point2f* dest);
 
