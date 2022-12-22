@@ -13,3 +13,7 @@ cmake --build build --config Debug && ./build/xform
 
 Arrow keys: pan view
 Plus/minus: zoom
+
+## Tests
+
+`./run_tests.sh`
