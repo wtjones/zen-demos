@@ -2,6 +2,7 @@
 #define MATHS_H
 
 #include "fixed_maths.h"
+#include "maths_tables.h"
 #include "matrix.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -30,8 +31,8 @@ typedef struct Shape {
     Point2f vertices[MAX_SHAPE_VERTICES];
 } Shape;
 
-extern int32_t cos_table[3600];
-extern int32_t sin_table[3600];
+extern int32_t cos_table[360];
+extern int32_t sin_table[360];
 
 void init_math_lookups();
 void apply_unit_vector(Point2f* src, int angle, Point2f* dest);

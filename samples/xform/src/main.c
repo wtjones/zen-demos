@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <time.h>
+#include <unistd.h>
 
 #define NUM_OBJECTS 3
 #define MAX_SHAPES NUM_OBJECTS + 1
@@ -124,8 +125,8 @@ void update(WorldObject objects[NUM_OBJECTS], WorldBoundary* boundary, Viewer* v
         WorldObject* o = &objects[i];
         o->angle = (o->angle + 1) % 360;
 
-        int32_t c = cos_table[o->angle * 10];
-        int32_t s = sin_table[o->angle * 10];
+        int32_t c = cos_table[o->angle];
+        int32_t s = sin_table[o->angle];
 
         // translate direction vector to world space
         Point2f vector = { o->position.x + o->vector.x, o->position.y + o->vector.y };
@@ -196,8 +197,8 @@ void transform_objects(
 
         WorldObject* o = &objects[i];
 
-        int32_t c = cos_table[o->angle * 10];
-        int32_t s = sin_table[o->angle * 10];
+        int32_t c = cos_table[o->angle];
+        int32_t s = sin_table[o->angle];
 
         Shape* src_shape = o->shape;
         Shape* dest_shape = &shapes_at_screen[*count_shapes];
@@ -270,10 +271,26 @@ void render(
     SDL_RenderPresent(renderer);
 }
 
-int main()
+void dump_tables()
+{
+    for (int i = 0; i < 360; i++) {
+        printf("%d,\n", cos_table[i]);
+    }
+
+    for (int i = 0; i < 360; i++) {
+        printf("%d,\n", sin_table[i]);
+    }
+}
+
+int main(int argc, char* argv[])
 {
     srand(time(NULL));
-    init_math_lookups();
+
+    if (getopt(argc, argv, "d") != -1) {
+        init_math_lookups();
+        dump_tables();
+        return 0;
+    }
 
     SDL_bool should_quit = SDL_FALSE;
     char str[80];
