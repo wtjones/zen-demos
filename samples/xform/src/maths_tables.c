@@ -1,4 +1,6 @@
 #include "maths_tables.h"
+#include "fixed_maths.h"
+#include <stdio.h>
 
 int32_t cos_table[360] = {
     65536,
@@ -724,3 +726,26 @@ int32_t sin_table[360] = {
     2287,
     1143
 };
+
+void init_math_tables()
+{
+
+    for (int i = 0; i < 360; i++) {
+        float c = cos((float)i * M_PI / -180.0);
+        cos_table[i] = float_to_fixed_16_16(c);
+        float s = sin((float)i * M_PI / -180.0);
+        sin_table[i] = float_to_fixed_16_16(s);
+    }
+}
+
+void dump_maths_tables()
+{
+    init_math_tables();
+    for (int i = 0; i < 360; i++) {
+        printf("%d,\n", cos_table[i]);
+    }
+
+    for (int i = 0; i < 360; i++) {
+        printf("%d,\n", sin_table[i]);
+    }
+}

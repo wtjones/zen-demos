@@ -271,24 +271,12 @@ void render(
     SDL_RenderPresent(renderer);
 }
 
-void dump_tables()
-{
-    for (int i = 0; i < 360; i++) {
-        printf("%d,\n", cos_table[i]);
-    }
-
-    for (int i = 0; i < 360; i++) {
-        printf("%d,\n", sin_table[i]);
-    }
-}
-
 int main(int argc, char* argv[])
 {
     srand(time(NULL));
 
     if (getopt(argc, argv, "d") != -1) {
-        init_math_lookups();
-        dump_tables();
+        dump_maths_tables();
         return 0;
     }
 
