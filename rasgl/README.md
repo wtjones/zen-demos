@@ -17,3 +17,12 @@
         ras.c           // uses ras_plat.c
 
 ```
+
+
+## Build and Run
+
+```
+cmake -S . -B build
+cmake --build build
+./build/ras_sdl
+```
