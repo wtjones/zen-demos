@@ -24,7 +24,7 @@
 ## Posix/SDL
 
 ```
-cmake -S . -B build
+cmake -S . -DRAS_PLATFORM=ras_sdl -B build
 cmake --build build
 ./build/ras_sdl
 ```
@@ -49,8 +49,8 @@ Set PATH or use provided shell script.
 ### Build
 
 ```
-cmake -S . -DCMAKE_TOOLCHAIN_FILE=tools/djgpp.cmake -B build
-cmake --build build -t ras_dos
+cmake -S . -DCMAKE_TOOLCHAIN_FILE=tools/djgpp.cmake -DRAS_PLATFORM=ras_dos -B build
+cmake --build build -t demo
 ```
 
 ### Run

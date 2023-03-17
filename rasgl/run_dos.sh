@@ -5,8 +5,9 @@ set -euo pipefail
 main() {
 
     source $DJGPP_PREFIX/setenv
-    cmake -S . -DCMAKE_TOOLCHAIN_FILE=tools/djgpp.cmake -B build
-    cmake --build build -t ras_dos
+    rm -rf build
+    cmake -S . -DCMAKE_TOOLCHAIN_FILE=tools/djgpp.cmake -DRAS_PLATFORM=ras_dos -B build
+    cmake --build build -t demo
     if [ $? -ne 0 ]; then
         echo "build failed"
         exit 1

@@ -1,4 +1,4 @@
-#include "../../raslib/app.h"
+#include "app.h"
 #include <SDL2/SDL.h>
 #include <stdbool.h>
 

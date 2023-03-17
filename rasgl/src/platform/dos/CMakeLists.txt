@@ -1,8 +1,4 @@
+add_library(ras_dos main.c)
 
-
-
-add_executable(ras_dos EXCLUDE_FROM_ALL
-    main.c
-    ../..//demo/demo_main.c)
-
-
+target_include_directories(ras_dos PUBLIC include)
+target_link_libraries(ras_dos PRIVATE raslib)
