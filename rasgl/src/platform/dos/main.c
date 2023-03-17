@@ -4,8 +4,9 @@
 
 int main()
 {
-    printf("init DOS.../n");
+    printf("init DOS...\n");
+    printf("Running app_main()...\n");
     app_main();
-
+    system("pause");
     return 1;
 }
