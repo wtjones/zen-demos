@@ -1,2 +1,5 @@
+if (${RAS_PLATFORM} STREQUAL "ras_dos")
 add_subdirectory(dos)
+else()
 add_subdirectory(posix)
+endif()
