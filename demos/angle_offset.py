@@ -13,6 +13,8 @@ center = x, y = size[0] // 2, size[1] // 2
 black = 0, 0, 0
 screen = None
 angle = 0
+player = x, y = 40, 50
+target = x, y = 30, 60
 
 math_table = []
 vector_table = []
@@ -54,35 +56,43 @@ def build_vector_table():
 
             c = math.cos(angle * math.pi / 180)
             s = math.sin(angle * math.pi / 180)
-            # plot = x, y = (
-            #     int(round(0 + 1 * c)),
-            #     int(round(0 - 1 * s)),
-            # )
 
             plot = x, y = (
                 (0 + 1 * c),
                 (0 - 1 * s),
             )
             print(f"c: {col} r: {row} angle {angle} plot {plot}")
-            # vector_table[row * num_tiles[0] + col] = plot
             vector_table.append(plot)
-
-
 
 
 def render():
     global screen, size
 
-    pixels = pygame.PixelArray(pygame.display.get_surface())
-
     for tile_row in range(0, size[1], 8):
-
-
         pygame.draw.line(screen, (255,0,0), (0, tile_row), (size[0],tile_row))
 
     for tile_col in range(0, size[0], 8):
         pygame.draw.line(screen, (255,0,0), (tile_col,0), (tile_col, size[1]-1))
 
+    color = 0,0,255
+    screen.set_at(player, color)
+    color = 0,255,25
+    screen.set_at(target, color)
+
+    x_diff = player[0] - target[0]
+    y_diff = player[1] - target[1]
+    magnitude = math.sqrt(pow(x_diff, 2) + pow(y_diff,2))
+    scaled_magnitude = 0 if magnitude == 0 else 1.0 / magnitude
+    x_velocity = x_diff * scaled_magnitude
+    y_velocity = y_diff * scaled_magnitude
+
+    vel = str(f"xv: {x_velocity}")
+    vel_text = font.render(vel, 1, pygame.Color("coral"))
+    screen.blit(vel_text, (4, 10))
+
+    vel = str(f"yv: {y_velocity}")
+    vel_text = font.render(vel, 1, pygame.Color("coral"))
+    screen.blit(vel_text, (4, 30))
 
 
 def main_loop():
@@ -100,13 +110,23 @@ def main_loop():
 
 
 def handle_input():
-    global viewer, viewer_angle, scroll_speed, fov, horizon
+    global viewer, viewer_angle, scroll_speed, fov, horizon, player
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN or event.key == pygame.K_ESCAPE:
                 sys.exit()
+        if event.type == pygame.KEYUP:
+            key = event.key
+            if key == pygame.K_LEFT:
+                player = player[0] - 1, player[1]
+            if key ==pygame.K_RIGHT:
+                player = player[0] + 1, player[1]
+            if key == pygame.K_UP:
+                player = player[0], player[1] - 1
+            if key ==pygame.K_DOWN:
+                player = player[0], player[1] + 1
     key = pygame.key.get_pressed()
 
 def dump():
