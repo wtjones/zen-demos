@@ -2,9 +2,16 @@
 
 ## Python Demos
 
+```
+cd py_demos
+pip3 install -r requirements.txt
+```
+
+`python3 -m sin_cos_fixed`
+
 `python3 -m demos.mode_7`
 
-`python3 -m demos.roate_2d`
+`python3 -m demos.rotate_2d`
 
 ## Game Boy mode 7 demo
 
