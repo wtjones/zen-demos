@@ -2,11 +2,8 @@
 #include <SDL2/SDL.h>
 #include <stdbool.h>
 
-int main()
+int main(int argc, const char** argv)
 {
-
-    app_main();
-
     SDL_bool should_quit = SDL_FALSE;
     printf("Hello, World!2 \n");
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -16,6 +13,8 @@ int main()
 
     SDL_Window* win = SDL_CreateWindow("Hello World!", 100, 100, 640, 480, SDL_WINDOW_SHOWN);
     SDL_Renderer* renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
+
+    ras_app_init(argc, argv);
 
     int last_frame = SDL_GetTicks();
     while (!should_quit) {

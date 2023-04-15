@@ -1,7 +1,7 @@
 #include "app.h"
 #include <stdio.h>
 
-void app_main()
+void ras_app_init(int argc, const char** argv)
 {
-    printf("app_main()...\n");
+    printf("ras_app_init()...\n");
 }

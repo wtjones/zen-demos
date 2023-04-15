@@ -5,7 +5,8 @@ set -euo pipefail
 main() {
 
     source $DJGPP_PREFIX/setenv
-    rm -rf build
+    SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+    rm -rf ${SCRIPT_DIR}/build
     cmake -S . -DCMAKE_TOOLCHAIN_FILE=tools/djgpp.cmake -DRAS_PLATFORM=ras_dos -B build
     cmake --build build -t demo
     if [ $? -ne 0 ]; then

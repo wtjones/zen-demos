@@ -46,6 +46,20 @@ Set PATH or use provided shell script.
 
 `PATH="${DJGPP_PREFIX}/bin:${PATH}"`
 
+### Get Allegro
+
+Clone repo somewhere locally: https://github.com/wtjones/allegro-4.2.2-xc
+
+```
+cd allegro-4.2.2-xc
+```
+Review and run `xmake.sh` to generate files such as `lib/djgpp/liballeg.a`
+
+Set variable `ALLEGRO` in shell or profile:
+```
+export ALLEGRO="/home/myuser/dev/allegro-4.2.2-xc"
+```
+
 ### Build
 
 ```

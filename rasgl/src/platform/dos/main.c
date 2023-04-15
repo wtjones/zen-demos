@@ -1,34 +1,32 @@
 #include "app.h"
-#include <dpmi.h>
-#include <go32.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/farptr.h>
+#include <allegro.h>
 
-#define MODE_13h 0x13
-#define MODE_3h 0x3
-
-void screen_mode(int mode)
+int main(int argc, const char** argv)
 {
-    __dpmi_regs regs;
-    regs.x.ax = mode;        /* Mode 0x13 is VGA 320x200x256, 0x3 is TEXT 80x25 */
-    __dpmi_int(0x10, &regs); /* same as real-mode */
-    return;
-}
+    if (allegro_init() != 0) {
+        return 1;
+    }
 
-int main()
-{
-    printf("Hello!!!\n");
-    screen_mode(MODE_13h);
+    install_keyboard();
 
-    _farpokeb(_dos_ds, 0xA0000 + (100 * 320 + 160), 15);
+    if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
+        set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+        allegro_message("Cannot set graphics mode:\r\n%s\r\n", allegro_error);
+        return 1;
+    }
 
-    printf("init DOS...\n");
-    printf("Running app_main()...\n");
-    app_main();
+    set_palette(desktop_palette);
+    clear_to_color(screen, makecol(255, 255, 255));
+    int text_w = 0, text_h = 0;
+    textout_ex(screen, font, "init DOS...", text_w, text_h, makecol(0, 0, 0), -1);
+    text_h += text_height(font);
 
-    system("pause");
-    screen_mode(MODE_3h);
+    textout_ex(screen, font, "Running ras_app_init()...", text_w, text_h, makecol(0, 0, 0), -1);
+    ras_app_init(argc, argv);
+
+    readkey();
 
     return 0;
 }
+
+END_OF_MAIN()
