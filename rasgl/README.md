@@ -11,7 +11,7 @@
         /dos
             /main.c
             /ras_plat.c
-    /raslib
+    /core
         ras.h
         ras_plat.h
         ras.c           // uses ras_plat.c

@@ -1,4 +1,4 @@
-#include "app.h"
+#include "rasgl/core/app.h"
 #include <allegro.h>
 
 int main(int argc, const char** argv)

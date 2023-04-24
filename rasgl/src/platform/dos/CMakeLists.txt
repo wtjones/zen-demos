@@ -8,4 +8,4 @@ message("ALLEGRO = $ENV{ALLEGRO}")
 message("LIBRARIES = ${LIBRARIES}")
 
 target_include_directories(ras_dos PUBLIC include)
-target_link_libraries(ras_dos PRIVATE raslib ${LIBRARIES})
+target_link_libraries(ras_dos PRIVATE core ${LIBRARIES})
