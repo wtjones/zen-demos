@@ -37,7 +37,7 @@ int main(int argc, const char** argv)
         plat_settings.screen_width * 2,
         plat_settings.screen_height * 2,
         SDL_WINDOW_SHOWN);
-    renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
+    renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     SDL_RenderSetLogicalSize(renderer, 320, 240);
     ras_app_init(argc, argv, &plat_settings);
@@ -61,8 +61,6 @@ int main(int argc, const char** argv)
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         SDL_RenderClear(renderer);
         render_state(&state);
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderDrawPoint(renderer, 100, 30);
 
         SDL_RenderPresent(renderer);
 
