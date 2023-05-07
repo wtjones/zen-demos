@@ -5,6 +5,18 @@
 ScreenSettings plat_settings = { .screen_width = 320, .screen_height = 240 };
 
 RenderState state = { .num_commands = 0, .num_points = 0 };
+InputState plat_input_state;
+
+void map_input()
+{
+    for (int i = 0; i < RAS_MAX_KEYS; i++) {
+        plat_input_state.keys[i] = 0;
+    }
+    plat_input_state.keys[RAS_KEY_W] = key[KEY_W] ? 1 : 0;
+    plat_input_state.keys[RAS_KEY_A] = key[KEY_A] ? 1 : 0;
+    plat_input_state.keys[RAS_KEY_S] = key[KEY_S] ? 1 : 0;
+    plat_input_state.keys[RAS_KEY_D] = key[KEY_D] ? 1 : 0;
+}
 
 void render_state(BITMAP* buffer, RenderState* state)
 {
@@ -41,8 +53,9 @@ int main(int argc, const char** argv)
     set_palette(desktop_palette);
     clear_keybuf();
 
-    while (true) {
-        ras_app_update();
+    while (!key[KEY_ESC]) {
+        map_input();
+        ras_app_update(&plat_input_state);
         ras_app_render(&state);
 
         clear_to_color(buffer, makecol(255, 255, 255));
@@ -52,9 +65,6 @@ int main(int argc, const char** argv)
         textprintf_ex(buffer, font, 0, 0, makecol(0, 0, 0), -1,
             "Double buffered (%s) %d", gfx_driver->name, retrace_count);
         blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
-
-        if (keypressed())
-            break;
     }
 
     destroy_bitmap(buffer);

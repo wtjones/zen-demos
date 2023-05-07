@@ -1,5 +1,6 @@
 #include "rasgl/core/app.h"
 #include "rasgl/core/graphics.h"
+#include "rasgl/core/input.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <stdbool.h>
@@ -8,6 +9,20 @@ ScreenSettings plat_settings = { .screen_width = 320, .screen_height = 240 };
 SDL_Renderer* renderer;
 
 RenderState state = { .num_commands = 0, .num_points = 0 };
+InputState plat_input_state;
+
+void map_input()
+{
+    int num_keys;
+    const Uint8* keys = SDL_GetKeyboardState(&num_keys);
+    for (int i = 0; i < RAS_MAX_KEYS; i++) {
+        plat_input_state.keys[i] = 0;
+    }
+    plat_input_state.keys[RAS_KEY_W] = keys[SDL_SCANCODE_W];
+    plat_input_state.keys[RAS_KEY_A] = keys[SDL_SCANCODE_A];
+    plat_input_state.keys[RAS_KEY_S] = keys[SDL_SCANCODE_S];
+    plat_input_state.keys[RAS_KEY_D] = keys[SDL_SCANCODE_D];
+}
 
 void render_state(RenderState* state)
 {
@@ -52,11 +67,10 @@ int main(int argc, const char** argv)
                 break;
             case SDL_KEYUP:
                 should_quit = event.key.keysym.scancode == SDL_SCANCODE_ESCAPE;
-                should_quit = true;
             }
         }
-
-        ras_app_update();
+        map_input();
+        ras_app_update(&plat_input_state);
         ras_app_render(&state);
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         SDL_RenderClear(renderer);

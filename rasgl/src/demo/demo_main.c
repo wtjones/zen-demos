@@ -1,5 +1,6 @@
 #include "rasgl/core/app.h"
 #include "rasgl/core/graphics.h"
+#include "rasgl/core/input.h"
 #include <stdio.h>
 
 Vector2f demo_pos;
@@ -13,11 +14,17 @@ void ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
     demo_pos.y = settings->screen_height / 2;
 }
 
-void ras_app_update()
+void ras_app_update(InputState* input_state)
 {
     demo_pos.x++;
     if (demo_pos.x >= settings->screen_width) {
         demo_pos.x = 0;
+    }
+    if (input_state->keys[RAS_KEY_S] == 1) {
+        demo_pos.y++;
+    }
+    if (input_state->keys[RAS_KEY_W] == 1) {
+        demo_pos.y--;
     }
 }
 
