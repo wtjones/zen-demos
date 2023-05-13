@@ -1,6 +1,7 @@
 #include "rasgl/core/app.h"
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/input.h"
+#include "rasgl/core/maths.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <stdbool.h>
@@ -26,10 +27,12 @@ void map_input()
 
 void render_state(RenderState* state)
 {
+    printf("num points: %zu", state->num_points);
+
     for (size_t i = 0; i < state->num_commands; i++) {
         RenderCommand* command = &state->commands[i];
         for (size_t j = 0; j < command->num_points; j++) {
-            Vector2f* point = &(state->points[command->point_indices[j]]);
+            Point2i* point = &(state->points[command->point_indices[j]]);
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderDrawPoint(renderer, point->x, point->y);
         }

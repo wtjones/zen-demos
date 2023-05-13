@@ -1,5 +1,7 @@
 #include "rasgl/core/app.h"
 #include "rasgl/core/graphics.h"
+#include "rasgl/core/input.h"
+#include "rasgl/core/maths.h"
 #include <allegro.h>
 
 ScreenSettings plat_settings = { .screen_width = 320, .screen_height = 240 };
@@ -23,7 +25,7 @@ void render_state(BITMAP* buffer, RenderState* state)
     for (size_t i = 0; i < state->num_commands; i++) {
         RenderCommand* command = &state->commands[i];
         for (size_t j = 0; j < command->num_points; j++) {
-            Vector2f* point = &(state->points[command->point_indices[j]]);
+            Point2i* point = &(state->points[command->point_indices[j]]);
             putpixel(buffer, point->x, point->y, makecol(0, 0, 0));
         }
     }
