@@ -27,8 +27,6 @@ void map_input()
 
 void render_state(RenderState* state)
 {
-    printf("num points: %zu", state->num_points);
-
     for (size_t i = 0; i < state->num_commands; i++) {
         RenderCommand* command = &state->commands[i];
         for (size_t j = 0; j < command->num_points; j++) {
