@@ -26,7 +26,7 @@ void render_state(BITMAP* buffer, RenderState* state)
         RenderCommand* command = &state->commands[i];
         for (size_t j = 0; j < command->num_points; j++) {
             Point2i* point = &(state->points[command->point_indices[j]]);
-            putpixel(buffer, point->x, point->y, makecol(0, 0, 0));
+            putpixel(buffer, point->x, point->y, makecol(255, 255, 255));
         }
     }
 }
@@ -43,7 +43,7 @@ int main(int argc, const char** argv)
     install_keyboard();
     install_timer();
 
-    if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
+    if (set_gfx_mode(GFX_AUTODETECT, 320, 240, 0, 0) != 0) {
         set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
         allegro_message("Cannot set graphics mode:\r\n%s\r\n", allegro_error);
         return 1;
@@ -60,12 +60,13 @@ int main(int argc, const char** argv)
         ras_app_update(&plat_input_state);
         ras_app_render(&state);
 
-        clear_to_color(buffer, makecol(255, 255, 255));
+        clear_to_color(buffer, makecol(0, 0, 0));
 
         render_state(buffer, &state);
 
-        textprintf_ex(buffer, font, 0, 0, makecol(0, 0, 0), -1,
-            "Double buffered (%s) %d", gfx_driver->name, retrace_count);
+        textprintf_ex(buffer, font, 0, 0, makecol(255, 255, 255), -1,
+            "Double buffered (%s) %d", gfx_driver->name);
+        vsync();
         blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
     }
 
