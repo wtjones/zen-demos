@@ -10,7 +10,9 @@
 #define RAS_KEY_S 6
 #define RAS_KEY_D 7
 #define RAS_KEY_Q 8
-#define RAS_MAX_KEYS 9
+#define RAS_KEY_EQUALS 9
+#define RAS_KEY_MINUS 10
+#define RAS_MAX_KEYS 255
 
 typedef struct InputState {
     uint8_t keys[RAS_MAX_KEYS];

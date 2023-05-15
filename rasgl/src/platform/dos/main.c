@@ -18,6 +18,8 @@ void map_input()
     plat_input_state.keys[RAS_KEY_A] = key[KEY_A] ? 1 : 0;
     plat_input_state.keys[RAS_KEY_S] = key[KEY_S] ? 1 : 0;
     plat_input_state.keys[RAS_KEY_D] = key[KEY_D] ? 1 : 0;
+    plat_input_state.keys[RAS_KEY_EQUALS] = key[KEY_EQUALS] ? 1 : 0;
+    plat_input_state.keys[RAS_KEY_MINUS] = key[KEY_MINUS] ? 1 : 0;
 }
 
 void render_state(BITMAP* buffer, RenderState* state)

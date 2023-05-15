@@ -7,7 +7,7 @@
 #define MAP_ROWS 5
 #define MAP_COLS 5
 #define CELL_UNITS INT_32_TO_FIXED_16_16(10)
-
+#define ZOOM_SPEED float_to_fixed_16_16(.05)
 Point3f viewer_pos;
 ScreenSettings* settings;
 
@@ -42,6 +42,12 @@ void ras_app_update(InputState* input_state)
     }
     if (input_state->keys[RAS_KEY_D] == 1) {
         viewer_pos.x += INT_32_TO_FIXED_16_16(1);
+    }
+    if (input_state->keys[RAS_KEY_EQUALS] == 1) {
+        viewer_pos.z += ZOOM_SPEED;
+    }
+    if (input_state->keys[RAS_KEY_MINUS] == 1) {
+        viewer_pos.z -= ZOOM_SPEED;
     }
 }
 

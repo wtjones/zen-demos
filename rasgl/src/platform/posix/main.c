@@ -23,6 +23,8 @@ void map_input()
     plat_input_state.keys[RAS_KEY_A] = keys[SDL_SCANCODE_A];
     plat_input_state.keys[RAS_KEY_S] = keys[SDL_SCANCODE_S];
     plat_input_state.keys[RAS_KEY_D] = keys[SDL_SCANCODE_D];
+    plat_input_state.keys[RAS_KEY_EQUALS] = keys[SDL_SCANCODE_EQUALS];
+    plat_input_state.keys[RAS_KEY_MINUS] = keys[SDL_SCANCODE_MINUS];
 }
 
 void render_state(RenderState* state)
