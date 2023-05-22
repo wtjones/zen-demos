@@ -8,7 +8,11 @@
 #define MAP_COLS 5
 #define CELL_UNITS INT_32_TO_FIXED_16_16(10)
 #define ZOOM_SPEED float_to_fixed_16_16(.05)
+#define ROTATION_SPEED 4
+#define VIEWER_SPEED float_to_fixed_16_16(.5)
+
 Point3f viewer_pos;
+int32_t viewer_angle = 0;
 ScreenSettings* settings;
 
 int map[MAP_COLS][MAP_ROWS] = {
@@ -31,11 +35,43 @@ void ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
 
 void ras_app_update(InputState* input_state)
 {
+
+    if (input_state->keys[RAS_KEY_Q] == 1) {
+        viewer_angle = viewer_angle - ROTATION_SPEED;
+        if (viewer_angle <= 0) {
+            viewer_angle += 359;
+        }
+        printf("a: %d\n", viewer_angle);
+    }
+    if (input_state->keys[RAS_KEY_E] == 1) {
+        viewer_angle = viewer_angle + ROTATION_SPEED;
+        if (viewer_angle > 359) {
+            viewer_angle -= 359;
+        }
+        printf("a: %d\n", viewer_angle);
+    }
+
+    Point2f origin = { .x = 0, .y = 0 };
+    Point2f vector;
+    apply_unit_vector(&origin, viewer_angle, &vector);
+
+    // translate direction vector to world space
+    Point2f world_vector = { viewer_pos.x + vector.x, viewer_pos.y + vector.y };
+
+    Point2f delta = {
+        mul_fixed_16_16_by_fixed_16_16(viewer_pos.x - world_vector.x, VIEWER_SPEED),
+        mul_fixed_16_16_by_fixed_16_16(viewer_pos.y - world_vector.y, VIEWER_SPEED)
+    };
+
     if (input_state->keys[RAS_KEY_W] == 1) {
-        viewer_pos.y += INT_32_TO_FIXED_16_16(1);
+        printf("v: %d v: %d\n", vector.x, vector.y);
+        printf("d: %d d: %d\n", delta.x, delta.y);
+        viewer_pos.y += delta.y;
+        viewer_pos.x += delta.x;
     }
     if (input_state->keys[RAS_KEY_A] == 1) {
         viewer_pos.x -= INT_32_TO_FIXED_16_16(1);
+        printf("x: %d", viewer_pos.x);
     }
     if (input_state->keys[RAS_KEY_S] == 1) {
         viewer_pos.y -= INT_32_TO_FIXED_16_16(1);
@@ -133,16 +169,26 @@ void render_viewer(RenderState* render_state)
     world_pos.x = viewer_pos.x + INT_32_TO_FIXED_16_16(0);
     world_pos.y = viewer_pos.y + INT_32_TO_FIXED_16_16(1);
     render_point(render_state, world_pos);
+
     world_pos.x = viewer_pos.x + INT_32_TO_FIXED_16_16(1);
     world_pos.y = viewer_pos.y + INT_32_TO_FIXED_16_16(0);
-
     render_point(render_state, world_pos);
+
     world_pos.x = viewer_pos.x + INT_32_TO_FIXED_16_16(0);
     world_pos.y = viewer_pos.y + -INT_32_TO_FIXED_16_16(1);
-
     render_point(render_state, world_pos);
+
     world_pos.x = viewer_pos.x + -INT_32_TO_FIXED_16_16(1);
     world_pos.y = viewer_pos.y + INT_32_TO_FIXED_16_16(0);
+    render_point(render_state, world_pos);
+
+    Point2f origin = { .x = 0, .y = 0 };
+    Point2f vector;
+    apply_unit_vector(&origin, viewer_angle, &vector);
+    vector.x *= 4;
+    vector.y *= 4;
+    world_pos.x = viewer_pos.x + vector.x;
+    world_pos.y = viewer_pos.y + vector.y;
 
     render_point(render_state, world_pos);
 }
