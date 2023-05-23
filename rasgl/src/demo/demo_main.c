@@ -8,7 +8,11 @@
 #define MAP_COLS 5
 #define CELL_UNITS INT_32_TO_FIXED_16_16(10)
 #define ZOOM_SPEED float_to_fixed_16_16(.05)
+#define ROTATION_SPEED 4
+#define VIEWER_SPEED float_to_fixed_16_16(.5)
+
 Point3f viewer_pos;
+int32_t viewer_angle = 0;
 ScreenSettings* settings;
 
 int map[MAP_COLS][MAP_ROWS] = {
@@ -31,17 +35,47 @@ void ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
 
 void ras_app_update(InputState* input_state)
 {
+
+    if (input_state->keys[RAS_KEY_Q] == 1 | input_state->keys[RAS_KEY_LEFT]) {
+        viewer_angle = viewer_angle - ROTATION_SPEED;
+        if (viewer_angle <= 0) {
+            viewer_angle += 359;
+        }
+    }
+    if (input_state->keys[RAS_KEY_E] == 1 | input_state->keys[RAS_KEY_RIGHT]) {
+        viewer_angle = viewer_angle + ROTATION_SPEED;
+        if (viewer_angle > 359) {
+            viewer_angle -= 359;
+        }
+    }
+
+    Point2f origin = { .x = 0, .y = 0 };
+    Point2f vector;
+    apply_unit_vector(&origin, viewer_angle, &vector);
+
+    // translate direction vector to world space
+    Point2f world_vector = { viewer_pos.x + vector.x, viewer_pos.y + vector.y };
+
+    Point2f delta = {
+        mul_fixed_16_16_by_fixed_16_16(world_vector.x - viewer_pos.x, VIEWER_SPEED),
+        mul_fixed_16_16_by_fixed_16_16(world_vector.y - viewer_pos.y, VIEWER_SPEED)
+    };
+
     if (input_state->keys[RAS_KEY_W] == 1) {
-        viewer_pos.y += INT_32_TO_FIXED_16_16(1);
+        viewer_pos.y += delta.y;
+        viewer_pos.x += delta.x;
     }
     if (input_state->keys[RAS_KEY_A] == 1) {
-        viewer_pos.x -= INT_32_TO_FIXED_16_16(1);
+        viewer_pos.x -= delta.y;
+        viewer_pos.y += delta.x;
     }
     if (input_state->keys[RAS_KEY_S] == 1) {
-        viewer_pos.y -= INT_32_TO_FIXED_16_16(1);
+        viewer_pos.y -= delta.y;
+        viewer_pos.x -= delta.x;
     }
     if (input_state->keys[RAS_KEY_D] == 1) {
-        viewer_pos.x += INT_32_TO_FIXED_16_16(1);
+        viewer_pos.x += delta.y;
+        viewer_pos.y -= delta.x;
     }
     if (input_state->keys[RAS_KEY_EQUALS] == 1) {
         viewer_pos.z += ZOOM_SPEED;
@@ -133,17 +167,34 @@ void render_viewer(RenderState* render_state)
     world_pos.x = viewer_pos.x + INT_32_TO_FIXED_16_16(0);
     world_pos.y = viewer_pos.y + INT_32_TO_FIXED_16_16(1);
     render_point(render_state, world_pos);
+
     world_pos.x = viewer_pos.x + INT_32_TO_FIXED_16_16(1);
     world_pos.y = viewer_pos.y + INT_32_TO_FIXED_16_16(0);
-
     render_point(render_state, world_pos);
+
     world_pos.x = viewer_pos.x + INT_32_TO_FIXED_16_16(0);
     world_pos.y = viewer_pos.y + -INT_32_TO_FIXED_16_16(1);
-
     render_point(render_state, world_pos);
+
     world_pos.x = viewer_pos.x + -INT_32_TO_FIXED_16_16(1);
     world_pos.y = viewer_pos.y + INT_32_TO_FIXED_16_16(0);
+    render_point(render_state, world_pos);
 
+    // render vector
+    Point2f origin = { .x = 0, .y = 0 };
+    Point2f unit_vector;
+    apply_unit_vector(&origin, viewer_angle, &unit_vector);
+
+    world_pos.x = viewer_pos.x + (unit_vector.x * 8);
+    world_pos.y = viewer_pos.y + (unit_vector.y * 8);
+    render_point(render_state, world_pos);
+
+    world_pos.x = viewer_pos.x + -(unit_vector.y * 4);
+    world_pos.y = viewer_pos.y + (unit_vector.x * 4);
+    render_point(render_state, world_pos);
+
+    world_pos.x = viewer_pos.x + (unit_vector.y * 4);
+    world_pos.y = viewer_pos.y + -(unit_vector.x * 4);
     render_point(render_state, world_pos);
 }
 

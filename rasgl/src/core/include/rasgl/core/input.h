@@ -12,6 +12,9 @@
 #define RAS_KEY_Q 8
 #define RAS_KEY_EQUALS 9
 #define RAS_KEY_MINUS 10
+#define RAS_KEY_E 11
+#define RAS_KEY_ESCAPE 12
+
 #define RAS_MAX_KEYS 255
 
 typedef struct InputState {
