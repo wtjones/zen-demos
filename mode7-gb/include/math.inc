@@ -1,5 +1,5 @@
 IF      !DEF(MATH_ASM)
-MATH_ASM     SET  1
+MATH_ASM = 1
 
 
 ; Treat each pair of params as 16-bit hi/low and perform:

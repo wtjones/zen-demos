@@ -1,7 +1,7 @@
 
 
 IF      !DEF(COMMAND_LIST_ASM)
-COMMAND_LIST_ASM     SET  1
+COMMAND_LIST_ASM = 1
 
 ; Inline add of offset while retaining hl
 ; de += bc

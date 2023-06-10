@@ -1,7 +1,7 @@
 INCLUDE	"gbhw.inc"
 
 IF      !DEF(DEBUG_ASM)
-DEBUG_ASM     SET  1
+DEBUG_ASM = 1
 
 
 ; Prints a message to the no$gmb / bgb debugger

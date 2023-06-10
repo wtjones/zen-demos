@@ -1,5 +1,5 @@
 IF      !DEF(MAP_INC)
-MAP_INC     SET  1
+MAP_INC = 1
 
 MAP_BITS_PER_TILE       EQU 8
 MAP_WIDTH               EQU 64

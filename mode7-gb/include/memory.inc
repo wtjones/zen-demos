@@ -8,7 +8,7 @@
 ;If all of these are already defined, don't do it again.
 INCLUDE	"gbhw.inc"
 IF      !DEF(MEMORY1_ASM)
-MEMORY1_ASM     SET  1
+MEMORY1_ASM =  1
 
 
 lcd_WaitVRAM: MACRO
