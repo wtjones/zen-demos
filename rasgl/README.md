@@ -18,6 +18,28 @@
 
 ```
 
+## Render Pipeline
+
+Transform object vertices to world vertices
+Transform world vertices to view vertices
+Transform view vertices to screen vertices
+
+Push vertex to render array, get index.
+
+For each triangle:
+    Push the 3 vertex indices.
+
+### Map render
+
+Assume world size of 5x5.
+
+```
+p0-------p1-------p2
+|  t0  / |  t2  / |
+|    /   |    /   |
+|  /  t1 |  /  t3 |
+p6-------p7-------p8
+```
 
 ## Build and Run
 

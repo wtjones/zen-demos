@@ -8,7 +8,7 @@
 
 #define MAX_RENDER_POINTS 1000
 #define MAX_RENDER_COMMANDS 1000
-#define MAX_COMMAND_POINTS 10
+#define MAX_COMMAND_POINTS 3
 
 typedef struct ScreenSettings {
     int32_t screen_width;
