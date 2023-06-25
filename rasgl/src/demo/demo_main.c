@@ -111,6 +111,27 @@ void render_point(RenderState* render_state, Point2f world_pos)
     (*num_commands)++;
 }
 
+/**
+ * Transform world point to screen and add to render list
+ */
+void push_world_point(RenderState* render_state, Point2f world_pos)
+{
+    size_t* num_points = &render_state->num_points;
+    size_t* num_commands = &render_state->num_commands;
+    Point2i* screen_pos;
+    Point2f dest;
+
+    screen_pos = &render_state->points[*num_points];
+    xform_to_screen(
+        settings->screen_width,
+        settings->screen_height,
+        &viewer_pos, &world_pos, &dest);
+
+    screen_pos->x = FIXED_16_16_TO_INT_32(dest.x);
+    screen_pos->y = FIXED_16_16_TO_INT_32(dest.y);
+    (*num_points)++;
+}
+
 void render_map(RenderState* render_state)
 {
     Point2f dest;
@@ -122,13 +143,59 @@ void render_map(RenderState* render_state)
     int32_t offset_x = MAP_COLS / -2;
     int32_t offset_y = MAP_ROWS / -2;
 
+    // Add map points to render list
+    size_t map_points_start = render_state->num_points;
+    for (int r = 0; r < MAP_ROWS + 1; r++) {
+        for (int c = 0; c < MAP_COLS + 1; c++) {
+            // world space of map node
+            source.x = (c + offset_x) * CELL_UNITS;
+            source.y = -(r + offset_y) * CELL_UNITS;
+            push_world_point(render_state, source);
+        }
+    }
+
+    // Each cell has 4 points. Up to 4 points are shared
+    // with neighbors.
+    // consider local point of each cell:
+    // cp0--cp1
+    // |    |
+    // cp2--cp3
+
+    RenderCommand* command = &render_state->commands[*num_commands];
+
+    // initalize the indices of the 4 cell points
+    size_t cp0 = map_points_start;
+    size_t cp1 = cp0 + 1;
+    size_t cp2 = map_points_start + MAP_COLS + 1; // next row
+    size_t cp3 = cp2 + 1;
+
+    // Construct triangles and add as commands
     for (int r = 0; r < MAP_ROWS; r++) {
         for (int c = 0; c < MAP_COLS; c++) {
-            //  world space of map node
-            source.x = (c + offset_x) * CELL_UNITS;
-            source.y = (r + offset_y) * CELL_UNITS;
-            render_point(render_state, source);
+
+            command->num_points = 3;
+            command->point_indices[0] = cp0;
+            command->point_indices[1] = cp1;
+            command->point_indices[2] = cp2;
+            (*num_commands)++;
+            command = &render_state->commands[*num_commands];
+
+            command->num_points = 3;
+            command->point_indices[0] = cp1;
+            command->point_indices[1] = cp3;
+            command->point_indices[2] = cp2;
+            (*num_commands)++;
+            command = &render_state->commands[*num_commands];
+
+            cp0++;
+            cp1++;
+            cp2++;
+            cp3++;
         }
+        cp0++;
+        cp1++;
+        cp2++;
+        cp3++;
     }
 }
 
