@@ -31,13 +31,19 @@ void render_state(BITMAP* buffer, RenderState* state)
 {
     for (size_t i = 0; i < state->num_commands; i++) {
         RenderCommand* command = &state->commands[i];
-        for (size_t j = 0; j < command->num_points; j++) {
-            Point2i* point = &(state->points[command->point_indices[j]]);
+        if (command->num_points == 1) {
+            Point2i* point = &(state->points[command->point_indices[0]]);
             putpixel(buffer, point->x, point->y, makecol(255, 255, 255));
+        } else if (command->num_points == 3) {
+            Point2i* point0 = &(state->points[command->point_indices[0]]);
+            Point2i* point1 = &(state->points[command->point_indices[1]]);
+            Point2i* point2 = &(state->points[command->point_indices[2]]);
+            line(buffer, point0->x, point0->y, point1->x, point1->y, makecol(0, 0, 255));
+            line(buffer, point1->x, point1->y, point2->x, point2->y, makecol(0, 255, 0));
+            line(buffer, point2->x, point2->y, point0->x, point0->y, makecol(255, 0, 0));
         }
     }
 }
-
 int main(int argc, const char** argv)
 {
     BITMAP* buffer;
