@@ -26,4 +26,11 @@ static inline int32_t float_to_fixed_16_16(float n)
     return whole * 65536 + fixed_frac;
 }
 
+static inline float fixed_16_16_to_float(int32_t n)
+{
+    int32_t whole = n / 65536;
+    int32_t fixed_frac = n - (whole * 65536);
+    return (float)(whole + (float)fixed_frac / 65536);
+}
+
 #endif
