@@ -1,5 +1,5 @@
 if (${RAS_PLATFORM} STREQUAL "ras_dos")
-add_subdirectory(dos)
-else()
-add_subdirectory(posix)
+    add_subdirectory(dos)
+elseif (${RAS_PLATFORM} STREQUAL "ras_sdl")
+    add_subdirectory(posix)
 endif()
