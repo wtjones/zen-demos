@@ -56,16 +56,4 @@ void xform_to_screen(
     Point2f* source,
     Point2f* dest);
 
-static inline char* repr_point3f(char* buffer, size_t count, Point3f* p)
-{
-    snprintf(
-        buffer,
-        count,
-        "[x: %f, y: %f, z: %f]",
-        fixed_16_16_to_float(p->x),
-        fixed_16_16_to_float(p->y),
-        fixed_16_16_to_float(p->z));
-    return buffer;
-}
-
 #endif
