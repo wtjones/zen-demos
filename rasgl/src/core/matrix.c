@@ -1,5 +1,18 @@
 #include "rasgl/core/matrix.h"
 
+void mat_set_identity_4x4(int32_t s1[4][4])
+{
+    const int32_t i = INT_32_TO_FIXED_16_16(1);
+    int32_t identity_matrix[4][4] = {
+        { i, 0, 0, 0 },
+        { 0, i, 0, 0 },
+        { 0, 0, i, 0 },
+        { 0, 0, 0, i }
+    };
+
+    memcpy(s1, identity_matrix, sizeof identity_matrix);
+}
+
 void mat_mul_3x3_3x1(int32_t s1[3][3], int32_t* s2, int32_t* dest)
 {
     for (int i = 0; i < 3; i++) {
