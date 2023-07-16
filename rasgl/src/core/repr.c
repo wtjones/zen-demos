@@ -17,12 +17,8 @@ char* repr_mat_4x4(char* buffer, size_t count, int32_t s1[4][4])
     char matrix_buffer[255];
     buffer[0] = '\0';
     strcat(buffer, "[");
-    // buffer = "[ test test test ]";
 
-    // strcat(buffer, "\n[");
     for (int i = 0; i < 4; i++) {
-        // strcat(buffer, '[');
-
         for (int j = 0; j < 4; j++) {
 
             if (j > 0) {
@@ -41,8 +37,6 @@ char* repr_mat_4x4(char* buffer, size_t count, int32_t s1[4][4])
             if (j == 3) {
                 strcat(buffer, "]");
             }
-            //     strcat(buffer, "\n");
-            // }
         }
     }
     strcat(buffer, "]");
