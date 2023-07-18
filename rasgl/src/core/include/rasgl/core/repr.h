@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 char* repr_point3f(char* buffer, size_t count, Point3f* p);
+char* repr_fixed_16_16(char* buffer, size_t count, int32_t f);
 char* repr_mat_4x4(char* buffer, size_t count, int32_t s1[4][4]);
 char* repr_mat_4x1(char* buffer, size_t count, int32_t s[4]);
 
