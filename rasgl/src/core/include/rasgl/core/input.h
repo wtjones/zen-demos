@@ -14,6 +14,7 @@
 #define RAS_KEY_MINUS 10
 #define RAS_KEY_E 11
 #define RAS_KEY_ESCAPE 12
+#define RAS_KEY_TAB 13
 
 #define RAS_MAX_KEYS 255
 
