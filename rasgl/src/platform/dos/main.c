@@ -25,6 +25,8 @@ void map_input()
     plat_input_state.keys[RAS_KEY_ESCAPE] = key[KEY_ESC] ? 1 : 0;
     plat_input_state.keys[RAS_KEY_LEFT] = key[KEY_LEFT] ? 1 : 0;
     plat_input_state.keys[RAS_KEY_RIGHT] = key[KEY_RIGHT] ? 1 : 0;
+    // FIXME: need keyup event
+    plat_input_state.keys[RAS_KEY_TAB] = key[KEY_TAB] ? 1 : 0;
 }
 
 void render_state(BITMAP* buffer, RenderState* state)

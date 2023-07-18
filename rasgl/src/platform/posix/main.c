@@ -39,7 +39,7 @@ void render_state(RenderState* state)
 
         if (command->num_points == 1) {
             Point2i* point = &(state->points[command->point_indices[0]]);
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
             SDL_RenderDrawPoint(renderer, point->x, point->y);
         } else if (command->num_points == 3) {
             Point2i* point0 = &(state->points[command->point_indices[0]]);
@@ -78,6 +78,8 @@ int main(int argc, const char** argv)
 
     int last_frame = SDL_GetTicks();
     while (!should_quit) {
+        map_input();
+
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -86,9 +88,10 @@ int main(int argc, const char** argv)
                 break;
             case SDL_KEYUP:
                 should_quit = event.key.keysym.scancode == SDL_SCANCODE_ESCAPE;
+                plat_input_state.keys[RAS_KEY_TAB] = event.key.keysym.scancode == SDL_SCANCODE_TAB ? 1 : 0;
             }
         }
-        map_input();
+
         ras_app_update(&plat_input_state);
         ras_app_render(&state);
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
