@@ -12,6 +12,16 @@ char* repr_point3f(char* buffer, size_t count, Point3f* p)
     return buffer;
 }
 
+char* repr_fixed_16_16(char* buffer, size_t count, int32_t f)
+{
+    snprintf(
+        buffer,
+        count,
+        "[%f (%d)]",
+        fixed_16_16_to_float(f),
+        f);
+    return buffer;
+}
 char* repr_mat_4x4(char* buffer, size_t count, int32_t s1[4][4])
 {
     char matrix_buffer[255];
