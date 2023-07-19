@@ -18,6 +18,12 @@ static inline int64_t mul_fixed_16_16_to_fixed_32_32(int32_t f1, int32_t f2)
     return result;
 }
 
+static inline int32_t div_fixed_16_16_by_fixed_16_16(int32_t f1, int32_t f2)
+{
+    int64_t result = ((int64_t)f1 << 32) / ((int64_t)f2 << 16);
+    return result;
+}
+
 static inline int32_t float_to_fixed_16_16(float n)
 {
     int32_t whole = (int32_t)n;
