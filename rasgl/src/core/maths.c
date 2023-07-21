@@ -71,12 +71,12 @@ void xform_to_screen(
     int32_t sw = INT_32_TO_FIXED_16_16(screen_width);
     int32_t sh = INT_32_TO_FIXED_16_16(screen_height);
     int32_t offset_x = (sw / (int32_t)2) - viewer_pos->x;
-    int32_t offset_y = (sh / (int32_t)2) - -viewer_pos->y;
+    int32_t offset_y = (sh / (int32_t)2) - -viewer_pos->z;
 
     // Scale and translate to screen coord
     int32_t scale_matrix[3][3] = {
-        { viewer_pos->z, 0, offset_x },
-        { 0, viewer_pos->z, offset_y },
+        { viewer_pos->y, 0, offset_x },
+        { 0, viewer_pos->y, offset_y },
         { 0, 0, INT_32_TO_FIXED_16_16(1) }
     };
     int32_t scale_result[3];
@@ -85,4 +85,9 @@ void xform_to_screen(
 
     dest->x = scale_result[0];
     dest->y = scale_result[1];
+}
+
+bool cmp_point3f(Point3f* p1, Point3f* p2)
+{
+    return p1->x == p2->x && p1->y == p2->y && p1->z == p2->z;
 }
