@@ -1,5 +1,16 @@
 #include "rasgl/core/repr.h"
 
+char* repr_point2f(char* buffer, size_t count, Point2f* p)
+{
+    snprintf(
+        buffer,
+        count,
+        "[x: %f, y: %f]",
+        fixed_16_16_to_float(p->x),
+        fixed_16_16_to_float(p->y));
+    return buffer;
+}
+
 char* repr_point3f(char* buffer, size_t count, Point3f* p)
 {
     snprintf(

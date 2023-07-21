@@ -124,8 +124,8 @@ void ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
     settings = init_settings;
 
     viewer_pos.x = INT_32_TO_FIXED_16_16(0);
-    viewer_pos.y = INT_32_TO_FIXED_16_16(0);
-    viewer_pos.z = INT_32_TO_FIXED_16_16(1);
+    viewer_pos.y = -INT_32_TO_FIXED_16_16(2);
+    viewer_pos.z = INT_32_TO_FIXED_16_16(0);
 
     map_to_world(&world_state);
 }
@@ -151,37 +151,45 @@ void ras_app_update(InputState* input_state)
     apply_unit_vector(&origin, viewer_angle, &vector);
 
     // translate direction vector to world space
-    Point2f world_vector = { viewer_pos.x + vector.x, viewer_pos.y + vector.y };
+    Point2f world_vector = { viewer_pos.x + vector.x, viewer_pos.z + vector.y };
 
     Point2f delta = {
         mul_fixed_16_16_by_fixed_16_16(world_vector.x - viewer_pos.x, VIEWER_SPEED),
-        mul_fixed_16_16_by_fixed_16_16(world_vector.y - viewer_pos.y, VIEWER_SPEED)
+        mul_fixed_16_16_by_fixed_16_16(world_vector.y - viewer_pos.z, VIEWER_SPEED)
     };
 
+    Point3f viewer_pos_prev;
+    memcpy(&viewer_pos_prev, &viewer_pos, sizeof viewer_pos);
+
     if (input_state->keys[RAS_KEY_W] == 1) {
-        viewer_pos.y += delta.y;
+        viewer_pos.z += delta.y;
         viewer_pos.x += delta.x;
     }
     if (input_state->keys[RAS_KEY_A] == 1) {
-        viewer_pos.x -= delta.y;
-        viewer_pos.y += delta.x;
+        viewer_pos.z -= delta.y;
+        viewer_pos.x += delta.x;
     }
     if (input_state->keys[RAS_KEY_S] == 1) {
-        viewer_pos.y -= delta.y;
+        viewer_pos.z -= delta.y;
         viewer_pos.x -= delta.x;
     }
     if (input_state->keys[RAS_KEY_D] == 1) {
-        viewer_pos.x += delta.y;
-        viewer_pos.y -= delta.x;
+        viewer_pos.z += delta.y;
+        viewer_pos.x -= delta.x;
     }
     if (input_state->keys[RAS_KEY_EQUALS] == 1) {
-        viewer_pos.z += ZOOM_SPEED;
+        viewer_pos.y += ZOOM_SPEED;
     }
     if (input_state->keys[RAS_KEY_MINUS] == 1) {
-        viewer_pos.z -= ZOOM_SPEED;
+        viewer_pos.y -= ZOOM_SPEED;
     }
     if (input_state->keys[RAS_KEY_TAB] == 1) {
         view_mode = view_mode == CAMERA ? MAP : CAMERA;
+    }
+
+    if (!cmp_point3f(&viewer_pos, &viewer_pos_prev)) {
+        char buffer[100];
+        printf("viewer_pos: %s\n", repr_point3f(buffer, sizeof buffer, &viewer_pos));
     }
 }
 
@@ -332,19 +340,19 @@ void render_viewer(RenderState* render_state)
     Point2f world_pos;
 
     world_pos.x = viewer_pos.x + INT_32_TO_FIXED_16_16(0);
-    world_pos.y = viewer_pos.y + INT_32_TO_FIXED_16_16(1);
+    world_pos.y = viewer_pos.z + INT_32_TO_FIXED_16_16(1);
     render_point(render_state, world_pos);
 
     world_pos.x = viewer_pos.x + INT_32_TO_FIXED_16_16(1);
-    world_pos.y = viewer_pos.y + INT_32_TO_FIXED_16_16(0);
+    world_pos.y = viewer_pos.z + INT_32_TO_FIXED_16_16(0);
     render_point(render_state, world_pos);
 
     world_pos.x = viewer_pos.x + INT_32_TO_FIXED_16_16(0);
-    world_pos.y = viewer_pos.y + -INT_32_TO_FIXED_16_16(1);
+    world_pos.y = viewer_pos.z + -INT_32_TO_FIXED_16_16(1);
     render_point(render_state, world_pos);
 
     world_pos.x = viewer_pos.x + -INT_32_TO_FIXED_16_16(1);
-    world_pos.y = viewer_pos.y + INT_32_TO_FIXED_16_16(0);
+    world_pos.y = viewer_pos.z + INT_32_TO_FIXED_16_16(0);
     render_point(render_state, world_pos);
 
     // render vector
@@ -353,15 +361,15 @@ void render_viewer(RenderState* render_state)
     apply_unit_vector(&origin, viewer_angle, &unit_vector);
 
     world_pos.x = viewer_pos.x + (unit_vector.x * 8);
-    world_pos.y = viewer_pos.y + (unit_vector.y * 8);
+    world_pos.y = viewer_pos.z + (unit_vector.y * 8);
     render_point(render_state, world_pos);
 
     world_pos.x = viewer_pos.x + -(unit_vector.y * 4);
-    world_pos.y = viewer_pos.y + (unit_vector.x * 4);
+    world_pos.y = viewer_pos.z + (unit_vector.x * 4);
     render_point(render_state, world_pos);
 
     world_pos.x = viewer_pos.x + (unit_vector.y * 4);
-    world_pos.y = viewer_pos.y + -(unit_vector.x * 4);
+    world_pos.y = viewer_pos.z + -(unit_vector.x * 4);
     render_point(render_state, world_pos);
 }
 

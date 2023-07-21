@@ -56,4 +56,9 @@ void xform_to_screen(
     Point2f* source,
     Point2f* dest);
 
+/**
+ * @brief Perform memberwise comparison of Point3f
+ */
+bool cmp_point3f(Point3f* p1, Point3f* p2);
+
 #endif
