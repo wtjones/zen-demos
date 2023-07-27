@@ -15,7 +15,7 @@ void apply_unit_vector(Point2f* src, int angle, Point2f* dest)
         { 0, 0, INT_32_TO_FIXED_16_16(1) }
     };
     int32_t pos[3] = {
-        0.0,
+        0,
         INT_32_TO_FIXED_16_16(1),
         INT_32_TO_FIXED_16_16(1)
     };
@@ -65,13 +65,13 @@ void xform_to_screen(
     int screen_width,
     int screen_height,
     Point3f* viewer_pos,
-    Point2f* source,
+    Point3f* source,
     Point2f* dest)
 {
     int32_t sw = INT_32_TO_FIXED_16_16(screen_width);
     int32_t sh = INT_32_TO_FIXED_16_16(screen_height);
     int32_t offset_x = (sw / (int32_t)2) - viewer_pos->x;
-    int32_t offset_y = (sh / (int32_t)2) - -viewer_pos->z;
+    int32_t offset_y = (sh / (int32_t)2) - viewer_pos->z;
 
     // Scale and translate to screen coord
     int32_t scale_matrix[3][3] = {
@@ -80,7 +80,7 @@ void xform_to_screen(
         { 0, 0, INT_32_TO_FIXED_16_16(1) }
     };
     int32_t scale_result[3];
-    int32_t pos[3] = { source->x, -source->y, INT_32_TO_FIXED_16_16(1) };
+    int32_t pos[3] = { source->x, source->z, INT_32_TO_FIXED_16_16(1) };
     mat_mul_3x3_3x1(scale_matrix, pos, scale_result);
 
     dest->x = scale_result[0];

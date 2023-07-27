@@ -25,7 +25,7 @@ enum {
     = CAMERA;
 
 Point3f viewer_pos;
-int32_t viewer_angle = 0;
+int32_t viewer_angle = 180;
 ScreenSettings* settings;
 WorldState world_state;
 
@@ -124,8 +124,8 @@ void ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
     settings = init_settings;
 
     viewer_pos.x = INT_32_TO_FIXED_16_16(0);
-    viewer_pos.y = -INT_32_TO_FIXED_16_16(2);
-    viewer_pos.z = INT_32_TO_FIXED_16_16(0);
+    viewer_pos.y = INT_32_TO_FIXED_16_16(2);
+    viewer_pos.z = INT_32_TO_FIXED_16_16(40);
 
     map_to_world(&world_state);
 }
@@ -133,16 +133,18 @@ void ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
 void ras_app_update(InputState* input_state)
 {
 
-    if (input_state->keys[RAS_KEY_Q] == 1 | input_state->keys[RAS_KEY_LEFT]) {
-        viewer_angle = viewer_angle - ROTATION_SPEED;
-        if (viewer_angle <= 0) {
-            viewer_angle += 359;
-        }
-    }
-    if (input_state->keys[RAS_KEY_E] == 1 | input_state->keys[RAS_KEY_RIGHT]) {
+    int32_t viewer_angle_prev = viewer_angle;
+
+    if (input_state->keys[RAS_KEY_Q] == 1 || input_state->keys[RAS_KEY_LEFT]) {
         viewer_angle = viewer_angle + ROTATION_SPEED;
         if (viewer_angle > 359) {
             viewer_angle -= 359;
+        }
+    }
+    if (input_state->keys[RAS_KEY_E] == 1 || input_state->keys[RAS_KEY_RIGHT]) {
+        viewer_angle = viewer_angle - ROTATION_SPEED;
+        if (viewer_angle <= 0) {
+            viewer_angle += 359;
         }
     }
 
@@ -191,12 +193,16 @@ void ras_app_update(InputState* input_state)
         char buffer[100];
         printf("viewer_pos: %s\n", repr_point3f(buffer, sizeof buffer, &viewer_pos));
     }
+    if (viewer_angle != viewer_angle_prev) {
+        char buffer[100];
+        printf("viewer_angle: %d\n", viewer_angle);
+    }
 }
 
 /**
  * Translate a world position to screen and add to render commands.
  */
-void render_point(RenderState* render_state, Point2f world_pos)
+void render_point(RenderState* render_state, Point3f world_pos)
 {
     size_t* num_points = &render_state->num_points;
     size_t* num_commands = &render_state->num_commands;
@@ -222,7 +228,7 @@ void render_point(RenderState* render_state, Point2f world_pos)
 /**
  * Transform world point to screen and add to render list
  */
-void push_world_point(RenderState* render_state, Point2f world_pos)
+void push_world_point(RenderState* render_state, Point3f world_pos)
 {
     size_t* num_points = &render_state->num_points;
     size_t* num_commands = &render_state->num_commands;
@@ -244,12 +250,12 @@ void render_map(RenderState* render_state)
 {
     Point2f dest;
     Point2i* screen_pos;
-    Point2f source;
+    Point3f source;
     size_t* num_points = &render_state->num_points;
     size_t* num_commands = &render_state->num_commands;
 
     int32_t offset_x = MAP_COLS / -2;
-    int32_t offset_y = MAP_ROWS / -2;
+    int32_t offset_z = MAP_ROWS / -2;
 
     // Add map points to render list
     size_t map_points_start = render_state->num_points;
@@ -257,7 +263,8 @@ void render_map(RenderState* render_state)
         for (int c = 0; c < MAP_COLS + 1; c++) {
             // world space of map node
             source.x = (c + offset_x) * CELL_UNITS;
-            source.y = -(r + offset_y) * CELL_UNITS;
+            source.y = 0;
+            source.z = -(r + offset_z) * CELL_UNITS;
             push_world_point(render_state, source);
         }
     }
@@ -309,50 +316,50 @@ void render_map(RenderState* render_state)
 
 void render_origin(RenderState* render_state)
 {
-    Point2f world_pos;
+    Point3f world_pos;
 
     world_pos.x = INT_32_TO_FIXED_16_16(0);
-    world_pos.y = INT_32_TO_FIXED_16_16(1);
+    world_pos.z = -INT_32_TO_FIXED_16_16(1);
     render_point(render_state, world_pos);
     world_pos.x = INT_32_TO_FIXED_16_16(0);
-    world_pos.y = INT_32_TO_FIXED_16_16(2);
+    world_pos.z = -INT_32_TO_FIXED_16_16(2);
     render_point(render_state, world_pos);
     world_pos.x = INT_32_TO_FIXED_16_16(0);
-    world_pos.y = INT_32_TO_FIXED_16_16(3);
+    world_pos.z = -INT_32_TO_FIXED_16_16(3);
     render_point(render_state, world_pos);
     world_pos.x = INT_32_TO_FIXED_16_16(0);
-    world_pos.y = INT_32_TO_FIXED_16_16(4);
+    world_pos.z = -INT_32_TO_FIXED_16_16(4);
     render_point(render_state, world_pos);
 
     world_pos.x = INT_32_TO_FIXED_16_16(1);
-    world_pos.y = INT_32_TO_FIXED_16_16(0);
+    world_pos.z = INT_32_TO_FIXED_16_16(0);
     render_point(render_state, world_pos);
     world_pos.x = INT_32_TO_FIXED_16_16(0);
-    world_pos.y = -INT_32_TO_FIXED_16_16(1);
+    world_pos.z = INT_32_TO_FIXED_16_16(1);
     render_point(render_state, world_pos);
     world_pos.x = -INT_32_TO_FIXED_16_16(1);
-    world_pos.y = INT_32_TO_FIXED_16_16(0);
+    world_pos.z = INT_32_TO_FIXED_16_16(0);
     render_point(render_state, world_pos);
 }
 
 void render_viewer(RenderState* render_state)
 {
-    Point2f world_pos;
+    Point3f world_pos;
 
     world_pos.x = viewer_pos.x + INT_32_TO_FIXED_16_16(0);
-    world_pos.y = viewer_pos.z + INT_32_TO_FIXED_16_16(1);
+    world_pos.z = viewer_pos.z + INT_32_TO_FIXED_16_16(1);
     render_point(render_state, world_pos);
 
     world_pos.x = viewer_pos.x + INT_32_TO_FIXED_16_16(1);
-    world_pos.y = viewer_pos.z + INT_32_TO_FIXED_16_16(0);
+    world_pos.z = viewer_pos.z + INT_32_TO_FIXED_16_16(0);
     render_point(render_state, world_pos);
 
     world_pos.x = viewer_pos.x + INT_32_TO_FIXED_16_16(0);
-    world_pos.y = viewer_pos.z + -INT_32_TO_FIXED_16_16(1);
+    world_pos.z = viewer_pos.z + -INT_32_TO_FIXED_16_16(1);
     render_point(render_state, world_pos);
 
     world_pos.x = viewer_pos.x + -INT_32_TO_FIXED_16_16(1);
-    world_pos.y = viewer_pos.z + INT_32_TO_FIXED_16_16(0);
+    world_pos.z = viewer_pos.z + INT_32_TO_FIXED_16_16(0);
     render_point(render_state, world_pos);
 
     // render vector
@@ -361,7 +368,7 @@ void render_viewer(RenderState* render_state)
     apply_unit_vector(&origin, viewer_angle, &unit_vector);
 
     world_pos.x = viewer_pos.x + (unit_vector.x * 8);
-    world_pos.y = viewer_pos.z + (unit_vector.y * 8);
+    world_pos.z = viewer_pos.z + (unit_vector.y * 8);
     render_point(render_state, world_pos);
 
     world_pos.x = viewer_pos.x + -(unit_vector.y * 4);

@@ -53,7 +53,7 @@ void xform_to_screen(
     int screen_width,
     int screen_height,
     Point3f* viewer_pos,
-    Point2f* source,
+    Point3f* source,
     Point2f* dest);
 
 /**
