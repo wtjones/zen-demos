@@ -9,7 +9,7 @@
 ScreenSettings plat_settings = { .screen_width = 320, .screen_height = 240 };
 SDL_Renderer* renderer;
 
-RenderState state = { .num_commands = 0, .num_points = 0 };
+RenderState state = { .num_commands = 0, .num_points = 0, .current_frame = 0 };
 InputState plat_input_state;
 
 void map_input()
@@ -53,6 +53,7 @@ void render_state(RenderState* state)
             SDL_RenderDrawLine(renderer, point2->x, point2->y, point0->x, point0->y);
         }
     }
+    state->current_frame++;
 }
 
 int main(int argc, const char** argv)

@@ -6,7 +6,7 @@
 
 ScreenSettings plat_settings = { .screen_width = 320, .screen_height = 240 };
 
-RenderState state = { .num_commands = 0, .num_points = 0 };
+RenderState state = { .num_commands = 0, .num_points = 0, .current_frame = 0 };
 InputState plat_input_state;
 
 void map_input()
@@ -45,6 +45,7 @@ void render_state(BITMAP* buffer, RenderState* state)
             line(buffer, point2->x, point2->y, point0->x, point0->y, makecol(255, 0, 0));
         }
     }
+    state->current_frame++;
 }
 int main(int argc, const char** argv)
 {

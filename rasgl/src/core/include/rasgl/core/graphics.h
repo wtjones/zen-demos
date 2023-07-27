@@ -25,6 +25,7 @@ typedef struct RenderState {
     size_t num_points;
     RenderCommand commands[MAX_RENDER_COMMANDS];
     size_t num_commands;
+    int32_t current_frame;
 } RenderState;
 
 #endif
