@@ -43,21 +43,29 @@ void mat_mul_tests()
     printf("Resut of mul by identity: %s\n", repr_mat_4x1(buffer, sizeof buffer, dst));
 }
 
-void fixed_mul_tests()
+void fixed_mul_test(int32_t f1, int32_t f2, int32_t expected)
 {
     char buffer1[255];
     char buffer2[255];
     char buffer3[255];
-    int32_t f1 = float_to_fixed_16_16(0.125);
-    int32_t f2 = float_to_fixed_16_16(2.5);
     int32_t result = mul_fixed_16_16_by_fixed_16_16(f1, f2);
     printf(
-        "fixed_mul_tests:\n%s * %s = %s\n",
+        "%s * %s = %s\n",
         repr_fixed_16_16(buffer1, sizeof buffer1, f1),
         repr_fixed_16_16(buffer2, sizeof buffer3, f2),
         repr_fixed_16_16(buffer3, sizeof buffer3, result));
 
-    assert(result == 20480);
+    assert(result == expected);
+}
+
+void fixed_mul_tests()
+{
+    printf("fixed_mul_tests:\n");
+
+    fixed_mul_test(
+        float_to_fixed_16_16(0.125),
+        float_to_fixed_16_16(2.5),
+        20480);
 }
 
 void fixed_div_test(int32_t f1, int32_t f2, int32_t expected)
