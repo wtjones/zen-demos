@@ -51,6 +51,8 @@ cmake --build build
 ./build/ras_sdl
 ```
 
+or `run_posix.sh`
+
 ## DOS
 
 ### Get DJGPP
@@ -99,4 +101,14 @@ export DJGPP_PREFIX="/usr/local/bin/dosbox-x"
 
 ```
 ./run_dos.sh
+```
+
+## Debug output
+
+Pass a value of 1 in the run script:
+
+```
+run_tests.sh 1
+run_posix.sh 1
+run_dos.sh 1
 ```

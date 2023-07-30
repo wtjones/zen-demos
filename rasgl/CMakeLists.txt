@@ -6,6 +6,8 @@ project(
     DESCRIPTION ""
     LANGUAGES C)
 
+add_compile_definitions(DEBUG=${DEBUG})
+
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_subdirectory(src)
