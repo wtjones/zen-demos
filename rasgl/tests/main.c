@@ -1,3 +1,4 @@
+#include "rasgl/core/debug.h"
 #include "rasgl/core/fixed_maths.h"
 #include "rasgl/core/matrix.h"
 #include "rasgl/core/repr.h"
@@ -98,6 +99,7 @@ void fixed_div_tests()
 int main(int argc, const char** argv)
 {
     printf("rasgl tests...\n");
+    debug_print("%s\n", "DEBUG = 1");
     repr_fixed_tests();
     repr_matrix_tests();
     mat_mul_tests();
