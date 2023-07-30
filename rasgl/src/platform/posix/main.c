@@ -59,7 +59,6 @@ void render_state(RenderState* state)
 int main(int argc, const char** argv)
 {
     SDL_bool should_quit = SDL_FALSE;
-    printf("Hello, World!2 \n");
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         printf("SDL error \n");
         return 1;
