@@ -1,6 +1,7 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
+#include "fixed_maths.h"
 #include "maths.h"
 #include <stdbool.h>
 #include <stdint.h>
@@ -27,5 +28,10 @@ typedef struct RenderState {
     size_t num_commands;
     int32_t current_frame;
 } RenderState;
+
+/**
+ * Project a point in view space to screen space.
+ */
+Point2i project_point(int32_t screen_width, int32_t screen_height, int32_t projection_ratio, Point3f view_point);
 
 #endif

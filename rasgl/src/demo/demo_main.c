@@ -1,4 +1,5 @@
 #include "rasgl/core/app.h"
+#include "rasgl/core/debug.h"
 #include "rasgl/core/fixed_maths.h"
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/input.h"
@@ -12,6 +13,7 @@
 #define ZOOM_SPEED float_to_fixed_16_16(.05)
 #define ROTATION_SPEED 4
 #define VIEWER_SPEED float_to_fixed_16_16(.5)
+#define PROJECTION_RATIO -float_to_fixed_16_16(2.0)
 
 typedef struct WorldState {
     Point3f points[MAX_WORLD_POINTS];
@@ -54,13 +56,15 @@ void map_to_world(WorldState* world_state)
     int32_t offset_y = 0;
     int32_t offset_z = MAP_ROWS / -2;
     size_t i = 0;
-    for (int r = 0; r < MAP_ROWS + 1; r++) {
-        for (int c = 0; c < MAP_COLS + 1; c++) {
-            Point3f point;
-            point.x = (c + offset_x) * CELL_UNITS;
-            point.y = 0;
-            point.z = -(r + offset_z) * CELL_UNITS;
-            push_world_point3(world_state, point);
+    for (int y = 0; y < 3; y++) {
+        for (int r = 0; r < MAP_ROWS + 1; r++) {
+            for (int c = 0; c < MAP_COLS + 1; c++) {
+                Point3f point;
+                point.x = (c + offset_x) * CELL_UNITS;
+                point.y = y * CELL_UNITS;
+                point.z = -(r + offset_z) * CELL_UNITS;
+                push_world_point3(world_state, point);
+            }
         }
     }
 }
@@ -72,14 +76,9 @@ void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* 
     char buffer[255];
     mat_set_identity_4x4(view_matrix);
 
-    int32_t sw = INT_32_TO_FIXED_16_16(settings->screen_width);
-    int32_t sh = INT_32_TO_FIXED_16_16(settings->screen_height);
-    int32_t offset_x = (sw / (int32_t)2) - viewer_pos->x;
-    int32_t offset_y = (sh / (int32_t)2) - -viewer_pos->y;
-
-    view_matrix[2][3] = INT_32_TO_FIXED_16_16(-10);
-    view_matrix[0][3] = offset_x;
-    view_matrix[1][3] = offset_y;
+    view_matrix[0][3] = viewer_pos->x;
+    view_matrix[1][3] = viewer_pos->y;
+    view_matrix[2][3] = -INT_32_TO_FIXED_16_16(10);
 
     size_t* num_points = &render_state->num_points;
     size_t* num_commands = &render_state->num_commands;
@@ -90,19 +89,32 @@ void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* 
         int32_t v[4] = {
             world_point->x,
             world_point->y,
-            world_point->z,
+            float_to_fixed_16_16(-300.0), // world_point->z,
             INT_32_TO_FIXED_16_16(1)
         };
 
-        // printf("vew trans matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, view_matrix));
-        // printf("vew trans before: %s\n", repr_mat_4x1(buffer, sizeof buffer, v));
+        debug_print("vew trans matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, view_matrix));
+        debug_print("vew trans before: %s\n", repr_mat_4x1(buffer, sizeof buffer, v));
         mat_mul_4x4_4x1(view_matrix, v, view_point);
-        // printf("vew trans: %s\n", repr_mat_4x1(buffer, sizeof buffer, view_point));
+        debug_print("vew trans: %s\n", repr_mat_4x1(buffer, sizeof buffer, view_point));
+
+        Point3f transformed = {
+            .x = view_point[0],
+            .y = view_point[1],
+            .z = view_point[2]
+        };
+
+        Point2i projected = project_point(
+            settings->screen_width,
+            settings->screen_height,
+            PROJECTION_RATIO,
+            transformed);
 
         RenderCommand* command = &render_state->commands[*num_commands];
-        Point3f* screen_point = &render_state->points[*num_points];
-        screen_point->x = FIXED_16_16_TO_INT_32(view_point[0]);
-        screen_point->y = FIXED_16_16_TO_INT_32(view_point[1]);
+        Point2i* screen_point = &render_state->points[*num_points];
+        screen_point->x = FIXED_16_16_TO_INT_32(projected.x);
+        screen_point->y = FIXED_16_16_TO_INT_32(projected.y);
+
         command->num_points = 1;
         command->point_indices[0] = *num_points;
         (*num_commands)++;
@@ -369,14 +381,22 @@ void render_viewer(RenderState* render_state)
 
     world_pos.x = viewer_pos.x + (unit_vector.x * 8);
     world_pos.z = viewer_pos.z + (unit_vector.y * 8);
+
+    if (render_state->current_frame % 30 == 0) {
+        char buffer[100];
+        char buffer2[100];
+        printf("the tip: %s %s\n",
+            repr_point3f(buffer, sizeof buffer, &world_pos),
+            repr_point2f(buffer2, sizeof buffer2, &unit_vector));
+    }
     render_point(render_state, world_pos);
 
     world_pos.x = viewer_pos.x + -(unit_vector.y * 4);
-    world_pos.y = viewer_pos.z + (unit_vector.x * 4);
+    world_pos.z = viewer_pos.z + (unit_vector.x * 4);
     render_point(render_state, world_pos);
 
     world_pos.x = viewer_pos.x + (unit_vector.y * 4);
-    world_pos.y = viewer_pos.z + -(unit_vector.x * 4);
+    world_pos.z = viewer_pos.z + -(unit_vector.x * 4);
     render_point(render_state, world_pos);
 }
 
