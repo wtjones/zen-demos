@@ -1,5 +1,6 @@
 #include "rasgl/core/debug.h"
 #include "rasgl/core/fixed_maths.h"
+#include "rasgl/core/graphics.h"
 #include "rasgl/core/matrix.h"
 #include "rasgl/core/repr.h"
 #include <assert.h>
@@ -96,6 +97,23 @@ void fixed_div_tests()
         272629); // 4.16
 }
 
+void project_point_tests()
+{
+    Point3f transformed = {
+        .x = float_to_fixed_16_16(30.0),
+        .y = float_to_fixed_16_16(20.0),
+        .z = -float_to_fixed_16_16(310.0)
+    };
+
+    Point2i projected = project_point(
+        320,
+        240,
+        -float_to_fixed_16_16(2.0),
+        transformed);
+    char buffer[100];
+    printf("projected: %s\n", repr_point2i(buffer, sizeof buffer, &projected));
+}
+
 int main(int argc, const char** argv)
 {
     printf("rasgl tests...\n");
@@ -105,5 +123,6 @@ int main(int argc, const char** argv)
     mat_mul_tests();
     fixed_mul_tests();
     fixed_div_tests();
+    project_point_tests();
     return 0;
 }

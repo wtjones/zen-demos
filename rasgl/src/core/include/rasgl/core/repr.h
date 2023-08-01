@@ -7,6 +7,7 @@
 #include "matrix.h"
 #include <stdio.h>
 
+char* repr_point2i(char* buffer, size_t count, Point2i* p);
 char* repr_point2f(char* buffer, size_t count, Point2f* p);
 char* repr_point3f(char* buffer, size_t count, Point3f* p);
 char* repr_fixed_16_16(char* buffer, size_t count, int32_t f);
