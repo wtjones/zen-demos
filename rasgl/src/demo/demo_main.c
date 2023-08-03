@@ -31,10 +31,10 @@ int32_t viewer_angle = 180;
 ScreenSettings* settings;
 WorldState world_state;
 
-int map[MAP_COLS][MAP_ROWS] = {
-    { 1, 1, 1, 1, 1 },
+int map[MAP_ROWS][MAP_COLS] = {
+    { 1, 1, 0, 1, 1 },
     { 1, 0, 0, 0, 1 },
-    { 1, 0, 0, 0, 1 },
+    { 1, 0, 0, 0, 0 },
     { 1, 0, 0, 0, 1 },
     { 1, 1, 1, 1, 1 }
 };
@@ -52,23 +52,59 @@ void push_world_point3(WorldState* world_state, Point3f point)
 void map_to_world(WorldState* world_state)
 {
 
-    int32_t offset_x = MAP_COLS / -2;
+    int32_t offset_x = -(MAP_COLS / 2);
     int32_t offset_y = 0;
-    int32_t offset_z = MAP_ROWS / -2;
+    int32_t offset_z = -(MAP_ROWS / 2);
     size_t i = 0;
-    for (int y = 0; y < 3; y++) {
-        for (int r = 0; r < MAP_ROWS + 1; r++) {
-            for (int c = 0; c < MAP_COLS + 1; c++) {
+
+    for (int r = 0; r < MAP_ROWS; r++) {
+        for (int c = 0; c < MAP_COLS; c++) {
+            if (map[r][c] == 1) {
                 Point3f point;
                 point.x = (c + offset_x) * CELL_UNITS;
-                point.y = y * CELL_UNITS;
-                point.z = -(r + offset_z) * CELL_UNITS;
+                point.y = -INT_32_TO_FIXED_16_16(10);
+                point.z = (r + offset_z) * CELL_UNITS;
+
                 push_world_point3(world_state, point);
             }
         }
     }
 }
 
+void origin_to_world(WorldState* world_state)
+{
+    Point3f point;
+
+    point.x = INT_32_TO_FIXED_16_16(2);
+    point.y = INT_32_TO_FIXED_16_16(0);
+    point.z = INT_32_TO_FIXED_16_16(0);
+    push_world_point3(world_state, point);
+
+    point.x = -INT_32_TO_FIXED_16_16(2);
+    point.y = INT_32_TO_FIXED_16_16(0);
+    point.z = INT_32_TO_FIXED_16_16(0);
+    push_world_point3(world_state, point);
+
+    point.x = INT_32_TO_FIXED_16_16(0);
+    point.y = INT_32_TO_FIXED_16_16(2);
+    point.z = INT_32_TO_FIXED_16_16(0);
+    push_world_point3(world_state, point);
+
+    point.x = INT_32_TO_FIXED_16_16(0);
+    point.y = -INT_32_TO_FIXED_16_16(2);
+    point.z = INT_32_TO_FIXED_16_16(0);
+    push_world_point3(world_state, point);
+
+    point.x = INT_32_TO_FIXED_16_16(0);
+    point.y = INT_32_TO_FIXED_16_16(0);
+    point.z = INT_32_TO_FIXED_16_16(2);
+    push_world_point3(world_state, point);
+
+    point.x = INT_32_TO_FIXED_16_16(0);
+    point.y = INT_32_TO_FIXED_16_16(0);
+    point.z = -INT_32_TO_FIXED_16_16(2);
+    push_world_point3(world_state, point);
+}
 void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* viewer_pos)
 {
     int32_t view_matrix[4][4];
@@ -76,9 +112,9 @@ void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* 
     char buffer[255];
     mat_set_identity_4x4(view_matrix);
 
-    view_matrix[0][3] = viewer_pos->x;
-    view_matrix[1][3] = viewer_pos->y;
-    view_matrix[2][3] = -INT_32_TO_FIXED_16_16(10);
+    view_matrix[0][3] = -viewer_pos->x;
+    view_matrix[1][3] = -viewer_pos->y;
+    view_matrix[2][3] = -viewer_pos->z;
 
     size_t* num_points = &render_state->num_points;
     size_t* num_commands = &render_state->num_commands;
@@ -89,7 +125,7 @@ void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* 
         int32_t v[4] = {
             world_point->x,
             world_point->y,
-            float_to_fixed_16_16(-300.0), // world_point->z,
+            world_point->z,
             INT_32_TO_FIXED_16_16(1)
         };
 
@@ -140,6 +176,7 @@ void ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
     viewer_pos.z = INT_32_TO_FIXED_16_16(40);
 
     map_to_world(&world_state);
+    origin_to_world(&world_state);
 }
 
 void ras_app_update(InputState* input_state)
@@ -266,8 +303,8 @@ void render_map(RenderState* render_state)
     size_t* num_points = &render_state->num_points;
     size_t* num_commands = &render_state->num_commands;
 
-    int32_t offset_x = MAP_COLS / -2;
-    int32_t offset_z = MAP_ROWS / -2;
+    int32_t offset_x = -(MAP_COLS / 2);
+    int32_t offset_z = -(MAP_ROWS / 2);
 
     // Add map points to render list
     size_t map_points_start = render_state->num_points;
@@ -276,7 +313,7 @@ void render_map(RenderState* render_state)
             // world space of map node
             source.x = (c + offset_x) * CELL_UNITS;
             source.y = 0;
-            source.z = -(r + offset_z) * CELL_UNITS;
+            source.z = (r + offset_z) * CELL_UNITS;
             push_world_point(render_state, source);
         }
     }
@@ -300,6 +337,7 @@ void render_map(RenderState* render_state)
     for (int r = 0; r < MAP_ROWS; r++) {
         for (int c = 0; c < MAP_COLS; c++) {
 
+            if (map[r][c] == 1) {
             command->num_points = 3;
             command->point_indices[0] = cp0;
             command->point_indices[1] = cp1;
@@ -313,6 +351,7 @@ void render_map(RenderState* render_state)
             command->point_indices[2] = cp2;
             (*num_commands)++;
             command = &render_state->commands[*num_commands];
+            }
 
             cp0++;
             cp1++;
