@@ -140,6 +140,7 @@ void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* 
             .z = view_point[2]
         };
 
+        if (transformed.z < 0) {
         Point2i projected = project_point(
             settings->screen_width,
             settings->screen_height,
@@ -155,6 +156,7 @@ void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* 
         command->point_indices[0] = *num_points;
         (*num_commands)++;
         (*num_points)++;
+        }
     }
 }
 
