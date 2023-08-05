@@ -219,16 +219,16 @@ void ras_app_update(InputState* input_state)
         viewer_pos.x += delta.x;
     }
     if (input_state->keys[RAS_KEY_A] == 1) {
-        viewer_pos.z -= delta.y;
-        viewer_pos.x += delta.x;
+        viewer_pos.z -= delta.x;
+        viewer_pos.x += delta.y;
     }
     if (input_state->keys[RAS_KEY_S] == 1) {
         viewer_pos.z -= delta.y;
         viewer_pos.x -= delta.x;
     }
     if (input_state->keys[RAS_KEY_D] == 1) {
-        viewer_pos.z += delta.y;
-        viewer_pos.x -= delta.x;
+        viewer_pos.z += delta.x;
+        viewer_pos.x -= delta.y;
     }
     if (input_state->keys[RAS_KEY_EQUALS] == 1) {
         viewer_pos.y += ZOOM_SPEED;
