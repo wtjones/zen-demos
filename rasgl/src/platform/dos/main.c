@@ -1,4 +1,5 @@
 #include "rasgl/core/app.h"
+#include "rasgl/core/debug.h"
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/input.h"
 #include "rasgl/core/maths.h"
@@ -49,10 +50,18 @@ void render_state(BITMAP* buffer, RenderState* state)
 }
 int main(int argc, const char** argv)
 {
+    FILE* log_file = fopen("l:\\RASGL.LOG", "w");
+
+    log_add_fp(log_file, RAS_LOG_LEVEL);
+    log_set_level(RAS_LOG_LEVEL);
+    log_set_quiet(true);
+
     BITMAP* buffer;
     int c;
 
+    ras_log_info("Starting Allegro...");
     if (allegro_init() != 0) {
+        ras_log_error("Failed to start Allegro.");
         return 1;
     }
 

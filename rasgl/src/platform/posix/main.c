@@ -1,4 +1,5 @@
 #include "rasgl/core/app.h"
+#include "rasgl/core/debug.h"
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/input.h"
 #include "rasgl/core/maths.h"
@@ -58,9 +59,16 @@ void render_state(RenderState* state)
 
 int main(int argc, const char** argv)
 {
+    FILE* log_file = fopen("/tmp/rasgl.log", "w");
+
+    log_add_fp(log_file, RAS_LOG_LEVEL);
+    log_set_level(RAS_LOG_LEVEL);
+    log_set_quiet(true);
+
+    ras_log_info("Starting SDL...");
     SDL_bool should_quit = SDL_FALSE;
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-        printf("SDL error \n");
+        ras_log_error("SDL error \n");
         return 1;
     }
 

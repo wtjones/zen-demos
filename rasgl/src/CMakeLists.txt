@@ -1,4 +1,5 @@
 add_subdirectory(core)
+add_subdirectory(external)
 IF (DEFINED RAS_PLATFORM)
     add_subdirectory(platform)
     add_subdirectory(demo)

@@ -129,10 +129,10 @@ void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* 
             INT_32_TO_FIXED_16_16(1)
         };
 
-        debug_print("vew trans matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, view_matrix));
-        debug_print("vew trans before: %s\n", repr_mat_4x1(buffer, sizeof buffer, v));
+        ras_log_trace("view trans matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, view_matrix));
+        ras_log_trace("view trans before: %s\n", repr_mat_4x1(buffer, sizeof buffer, v));
         mat_mul_4x4_4x1(view_matrix, v, view_point);
-        debug_print("vew trans: %s\n", repr_mat_4x1(buffer, sizeof buffer, view_point));
+        ras_log_trace("view trans: %s\n", repr_mat_4x1(buffer, sizeof buffer, view_point));
 
         Point3f transformed = {
             .x = view_point[0],
@@ -141,21 +141,21 @@ void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* 
         };
 
         if (transformed.z < 0) {
-        Point2i projected = project_point(
-            settings->screen_width,
-            settings->screen_height,
-            PROJECTION_RATIO,
-            transformed);
+            Point2i projected = project_point(
+                settings->screen_width,
+                settings->screen_height,
+                PROJECTION_RATIO,
+                transformed);
 
-        RenderCommand* command = &render_state->commands[*num_commands];
-        Point2i* screen_point = &render_state->points[*num_points];
-        screen_point->x = FIXED_16_16_TO_INT_32(projected.x);
-        screen_point->y = FIXED_16_16_TO_INT_32(projected.y);
+            RenderCommand* command = &render_state->commands[*num_commands];
+            Point2i* screen_point = &render_state->points[*num_points];
+            screen_point->x = FIXED_16_16_TO_INT_32(projected.x);
+            screen_point->y = FIXED_16_16_TO_INT_32(projected.y);
 
-        command->num_points = 1;
-        command->point_indices[0] = *num_points;
-        (*num_commands)++;
-        (*num_points)++;
+            command->num_points = 1;
+            command->point_indices[0] = *num_points;
+            (*num_commands)++;
+            (*num_points)++;
         }
     }
 }
@@ -170,7 +170,7 @@ void repr_world(char* buffer, size_t count, WorldState* world_state)
 
 void ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
 {
-    printf("ras_app_init()... screen_width.x: %d\n", init_settings->screen_width);
+    ras_log_info("ras_app_init()... screen_width.x: %d\n", init_settings->screen_width);
     settings = init_settings;
 
     viewer_pos.x = INT_32_TO_FIXED_16_16(0);
@@ -242,11 +242,12 @@ void ras_app_update(InputState* input_state)
 
     if (!cmp_point3f(&viewer_pos, &viewer_pos_prev)) {
         char buffer[100];
-        printf("viewer_pos: %s\n", repr_point3f(buffer, sizeof buffer, &viewer_pos));
+        ras_log_info("viewer_pos: %s\n", repr_point3f(buffer, sizeof buffer, &viewer_pos));
     }
     if (viewer_angle != viewer_angle_prev) {
         char buffer[100];
-        printf("viewer_angle: %d\n", viewer_angle);
+        // ras_log_info("viewer_angle: %d\n", viewer_angle);
+        ras_log_info("viewer_angle: %d\n", viewer_angle);
     }
 }
 
@@ -340,19 +341,19 @@ void render_map(RenderState* render_state)
         for (int c = 0; c < MAP_COLS; c++) {
 
             if (map[r][c] == 1) {
-            command->num_points = 3;
-            command->point_indices[0] = cp0;
-            command->point_indices[1] = cp1;
-            command->point_indices[2] = cp2;
-            (*num_commands)++;
-            command = &render_state->commands[*num_commands];
+                command->num_points = 3;
+                command->point_indices[0] = cp0;
+                command->point_indices[1] = cp1;
+                command->point_indices[2] = cp2;
+                (*num_commands)++;
+                command = &render_state->commands[*num_commands];
 
-            command->num_points = 3;
-            command->point_indices[0] = cp1;
-            command->point_indices[1] = cp3;
-            command->point_indices[2] = cp2;
-            (*num_commands)++;
-            command = &render_state->commands[*num_commands];
+                command->num_points = 3;
+                command->point_indices[0] = cp1;
+                command->point_indices[1] = cp3;
+                command->point_indices[2] = cp2;
+                (*num_commands)++;
+                command = &render_state->commands[*num_commands];
             }
 
             cp0++;
@@ -426,7 +427,7 @@ void render_viewer(RenderState* render_state)
     if (render_state->current_frame % 30 == 0) {
         char buffer[100];
         char buffer2[100];
-        printf("the tip: %s %s\n",
+        ras_log_info("the tip: %s %s\n",
             repr_point3f(buffer, sizeof buffer, &world_pos),
             repr_point2f(buffer2, sizeof buffer2, &unit_vector));
     }
