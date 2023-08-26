@@ -183,21 +183,19 @@ void ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
 
 void ras_app_update(InputState* input_state)
 {
-
     int32_t viewer_angle_prev = viewer_angle;
-
+    int32_t delta_angle = 0;
     if (input_state->keys[RAS_KEY_Q] == 1 || input_state->keys[RAS_KEY_LEFT]) {
-        viewer_angle = viewer_angle + ROTATION_SPEED;
-        if (viewer_angle > 359) {
-            viewer_angle -= 359;
-        }
+        delta_angle = ROTATION_SPEED;
     }
     if (input_state->keys[RAS_KEY_E] == 1 || input_state->keys[RAS_KEY_RIGHT]) {
-        viewer_angle = viewer_angle - ROTATION_SPEED;
-        if (viewer_angle <= 0) {
-            viewer_angle += 359;
-        }
+        delta_angle = -ROTATION_SPEED;
     }
+
+    viewer_angle = (viewer_angle + delta_angle) % 360;
+    if (viewer_angle < 0) {
+        viewer_angle += 360;
+    };
 
     Point2f origin = { .x = 0, .y = 0 };
     Point2f vector;
