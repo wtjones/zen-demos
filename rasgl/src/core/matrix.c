@@ -32,3 +32,15 @@ void mat_mul_4x4_4x1(int32_t s1[4][4], int32_t* s2, int32_t* dest)
         }
     }
 }
+
+void mat_mul_4x4_4x4(int32_t s1[4][4], int32_t s2[4][4], int32_t dest[4][4])
+{
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            dest[i][j] = 0;
+            for (int k = 0; k < 4; k++) {
+                dest[i][j] += mul_fixed_16_16_by_fixed_16_16(s1[i][k], s2[k][j]);
+            }
+        }
+    }
+}

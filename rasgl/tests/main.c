@@ -42,7 +42,30 @@ void mat_mul_tests()
 
     int32_t dst[4];
     mat_mul_4x4_4x1(matrix, src, dst);
-    ras_log_info("Resut of mul by identity: %s\n", repr_mat_4x1(buffer, sizeof buffer, dst));
+    ras_log_info("Result of mul by identity: %s\n", repr_mat_4x1(buffer, sizeof buffer, dst));
+}
+
+void mat_mul_4_tests()
+{
+    char buffer[500];
+    int32_t m1[4][4] = {
+        { INT_32_TO_FIXED_16_16(5), INT_32_TO_FIXED_16_16(7), INT_32_TO_FIXED_16_16(9), INT_32_TO_FIXED_16_16(10) },
+        { INT_32_TO_FIXED_16_16(2), INT_32_TO_FIXED_16_16(3), INT_32_TO_FIXED_16_16(3), INT_32_TO_FIXED_16_16(8) },
+        { INT_32_TO_FIXED_16_16(8), INT_32_TO_FIXED_16_16(10), INT_32_TO_FIXED_16_16(2), INT_32_TO_FIXED_16_16(3) },
+        { INT_32_TO_FIXED_16_16(3), INT_32_TO_FIXED_16_16(3), INT_32_TO_FIXED_16_16(4), INT_32_TO_FIXED_16_16(8) }
+    };
+
+    int32_t m2[4][4] = {
+        { INT_32_TO_FIXED_16_16(3), INT_32_TO_FIXED_16_16(10), INT_32_TO_FIXED_16_16(12), INT_32_TO_FIXED_16_16(18) },
+        { INT_32_TO_FIXED_16_16(12), INT_32_TO_FIXED_16_16(1), INT_32_TO_FIXED_16_16(4), INT_32_TO_FIXED_16_16(9) },
+        { INT_32_TO_FIXED_16_16(9), INT_32_TO_FIXED_16_16(10), INT_32_TO_FIXED_16_16(12), INT_32_TO_FIXED_16_16(2) },
+        { INT_32_TO_FIXED_16_16(3), INT_32_TO_FIXED_16_16(12), INT_32_TO_FIXED_16_16(4), INT_32_TO_FIXED_16_16(10) }
+    };
+
+    int32_t dest[4][4];
+
+    mat_mul_4x4_4x4(m1, m2, dest);
+    ras_log_info("Result of 4x4 x 4x4: %s\n", repr_mat_4x4(buffer, sizeof buffer, dest));
 }
 
 void fixed_mul_test(int32_t f1, int32_t f2, int32_t expected)
@@ -128,6 +151,7 @@ int main(int argc, const char** argv)
     repr_fixed_tests();
     repr_matrix_tests();
     mat_mul_tests();
+    mat_mul_4_tests();
     fixed_mul_tests();
     fixed_div_tests();
     project_point_tests();

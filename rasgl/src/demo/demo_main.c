@@ -107,17 +107,18 @@ void origin_to_world(WorldState* world_state)
 }
 void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* viewer_pos)
 {
-    int32_t view_matrix[4][4];
-    int32_t rot_matrix[4][4];
+    int32_t translate_to_viewer[4][4];
+    int32_t rotate_to_viewer[4][4];
+    int32_t combined_matrix[4][4];
     int32_t view_point[4];
     char buffer[255];
 
-    mat_set_identity_4x4(view_matrix);
-    mat_set_identity_4x4(rot_matrix);
+    mat_set_identity_4x4(translate_to_viewer);
+    mat_set_identity_4x4(rotate_to_viewer);
 
-    view_matrix[0][3] = -viewer_pos->x;
-    view_matrix[1][3] = -viewer_pos->y;
-    view_matrix[2][3] = -viewer_pos->z;
+    translate_to_viewer[0][3] = -viewer_pos->x;
+    translate_to_viewer[1][3] = -viewer_pos->y;
+    translate_to_viewer[2][3] = -viewer_pos->z;
 
     int32_t angle = (viewer_angle + 180) % 360;
     if (angle < 0) {
@@ -126,10 +127,13 @@ void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* 
     int32_t c = cos_table[angle];
     int32_t s = sin_table[angle];
 
-    rot_matrix[0][0] = c;
-    rot_matrix[0][2] = s;
-    rot_matrix[2][0] = -s;
-    rot_matrix[2][2] = c;
+    rotate_to_viewer[0][0] = c;
+    rotate_to_viewer[0][2] = s;
+    rotate_to_viewer[2][0] = -s;
+    rotate_to_viewer[2][2] = c;
+
+    // Combine world to viewer translate and rotate operations
+    mat_mul_4x4_4x4(rotate_to_viewer, translate_to_viewer, combined_matrix);
 
     size_t* num_points = &render_state->num_points;
     size_t* num_commands = &render_state->num_commands;
@@ -144,20 +148,10 @@ void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* 
             INT_32_TO_FIXED_16_16(1)
         };
 
-        // Translate world to viewer
-        ras_log_trace("view trans matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, view_matrix));
+        ras_log_trace("combined  matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, combined_matrix));
         ras_log_trace("view trans before: %s\n", repr_mat_4x1(buffer, sizeof buffer, world_vec));
 
-        int32_t translated_vec[4];
-        mat_mul_4x4_4x1(view_matrix, world_vec, translated_vec);
-        ras_log_trace("view trans after: %s\n", repr_mat_4x1(buffer, sizeof buffer, translated_vec));
-
-        // Transform world to viewer
-        ras_log_trace("rot trans matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, rot_matrix));
-        ras_log_trace("rot trans before: %s\n", repr_mat_4x1(buffer, sizeof buffer, translated_vec));
-
-        mat_mul_4x4_4x1(rot_matrix, translated_vec, view_point);
-
+        mat_mul_4x4_4x1(combined_matrix, world_vec, view_point);
         ras_log_trace("rot trans after: %s\n", repr_mat_4x1(buffer, sizeof buffer, view_point));
 
         Point3f transformed = {
