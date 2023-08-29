@@ -57,6 +57,16 @@ void xform_to_screen(
     Point2f* dest);
 
 /**
+ * Inits a translation matrix by vector
+ */
+void mat_translate_init(int32_t m[4][4], Point3f* v);
+
+/**
+ * Rotate given matrix by angle and store in dest
+ */
+void mat_rotate_y(int32_t m[4][4], int32_t angle, int32_t dest[4][4]);
+
+/**
  * @brief Perform memberwise comparison of Point3f
  */
 bool cmp_point3f(Point3f* p1, Point3f* p2);

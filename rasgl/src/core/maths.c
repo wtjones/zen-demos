@@ -87,6 +87,28 @@ void xform_to_screen(
     dest->y = scale_result[1];
 }
 
+void mat_translate_init(int32_t m[4][4], Point3f* v)
+{
+    mat_set_identity_4x4(m);
+    m[0][3] = v->x;
+    m[1][3] = v->y;
+    m[2][3] = v->z;
+}
+
+void mat_rotate_y(int32_t m[4][4], int32_t angle, int32_t dest[4][4])
+{
+    int32_t temp[4][4];
+    mat_set_identity_4x4(temp);
+    int32_t c = cos_table[angle];
+    int32_t s = sin_table[angle];
+
+    temp[0][0] = c;
+    temp[0][2] = s;
+    temp[2][0] = -s;
+    temp[2][2] = c;
+    mat_mul_4x4_4x4(temp, m, dest);
+}
+
 bool cmp_point3f(Point3f* p1, Point3f* p2)
 {
     return p1->x == p2->x && p1->y == p2->y && p1->z == p2->z;
