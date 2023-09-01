@@ -9,6 +9,22 @@
 #define LOGICAL_WIDTH SCREEN_WIDTH / 4
 #define LOGICAL_HEIGHT SCREEN_HEIGHT / 4
 
+int8_t board[LOGICAL_WIDTH * LOGICAL_HEIGHT];
+
+void draw_board(SDL_Renderer* renderer)
+{
+    for (int y = 0; y < LOGICAL_HEIGHT; y++) {
+        for (int x = 0; x < LOGICAL_WIDTH; x++) {
+            int8_t c = board[LOGICAL_WIDTH * y + x];
+
+            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+            if (c > 0) {
+                SDL_RenderDrawPoint(renderer, x, y);
+            }
+        }
+    }
+}
+
 int main(int argc, char* argv[])
 {
     srand(time(NULL));
@@ -21,7 +37,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    SDL_Window* win = SDL_CreateWindow("Transform Demo", 100, 100, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    SDL_Window* win = SDL_CreateWindow("Simulation", 100, 100, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     SDL_Renderer* renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     SDL_RenderSetLogicalSize(renderer, LOGICAL_WIDTH, LOGICAL_HEIGHT);
 
@@ -30,6 +46,11 @@ int main(int argc, char* argv[])
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     for (int i = 0; i < LOGICAL_WIDTH; ++i)
         SDL_RenderDrawPoint(renderer, i, i);
+
+    board[50 * LOGICAL_WIDTH + 10] = 1;
+    board[20 * LOGICAL_WIDTH + 10] = 1;
+    draw_board(renderer);
+
     SDL_RenderPresent(renderer);
 
     int last_frame = SDL_GetTicks();
