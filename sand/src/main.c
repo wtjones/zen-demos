@@ -7,8 +7,9 @@
 
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
-#define LOGICAL_WIDTH SCREEN_WIDTH / 4
-#define LOGICAL_HEIGHT SCREEN_HEIGHT / 4
+#define LOGICAL_SCALE 4
+#define LOGICAL_WIDTH SCREEN_WIDTH / LOGICAL_SCALE
+#define LOGICAL_HEIGHT SCREEN_HEIGHT / LOGICAL_SCALE
 #define BOARD_WIDTH LOGICAL_WIDTH
 #define BOARD_HEIGHT LOGICAL_HEIGHT
 #define SIM_RATE 30
@@ -39,6 +40,25 @@ void set_cell(int32_t row, int32_t col, int8_t cell)
 {
     assert(!is_oob(row, col));
     board[BOARD_WIDTH * row + col] = cell;
+}
+
+int32_t map_screen_to_board(int32_t screen_coord)
+{
+    return screen_coord / LOGICAL_SCALE;
+}
+
+void handle_input()
+{
+    int x, y;
+    u_int32_t buttons = SDL_GetMouseState(&x, &y);
+    if (buttons & SDL_BUTTON_LMASK) {
+
+        int32_t mouse_col = map_screen_to_board(x);
+        int32_t mouse_row = map_screen_to_board(y);
+        if (get_cell(mouse_row, mouse_col) == EMPTY) {
+            set_cell(mouse_row, mouse_col, SAND);
+        }
+    }
 }
 
 void update()
@@ -114,6 +134,8 @@ int main(int argc, char* argv[])
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         SDL_RenderClear(renderer);
+
+        handle_input();
         update();
         draw_board(renderer);
 
