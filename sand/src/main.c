@@ -23,6 +23,7 @@ typedef enum CellType {
 
 int8_t board[LOGICAL_WIDTH * LOGICAL_HEIGHT];
 int32_t iteration = 0;
+int32_t cursor_size = 6;
 
 bool is_oob(int32_t row, int32_t col)
 {
@@ -55,8 +56,18 @@ void handle_input()
 
         int32_t mouse_col = map_screen_to_board(x);
         int32_t mouse_row = map_screen_to_board(y);
-        if (get_cell(mouse_row, mouse_col) == EMPTY) {
-            set_cell(mouse_row, mouse_col, SAND);
+        int32_t cursor_box_row = mouse_row - (cursor_size / 2);
+        int32_t cursor_box_col = mouse_col - (cursor_size / 2);
+
+        for (int32_t row = cursor_box_row; row < cursor_box_row + cursor_size; row++) {
+            for (int32_t col = cursor_box_col; col < cursor_box_col + cursor_size; col++) {
+
+                if (((row + col) % 3) + (iteration % 7) == 0) {
+                    if (get_cell(row, col) == EMPTY) {
+                        set_cell(row, col, SAND);
+                    }
+                }
+            }
         }
     }
 }
@@ -98,6 +109,23 @@ void draw_board(SDL_Renderer* renderer)
             }
         }
     }
+}
+
+void draw_ux(SDL_Renderer* renderer)
+{
+    int x, y;
+    u_int32_t buttons = SDL_GetMouseState(&x, &y);
+    int32_t mouse_col = map_screen_to_board(x);
+    int32_t mouse_row = map_screen_to_board(y);
+
+    SDL_Rect box;
+    box.w = cursor_size;
+    box.h = cursor_size;
+    box.x = mouse_col - (cursor_size / 2);
+    box.y = mouse_row - (cursor_size / 2);
+
+    SDL_SetRenderDrawColor(renderer, 0xff, 0xff, 0xff, 255);
+    SDL_RenderDrawRect(renderer, &box);
 }
 
 int main(int argc, char* argv[])
@@ -144,6 +172,7 @@ int main(int argc, char* argv[])
         handle_input();
         update();
         draw_board(renderer);
+        draw_ux(renderer);
 
         iteration++;
 
