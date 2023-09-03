@@ -71,6 +71,12 @@ void update()
                 if (get_cell(row + 1, col) == EMPTY) {
                     set_cell(row, col, EMPTY);
                     set_cell(row + 1, col, SAND);
+                } else {
+                    int32_t check_col = iteration % 2 == 0 ? col - 1 : col + 1;
+                    if (get_cell(row + 1, check_col) == EMPTY) {
+                        set_cell(row, col, EMPTY);
+                        set_cell(row + 1, check_col, SAND);
+                    }
                 }
             }
         }
@@ -84,7 +90,7 @@ void draw_board(SDL_Renderer* renderer)
 
             if (cell != EMPTY) {
                 if (cell == SAND) {
-                    SDL_SetRenderDrawColor(renderer, 0, 150, 150, 255);
+                    SDL_SetRenderDrawColor(renderer, 0xc2, 0xb2, 0x80, 255);
                 } else {
                     SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
                 }
