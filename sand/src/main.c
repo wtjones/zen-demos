@@ -13,7 +13,9 @@
 #define BOARD_WIDTH LOGICAL_WIDTH
 #define BOARD_HEIGHT LOGICAL_HEIGHT
 #define SIM_RATE 30
-
+#define CURSOR_SIZE_DEFAULT 6
+#define CURSOR_SIZE_MINIMUM 2
+#define CURSOR_SIZE_RATE 4
 typedef enum CellType {
     EMPTY = 0,
     SAND = 1,
@@ -23,7 +25,7 @@ typedef enum CellType {
 
 int8_t board[LOGICAL_WIDTH * LOGICAL_HEIGHT];
 int32_t iteration = 0;
-int32_t cursor_size = 6;
+int32_t cursor_size = CURSOR_SIZE_DEFAULT;
 
 bool is_oob(int32_t row, int32_t col)
 {
@@ -160,6 +162,15 @@ int main(int argc, char* argv[])
                 break;
             case SDL_KEYUP:
                 should_quit = event.key.keysym.scancode == SDL_SCANCODE_ESCAPE;
+                if (event.key.keysym.scancode == SDL_SCANCODE_EQUALS) {
+                    cursor_size += CURSOR_SIZE_RATE;
+                }
+                if (event.key.keysym.scancode == SDL_SCANCODE_MINUS) {
+                    cursor_size -= CURSOR_SIZE_RATE;
+                    if (cursor_size < CURSOR_SIZE_MINIMUM) {
+                        cursor_size = CURSOR_SIZE_MINIMUM;
+                    }
+                }
             }
         }
         int num_keys;
