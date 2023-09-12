@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 
-#define INT_32_TO_FIXED_16_16(n) (int32_t)(n << 16)
-#define FIXED_16_16_TO_INT_32(n) (n >> 16)
+#define INT_32_TO_FIXED_16_16(n) (int32_t)((n) << 16)
+#define FIXED_16_16_TO_INT_32(n) ((n) >> 16)
 
 static inline int32_t mul_fixed_16_16_by_fixed_16_16(int32_t f1, int32_t f2)
 {

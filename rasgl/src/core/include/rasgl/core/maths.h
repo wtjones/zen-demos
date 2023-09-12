@@ -66,6 +66,14 @@ void mat_translate_init(int32_t m[4][4], Point3f* v);
  */
 void mat_rotate_y(int32_t m[4][4], int32_t angle, int32_t dest[4][4]);
 
+void mat_projection_init(int32_t projection_matrix[4][4], float fov, float aspect_ratio, float near, float far);
+
+/**
+ * Multiply a 4x1 vector with a project matrix and perform perspective divide on
+ * the carried over z -> w.
+ */
+void mat_mul_project(int32_t projection_matrix[4][4], int32_t v[4], int32_t dest[4]);
+
 /**
  * @brief Perform memberwise comparison of Point3f
  */

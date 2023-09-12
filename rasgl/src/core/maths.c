@@ -1,4 +1,5 @@
 #include "rasgl/core/maths.h"
+#include "rasgl/core/debug.h"
 
 extern int32_t cos_table[360];
 extern int32_t sin_table[360];
@@ -107,6 +108,40 @@ void mat_rotate_y(int32_t m[4][4], int32_t angle, int32_t dest[4][4])
     temp[2][0] = -s;
     temp[2][2] = c;
     mat_mul_4x4_4x4(temp, m, dest);
+}
+
+void mat_projection_init(int32_t projection_matrix[4][4], float fov, float aspect_ratio, float near, float far)
+{
+    double d2r = M_PI / 180.0;
+    double y_scale = 1.0 / tan(d2r * fov / 2); // FOV scaling factor
+    double x_scale = y_scale / aspect_ratio;
+    double nearmfar = near - far;
+
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            projection_matrix[i][j] = 0;
+        }
+    }
+
+    projection_matrix[0][0] = float_to_fixed_16_16(x_scale);
+    projection_matrix[1][1] = float_to_fixed_16_16(y_scale);
+    projection_matrix[2][2] = float_to_fixed_16_16((far + near) / near - far);
+    projection_matrix[2][3] = float_to_fixed_16_16((-far * near) / (near - far));
+    projection_matrix[3][2] = float_to_fixed_16_16(1.0f);
+}
+
+void mat_mul_project(int32_t projection_matrix[4][4], int32_t v[4], int32_t dest[4])
+{
+    char buffer[100];
+    mat_mul_4x4_4x1(projection_matrix, v, dest);
+    ras_log_trace("after proj matrix: %s\n", repr_mat_4x1(buffer, sizeof buffer, dest));
+
+    // perspective divide
+    if (dest[2] != 0) {
+        dest[0] = div_fixed_16_16_by_fixed_16_16(dest[0], dest[3]);
+        dest[1] = div_fixed_16_16_by_fixed_16_16(dest[1], dest[3]);
+        dest[2] = div_fixed_16_16_by_fixed_16_16(dest[2], dest[3]);
+    };
 }
 
 bool cmp_point3f(Point3f* p1, Point3f* p2)

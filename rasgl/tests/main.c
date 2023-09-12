@@ -68,6 +68,57 @@ void mat_mul_4_tests()
     ras_log_info("Result of 4x4 x 4x4: %s\n", repr_mat_4x4(buffer, sizeof buffer, dest));
 }
 
+void mat_projection_tests()
+{
+    const int32_t screen_width = 320;
+    const int32_t screen_height = 240;
+    char buffer[500];
+    int32_t projection_matrix[4][4];
+    float fov = 45.0f;            // Field of view in degrees
+    float aspect_ration = 1.333f; // Aspect ratio (width/height)
+    float near = 0.1f;            // Near clipping plane
+    float far = 100.0f;           // Far clipping plane
+
+    mat_projection_init(projection_matrix, fov, aspect_ration, near, far);
+    ras_log_info("Result of mat_projection_init: %s\n", repr_mat_4x4(buffer, sizeof buffer, projection_matrix));
+
+    Point3f transformed = {
+        .x = float_to_fixed_16_16(30.0),
+        .y = float_to_fixed_16_16(20.0),
+        .z = float_to_fixed_16_16(-310.0)
+    };
+
+    Point2f projected = project_point(
+        screen_width,
+        screen_height,
+        -float_to_fixed_16_16(2.0),
+        transformed);
+
+    ras_log_info("projected: %s\n", repr_point2f(buffer, sizeof buffer, &projected));
+
+    int32_t world_vec[4] = {
+        transformed.x,
+        transformed.y,
+        transformed.z,
+        INT_32_TO_FIXED_16_16(1)
+    };
+
+    int32_t view_point[4];
+
+    mat_mul_project(projection_matrix, world_vec, view_point);
+
+    ras_log_info("after perspective divide: %s\n", repr_mat_4x1(buffer, sizeof buffer, view_point));
+
+    int32_t half_screen_width = INT_32_TO_FIXED_16_16(screen_width / 2);
+    int32_t half_screen_height = INT_32_TO_FIXED_16_16(screen_height / 2);
+
+    Point2i screen = {
+        .x = FIXED_16_16_TO_INT_32(mul_fixed_16_16_by_fixed_16_16(half_screen_width, view_point[0]) + half_screen_width),
+        .y = FIXED_16_16_TO_INT_32(mul_fixed_16_16_by_fixed_16_16(half_screen_height, view_point[1]) + half_screen_height)
+    };
+    ras_log_info("screen after matrix proj: %s\n", repr_point2i(buffer, sizeof buffer, &screen));
+}
+
 void fixed_mul_test(int32_t f1, int32_t f2, int32_t expected)
 {
     char buffer1[255];
@@ -128,13 +179,13 @@ void project_point_tests()
         .z = -float_to_fixed_16_16(310.0)
     };
 
-    Point2i projected = project_point(
+    Point2f projected = project_point(
         320,
         240,
         -float_to_fixed_16_16(2.0),
         transformed);
     char buffer[100];
-    ras_log_info("projected: %s\n", repr_point2i(buffer, sizeof buffer, &projected));
+    ras_log_info("projected: %s\n", repr_point2f(buffer, sizeof buffer, &projected));
 }
 
 int main(int argc, const char** argv)
@@ -148,6 +199,7 @@ int main(int argc, const char** argv)
     ras_log_info("rasgl tests...\n");
     ras_log_trace("%s\n", "DEBUG = 1");
 
+    mat_projection_tests();
     repr_fixed_tests();
     repr_matrix_tests();
     mat_mul_tests();

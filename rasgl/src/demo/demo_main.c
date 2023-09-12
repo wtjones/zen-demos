@@ -5,6 +5,7 @@
 #include "rasgl/core/input.h"
 #include "rasgl/core/repr.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 #define MAP_ROWS 5
 #define MAP_COLS 5
@@ -12,6 +13,7 @@
 #define CELL_UNITS INT_32_TO_FIXED_16_16(10)
 #define ZOOM_SPEED float_to_fixed_16_16(.05)
 #define ROTATION_SPEED 1
+#define FOV_SPEED 2.0f
 #define VIEWER_SPEED float_to_fixed_16_16(.5)
 #define PROJECTION_RATIO -float_to_fixed_16_16(2.0)
 
@@ -26,8 +28,16 @@ enum {
 } view_mode
     = CAMERA;
 
+enum {
+    PERSPECTIVE_MATRIX,
+    PERSPECTIVE_ALT
+} projection_mode
+    = PERSPECTIVE_MATRIX;
+
 Point3f viewer_pos;
 int32_t viewer_angle = 180;
+float viewer_fov = 60.0f;
+
 ScreenSettings* settings;
 WorldState world_state;
 
@@ -105,11 +115,15 @@ void origin_to_world(WorldState* world_state)
     point.z = -INT_32_TO_FIXED_16_16(2);
     push_world_point3(world_state, point);
 }
-void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* viewer_pos)
+
+void xform_to_view_mode_persp_matrix(
+    WorldState* world_state, RenderState* render_state, Point3f* viewer_pos)
 {
     int32_t translate_to_viewer[4][4];
     int32_t combined_matrix[4][4];
+    int32_t view_matrix[4][4];
     int32_t view_point[4];
+    int32_t projected_point[4];
     char buffer[255];
 
     int32_t angle = (viewer_angle + 180) % 360;
@@ -120,7 +134,14 @@ void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* 
     // Combine world to viewer translate and rotate operations
     Point3f trans_pos = { -viewer_pos->x, -viewer_pos->y, -viewer_pos->z };
     mat_translate_init(translate_to_viewer, &trans_pos);
-    mat_rotate_y(translate_to_viewer, angle, combined_matrix);
+    mat_rotate_y(translate_to_viewer, angle, view_matrix);
+
+    int32_t projection_matrix[4][4];
+    float aspect_ratio = 1.333f; // Aspect ratio (width/height)
+    float near = 0.1f;           // Near clipping plane
+    float far = 100.0f;          // Far clipping plane
+
+    mat_projection_init(projection_matrix, viewer_fov, aspect_ratio, near, far);
 
     size_t* num_points = &render_state->num_points;
     size_t* num_commands = &render_state->num_commands;
@@ -135,10 +156,73 @@ void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* 
             INT_32_TO_FIXED_16_16(1)
         };
 
-        ras_log_trace("combined  matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, combined_matrix));
         ras_log_trace("view trans before: %s\n", repr_mat_4x1(buffer, sizeof buffer, world_vec));
 
-        mat_mul_4x4_4x1(combined_matrix, world_vec, view_point);
+        mat_mul_4x4_4x1(view_matrix, world_vec, view_point);
+        ras_log_trace("rot trans after: %s\n", repr_mat_4x1(buffer, sizeof buffer, view_point));
+
+        if (view_point[2] < 0) {
+            ras_log_trace("proj matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, projection_matrix));
+
+            mat_mul_project(projection_matrix, view_point, projected_point);
+            ras_log_trace("proj multi after: %s\n", repr_mat_4x1(buffer, sizeof buffer, projected_point));
+
+            RenderCommand* command = &render_state->commands[*num_commands];
+            Point2i* screen_point = &render_state->points[*num_points];
+
+            int32_t half_screen_width = INT_32_TO_FIXED_16_16(settings->screen_width / 2);
+            int32_t half_screen_height = INT_32_TO_FIXED_16_16(settings->screen_height / 2);
+
+            screen_point->x = FIXED_16_16_TO_INT_32(
+                mul_fixed_16_16_by_fixed_16_16(half_screen_width, projected_point[0]) + half_screen_width);
+            screen_point->y = FIXED_16_16_TO_INT_32(
+                mul_fixed_16_16_by_fixed_16_16(half_screen_height, projected_point[1]) + half_screen_height);
+
+            ras_log_trace("screen point: %s\n", repr_point2i(buffer, sizeof buffer, screen_point));
+
+            command->num_points = 1;
+            command->point_indices[0] = *num_points;
+            (*num_commands)++;
+            (*num_points)++;
+        }
+    }
+}
+
+void xform_to_view_mode_persp_alt(WorldState* world_state, RenderState* render_state, Point3f* viewer_pos)
+{
+    int32_t translate_to_viewer[4][4];
+    int32_t combined_matrix[4][4];
+    int32_t view_matrix[4][4];
+    int32_t view_point[4];
+    int32_t projected_point[4];
+    char buffer[255];
+
+    int32_t angle = (viewer_angle + 180) % 360;
+    if (angle < 0) {
+        angle += 360;
+    }
+
+    // Combine world to viewer translate and rotate operations
+    Point3f trans_pos = { -viewer_pos->x, -viewer_pos->y, -viewer_pos->z };
+    mat_translate_init(translate_to_viewer, &trans_pos);
+    mat_rotate_y(translate_to_viewer, angle, view_matrix);
+
+    size_t* num_points = &render_state->num_points;
+    size_t* num_commands = &render_state->num_commands;
+
+    for (int i = 0; i < world_state->num_points; i++) {
+        Point3f* world_point = &world_state->points[i];
+
+        int32_t world_vec[4] = {
+            world_point->x,
+            world_point->y,
+            world_point->z,
+            INT_32_TO_FIXED_16_16(1)
+        };
+
+        ras_log_trace("view trans before: %s\n", repr_mat_4x1(buffer, sizeof buffer, world_vec));
+
+        mat_mul_4x4_4x1(view_matrix, world_vec, view_point);
         ras_log_trace("rot trans after: %s\n", repr_mat_4x1(buffer, sizeof buffer, view_point));
 
         Point3f transformed = {
@@ -148,7 +232,8 @@ void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* 
         };
 
         if (transformed.z < 0) {
-            Point2i projected = project_point(
+
+            Point2f projected = project_point(
                 settings->screen_width,
                 settings->screen_height,
                 PROJECTION_RATIO,
@@ -159,11 +244,22 @@ void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* 
             screen_point->x = FIXED_16_16_TO_INT_32(projected.x);
             screen_point->y = FIXED_16_16_TO_INT_32(projected.y);
 
+            ras_log_trace("screen point: %s\n", repr_point2i(buffer, sizeof buffer, screen_point));
+
             command->num_points = 1;
             command->point_indices[0] = *num_points;
             (*num_commands)++;
             (*num_points)++;
         }
+    }
+}
+
+void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* viewer_pos)
+{
+    if (projection_mode == PERSPECTIVE_MATRIX) {
+        xform_to_view_mode_persp_matrix(world_state, render_state, viewer_pos);
+    } else {
+        xform_to_view_mode_persp_alt(world_state, render_state, viewer_pos);
     }
 }
 
@@ -243,6 +339,19 @@ void ras_app_update(InputState* input_state)
     }
     if (input_state->keys[RAS_KEY_TAB] == 1) {
         view_mode = view_mode == CAMERA ? MAP : CAMERA;
+    }
+    if (input_state->keys[RAS_KEY_P] == 1) {
+        projection_mode = projection_mode == PERSPECTIVE_MATRIX
+            ? PERSPECTIVE_ALT
+            : PERSPECTIVE_MATRIX;
+    }
+    if (input_state->keys[RAS_KEY_LEFTBRACKET] == 1) {
+        viewer_fov -= FOV_SPEED;
+        ras_log_info("FOV: %f\n", viewer_fov);
+    }
+    if (input_state->keys[RAS_KEY_RIGHTBRACKET] == 1) {
+        viewer_fov += FOV_SPEED;
+        ras_log_info("FOV: %f\n", viewer_fov);
     }
 
     if (!cmp_point3f(&viewer_pos, &viewer_pos_prev)) {

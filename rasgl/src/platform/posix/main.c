@@ -31,6 +31,8 @@ void map_input()
     plat_input_state.keys[RAS_KEY_ESCAPE] = keys[SDL_SCANCODE_ESCAPE];
     plat_input_state.keys[RAS_KEY_RIGHT] = keys[SDL_SCANCODE_RIGHT];
     plat_input_state.keys[RAS_KEY_LEFT] = keys[SDL_SCANCODE_LEFT];
+    plat_input_state.keys[RAS_KEY_LEFTBRACKET] = keys[SDL_SCANCODE_LEFTBRACKET];
+    plat_input_state.keys[RAS_KEY_RIGHTBRACKET] = keys[SDL_SCANCODE_RIGHTBRACKET];
 }
 
 void render_state(RenderState* state)
@@ -97,6 +99,7 @@ int main(int argc, const char** argv)
             case SDL_KEYUP:
                 should_quit = event.key.keysym.scancode == SDL_SCANCODE_ESCAPE;
                 plat_input_state.keys[RAS_KEY_TAB] = event.key.keysym.scancode == SDL_SCANCODE_TAB ? 1 : 0;
+                plat_input_state.keys[RAS_KEY_P] = event.key.keysym.scancode == SDL_SCANCODE_P ? 1 : 0;
             }
         }
 

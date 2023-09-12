@@ -5,11 +5,11 @@
  * project view point to screen
  *
  */
-Point2i project_point(int32_t screen_width, int32_t screen_height, int32_t projection_ratio, Point3f view_point)
+Point2f project_point(int32_t screen_width, int32_t screen_height, int32_t projection_ratio, Point3f view_point)
 {
     char buffer[100];
 
-    Point2i result;
+    Point2f result;
     ras_log_trace("view_point: %s\n", repr_point3f(buffer, sizeof buffer, &view_point));
 
     // x = ((x / z * proj_ratio * (SCREEN_W / 2.0) + 0.5)) + SCREEN_W / 2

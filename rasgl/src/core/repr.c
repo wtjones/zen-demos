@@ -6,8 +6,8 @@ char* repr_point2i(char* buffer, size_t count, Point2i* p)
         buffer,
         count,
         "[x: %d, y: %d]",
-        FIXED_16_16_TO_INT_32(p->x),
-        FIXED_16_16_TO_INT_32(p->y));
+        p->x,
+        p->y);
     return buffer;
 }
 

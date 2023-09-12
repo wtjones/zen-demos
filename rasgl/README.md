@@ -103,6 +103,14 @@ export DJGPP_PREFIX="/usr/local/bin/dosbox-x"
 ./run_dos.sh
 ```
 
+## Controls
+
+Move: WASD
+Rotate: Q/E
+Toggle view mode: TAB
+Toggle projection mode: P
+Adjust FOV: left/right bracket
+
 ## Debug output
 
 Pass a value of 1 in the run script:
