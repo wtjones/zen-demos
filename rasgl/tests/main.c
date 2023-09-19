@@ -188,6 +188,27 @@ void project_point_tests()
     ras_log_info("projected: %s\n", repr_point2f(buffer, sizeof buffer, &projected));
 }
 
+void normalize_tests()
+{
+    char buffer[100];
+    Point3f v = {
+        .x = float_to_fixed_16_16(3.4),
+        .y = float_to_fixed_16_16(2.0),
+        .z = -float_to_fixed_16_16(14.0)
+    };
+
+    int32_t length = vector_length(&v);
+
+    ras_log_info("before normalize: %s\n", repr_point3f(buffer, sizeof buffer, &v));
+    ras_log_info("before normalize length: %s\n", repr_fixed_16_16(buffer, sizeof buffer, length));
+
+    normalize(&v);
+    length = vector_length(&v);
+
+    ras_log_info("after normalize: %s\n", repr_point3f(buffer, sizeof buffer, &v));
+    ras_log_info("after normalize length: %s\n", repr_fixed_16_16(buffer, sizeof buffer, length));
+}
+
 int main(int argc, const char** argv)
 {
     FILE* log_file = fopen("/tmp/rasgl.log", "w");
@@ -207,5 +228,6 @@ int main(int argc, const char** argv)
     fixed_mul_tests();
     fixed_div_tests();
     project_point_tests();
+    normalize_tests();
     return 0;
 }

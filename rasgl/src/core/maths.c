@@ -144,6 +144,28 @@ void mat_mul_project(int32_t projection_matrix[4][4], int32_t v[4], int32_t dest
     };
 }
 
+int32_t vector_length(Point3f* vec)
+{
+    int32_t length;
+
+    // To find the length of a vector, simply add the square of its
+    // components then take the square root of the result.
+    int32_t square = mul_fixed_16_16_by_fixed_16_16(vec->x, vec->x)
+        + mul_fixed_16_16_by_fixed_16_16(vec->y, vec->y)
+        + mul_fixed_16_16_by_fixed_16_16(vec->z, vec->z);
+    assert(square > -1);
+    return sqrt_fx16_16_to_fx16_16(square);
+}
+
+void normalize(Point3f* vec)
+{
+    int32_t length = vector_length(vec);
+
+    vec->x = div_fixed_16_16_by_fixed_16_16(vec->x, length);
+    vec->y = div_fixed_16_16_by_fixed_16_16(vec->y, length);
+    vec->z = div_fixed_16_16_by_fixed_16_16(vec->z, length);
+}
+
 bool cmp_point3f(Point3f* p1, Point3f* p2)
 {
     return p1->x == p2->x && p1->y == p2->y && p1->z == p2->z;

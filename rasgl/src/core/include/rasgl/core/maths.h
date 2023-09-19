@@ -2,9 +2,11 @@
 #define MATHS_H
 
 #include "fixed_maths.h"
+#include "fpsqrt/fpsqrt.h"
 #include "maths_tables.h"
 #include "matrix.h"
 #define _USE_MATH_DEFINES
+#include <assert.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -26,6 +28,11 @@ typedef struct Point3f {
     int32_t y;
     int32_t z;
 } Point3f;
+
+typedef struct Plane {
+    Point3f normal;
+    int32_t distance;
+} Plane;
 
 extern int32_t cos_table[360];
 extern int32_t sin_table[360];
@@ -78,5 +85,9 @@ void mat_mul_project(int32_t projection_matrix[4][4], int32_t v[4], int32_t dest
  * @brief Perform memberwise comparison of Point3f
  */
 bool cmp_point3f(Point3f* p1, Point3f* p2);
+
+int32_t vector_length(Point3f* vec);
+
+void normalize(Point3f* vec);
 
 #endif

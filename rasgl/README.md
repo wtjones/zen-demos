@@ -124,3 +124,4 @@ run_dos.sh 1
 ## External libraries
 
 * [log.c](https://github.com/rxi/log.c)
+* [fpsqrt](https://github.com/chmike/fpsqrt)
