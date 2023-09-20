@@ -86,8 +86,8 @@ void mat_mul_project(int32_t projection_matrix[4][4], int32_t v[4], int32_t dest
  */
 bool cmp_point3f(Point3f* p1, Point3f* p2);
 
-int32_t vector_length(Point3f* vec);
+int32_t core_get_vec_length(Point3f* vec);
 
-void normalize(Point3f* vec);
+void core_normalize(Point3f* vec);
 
 #endif

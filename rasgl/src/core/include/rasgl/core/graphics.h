@@ -12,21 +12,21 @@
 #define MAX_COMMAND_POINTS 3
 
 typedef struct ScreenSettings {
-    int32_t screen_width;
-    int32_t screen_height;
+    uint32_t screen_width;
+    uint32_t screen_height;
 } ScreenSettings;
 
 typedef struct RenderCommand {
     size_t point_indices[MAX_COMMAND_POINTS];
-    int32_t num_points;
+    uint32_t num_points;
 } RenderCommand;
 
 typedef struct RenderState {
     Point2i points[MAX_RENDER_POINTS];
-    size_t num_points;
+    uint32_t num_points;
     RenderCommand commands[MAX_RENDER_COMMANDS];
-    size_t num_commands;
-    int32_t current_frame;
+    uint32_t num_commands;
+    uint32_t current_frame;
 } RenderState;
 
 /**

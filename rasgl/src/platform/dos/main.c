@@ -57,7 +57,6 @@ int main(int argc, const char** argv)
     log_set_quiet(true);
 
     BITMAP* buffer;
-    int c;
 
     ras_log_info("Starting Allegro...");
     if (allegro_init() != 0) {
@@ -90,7 +89,7 @@ int main(int argc, const char** argv)
         render_state(buffer, &state);
 
         textprintf_ex(buffer, font, 0, 0, makecol(255, 255, 255), -1,
-            "Double buffered (%s) %d", gfx_driver->name);
+            "Double buffered (%s)", gfx_driver->name);
         vsync();
         blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
     }

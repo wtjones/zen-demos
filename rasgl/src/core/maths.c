@@ -144,7 +144,7 @@ void mat_mul_project(int32_t projection_matrix[4][4], int32_t v[4], int32_t dest
     };
 }
 
-int32_t vector_length(Point3f* vec)
+int32_t core_get_vec_length(Point3f* vec)
 {
     int32_t length;
 
@@ -157,9 +157,9 @@ int32_t vector_length(Point3f* vec)
     return sqrt_fx16_16_to_fx16_16(square);
 }
 
-void normalize(Point3f* vec)
+void core_normalize(Point3f* vec)
 {
-    int32_t length = vector_length(vec);
+    int32_t length = core_get_vec_length(vec);
 
     vec->x = div_fixed_16_16_by_fixed_16_16(vec->x, length);
     vec->y = div_fixed_16_16_by_fixed_16_16(vec->y, length);

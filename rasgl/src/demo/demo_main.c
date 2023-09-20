@@ -19,7 +19,7 @@
 
 typedef struct WorldState {
     Point3f points[MAX_WORLD_POINTS];
-    size_t num_points;
+    uint32_t num_points;
 } WorldState;
 
 enum {
@@ -51,7 +51,7 @@ int map[MAP_ROWS][MAP_COLS] = {
 
 void push_world_point3(WorldState* world_state, Point3f point)
 {
-    size_t* num_points = &world_state->num_points;
+    uint32_t* num_points = &world_state->num_points;
     Point3f* dest = &world_state->points[*num_points];
     dest->x = point.x;
     dest->y = point.y;
@@ -63,9 +63,7 @@ void map_to_world(WorldState* world_state)
 {
 
     int32_t offset_x = -(MAP_COLS / 2);
-    int32_t offset_y = 0;
     int32_t offset_z = -(MAP_ROWS / 2);
-    size_t i = 0;
 
     for (int r = 0; r < MAP_ROWS; r++) {
         for (int c = 0; c < MAP_COLS; c++) {
@@ -120,7 +118,6 @@ void xform_to_view_mode_persp_matrix(
     WorldState* world_state, RenderState* render_state, Point3f* viewer_pos)
 {
     int32_t translate_to_viewer[4][4];
-    int32_t combined_matrix[4][4];
     int32_t view_matrix[4][4];
     int32_t view_point[4];
     int32_t projected_point[4];
@@ -143,10 +140,10 @@ void xform_to_view_mode_persp_matrix(
 
     mat_projection_init(projection_matrix, viewer_fov, aspect_ratio, near, far);
 
-    size_t* num_points = &render_state->num_points;
-    size_t* num_commands = &render_state->num_commands;
+    uint32_t* num_points = &render_state->num_points;
+    uint32_t* num_commands = &render_state->num_commands;
 
-    for (int i = 0; i < world_state->num_points; i++) {
+    for (uint32_t i = 0; i < world_state->num_points; i++) {
         Point3f* world_point = &world_state->points[i];
 
         int32_t world_vec[4] = {
@@ -191,10 +188,8 @@ void xform_to_view_mode_persp_matrix(
 void xform_to_view_mode_persp_alt(WorldState* world_state, RenderState* render_state, Point3f* viewer_pos)
 {
     int32_t translate_to_viewer[4][4];
-    int32_t combined_matrix[4][4];
     int32_t view_matrix[4][4];
     int32_t view_point[4];
-    int32_t projected_point[4];
     char buffer[255];
 
     int32_t angle = (viewer_angle + 180) % 360;
@@ -207,10 +202,10 @@ void xform_to_view_mode_persp_alt(WorldState* world_state, RenderState* render_s
     mat_translate_init(translate_to_viewer, &trans_pos);
     mat_rotate_y(translate_to_viewer, angle, view_matrix);
 
-    size_t* num_points = &render_state->num_points;
-    size_t* num_commands = &render_state->num_commands;
+    uint32_t* num_points = &render_state->num_points;
+    uint32_t* num_commands = &render_state->num_commands;
 
-    for (int i = 0; i < world_state->num_points; i++) {
+    for (uint32_t i = 0; i < world_state->num_points; i++) {
         Point3f* world_point = &world_state->points[i];
 
         int32_t world_vec[4] = {
@@ -263,16 +258,9 @@ void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* 
     }
 }
 
-void repr_world(char* buffer, size_t count, WorldState* world_state)
-{
-    for (int r = 0; r < MAP_ROWS + 1; r++) {
-        for (int c = 0; c < MAP_COLS + 1; c++) {
-        }
-    }
-}
-
 void ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
 {
+    ras_log_info("ras_app_init()... argc: %d argv: %s\n", argc, argv[0]);
     ras_log_info("ras_app_init()... screen_width.x: %d\n", init_settings->screen_width);
     settings = init_settings;
 
@@ -359,8 +347,6 @@ void ras_app_update(InputState* input_state)
         ras_log_info("viewer_pos: %s\n", repr_point3f(buffer, sizeof buffer, &viewer_pos));
     }
     if (viewer_angle != viewer_angle_prev) {
-        char buffer[100];
-        // ras_log_info("viewer_angle: %d\n", viewer_angle);
         ras_log_info("viewer_angle: %d\n", viewer_angle);
     }
 }
@@ -370,8 +356,8 @@ void ras_app_update(InputState* input_state)
  */
 void render_point(RenderState* render_state, Point3f world_pos)
 {
-    size_t* num_points = &render_state->num_points;
-    size_t* num_commands = &render_state->num_commands;
+    uint32_t* num_points = &render_state->num_points;
+    uint32_t* num_commands = &render_state->num_commands;
     Point2i* screen_pos;
     Point2f dest;
 
@@ -396,8 +382,7 @@ void render_point(RenderState* render_state, Point3f world_pos)
  */
 void push_world_point(RenderState* render_state, Point3f world_pos)
 {
-    size_t* num_points = &render_state->num_points;
-    size_t* num_commands = &render_state->num_commands;
+    uint32_t* num_points = &render_state->num_points;
     Point2i* screen_pos;
     Point2f dest;
 
@@ -414,17 +399,14 @@ void push_world_point(RenderState* render_state, Point3f world_pos)
 
 void render_map(RenderState* render_state)
 {
-    Point2f dest;
-    Point2i* screen_pos;
     Point3f source;
-    size_t* num_points = &render_state->num_points;
-    size_t* num_commands = &render_state->num_commands;
+    uint32_t* num_commands = &render_state->num_commands;
 
     int32_t offset_x = -(MAP_COLS / 2);
     int32_t offset_z = -(MAP_ROWS / 2);
 
     // Add map points to render list
-    size_t map_points_start = render_state->num_points;
+    uint32_t map_points_start = render_state->num_points;
     for (int r = 0; r < MAP_ROWS + 1; r++) {
         for (int c = 0; c < MAP_COLS + 1; c++) {
             // world space of map node
