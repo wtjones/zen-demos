@@ -1,0 +1,6 @@
+{
+    "cmake.configureOnOpen": true,
+    "cmake.configureArgs": [
+        "-DRAS_PLATFORM=ras_sdl"
+    ]
+}
