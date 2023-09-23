@@ -1,6 +1,7 @@
 #include "rasgl/core/app.h"
 #include "rasgl/core/debug.h"
 #include "rasgl/core/fixed_maths.h"
+#include "rasgl/core/frustum.h"
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/input.h"
 #include "rasgl/core/repr.h"
@@ -121,6 +122,7 @@ void xform_to_view_mode_persp_matrix(
     int32_t view_matrix[4][4];
     int32_t view_point[4];
     int32_t projected_point[4];
+    Frustum frustum;
     char buffer[255];
 
     int32_t angle = (viewer_angle + 180) % 360;
@@ -134,11 +136,24 @@ void xform_to_view_mode_persp_matrix(
     mat_rotate_y(translate_to_viewer, angle, view_matrix);
 
     int32_t projection_matrix[4][4];
+    int32_t combined_matrix[4][4];
+
     float aspect_ratio = 1.333f; // Aspect ratio (width/height)
     float near = 0.1f;           // Near clipping plane
     float far = 100.0f;          // Far clipping plane
 
     mat_projection_init(projection_matrix, viewer_fov, aspect_ratio, near, far);
+
+    mat_mul_4x4_4x4(projection_matrix, view_matrix, combined_matrix);
+    ras_log_info("view proj matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, combined_matrix));
+
+    core_frustum_init(combined_matrix, &frustum);
+
+    ras_log_trace("frustum left plane: %s\n", repr_point3f(buffer, sizeof buffer, &frustum.planes[PLANE_LEFT].normal));
+    ras_log_trace("frustum left plane dist: %s\n", repr_fixed_16_16(buffer, sizeof buffer, frustum.planes[PLANE_LEFT].distance));
+
+    ras_log_trace("frustum right plane: %s\n", repr_point3f(buffer, sizeof buffer, &frustum.planes[PLANE_RIGHT].normal));
+    ras_log_trace("frustum right plane dist: %s\n", repr_fixed_16_16(buffer, sizeof buffer, frustum.planes[PLANE_RIGHT].distance));
 
     uint32_t* num_points = &render_state->num_points;
     uint32_t* num_commands = &render_state->num_commands;

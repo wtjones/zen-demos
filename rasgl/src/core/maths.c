@@ -137,7 +137,7 @@ void mat_mul_project(int32_t projection_matrix[4][4], int32_t v[4], int32_t dest
     ras_log_trace("after proj matrix: %s\n", repr_mat_4x1(buffer, sizeof buffer, dest));
 
     // perspective divide
-    if (dest[2] != 0) {
+    if (dest[3] != 0) {
         dest[0] = div_fixed_16_16_by_fixed_16_16(dest[0], dest[3]);
         dest[1] = div_fixed_16_16_by_fixed_16_16(dest[1], dest[3]);
         dest[2] = div_fixed_16_16_by_fixed_16_16(dest[2], dest[3]);
