@@ -4,6 +4,7 @@
 #include "fixed_maths.h"
 #include "maths.h"
 #include "matrix.h"
+#include "plane.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdbool.h>

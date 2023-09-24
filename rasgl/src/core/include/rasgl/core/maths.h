@@ -29,17 +29,14 @@ typedef struct Point3f {
     int32_t z;
 } Point3f;
 
-typedef struct Plane {
-    Point3f normal;
-    int32_t distance;
-} Plane;
-
 extern int32_t cos_table[360];
 extern int32_t sin_table[360];
 
 void init_math_lookups();
 void apply_unit_vector(Point2f* src, int angle, Point2f* dest);
 int64_t cross(Point2f* v1, Point2f* v2);
+void core_cross_product(Point3f* v1, Point3f* v2, Point3f* result);
+int32_t core_dot_product(Point3f* v1, Point3f* v2);
 void xform_to_world(
     Point2f* position,
     int32_t angle_cos,
@@ -62,6 +59,16 @@ void xform_to_screen(
     Point3f* viewer_pos,
     Point3f* source,
     Point2f* dest);
+
+/**
+ * Multiply vector by a fixed point value
+ */
+void core_mul_vec_by_fixed_16_16(Point3f* v1, int32_t f, Point3f* dest);
+
+/**
+ * Multiply vector by a vector
+ */
+void core_mul_vec_by_vec(Point3f* v1, Point3f* v2, Point3f* dest);
 
 /**
  * Inits a translation matrix by vector

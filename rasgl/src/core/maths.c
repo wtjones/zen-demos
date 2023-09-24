@@ -41,6 +41,20 @@ int64_t cross(Point2f* v1, Point2f* v2)
     return xy - yx;
 }
 
+void core_cross_product(Point3f* v1, Point3f* v2, Point3f* result)
+{
+    result->x = mul_fixed_16_16_by_fixed_16_16(v1->y, v2->z) - mul_fixed_16_16_by_fixed_16_16(v1->z, v2->y);
+    result->y = mul_fixed_16_16_by_fixed_16_16(v1->z, v2->x) - mul_fixed_16_16_by_fixed_16_16(v1->x, v2->z);
+    result->z = mul_fixed_16_16_by_fixed_16_16(v1->x, v2->y) - mul_fixed_16_16_by_fixed_16_16(v1->y, v2->x);
+}
+
+int32_t core_dot_product(Point3f* v1, Point3f* v2)
+{
+    return mul_fixed_16_16_by_fixed_16_16(v1->x, v2->x)
+        + mul_fixed_16_16_by_fixed_16_16(v1->y, v2->y)
+        + mul_fixed_16_16_by_fixed_16_16(v1->z, v2->z);
+}
+
 void xform_to_world(
     Point2f* position,
     int32_t angle_cos,
@@ -86,6 +100,20 @@ void xform_to_screen(
 
     dest->x = scale_result[0];
     dest->y = scale_result[1];
+}
+
+void core_mul_vec_by_fixed_16_16(Point3f* v1, int32_t f, Point3f* dest)
+{
+    dest->x = mul_fixed_16_16_by_fixed_16_16(v1->x, f);
+    dest->y = mul_fixed_16_16_by_fixed_16_16(v1->y, f);
+    dest->z = mul_fixed_16_16_by_fixed_16_16(v1->z, f);
+}
+
+void core_mul_vec_by_vec(Point3f* v1, Point3f* v2, Point3f* dest)
+{
+    dest->x = mul_fixed_16_16_by_fixed_16_16(v1->x, v2->x);
+    dest->y = mul_fixed_16_16_by_fixed_16_16(v1->y, v2->y);
+    dest->z = mul_fixed_16_16_by_fixed_16_16(v1->z, v2->z);
 }
 
 void mat_translate_init(int32_t m[4][4], Point3f* v)
