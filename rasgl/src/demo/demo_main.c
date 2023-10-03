@@ -41,6 +41,7 @@ float viewer_fov = 60.0f;
 
 ScreenSettings* settings;
 WorldState world_state;
+Frustum frustum;
 
 int map[MAP_ROWS][MAP_COLS] = {
     { 1, 1, 0, 1, 1 },
@@ -122,7 +123,7 @@ void xform_to_view_mode_persp_matrix(
     int32_t view_matrix[4][4];
     int32_t view_point[4];
     int32_t projected_point[4];
-    Frustum frustum;
+
     char buffer[255];
 
     int32_t angle = (viewer_angle + 180) % 360;
@@ -479,6 +480,59 @@ void render_map(RenderState* render_state)
     }
 }
 
+void render_frustum(RenderState* render_state)
+{
+    Point3f source;
+    uint32_t* num_commands = &render_state->num_commands;
+    RenderCommand* command = &render_state->commands[*num_commands];
+    uint32_t frustum_points_start = render_state->num_points;
+
+    // add points
+    source.x = frustum.points[0].x;
+    source.y = 0;
+    source.z = frustum.points[0].z;
+    push_world_point(render_state, source);
+
+    source.x = frustum.points[1].x;
+    source.y = 0;
+    source.z = frustum.points[1].z;
+    push_world_point(render_state, source);
+
+    source.x = frustum.points[2].x;
+    source.y = 0;
+    source.z = frustum.points[2].z;
+    push_world_point(render_state, source);
+
+    source.x = frustum.points[3].x;
+    source.y = 0;
+    source.z = frustum.points[3].z;
+    push_world_point(render_state, source);
+
+    // left side
+    command->num_points = 1;
+    command->point_indices[0] = frustum_points_start;
+    (*num_commands)++;
+    command = &render_state->commands[*num_commands];
+
+    // near side
+    command->num_points = 1;
+    command->point_indices[0] = frustum_points_start + 1;
+    (*num_commands)++;
+    command = &render_state->commands[*num_commands];
+
+    // right side
+    command->num_points = 1;
+    command->point_indices[0] = frustum_points_start + 2;
+    (*num_commands)++;
+    command = &render_state->commands[*num_commands];
+
+    // far side
+    command->num_points = 1;
+    command->point_indices[0] = frustum_points_start + 3;
+    (*num_commands)++;
+    command = &render_state->commands[*num_commands];
+}
+
 void render_origin(RenderState* render_state)
 {
     Point3f world_pos;
@@ -558,7 +612,9 @@ void ras_app_render(RenderState* render_state)
     render_state->num_points = 0;
     render_state->num_commands = 0;
     if (view_mode == MAP) {
+        xform_to_view(&world_state, render_state, &viewer_pos);
         render_map(render_state);
+        render_frustum(render_state);
         render_origin(render_state);
         render_viewer(render_state);
     } else {

@@ -22,7 +22,8 @@ enum {
 };
 
 typedef struct Frustum {
-    Plane planes[6];
+    Plane planes[FRUSTUM_PLANES];
+    Point3f points[FRUSTUM_PLANES];
 } Frustum;
 
 /**

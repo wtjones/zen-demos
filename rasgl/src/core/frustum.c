@@ -12,7 +12,73 @@ void core_frustum_plane_init(int32_t v[4], Plane* plane)
     plane->distance = div_fixed_16_16_by_fixed_16_16(v[3], length);
 }
 
-void core_frustum_init(int32_t view_projection_matrix[4][4], Frustum* frustum)
+/**
+ *  Performs intersection tests to find the points of the frustum 'box'.
+ * Points are ordered like this:
+ *   the top of the frustum...
+ *   0  3
+ *
+ *   1  2
+ *
+ *   bottom...
+ *   4  6
+ *
+ *   5  7
+ */
+void core_frustum_points_init(Frustum* frustum)
+{
+    // top points
+    core_get_3_plane_intersection(
+        &frustum->planes[PLANE_TOP],
+        &frustum->planes[PLANE_LEFT],
+        &frustum->planes[PLANE_FAR],
+        &frustum->points[0]);
+
+    core_get_3_plane_intersection(
+        &frustum->planes[PLANE_TOP],
+        &frustum->planes[PLANE_LEFT],
+        &frustum->planes[PLANE_NEAR],
+        &frustum->points[1]);
+
+    core_get_3_plane_intersection(
+        &frustum->planes[PLANE_TOP],
+        &frustum->planes[PLANE_RIGHT],
+        &frustum->planes[PLANE_NEAR],
+        &frustum->points[2]);
+
+    core_get_3_plane_intersection(
+        &frustum->planes[PLANE_TOP],
+        &frustum->planes[PLANE_RIGHT],
+        &frustum->planes[PLANE_FAR],
+        &frustum->points[3]);
+
+    // bottom points
+    core_get_3_plane_intersection(
+        &frustum->planes[PLANE_BOTTOM],
+        &frustum->planes[PLANE_LEFT],
+        &frustum->planes[PLANE_FAR],
+        &frustum->points[4]);
+
+    core_get_3_plane_intersection(
+        &frustum->planes[PLANE_BOTTOM],
+        &frustum->planes[PLANE_LEFT],
+        &frustum->planes[PLANE_NEAR],
+        &frustum->points[5]);
+
+    core_get_3_plane_intersection(
+        &frustum->planes[PLANE_BOTTOM],
+        &frustum->planes[PLANE_RIGHT],
+        &frustum->planes[PLANE_NEAR],
+        &frustum->points[6]);
+
+    core_get_3_plane_intersection(
+        &frustum->planes[PLANE_BOTTOM],
+        &frustum->planes[PLANE_RIGHT],
+        &frustum->planes[PLANE_FAR],
+        &frustum->points[7]);
+}
+
+void core_frustum_planes_init(int32_t view_projection_matrix[4][4], Frustum* frustum)
 {
     int32_t row0[4] = {
         view_projection_matrix[0][0],
@@ -107,4 +173,10 @@ void core_frustum_init(int32_t view_projection_matrix[4][4], Frustum* frustum)
     };
 
     core_frustum_plane_init(p6, &frustum->planes[PLANE_FAR]);
+}
+
+void core_frustum_init(int32_t view_projection_matrix[4][4], Frustum* frustum)
+{
+    core_frustum_planes_init(view_projection_matrix, frustum);
+    core_frustum_points_init(frustum);
 }

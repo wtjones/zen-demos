@@ -44,6 +44,11 @@ void render_state(RenderState* state)
             Point2i* point = &(state->points[command->point_indices[0]]);
             SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
             SDL_RenderDrawPoint(renderer, point->x, point->y);
+        } else if (command->num_points == 2) {
+            Point2i* point0 = &(state->points[command->point_indices[0]]);
+            Point2i* point1 = &(state->points[command->point_indices[1]]);
+            SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+            SDL_RenderDrawLine(renderer, point0->x, point0->y, point1->x, point1->y);
         } else if (command->num_points == 3) {
             Point2i* point0 = &(state->points[command->point_indices[0]]);
             Point2i* point1 = &(state->points[command->point_indices[1]]);
