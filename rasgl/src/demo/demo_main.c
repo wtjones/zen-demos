@@ -517,24 +517,52 @@ void render_frustum(RenderState* render_state)
     push_world_point(render_state, source);
 
     // left side
+    command->num_points = 2;
+    command->point_indices[0] = frustum_points_start;
+    command->point_indices[1] = frustum_points_start + 1;
+    (*num_commands)++;
+    command = &render_state->commands[*num_commands];
+
+    // near side
+    command->num_points = 2;
+    command->point_indices[0] = frustum_points_start + 1;
+    command->point_indices[1] = frustum_points_start + 2;
+    (*num_commands)++;
+    command = &render_state->commands[*num_commands];
+
+    // right side
+    command->num_points = 2;
+    command->point_indices[0] = frustum_points_start + 2;
+    command->point_indices[1] = frustum_points_start + 3;
+    (*num_commands)++;
+    command = &render_state->commands[*num_commands];
+
+    // far side
+    command->num_points = 2;
+    command->point_indices[0] = frustum_points_start;
+    command->point_indices[1] = frustum_points_start + 3;
+    (*num_commands)++;
+    command = &render_state->commands[*num_commands];
+
+    // top-left point
     command->num_points = 1;
     command->point_indices[0] = frustum_points_start;
     (*num_commands)++;
     command = &render_state->commands[*num_commands];
 
-    // near side
+    // near-left point
     command->num_points = 1;
     command->point_indices[0] = frustum_points_start + 1;
     (*num_commands)++;
     command = &render_state->commands[*num_commands];
 
-    // right side
+    // near-right point
     command->num_points = 1;
     command->point_indices[0] = frustum_points_start + 2;
     (*num_commands)++;
     command = &render_state->commands[*num_commands];
 
-    // far side
+    // far-right point
     command->num_points = 1;
     command->point_indices[0] = frustum_points_start + 3;
     (*num_commands)++;

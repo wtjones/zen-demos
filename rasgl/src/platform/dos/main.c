@@ -36,7 +36,11 @@ void render_state(BITMAP* buffer, RenderState* state)
         RenderCommand* command = &state->commands[i];
         if (command->num_points == 1) {
             Point2i* point = &(state->points[command->point_indices[0]]);
-            putpixel(buffer, point->x, point->y, makecol(255, 255, 255));
+            putpixel(buffer, point->x, point->y, makecol(255, 0, 255));
+        } else if (command->num_points == 2) {
+            Point2i* point0 = &(state->points[command->point_indices[0]]);
+            Point2i* point1 = &(state->points[command->point_indices[1]]);
+            line(buffer, point0->x, point0->y, point1->x, point1->y, makecol(0, 0, 255));
         } else if (command->num_points == 3) {
             Point2i* point0 = &(state->points[command->point_indices[0]]);
             Point2i* point1 = &(state->points[command->point_indices[1]]);
