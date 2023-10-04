@@ -38,6 +38,7 @@ enum {
 Point3f viewer_pos;
 int32_t viewer_angle = 180;
 float viewer_fov = 60.0f;
+bool viewer_changed = true;
 
 ScreenSettings* settings;
 WorldState world_state;
@@ -146,16 +147,19 @@ void xform_to_view_mode_persp_matrix(
     mat_projection_init(projection_matrix, viewer_fov, aspect_ratio, near, far);
 
     mat_mul_4x4_4x4(projection_matrix, view_matrix, combined_matrix);
-    ras_log_info("view proj matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, combined_matrix));
 
     core_frustum_init(combined_matrix, &frustum);
 
-    ras_log_trace("frustum left plane: %s\n", repr_point3f(buffer, sizeof buffer, &frustum.planes[PLANE_LEFT].normal));
-    ras_log_trace("frustum left plane dist: %s\n", repr_fixed_16_16(buffer, sizeof buffer, frustum.planes[PLANE_LEFT].distance));
+    if (viewer_changed) {
+        ras_log_info("view proj matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, combined_matrix));
+        ras_log_info("frustum left plane: %s\n", repr_point3f(buffer, sizeof buffer, &frustum.planes[PLANE_LEFT].normal));
+        ras_log_info("frustum left plane dist: %s\n", repr_fixed_16_16(buffer, sizeof buffer, frustum.planes[PLANE_LEFT].distance));
 
-    ras_log_trace("frustum right plane: %s\n", repr_point3f(buffer, sizeof buffer, &frustum.planes[PLANE_RIGHT].normal));
-    ras_log_trace("frustum right plane dist: %s\n", repr_fixed_16_16(buffer, sizeof buffer, frustum.planes[PLANE_RIGHT].distance));
+        ras_log_info("frustum far-left point: %s\n", repr_point3f(buffer, sizeof buffer, &frustum.points[0]));
 
+        ras_log_trace("frustum right plane: %s\n", repr_point3f(buffer, sizeof buffer, &frustum.planes[PLANE_RIGHT].normal));
+        ras_log_trace("frustum right plane dist: %s\n", repr_fixed_16_16(buffer, sizeof buffer, frustum.planes[PLANE_RIGHT].distance));
+    }
     uint32_t* num_points = &render_state->num_points;
     uint32_t* num_commands = &render_state->num_commands;
 
@@ -358,7 +362,11 @@ void ras_app_update(InputState* input_state)
         ras_log_info("FOV: %f\n", viewer_fov);
     }
 
+    viewer_changed = !cmp_point3f(&viewer_pos, &viewer_pos_prev)
+        || (viewer_angle != viewer_angle_prev);
+
     if (!cmp_point3f(&viewer_pos, &viewer_pos_prev)) {
+        viewer_changed = true;
         char buffer[100];
         ras_log_info("viewer_pos: %s\n", repr_point3f(buffer, sizeof buffer, &viewer_pos));
     }
@@ -589,13 +597,6 @@ void render_viewer(RenderState* render_state)
     world_pos.x = viewer_pos.x + (unit_vector.x * 8);
     world_pos.z = viewer_pos.z + (unit_vector.y * 8);
 
-    if (render_state->current_frame % 30 == 0) {
-        char buffer[100];
-        char buffer2[100];
-        ras_log_info("the tip: %s %s\n",
-            repr_point3f(buffer, sizeof buffer, &world_pos),
-            repr_point2f(buffer2, sizeof buffer2, &unit_vector));
-    }
     render_point(render_state, world_pos);
 
     world_pos.x = viewer_pos.x + -(unit_vector.y * 4);
