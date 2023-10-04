@@ -153,7 +153,7 @@ void mat_projection_init(int32_t projection_matrix[4][4], float fov, float aspec
     projection_matrix[0][0] = float_to_fixed_16_16(x_scale);
     projection_matrix[1][1] = float_to_fixed_16_16(-y_scale);
     projection_matrix[2][2] = float_to_fixed_16_16((far + near) / (near - far));
-    projection_matrix[2][3] = float_to_fixed_16_16((-far * near) / (near - far));
+    projection_matrix[2][3] = float_to_fixed_16_16((far * near) / (near - far));
     projection_matrix[3][2] = float_to_fixed_16_16(-1.0f);
 }
 
