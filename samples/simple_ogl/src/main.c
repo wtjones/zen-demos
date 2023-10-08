@@ -1,4 +1,8 @@
-#include <GL/glu.h>
+#ifdef __APPLE__
+#    include <OpenGL/glu.h>
+#else
+#    include <GL/glu.h>
+#endif
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 #include <stdbool.h>
@@ -53,8 +57,7 @@ int main(int argc, char* argv[])
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 
-    SDL_Window* win = SDL_CreateWindow("Simple Demo", 100, 100, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    SDL_Renderer* renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    SDL_Window* win = SDL_CreateWindow("Simple Demo", 100, 100, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 
     gl_context = SDL_GL_CreateContext(win);
 
@@ -96,7 +99,6 @@ int main(int argc, char* argv[])
         SDL_GL_SwapWindow(win);
     }
 
-    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(win);
 
     SDL_Quit();
