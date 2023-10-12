@@ -2,6 +2,7 @@
 #include "rasgl/core/fixed_maths.h"
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/matrix.h"
+#include "rasgl/core/matrix_projection.h"
 #include "rasgl/core/plane.h"
 #include "rasgl/core/repr.h"
 #include <assert.h>
@@ -67,6 +68,23 @@ void mat_mul_4_tests()
 
     mat_mul_4x4_4x4(m1, m2, dest);
     ras_log_info("Result of 4x4 x 4x4: %s\n", repr_mat_4x4(buffer, sizeof buffer, dest));
+}
+
+void mat_ortho_tests()
+{
+    char buffer[1000];
+    int32_t matrix[4][4];
+
+    mat_ortho_init(
+        matrix,
+        -INT_32_TO_FIXED_16_16(1),
+        INT_32_TO_FIXED_16_16(1),
+        -INT_32_TO_FIXED_16_16(1),
+        INT_32_TO_FIXED_16_16(1),
+        -INT_32_TO_FIXED_16_16(1),
+        INT_32_TO_FIXED_16_16(1));
+
+    ras_log_info("Ortho matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, matrix));
 }
 
 void mat_projection_tests()
@@ -326,5 +344,6 @@ int main()
     cross_product_tests();
     dot_product_tests();
     plane_tests();
+    mat_ortho_tests();
     return 0;
 }
