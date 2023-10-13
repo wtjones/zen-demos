@@ -74,7 +74,8 @@ void mat_ortho_tests()
 {
     char buffer[1000];
     int32_t matrix[4][4];
-
+    int32_t projected_point[4];
+    Point2i screen_point;
     mat_ortho_init(
         matrix,
         -INT_32_TO_FIXED_16_16(1),
@@ -85,6 +86,18 @@ void mat_ortho_tests()
         INT_32_TO_FIXED_16_16(1));
 
     ras_log_info("Ortho matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, matrix));
+
+    int32_t v[4] = {
+        -float_to_fixed_16_16(0.5),
+        float_to_fixed_16_16(0.5),
+        -float_to_fixed_16_16(0.5),
+        float_to_fixed_16_16(1.0)
+    };
+    mat_mul_project(matrix, v, projected_point);
+    ras_log_info("Ortho projected: %s\n", repr_mat_4x1(buffer, sizeof buffer, projected_point));
+
+    projected_to_screen_point(100, 100, projected_point, &screen_point);
+    ras_log_info("Ortho screen: %s\n", repr_point2i(buffer, sizeof buffer, &screen_point));
 }
 
 void mat_projection_tests()

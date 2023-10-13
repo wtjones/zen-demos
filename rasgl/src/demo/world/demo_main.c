@@ -187,13 +187,7 @@ void xform_to_view_mode_persp_matrix(
             RenderCommand* command = &render_state->commands[*num_commands];
             Point2i* screen_point = &render_state->points[*num_points];
 
-            int32_t half_screen_width = INT_32_TO_FIXED_16_16(settings->screen_width / 2);
-            int32_t half_screen_height = INT_32_TO_FIXED_16_16(settings->screen_height / 2);
-
-            screen_point->x = FIXED_16_16_TO_INT_32(
-                mul_fixed_16_16_by_fixed_16_16(half_screen_width, projected_point[0]) + half_screen_width);
-            screen_point->y = FIXED_16_16_TO_INT_32(
-                mul_fixed_16_16_by_fixed_16_16(half_screen_height, projected_point[1]) + half_screen_height);
+            projected_to_screen_point(settings->screen_width, settings->screen_height, projected_point, screen_point);
 
             ras_log_trace("screen point: %s\n", repr_point2i(buffer, sizeof buffer, screen_point));
 
