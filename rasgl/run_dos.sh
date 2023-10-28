@@ -3,7 +3,7 @@
 set -euo pipefail
 
 DEMO=${1:-world}
-DEBUG=${1:-0}
+DEBUG=${2:-0}
 
 main() {
 
