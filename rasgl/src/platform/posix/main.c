@@ -10,7 +10,7 @@
 ScreenSettings plat_settings = { .screen_width = 320, .screen_height = 240 };
 SDL_Renderer* renderer;
 
-RenderState state = { .num_commands = 0, .num_points = 0, .current_frame = 0 };
+RenderState state = { .num_commands = 0, .num_points = 0, .current_frame = 0, .max_frames = UINT32_MAX };
 InputState plat_input_state;
 
 void map_input()
@@ -108,13 +108,15 @@ int main(int argc, const char** argv)
             }
         }
 
-        ras_app_update(&plat_input_state);
-        ras_app_render(&state);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-        SDL_RenderClear(renderer);
-        render_state(&state);
+        if (state.max_frames == UINT32_MAX || state.current_frame < state.max_frames) {
+            ras_app_update(&plat_input_state);
+            ras_app_render(&state);
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+            SDL_RenderClear(renderer);
+            render_state(&state);
 
-        SDL_RenderPresent(renderer);
+            SDL_RenderPresent(renderer);
+        }
 
         while (SDL_GetTicks() - last_frame < 1000 / 60) {
         }

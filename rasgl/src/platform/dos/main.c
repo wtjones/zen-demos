@@ -7,7 +7,7 @@
 
 ScreenSettings plat_settings = { .screen_width = 320, .screen_height = 240 };
 
-RenderState state = { .num_commands = 0, .num_points = 0, .current_frame = 0 };
+RenderState state = { .num_commands = 0, .num_points = 0, .current_frame = 0, .max_frames = UINT32_MAX };
 InputState plat_input_state;
 
 void map_input()
@@ -85,12 +85,14 @@ int main(int argc, const char** argv)
 
     while (!key[KEY_ESC]) {
         map_input();
-        ras_app_update(&plat_input_state);
-        ras_app_render(&state);
+        if (state.max_frames == UINT32_MAX || state.current_frame < state.max_frames) {
+            ras_app_update(&plat_input_state);
+            ras_app_render(&state);
 
-        clear_to_color(buffer, makecol(0, 0, 0));
+            clear_to_color(buffer, makecol(0, 0, 0));
 
-        render_state(buffer, &state);
+            render_state(buffer, &state);
+        }
 
         textprintf_ex(buffer, font, 0, 0, makecol(255, 255, 255), -1,
             "Double buffered (%s)", gfx_driver->name);

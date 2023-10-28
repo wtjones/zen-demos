@@ -25,6 +25,8 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
 
 void ras_app_render(RenderState* render_state)
 {
+    render_state->max_frames = 1; // render single frame
+
     Point3f vertex_buffer[] = {
         { float_to_fixed_16_16(-0.5), float_to_fixed_16_16(-0.5), float_to_fixed_16_16(1.0) },
         { float_to_fixed_16_16(0.5), float_to_fixed_16_16(-0.5), float_to_fixed_16_16(1.0) },
