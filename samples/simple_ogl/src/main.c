@@ -12,16 +12,52 @@
 
 SDL_GLContext gl_context;
 
+char* repr_mat_4x4(char* buffer, size_t count, float s[16])
+{
+    char matrix_buffer[255];
+    buffer[0] = '\0';
+    strcat(buffer, "[");
+
+    for (int i = 0; i < 16; i++) {
+        // strcat(buffer, "\n[");
+
+        snprintf(
+            matrix_buffer,
+            sizeof matrix_buffer,
+            "%12.5f",
+            s[i]);
+
+        strcat(buffer, matrix_buffer);
+        strcat(buffer, ", ");
+
+        if ((i + 1) % 4 == 0) {
+
+            strcat(buffer, "]");
+            strcat(buffer, "\n[");
+        }
+    }
+
+    strcat(buffer, "]");
+    return buffer;
+}
+
 bool init_gl()
 {
     GLenum error = GL_NO_ERROR;
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+    glOrtho(-100.0, 10.0, -10.0, 10.0, -10.5, 10.0);
 
     glClearColor(0.f, 0.f, 0.f, 1.f);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
+    GLfloat proj[16];
+    glGetFloatv(GL_PROJECTION_MATRIX, proj);
+
+    char buffer[500];
+    printf("%s\n", repr_mat_4x4(buffer, sizeof(buffer), proj));
 
     error = glGetError();
     if (error != GL_NO_ERROR) {
