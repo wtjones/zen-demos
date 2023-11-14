@@ -34,6 +34,19 @@ char* repr_point3f(char* buffer, size_t count, Point3f* p)
     return buffer;
 }
 
+char* repr_vector4f(char* buffer, size_t count, RasVector4f* p)
+{
+    snprintf(
+        buffer,
+        count,
+        "[x: %f, y: %f, z: %f, w: %f]",
+        fixed_16_16_to_float(p->x),
+        fixed_16_16_to_float(p->y),
+        fixed_16_16_to_float(p->z),
+        fixed_16_16_to_float(p->w));
+    return buffer;
+}
+
 char* repr_fixed_16_16(char* buffer, size_t count, int32_t f)
 {
     snprintf(

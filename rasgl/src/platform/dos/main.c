@@ -6,8 +6,13 @@
 #include <allegro.h>
 
 ScreenSettings plat_settings = { .screen_width = 320, .screen_height = 240 };
-
-RenderState state = { .num_commands = 0, .num_points = 0, .current_frame = 0, .max_frames = UINT32_MAX };
+RenderState state = {
+    .num_commands = 0,
+    .num_points = 0,
+    .num_pipeline_verts = 0,
+    .current_frame = 0,
+    .max_frames = UINT32_MAX
+};
 InputState plat_input_state;
 
 void map_input()
@@ -32,6 +37,35 @@ void map_input()
 
 void render_state(BITMAP* buffer, RenderState* state)
 {
+    RasVector4f* sv;
+    uint32_t i = 0;
+    while (i < state->num_visible_indexes) {
+        RasPipelineVertex* pv0 = &state->pipeline_verts[state->visible_indexes[i++]];
+        sv = &pv0->screen_space_position;
+        Point2i point0 = {
+            .x = FIXED_16_16_TO_INT_32(sv->x),
+            .y = FIXED_16_16_TO_INT_32(sv->y)
+        };
+
+        RasPipelineVertex* pv1 = &state->pipeline_verts[state->visible_indexes[i++]];
+        sv = &pv1->screen_space_position;
+        Point2i point1 = {
+            .x = FIXED_16_16_TO_INT_32(sv->x),
+            .y = FIXED_16_16_TO_INT_32(sv->y)
+        };
+
+        RasPipelineVertex* pv2 = &state->pipeline_verts[state->visible_indexes[i++]];
+        sv = &pv2->screen_space_position;
+        Point2i point2 = {
+            .x = FIXED_16_16_TO_INT_32(sv->x),
+            .y = FIXED_16_16_TO_INT_32(sv->y)
+        };
+
+        line(buffer, point0.x, point0.y, point1.x, point1.y, makecol(0, 0, 255));
+        line(buffer, point1.x, point1.y, point2.x, point2.y, makecol(0, 255, 0));
+        line(buffer, point2.x, point2.y, point0.x, point0.y, makecol(255, 0, 0));
+    }
+
     for (size_t i = 0; i < state->num_commands; i++) {
         RenderCommand* command = &state->commands[i];
         if (command->num_points == 1) {
@@ -87,10 +121,11 @@ int main(int argc, const char** argv)
         map_input();
         if (state.max_frames == UINT32_MAX || state.current_frame < state.max_frames) {
             ras_app_update(&plat_input_state);
+            state.screen_settings.screen_width = plat_settings.screen_width;
+            state.screen_settings.screen_height = plat_settings.screen_height;
             ras_app_render(&state);
 
             clear_to_color(buffer, makecol(0, 0, 0));
-
             render_state(buffer, &state);
         }
 

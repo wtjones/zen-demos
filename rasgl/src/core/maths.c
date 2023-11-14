@@ -193,6 +193,21 @@ void core_normalize(Point3f* vec)
     vec->z = div_fixed_16_16_by_fixed_16_16(vec->z, length);
 }
 
+void core_vector3f_to_4x1(RasVector3f* vec, int32_t m[4])
+{
+    m[0] = vec->x;
+    m[1] = vec->y;
+    m[2] = vec->z;
+    m[3] = INT_32_TO_FIXED_16_16(1);
+}
+
+void core_4x1_to_vector3f(int32_t m[4], RasVector3f* vec)
+{
+    vec->x = m[0];
+    vec->y = m[1];
+    vec->z = m[2];
+}
+
 bool cmp_point3f(Point3f* p1, Point3f* p2)
 {
     return p1->x == p2->x && p1->y == p2->y && p1->z == p2->z;

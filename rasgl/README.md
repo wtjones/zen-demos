@@ -125,3 +125,7 @@ run_dos.sh 1
 
 * [log.c](https://github.com/rxi/log.c)
 * [fpsqrt](https://github.com/chmike/fpsqrt)
+
+## References
+
+* [How to write a (software) 3d polygon pipeline](https://www.cbloom.com/3d/techdocs/pipeline.txt)
