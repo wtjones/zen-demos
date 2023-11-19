@@ -41,6 +41,24 @@ p0-------p1-------p2
 p6-------p7-------p8
 ```
 
+## Coordinate system
+
+A [right-handed system](https://learnopengl.com/Getting-started/Coordinate-Systems) is used.
+
+```
+            +Y
+            |
+            |     -Z
+            |   /
+            | /
+-X ------------------- +X
+           /|
+         /  |
+       /    |
+    +Z      |
+           -Y
+```
+
 ## Build and Run
 
 ## Posix/SDL
