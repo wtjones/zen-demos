@@ -15,7 +15,8 @@ RenderState state = {
     .num_points = 0,
     .num_pipeline_verts = 0,
     .current_frame = 0,
-    .max_frames = UINT32_MAX
+    .max_frames = UINT32_MAX,
+    .projection_mode = RAS_PERSPECTIVE_MATRIX
 };
 InputState plat_input_state;
 
@@ -26,12 +27,17 @@ void map_input()
     for (int i = 0; i < RAS_MAX_KEYS; i++) {
         plat_input_state.keys[i] = 0;
     }
+    plat_input_state.keys[RAS_KEY_UP] = keys[SDL_SCANCODE_UP];
+    plat_input_state.keys[RAS_KEY_DOWN] = keys[SDL_SCANCODE_DOWN];
+    plat_input_state.keys[RAS_KEY_LEFT] = keys[SDL_SCANCODE_LEFT];
+    plat_input_state.keys[RAS_KEY_RIGHT] = keys[SDL_SCANCODE_RIGHT];
     plat_input_state.keys[RAS_KEY_W] = keys[SDL_SCANCODE_W];
     plat_input_state.keys[RAS_KEY_A] = keys[SDL_SCANCODE_A];
     plat_input_state.keys[RAS_KEY_S] = keys[SDL_SCANCODE_S];
     plat_input_state.keys[RAS_KEY_D] = keys[SDL_SCANCODE_D];
     plat_input_state.keys[RAS_KEY_Q] = keys[SDL_SCANCODE_Q];
     plat_input_state.keys[RAS_KEY_E] = keys[SDL_SCANCODE_E];
+    plat_input_state.keys[RAS_KEY_P] = keys[SDL_SCANCODE_P];
     plat_input_state.keys[RAS_KEY_EQUALS] = keys[SDL_SCANCODE_EQUALS];
     plat_input_state.keys[RAS_KEY_MINUS] = keys[SDL_SCANCODE_MINUS];
     plat_input_state.keys[RAS_KEY_ESCAPE] = keys[SDL_SCANCODE_ESCAPE];
@@ -147,6 +153,7 @@ int main(int argc, const char** argv)
         }
 
         if (state.max_frames == UINT32_MAX || state.current_frame < state.max_frames) {
+            ras_core_update(&plat_input_state, &state);
             ras_app_update(&plat_input_state);
             state.screen_settings.screen_width = plat_settings.screen_width;
             state.screen_settings.screen_height = plat_settings.screen_height;

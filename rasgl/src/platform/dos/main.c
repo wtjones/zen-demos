@@ -11,7 +11,8 @@ RenderState state = {
     .num_points = 0,
     .num_pipeline_verts = 0,
     .current_frame = 0,
-    .max_frames = UINT32_MAX
+    .max_frames = UINT32_MAX,
+    .projection_mode = RAS_PERSPECTIVE_MATRIX
 };
 InputState plat_input_state;
 
@@ -26,9 +27,12 @@ void map_input()
     plat_input_state.keys[RAS_KEY_D] = key[KEY_D] ? 1 : 0;
     plat_input_state.keys[RAS_KEY_Q] = key[KEY_Q] ? 1 : 0;
     plat_input_state.keys[RAS_KEY_E] = key[KEY_E] ? 1 : 0;
+    plat_input_state.keys[RAS_KEY_P] = key[KEY_P] ? 1 : 0;
     plat_input_state.keys[RAS_KEY_EQUALS] = key[KEY_EQUALS] ? 1 : 0;
     plat_input_state.keys[RAS_KEY_MINUS] = key[KEY_MINUS] ? 1 : 0;
     plat_input_state.keys[RAS_KEY_ESCAPE] = key[KEY_ESC] ? 1 : 0;
+    plat_input_state.keys[RAS_KEY_DOWN] = key[KEY_DOWN] ? 1 : 0;
+    plat_input_state.keys[RAS_KEY_UP] = key[KEY_UP] ? 1 : 0;
     plat_input_state.keys[RAS_KEY_LEFT] = key[KEY_LEFT] ? 1 : 0;
     plat_input_state.keys[RAS_KEY_RIGHT] = key[KEY_RIGHT] ? 1 : 0;
     // FIXME: need keyup event
@@ -120,6 +124,7 @@ int main(int argc, const char** argv)
     while (!key[KEY_ESC]) {
         map_input();
         if (state.max_frames == UINT32_MAX || state.current_frame < state.max_frames) {
+            ras_core_update(&plat_input_state, &state);
             ras_app_update(&plat_input_state);
             state.screen_settings.screen_width = plat_settings.screen_width;
             state.screen_settings.screen_height = plat_settings.screen_height;

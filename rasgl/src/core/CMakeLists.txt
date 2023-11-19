@@ -1,4 +1,5 @@
 add_library(core
+    app.c
     frustum.c
     graphics.c
     maths.c

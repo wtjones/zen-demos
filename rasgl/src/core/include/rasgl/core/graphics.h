@@ -19,6 +19,12 @@ typedef enum {
     RAS_PRIMATIVE_TRIANGLES
 } RasPrimativeType;
 
+typedef enum {
+    RAS_PERSPECTIVE_MATRIX,
+    RAS_PERSPECTIVE_ALT,
+    RAS_ORTHO_MATRIX
+} RasProjectionMode;
+
 typedef struct ScreenSettings {
     uint32_t screen_width;
     uint32_t screen_height;
@@ -63,6 +69,7 @@ typedef struct RenderState {
     uint32_t current_frame;
     uint32_t max_frames;
     ScreenSettings screen_settings;
+    RasProjectionMode projection_mode;
 } RenderState;
 
 /**

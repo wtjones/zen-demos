@@ -117,7 +117,7 @@ void core_draw_elements(
         ras_log_trace("pipeline view space pos: %s\n", repr_point3f(buffer, sizeof buffer, &pv->view_space_position));
 
         // Screen space in NDC coords
-        mat_mul_project(combined_matrix, view_space_position, projected_vec);
+        mat_mul_project(proj_matrix, view_space_position, projected_vec);
 
         core_projected_to_screen_point(
             render_state->screen_settings.screen_width,

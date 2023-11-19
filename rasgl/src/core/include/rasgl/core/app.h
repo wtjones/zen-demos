@@ -9,4 +9,9 @@ void ras_app_update(InputState*);
 void ras_app_render(RenderState*);
 void app_main();
 
+/**
+ * Handle common key bindings
+ */
+void ras_core_update(InputState* input_state, RenderState* state);
+
 #endif

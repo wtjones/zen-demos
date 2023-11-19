@@ -79,10 +79,14 @@ void core_mul_vec_by_fixed_16_16(Point3f* v1, int32_t f, Point3f* dest);
  */
 void core_mul_vec_by_vec(Point3f* v1, Point3f* v2, Point3f* dest);
 
+void core_translate_apply(int32_t m[4][4], Point3f* v);
+
 /**
  * Inits a translation matrix by vector
  */
-void mat_translate_init(int32_t m[4][4], Point3f* v);
+void core_translate_init(int32_t m[4][4], Point3f* v);
+
+void core_rotate_y_apply(int32_t m[4][4], int32_t angle);
 
 /**
  * Rotate given matrix by angle and store in dest

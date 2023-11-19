@@ -134,7 +134,7 @@ void xform_to_view_mode_persp_matrix(
 
     // Combine world to viewer translate and rotate operations
     Point3f trans_pos = { -viewer_pos->x, -viewer_pos->y, -viewer_pos->z };
-    mat_translate_init(translate_to_viewer, &trans_pos);
+    core_translate_init(translate_to_viewer, &trans_pos);
     mat_rotate_y(translate_to_viewer, angle, view_matrix);
 
     int32_t projection_matrix[4][4];
@@ -213,7 +213,7 @@ void xform_to_view_mode_persp_alt(WorldState* world_state, RenderState* render_s
 
     // Combine world to viewer translate and rotate operations
     Point3f trans_pos = { -viewer_pos->x, -viewer_pos->y, -viewer_pos->z };
-    mat_translate_init(translate_to_viewer, &trans_pos);
+    core_translate_init(translate_to_viewer, &trans_pos);
     mat_rotate_y(translate_to_viewer, angle, view_matrix);
 
     uint32_t* num_points = &render_state->num_points;

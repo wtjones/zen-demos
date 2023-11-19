@@ -116,25 +116,35 @@ void core_mul_vec_by_vec(Point3f* v1, Point3f* v2, Point3f* dest)
     dest->z = mul_fixed_16_16_by_fixed_16_16(v1->z, v2->z);
 }
 
-void mat_translate_init(int32_t m[4][4], Point3f* v)
+void core_translate_apply(int32_t m[4][4], Point3f* v)
 {
-    mat_set_identity_4x4(m);
     m[0][3] = v->x;
     m[1][3] = v->y;
     m[2][3] = v->z;
+}
+
+void core_translate_init(int32_t m[4][4], Point3f* v)
+{
+    mat_set_identity_4x4(m);
+    core_translate_apply(m, v);
+}
+
+void core_rotate_y_apply(int32_t m[4][4], int32_t angle)
+{
+    int32_t c = cos_table[angle];
+    int32_t s = sin_table[angle];
+
+    m[0][0] = c;
+    m[0][2] = s;
+    m[2][0] = -s;
+    m[2][2] = c;
 }
 
 void mat_rotate_y(int32_t m[4][4], int32_t angle, int32_t dest[4][4])
 {
     int32_t temp[4][4];
     mat_set_identity_4x4(temp);
-    int32_t c = cos_table[angle];
-    int32_t s = sin_table[angle];
-
-    temp[0][0] = c;
-    temp[0][2] = s;
-    temp[2][0] = -s;
-    temp[2][2] = c;
+    core_rotate_y_apply(temp, angle);
     mat_mul_4x4_4x4(temp, m, dest);
 }
 

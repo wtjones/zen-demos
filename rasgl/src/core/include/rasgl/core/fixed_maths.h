@@ -36,6 +36,8 @@ static inline int32_t div_fixed_16_16_by_fixed_16_16(int32_t f1, int32_t f2)
     int64_t result = ((int64_t)f1 << 32) / ((int64_t)f2 << 16);
     return result;
 }
+#define RAS_FLOAT_TO_FIXED(n) \
+    (int32_t) n * 65536 + ((n - (float)((int32_t)n)) * 65536)
 
 static inline int32_t float_to_fixed_16_16(float n)
 {
