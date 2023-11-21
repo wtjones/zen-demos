@@ -81,20 +81,47 @@ void ras_app_render(RenderState* render_state)
 {
     char buffer[500];
 
+    //     6- - - - -  7
+    //    /|          /|
+    // 2/ -|- - - -3/  |
+    // |   |       |   |
+    // |   |       |   |
+    // |   4- - - -| - 5
+    // |  /        |  /
+    // 0/ - - - - -1/
+
+    // front
     // 2 ------ 3
     // |  \     |
     // |     \  |
     // 0 -------1
+    // back
+    // 7 ------ 6
+    // |  \     |
+    // |     \  |
+    // 5 -------4
+
     RasVertex vertex_buffer[] = {
-        { .position = { float_to_fixed_16_16(-0.5), float_to_fixed_16_16(-0.5), float_to_fixed_16_16(0.0) } },
-        { .position = { float_to_fixed_16_16(0.5), float_to_fixed_16_16(-0.5), float_to_fixed_16_16(0.0) } },
-        { .position = { float_to_fixed_16_16(-0.5), float_to_fixed_16_16(0.5), float_to_fixed_16_16(0.0) } },
-        { .position = { float_to_fixed_16_16(0.5), float_to_fixed_16_16(0.5), float_to_fixed_16_16(0.0) } }
+        { .position = { float_to_fixed_16_16(-0.5), float_to_fixed_16_16(-0.5), float_to_fixed_16_16(0.5) } },
+        { .position = { float_to_fixed_16_16(0.5), float_to_fixed_16_16(-0.5), float_to_fixed_16_16(0.5) } },
+        { .position = { float_to_fixed_16_16(-0.5), float_to_fixed_16_16(0.5), float_to_fixed_16_16(0.5) } },
+        { .position = { float_to_fixed_16_16(0.5), float_to_fixed_16_16(0.5), float_to_fixed_16_16(0.5) } },
+        { .position = { float_to_fixed_16_16(-0.5), float_to_fixed_16_16(-0.5), -float_to_fixed_16_16(0.5) } },
+        { .position = { float_to_fixed_16_16(0.5), float_to_fixed_16_16(-0.5), -float_to_fixed_16_16(0.5) } },
+        { .position = { float_to_fixed_16_16(-0.5), float_to_fixed_16_16(0.5), -float_to_fixed_16_16(0.5) } },
+        { .position = { float_to_fixed_16_16(0.5), float_to_fixed_16_16(0.5), -float_to_fixed_16_16(0.5) } }
     };
 
-    uint32_t num_verts = 4;
-    uint32_t element_indexes[] = { 0, 1, 2, 2, 1, 3 };
-    uint32_t num_indexes = 6;
+    uint32_t num_verts = 8;
+    uint32_t element_indexes[] = {
+        0, 2, 1, 1, 2, 3, // front
+        4, 5, 7, 4, 7, 6, // back
+        5, 1, 3, 5, 3, 7, // right
+        4, 6, 0, 0, 6, 2, // left
+        6, 3, 2, 6, 7, 3, // top
+        0, 5, 4, 0, 1, 5  // bottom
+    };
+    uint32_t num_indexes = 36;
 
     int32_t model_world_matrix[4][4];
     int32_t world_view_matrix[4][4];
