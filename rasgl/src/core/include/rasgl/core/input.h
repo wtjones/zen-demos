@@ -18,6 +18,7 @@
 #define RAS_KEY_P 14
 #define RAS_KEY_LEFTBRACKET 15
 #define RAS_KEY_RIGHTBRACKET 16
+#define RAS_KEY_B 17
 
 #define RAS_MAX_KEYS 255
 

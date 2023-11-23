@@ -68,6 +68,28 @@ void projected_to_screen_point(int32_t screen_width, int32_t screen_height, int3
         mul_fixed_16_16_by_fixed_16_16(half_screen_height, projected_point[1]) + half_screen_height);
 }
 
+/**
+ * Determine if poly is backfacing based on the normal's angle to the viewer
+ * in screen space. Assumes vertices are clockwise.
+ * Based on https://github.com/wtjones/qbasic/blob/master/POLY3D.BAS
+ */
+bool core_is_backface(RasPipelineVertex* pipeline_verts, uint32_t indexes[3])
+{
+    RasPipelineVertex* pv0 = &pipeline_verts[indexes[0]];
+    RasVector4f* sv0 = &pv0->screen_space_position;
+    RasPipelineVertex* pv1 = &pipeline_verts[indexes[1]];
+    RasVector4f* sv1 = &pv1->screen_space_position;
+    RasPipelineVertex* pv2 = &pipeline_verts[indexes[2]];
+    RasVector4f* sv2 = &pv2->screen_space_position;
+
+    // norm1 = (1.x - 0.x) * (0.y - 2.y)
+    // norm2 = (1.y - 0.y) * (0.x - 2.x)
+    int32_t norm1 = mul_fixed_16_16_by_fixed_16_16(sv1->x - sv0->x, sv0->y - sv2->y);
+    int32_t norm2 = mul_fixed_16_16_by_fixed_16_16(sv1->y - sv0->y, sv0->x - sv2->x);
+    int32_t norm = norm1 - norm2;
+    return (norm1 - norm2 > 0);
+}
+
 void core_projected_to_screen_point(int32_t screen_width, int32_t screen_height, int32_t projected_point[4], RasVector4f* screen_point)
 {
 
@@ -134,9 +156,35 @@ void core_draw_elements(
         render_state->num_pipeline_verts++;
     }
 
-    // No clipping yet, so just copy the indexes.
-    for (int i = 0; i < num_indexes; i++) {
-        render_state->visible_indexes[i] = indexes[i];
+    render_state->num_visible_indexes = 0;
+    uint32_t vi = 0;
+    for (uint32_t i = 0; i < num_indexes; i += 3) {
+        bool is_visible = (!core_is_backface(render_state->pipeline_verts, &indexes[i]))
+            || render_state->backface_culling_mode == RAS_BACKFACE_CULLING_OFF;
+        if (is_visible) {
+            render_state->visible_indexes[vi] = indexes[i];
+            render_state->visible_indexes[vi + 1] = indexes[i + 1];
+            render_state->visible_indexes[vi + 2] = indexes[i + 2];
+            render_state->num_visible_indexes += 3;
+            vi += 3;
+        }
     }
-    render_state->num_visible_indexes = num_indexes;
+}
+
+void core_renderstate_init(RenderState* state)
+{
+    state->num_commands = 0;
+    state->num_points = 0;
+    state->num_pipeline_verts = 0;
+    state->current_frame = 0;
+    state->max_frames = UINT32_MAX;
+    state->projection_mode = RAS_PERSPECTIVE_MATRIX;
+    state->backface_culling_mode = RAS_BACKFACE_CULLING_ON;
+};
+
+void core_renderstate_clear(RenderState* state)
+{
+    state->num_visible_indexes = 0;
+    state->num_commands = 0;
+    state->num_points = 0;
 }

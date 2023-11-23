@@ -6,14 +6,7 @@
 #include <allegro.h>
 
 ScreenSettings plat_settings = { .screen_width = 320, .screen_height = 240 };
-RenderState state = {
-    .num_commands = 0,
-    .num_points = 0,
-    .num_pipeline_verts = 0,
-    .current_frame = 0,
-    .max_frames = UINT32_MAX,
-    .projection_mode = RAS_PERSPECTIVE_MATRIX
-};
+RenderState state;
 InputState plat_input_state;
 
 void map_input()
@@ -28,6 +21,7 @@ void map_input()
     plat_input_state.keys[RAS_KEY_Q] = key[KEY_Q] ? 1 : 0;
     plat_input_state.keys[RAS_KEY_E] = key[KEY_E] ? 1 : 0;
     plat_input_state.keys[RAS_KEY_P] = key[KEY_P] ? 1 : 0;
+    plat_input_state.keys[RAS_KEY_B] = key[KEY_B] ? 1 : 0;
     plat_input_state.keys[RAS_KEY_EQUALS] = key[KEY_EQUALS] ? 1 : 0;
     plat_input_state.keys[RAS_KEY_MINUS] = key[KEY_MINUS] ? 1 : 0;
     plat_input_state.keys[RAS_KEY_ESCAPE] = key[KEY_ESC] ? 1 : 0;
@@ -117,6 +111,7 @@ int main(int argc, const char** argv)
     buffer = create_bitmap(SCREEN_W, SCREEN_H);
 
     ras_app_init(argc, argv, &plat_settings);
+    core_renderstate_init(&state);
 
     set_palette(desktop_palette);
     clear_keybuf();
@@ -128,6 +123,7 @@ int main(int argc, const char** argv)
             ras_app_update(&plat_input_state);
             state.screen_settings.screen_width = plat_settings.screen_width;
             state.screen_settings.screen_height = plat_settings.screen_height;
+            core_renderstate_clear(&state);
             ras_app_render(&state);
 
             clear_to_color(buffer, makecol(0, 0, 0));

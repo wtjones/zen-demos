@@ -10,14 +10,7 @@
 ScreenSettings plat_settings = { .screen_width = 320, .screen_height = 240 };
 SDL_Renderer* renderer;
 
-RenderState state = {
-    .num_commands = 0,
-    .num_points = 0,
-    .num_pipeline_verts = 0,
-    .current_frame = 0,
-    .max_frames = UINT32_MAX,
-    .projection_mode = RAS_PERSPECTIVE_MATRIX
-};
+RenderState state;
 InputState plat_input_state;
 
 void map_input()
@@ -38,6 +31,7 @@ void map_input()
     plat_input_state.keys[RAS_KEY_Q] = keys[SDL_SCANCODE_Q];
     plat_input_state.keys[RAS_KEY_E] = keys[SDL_SCANCODE_E];
     plat_input_state.keys[RAS_KEY_P] = keys[SDL_SCANCODE_P];
+    plat_input_state.keys[RAS_KEY_B] = keys[SDL_SCANCODE_B];
     plat_input_state.keys[RAS_KEY_EQUALS] = keys[SDL_SCANCODE_EQUALS];
     plat_input_state.keys[RAS_KEY_MINUS] = keys[SDL_SCANCODE_MINUS];
     plat_input_state.keys[RAS_KEY_ESCAPE] = keys[SDL_SCANCODE_ESCAPE];
@@ -134,6 +128,7 @@ int main(int argc, const char** argv)
 
     SDL_RenderSetLogicalSize(renderer, 320, 240);
     ras_app_init(argc, argv, &plat_settings);
+    core_renderstate_init(&state);
 
     int last_frame = SDL_GetTicks();
     while (!should_quit) {
@@ -157,6 +152,7 @@ int main(int argc, const char** argv)
             ras_app_update(&plat_input_state);
             state.screen_settings.screen_width = plat_settings.screen_width;
             state.screen_settings.screen_height = plat_settings.screen_height;
+            core_renderstate_clear(&state);
             ras_app_render(&state);
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
             SDL_RenderClear(renderer);

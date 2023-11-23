@@ -25,6 +25,11 @@ typedef enum {
     RAS_ORTHO_MATRIX
 } RasProjectionMode;
 
+typedef enum {
+    RAS_BACKFACE_CULLING_ON,
+    RAS_BACKFACE_CULLING_OFF,
+} RasBackfaceCullingMode;
+
 typedef struct ScreenSettings {
     uint32_t screen_width;
     uint32_t screen_height;
@@ -70,6 +75,7 @@ typedef struct RenderState {
     uint32_t max_frames;
     ScreenSettings screen_settings;
     RasProjectionMode projection_mode;
+    RasBackfaceCullingMode backface_culling_mode;
 } RenderState;
 
 /**
@@ -91,5 +97,15 @@ void core_draw_elements(
     int32_t model_world_matrix[4][4],
     int32_t model_view_matrix[4][4],
     int32_t proj_matrix[4][4]);
+
+/**
+ * Set sensible defaults
+ */
+void core_renderstate_init(RenderState* state);
+
+/**
+ * Clear index buffers buffers
+ */
+void core_renderstate_clear(RenderState* state);
 
 #endif
