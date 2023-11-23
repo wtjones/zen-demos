@@ -52,7 +52,9 @@ void ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
 
 void ras_app_update(__attribute__((unused)) InputState* input_state)
 {
-    char buffer[255];
+    Point3f model_pos_prev;
+    memcpy(&model_pos_prev, &model_pos, sizeof model_pos);
+
     if (input_state->keys[RAS_KEY_UP] == 1) {
 
         model_pos.z -= delta.z;
@@ -67,11 +69,15 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
     if (input_state->keys[RAS_KEY_RIGHT] == 1) {
         model_pos.x += delta.x;
     }
-    ras_log_info("model_pos: %s", repr_point3f(buffer, sizeof(buffer), &model_pos));
 
     model_rotation_y = (model_rotation_y + delta_rotation) % 360;
     if (model_rotation_y < 0) {
         model_rotation_y += 360;
+    }
+
+    if (!cmp_point3f(&model_pos, &model_pos_prev)) {
+        char buffer[100];
+        ras_log_info("model_pos: %s", repr_point3f(buffer, sizeof(buffer), &model_pos));
     }
 
     counter++;
