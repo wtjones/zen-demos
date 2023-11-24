@@ -129,6 +129,7 @@ int main(int argc, const char** argv)
     SDL_RenderSetLogicalSize(renderer, 320, 240);
     ras_app_init(argc, argv, &plat_settings);
     core_renderstate_init(&state);
+    core_input_init(&plat_input_state);
 
     int last_frame = SDL_GetTicks();
     while (!should_quit) {
@@ -142,8 +143,15 @@ int main(int argc, const char** argv)
                 break;
             case SDL_KEYUP:
                 should_quit = event.key.keysym.scancode == SDL_SCANCODE_ESCAPE;
-                plat_input_state.keys[RAS_KEY_TAB] = event.key.keysym.scancode == SDL_SCANCODE_TAB ? 1 : 0;
-                plat_input_state.keys[RAS_KEY_P] = event.key.keysym.scancode == SDL_SCANCODE_P ? 1 : 0;
+                plat_input_state.keys[RAS_KEY_TAB] = event.key.keysym.scancode == SDL_SCANCODE_TAB
+                    ? RAS_KEY_EVENT_UP
+                    : RAS_KEY_EVENT_NONE;
+                plat_input_state.keys[RAS_KEY_P] = event.key.keysym.scancode == SDL_SCANCODE_P
+                    ? RAS_KEY_EVENT_UP
+                    : RAS_KEY_EVENT_NONE;
+                plat_input_state.keys[RAS_KEY_B] = event.key.keysym.scancode == SDL_SCANCODE_B
+                    ? RAS_KEY_EVENT_UP
+                    : RAS_KEY_EVENT_NONE;
             }
         }
 

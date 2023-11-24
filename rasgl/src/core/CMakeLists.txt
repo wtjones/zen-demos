@@ -2,6 +2,7 @@ add_library(core
     app.c
     frustum.c
     graphics.c
+    input.c
     maths.c
     maths_tables.c
     matrix.c

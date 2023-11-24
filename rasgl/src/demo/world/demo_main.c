@@ -339,10 +339,10 @@ void ras_app_update(InputState* input_state)
     if (input_state->keys[RAS_KEY_MINUS] == 1) {
         viewer_pos.y -= ZOOM_SPEED;
     }
-    if (input_state->keys[RAS_KEY_TAB] == 1) {
+    if (input_state->keys[RAS_KEY_TAB] == RAS_KEY_EVENT_UP) {
         view_mode = view_mode == CAMERA ? MAP : CAMERA;
     }
-    if (input_state->keys[RAS_KEY_P] == 1) {
+    if (input_state->keys[RAS_KEY_P] == RAS_KEY_EVENT_UP) {
         projection_mode = projection_mode == PERSPECTIVE_MATRIX
             ? PERSPECTIVE_ALT
             : PERSPECTIVE_MATRIX;

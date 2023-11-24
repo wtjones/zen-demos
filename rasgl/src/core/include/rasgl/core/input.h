@@ -22,8 +22,16 @@
 
 #define RAS_MAX_KEYS 255
 
+typedef enum {
+    RAS_KEY_EVENT_NONE,
+    RAS_KEY_EVENT_DOWN,
+    RAS_KEY_EVENT_UP
+} RasKeyEvent;
+
 typedef struct InputState {
-    uint8_t keys[RAS_MAX_KEYS];
+    RasKeyEvent keys[RAS_MAX_KEYS];
 } InputState;
+
+void core_input_init(InputState* state);
 
 #endif

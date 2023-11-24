@@ -5,32 +5,43 @@
 #include "rasgl/core/maths.h"
 #include <allegro.h>
 
-ScreenSettings plat_settings = { .screen_width = 320, .screen_height = 240 };
+typedef struct {
+    uint32_t ras_key;
+    uint32_t plat_key;
+} RasKeyMap;
+
+ScreenSettings plat_settings
+    = { .screen_width = 320, .screen_height = 240 };
 RenderState state;
 InputState plat_input_state;
 
 void map_input()
 {
-    for (int i = 0; i < RAS_MAX_KEYS; i++) {
-        plat_input_state.keys[i] = 0;
+    RasKeyMap key_maps[] = {
+        { .ras_key = RAS_KEY_B, .plat_key = KEY_B },
+        { .ras_key = RAS_KEY_W, .plat_key = KEY_W },
+        { .ras_key = RAS_KEY_A, .plat_key = KEY_A },
+        { .ras_key = RAS_KEY_S, .plat_key = KEY_S },
+        { .ras_key = RAS_KEY_D, .plat_key = KEY_D },
+        { .ras_key = RAS_KEY_E, .plat_key = KEY_E },
+        { .ras_key = RAS_KEY_Q, .plat_key = KEY_Q },
+        { .ras_key = RAS_KEY_P, .plat_key = KEY_P },
+        { .ras_key = RAS_KEY_EQUALS, .plat_key = KEY_EQUALS },
+        { .ras_key = RAS_KEY_MINUS, .plat_key = KEY_MINUS },
+        { .ras_key = RAS_KEY_ESCAPE, .plat_key = KEY_ESC },
+        { .ras_key = RAS_KEY_DOWN, .plat_key = KEY_DOWN },
+        { .ras_key = RAS_KEY_UP, .plat_key = KEY_UP },
+        { .ras_key = RAS_KEY_LEFT, .plat_key = KEY_LEFT },
+        { .ras_key = RAS_KEY_RIGHT, .plat_key = KEY_RIGHT },
+        { .ras_key = RAS_KEY_TAB, .plat_key = KEY_TAB }
+    };
+
+    for (uint32_t i = 0; i < sizeof(key_maps) / sizeof(RasKeyMap); i++) {
+        plat_input_state.keys[key_maps[i].ras_key] = plat_input_state.keys[key_maps[i].ras_key] == RAS_KEY_EVENT_DOWN && !key[key_maps[i].plat_key]
+            ? RAS_KEY_EVENT_UP
+            : key[key_maps[i].plat_key] ? RAS_KEY_EVENT_DOWN
+                                        : RAS_KEY_EVENT_NONE;
     }
-    plat_input_state.keys[RAS_KEY_W] = key[KEY_W] ? 1 : 0;
-    plat_input_state.keys[RAS_KEY_A] = key[KEY_A] ? 1 : 0;
-    plat_input_state.keys[RAS_KEY_S] = key[KEY_S] ? 1 : 0;
-    plat_input_state.keys[RAS_KEY_D] = key[KEY_D] ? 1 : 0;
-    plat_input_state.keys[RAS_KEY_Q] = key[KEY_Q] ? 1 : 0;
-    plat_input_state.keys[RAS_KEY_E] = key[KEY_E] ? 1 : 0;
-    plat_input_state.keys[RAS_KEY_P] = key[KEY_P] ? 1 : 0;
-    plat_input_state.keys[RAS_KEY_B] = key[KEY_B] ? 1 : 0;
-    plat_input_state.keys[RAS_KEY_EQUALS] = key[KEY_EQUALS] ? 1 : 0;
-    plat_input_state.keys[RAS_KEY_MINUS] = key[KEY_MINUS] ? 1 : 0;
-    plat_input_state.keys[RAS_KEY_ESCAPE] = key[KEY_ESC] ? 1 : 0;
-    plat_input_state.keys[RAS_KEY_DOWN] = key[KEY_DOWN] ? 1 : 0;
-    plat_input_state.keys[RAS_KEY_UP] = key[KEY_UP] ? 1 : 0;
-    plat_input_state.keys[RAS_KEY_LEFT] = key[KEY_LEFT] ? 1 : 0;
-    plat_input_state.keys[RAS_KEY_RIGHT] = key[KEY_RIGHT] ? 1 : 0;
-    // FIXME: need keyup event
-    plat_input_state.keys[RAS_KEY_TAB] = key[KEY_TAB] ? 1 : 0;
 }
 
 void render_state(BITMAP* buffer, RenderState* state)
@@ -112,6 +123,7 @@ int main(int argc, const char** argv)
 
     ras_app_init(argc, argv, &plat_settings);
     core_renderstate_init(&state);
+    core_input_init(&plat_input_state);
 
     set_palette(desktop_palette);
     clear_keybuf();
