@@ -1,3 +1,56 @@
+# RasGL - Rendering Library for Retro Systems
+
+## Overview
+
+RasGL is software rendering library with cross-platform support for 90's era targets.
+
+The key attributes of RasGL:
+
+* Fixed-point calculations
+    * Many 32-bit platforms of the mid 90's lack strong floating-point support.
+* Triangle-based polygon pipeline
+    * A single primative allows for a narrower focus and aligns with pipelines of the era.
+
+## Features
+
+* Working
+    * Fixed-point math
+        * Currently 16.16
+    * Transformation pipeline based on 4x4 matrix math
+    * View frustum creation from projection matrix
+    * Backface culling
+    * Wireframe polygon rendering
+* Planned
+    * Frustum culling
+    * Polygon clipping
+    * Flat shaded polygons
+    * Texture-mapped polygons
+    * Depth sorting
+
+## Target platforms
+
+The ideal candidate platform has these attributes:
+
+* 32-bit CPU with integer mul/div
+* framebuffer graphics
+* 8-bit color support
+
+Platform support progress:
+
+* Working
+    * POSIX - Linux/Mac OS
+        * Default target for development
+        * Uses SDL2
+    * DOS protected mode
+        * DJGPP
+        * Allegro.cc for rending primatives and input
+        * Tested with dosbox-x built-in extender
+* Proposed
+    * GBA
+        * Framebuffer modes should be suitable
+    * PSX
+        * Has hardware 3D support. Could either support the hardware via abstraction or use framebuffer rendering.
+
 ## Proposed Structure
 
 ```
@@ -61,7 +114,7 @@ A [right-handed system](https://learnopengl.com/Getting-started/Coordinate-Syste
 
 ## Build and Run
 
-## Posix/SDL
+### Posix/SDL
 
 ```
 cmake -S . -DRAS_PLATFORM=ras_sdl -B build
@@ -69,11 +122,11 @@ cmake --build build
 ./build/ras_sdl
 ```
 
-or `run_posix.sh`
+or `run_posix.sh [world | poly]`
 
-## DOS
+### DOS
 
-### Get DJGPP
+#### Get DJGPP
 
 Obtain DJGPP in some manner such as https://github.com/andrewwutw/build-djgpp.
 
@@ -88,7 +141,7 @@ Set PATH or use provided shell script.
 
 `PATH="${DJGPP_PREFIX}/bin:${PATH}"`
 
-### Get Allegro
+#### Get Allegro
 
 Clone repo somewhere locally: https://github.com/wtjones/allegro-4.2.2-xc
 
@@ -102,14 +155,14 @@ Set variable `ALLEGRO` in shell or profile:
 export ALLEGRO="/home/myuser/dev/allegro-4.2.2-xc"
 ```
 
-### Build
+#### Build
 
 ```
 cmake -S . -DCMAKE_TOOLCHAIN_FILE=tools/djgpp.cmake -DRAS_PLATFORM=ras_dos -B build
 cmake --build build -t demo
 ```
 
-### Run
+#### Run
 
 Set variable `$DOSBOX_BIN`
 
@@ -118,16 +171,27 @@ export DJGPP_PREFIX="/usr/local/bin/dosbox-x"
 ```
 
 ```
-./run_dos.sh
+./run_dos.sh [world | poly]
 ```
 
-## Controls
+## Demos
+
+### Common Controls
+
+Toggle projection mode: p
+Toggle backface culling mode: b
+
+### Demo: world
+
+Demonstrates movement controls over world geometry.
+
+#### Controls
 
 Move: WASD
 Rotate: Q/E
 Toggle view mode: TAB
-Toggle projection mode: P
 Adjust FOV: left/right bracket
+
 
 ## Debug output
 
@@ -135,8 +199,8 @@ Pass a value of 1 in the run script:
 
 ```
 run_tests.sh 1
-run_posix.sh 1
-run_dos.sh 1
+run_posix.sh [world | poly] 1
+run_dos.sh [world | poly] 1
 ```
 
 ## External libraries
