@@ -46,7 +46,7 @@ int core_parse_group_name(char* line, RasModelGroup* group)
  * Parse a vector line with format:
  * v  0.0  1.0  0.0
  */
-int core_parse_vertex(char* line, RasVector3f* dest)
+int core_parse_vector(char* line, RasVector3f* dest)
 {
     char buffer[255];
     char *token, *str, *tofree;
@@ -54,9 +54,12 @@ int core_parse_vertex(char* line, RasVector3f* dest)
     // strsep() is destructive, so make a copy
     tofree = str = strdup(line);
 
-    token = strsep(&str, " "); // v
-    token = strsep(&str, " "); // space
-    token = strsep(&str, " "); // x
+    token = strsep(&str, " "); // v or vn
+
+    do {
+        token = strsep(&str, " "); // space
+    } while (token[0] == '\0');
+
     if (token == NULL) {
         ras_log_error("strsep() returned NULL %s", str);
         return 1;
@@ -65,8 +68,10 @@ int core_parse_vertex(char* line, RasVector3f* dest)
     int32_t x = float_to_fixed_16_16(atof(token));
     ras_log_info("vector x: %s\n", repr_fixed_16_16(buffer, sizeof buffer, x));
 
-    token = strsep(&str, " "); // space
-    token = strsep(&str, " "); // y
+    do {
+        token = strsep(&str, " "); // space
+    } while (token[0] == '\0');
+
     if (token == NULL) {
         ras_log_error("strsep() returned NULL %s", str);
         return 1;
@@ -75,8 +80,10 @@ int core_parse_vertex(char* line, RasVector3f* dest)
     int32_t y = float_to_fixed_16_16(atof(token));
     ras_log_info("vector y: %s\n", repr_fixed_16_16(buffer, sizeof buffer, y));
 
-    token = strsep(&str, " "); // space
-    token = strsep(&str, " "); // z
+    do {
+        token = strsep(&str, " "); // space
+    } while (token[0] == '\0');
+
     if (token == NULL) {
         ras_log_error("strsep() returned NULL %s", str);
         return 1;
@@ -130,15 +137,22 @@ int core_load_model(char* path, RasModel* model)
             if (result != 0) {
                 return result;
             }
-
         } else if (strncmp(line, "v ", 2) == 0) {
-            ras_log_info("vector: %s", "");
+            ras_log_info("vertex: %s", "");
             RasVector3f* v = &current_group->verts[current_group->num_verts];
-            int result = core_parse_vertex(line, v);
+            int result = core_parse_vector(line, v);
             if (result != 0) {
                 return result;
             }
             current_group->num_verts++;
+        } else if (strncmp(line, "vn ", 3) == 0) {
+            ras_log_info("vertex normal: %s", "");
+            RasVector3f* v = &current_group->normals[current_group->num_normals];
+            int result = core_parse_vector(line, v);
+            if (result != 0) {
+                return result;
+            }
+            current_group->num_normals++;
         }
         core_plat_free(line);
     }

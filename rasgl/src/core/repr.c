@@ -127,6 +127,8 @@ char* repr_model(char* buffer, size_t count, RasModel* model)
         strcat(buffer, buffer2);
         snprintf(buffer2, sizeof buffer2, "    num_verts: %d\n", group->num_verts);
         strcat(buffer, buffer2);
+        snprintf(buffer2, sizeof buffer2, "    num_normals: %d\n", group->num_normals);
+        strcat(buffer, buffer2);
     }
     return buffer;
 }
