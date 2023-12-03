@@ -211,3 +211,5 @@ run_dos.sh [world | poly] 1
 ## References
 
 * [How to write a (software) 3d polygon pipeline](https://www.cbloom.com/3d/techdocs/pipeline.txt)
+* [OBJ format](https://www.cs.cmu.edu/~mbz/personal/graphics/obj.html)
+* [OBJ sample](https://people.sc.fsu.edu/~jburkardt/data/obj/cube.obj)

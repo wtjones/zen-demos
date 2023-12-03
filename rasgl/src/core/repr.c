@@ -113,3 +113,20 @@ char* repr_mat_4x1(char* buffer, size_t count, int32_t s[4])
     strcat(buffer, "]");
     return buffer;
 }
+
+char* repr_model(char* buffer, size_t count, RasModel* model)
+{
+    char buffer2[255];
+    buffer[0] = '\0';
+    snprintf(buffer2, sizeof buffer2, "model obj: %s\n", model->name);
+    strcat(buffer, buffer2);
+
+    for (int i = 0; i < model->num_groups; i++) {
+        RasModelGroup* group = &model->groups[i];
+        snprintf(buffer2, sizeof buffer2, "  group %d name: %s\n", i, group->name);
+        strcat(buffer, buffer2);
+        snprintf(buffer2, sizeof buffer2, "    num_verts: %d\n", group->num_verts);
+        strcat(buffer, buffer2);
+    }
+    return buffer;
+}

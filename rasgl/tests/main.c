@@ -3,6 +3,7 @@
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/matrix.h"
 #include "rasgl/core/matrix_projection.h"
+#include "rasgl/core/model.h"
 #include "rasgl/core/plane.h"
 #include "rasgl/core/repr.h"
 #include <assert.h>
@@ -334,6 +335,16 @@ void plane_tests()
     ras_log_info("3 plane intersect result: %s\n", repr_point3f(buffer, sizeof buffer, &result));
 }
 
+void model_tests()
+{
+    RasModel model;
+    int result = core_load_model("./assets/models/cube.obj", &model);
+
+    if (result < 0) {
+        ras_log_error("core_load_model error\n");
+    }
+}
+
 int main()
 {
     FILE* log_file = fopen("/tmp/rasgl.log", "w");
@@ -358,5 +369,6 @@ int main()
     dot_product_tests();
     plane_tests();
     mat_ortho_tests();
+    model_tests();
     return 0;
 }

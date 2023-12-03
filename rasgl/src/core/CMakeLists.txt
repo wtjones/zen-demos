@@ -7,6 +7,7 @@ add_library(core
     maths_tables.c
     matrix.c
     matrix_projection.c
+    model.c
     plane.c
     repr.c)
 target_include_directories(core PUBLIC include )
