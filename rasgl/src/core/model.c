@@ -14,11 +14,13 @@ void core_plat_free(char* buffer)
     free(buffer);
 #endif
 }
+
 void core_model_group_init(RasModelGroup* group)
 {
     group->name[0] = '\0';
     group->num_verts = 0;
     group->num_normals = 0;
+    group->num_faces = 0;
 }
 
 int core_parse_group_name(char* line, RasModelGroup* group)
@@ -99,6 +101,109 @@ int core_parse_vector(char* line, RasVector3f* dest)
     return 0;
 }
 
+/**
+ * Parse the indexes from the face block v/t/n ie 6/3/4.
+ */
+int core_parse_face_index(char* line, RasModelFaceIndex* dest)
+{
+    char buffer[255];
+    char *token, *str, *tofree;
+
+    // strsep() is destructive, so make a copy
+    tofree = str = strdup(line);
+
+    token = strsep(&str, "/");
+    if (token == NULL) {
+        ras_log_error("strsep() returned NULL %s", str);
+        return 1;
+    }
+    ras_log_trace("face vert index raw: %s", token);
+    if (token[0] == '\0') {
+        dest->vert_index = -1;
+    } else {
+        dest->vert_index = atoi(token) - 1;
+    }
+    ras_log_trace("face vert index int: %d", dest->vert_index);
+    token = strsep(&str, "/");
+    if (token == NULL) {
+        ras_log_error("strsep() returned NULL %s", str);
+        return 1;
+    }
+    ras_log_trace("face texture index raw: %s", token);
+    if (token[0] == '\0') {
+        dest->texture_index = -1;
+        ras_log_trace("face texture not found");
+    } else {
+        dest->texture_index = atoi(token) - 1;
+    }
+    ras_log_trace("face texture index int: %d", dest->texture_index);
+    token = strsep(&str, "/");
+    if (token == NULL) {
+        ras_log_error("strsep() returned NULL %s", str);
+        return 1;
+    }
+    ras_log_trace("face normal index raw: %s", token);
+    if (token[0] == '\0') {
+        dest->normal_index = -1;
+    } else {
+        dest->normal_index = atoi(token) - 1;
+    }
+    ras_log_trace("face normal index int: %d", dest->normal_index);
+    core_plat_free(tofree);
+    return 0;
+}
+
+/**
+ * Parse the next raw face block in the face line ie 6//2.
+ */
+int core_parse_face_token(char** str, RasModelFaceIndex* dest)
+{
+    char* token;
+
+    do {
+        token = strsep(str, " "); // space
+    } while (token[0] == '\0');
+
+    if (token == NULL) {
+        ras_log_error("strsep() returned NULL %s", *str);
+        return 1;
+    }
+    ras_log_trace("parsing face index from token: %s", token);
+
+    int result = core_parse_face_index(token, dest);
+    if (result != 0) {
+        return result;
+    }
+
+    return 0;
+}
+
+/**
+ * Parse a vector line with format:
+ * f  1//2  7//2  5//2
+ */
+int core_parse_face(char* line, RasModelFace* dest)
+{
+    char buffer[255];
+    char *token, *str, *tofree;
+    RasModelFaceIndex* face_index;
+    // strsep() is destructive, so make a copy
+    tofree = str = strdup(line);
+
+    token = strsep(&str, " "); // f
+
+    for (int i = 0; i < 3; i++) {
+        face_index = &dest->indexes[i];
+        int result = core_parse_face_token(&str, face_index);
+        if (result != 0) {
+            return result;
+        }
+    }
+
+    core_plat_free(tofree);
+    return 0;
+}
+
 int core_load_model(char* path, RasModel* model)
 {
     char buffer[255];
@@ -138,7 +243,7 @@ int core_load_model(char* path, RasModel* model)
                 return result;
             }
         } else if (strncmp(line, "v ", 2) == 0) {
-            ras_log_info("vertex: %s", "");
+            ras_log_trace("vertex... %s", "");
             RasVector3f* v = &current_group->verts[current_group->num_verts];
             int result = core_parse_vector(line, v);
             if (result != 0) {
@@ -146,13 +251,21 @@ int core_load_model(char* path, RasModel* model)
             }
             current_group->num_verts++;
         } else if (strncmp(line, "vn ", 3) == 0) {
-            ras_log_info("vertex normal: %s", "");
+            ras_log_trace("vertex normal... %s", "");
             RasVector3f* v = &current_group->normals[current_group->num_normals];
             int result = core_parse_vector(line, v);
             if (result != 0) {
                 return result;
             }
             current_group->num_normals++;
+        } else if (strncmp(line, "f ", 2) == 0) {
+            ras_log_trace("face... %s", "");
+            RasModelFace* f = &current_group->faces[current_group->num_faces];
+            int result = core_parse_face(line, f);
+            if (result != 0) {
+                return result;
+            }
+            current_group->num_faces++;
         }
         core_plat_free(line);
     }

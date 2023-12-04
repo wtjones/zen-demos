@@ -11,9 +11,9 @@
 #define RAS_MAX_MODEL_NORMALS 256
 
 typedef struct RasModelFaceIndex {
-    uint32_t vert_index;
-    uint32_t texture_index;
-    uint32_t normal_index;
+    int32_t vert_index;    // -1 if undefined
+    int32_t texture_index; // -1 if undefined
+    int32_t normal_index;  // -1 if undefined
 } RasModelFaceIndex;
 
 /**
@@ -29,6 +29,8 @@ typedef struct RasModelGroup {
     uint32_t num_verts;
     RasVector3f normals[RAS_MAX_MODEL_NORMALS];
     uint32_t num_normals;
+    RasModelFace faces[RAS_MAX_MODEL_FACES];
+    uint32_t num_faces;
 } RasModelGroup;
 
 typedef struct RasModel {
