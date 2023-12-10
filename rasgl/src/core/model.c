@@ -8,11 +8,12 @@
  *
  * ¯\_(ツ)_/¯
  */
-void core_plat_free(char* buffer)
+void core_plat_free(char** buffer)
 {
 #ifndef __APPLE__
-    free(buffer);
+    free(*buffer);
 #endif
+    *buffer = NULL;
 }
 
 void core_model_group_init(RasModelGroup* group)
@@ -40,7 +41,7 @@ int core_parse_group_name(char* line, RasModelGroup* group)
     }
     ras_log_info("parsed from token: %s", token);
     strcat(group->name, token);
-    core_plat_free(tofree);
+    core_plat_free(&tofree);
     return 0;
 }
 
@@ -93,7 +94,7 @@ int core_parse_vector(char* line, RasVector3f* dest)
     ras_log_info("parsing float from token: %s", token);
     int32_t z = float_to_fixed_16_16(atof(token));
     ras_log_info("vector y: %s\n", repr_fixed_16_16(buffer, sizeof buffer, y));
-    core_plat_free(tofree);
+    core_plat_free(&tofree);
     dest->x = x;
     dest->y = y;
     dest->z = z;
@@ -149,7 +150,7 @@ int core_parse_face_index(char* line, RasModelFaceIndex* dest)
         dest->normal_index = atoi(token) - 1;
     }
     ras_log_trace("face normal index int: %d", dest->normal_index);
-    core_plat_free(tofree);
+    core_plat_free(&tofree);
     return 0;
 }
 
@@ -200,7 +201,7 @@ int core_parse_face(char* line, RasModelFace* dest)
         }
     }
 
-    core_plat_free(tofree);
+    core_plat_free(&tofree);
     return 0;
 }
 
@@ -267,9 +268,9 @@ int core_load_model(char* path, RasModel* model)
             }
             current_group->num_faces++;
         }
-        core_plat_free(line);
+        core_plat_free(&line);
     }
-    core_plat_free(line);
+    core_plat_free(&line);
 
     ras_log_info("%s\n", repr_model(buffer, sizeof buffer, model));
     return 0;
