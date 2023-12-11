@@ -4,7 +4,6 @@
 #include "rasgl/core/input.h"
 #include "rasgl/core/maths.h"
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
 #include <stdbool.h>
 
 ScreenSettings plat_settings = { .screen_width = 320, .screen_height = 240 };
