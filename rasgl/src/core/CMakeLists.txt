@@ -9,6 +9,7 @@ add_library(core
     matrix_projection.c
     model.c
     plane.c
-    repr.c)
+    repr.c
+    string.c)
 target_include_directories(core PUBLIC include )
 target_link_libraries(core PUBLIC external m)

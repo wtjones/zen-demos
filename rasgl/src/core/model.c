@@ -1,5 +1,6 @@
 #include "rasgl/core/model.h"
 #include "rasgl/core/debug.h"
+#include "rasgl/core/string.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -226,7 +227,7 @@ int core_load_model(char* path, RasModel* model)
     model->num_groups = 1;
     core_model_group_init(current_group);
 
-    while (getline(&line, &linesize, file) != -1) {
+    while (core_getline(&line, &linesize, file) != -1) {
         if (line[strlen(line) - 1] == '\n') {
             line[strlen(line) - 1] = '\0';
         }
