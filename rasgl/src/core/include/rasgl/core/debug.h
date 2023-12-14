@@ -20,6 +20,10 @@
             fprintf(stderr, fmt, __VA_ARGS__); \
     } while (0)
 
+#ifndef __FILE_NAME__
+#    define __FILE_NAME__ ""
+#endif
+
 #define ras_log_trace(...) log_log(LOG_TRACE, __FILE_NAME__, __LINE__, __VA_ARGS__)
 #define ras_log_debug(...) log_log(LOG_DEBUG, __FILE_NAME__, __LINE__, __VA_ARGS__)
 #define ras_log_info(...) log_log(LOG_INFO, __FILE_NAME__, __LINE__, __VA_ARGS__)

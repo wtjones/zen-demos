@@ -188,3 +188,24 @@ void core_renderstate_clear(RenderState* state)
     state->num_commands = 0;
     state->num_points = 0;
 }
+
+void core_model_group_to_element_verts(RasModelGroup* group, RasVertex verts[], uint32_t* num_verts)
+{
+    //    RasModelGroup* current_group;
+
+    //    for (int i = 0; i < model->num_groups; i++) {
+    // RasModelGroup* current_group = &model->groups[i];
+    *num_verts = group->num_verts;
+    
+    for (int j = 0; j < group->num_faces; j++) {
+        RasModelFace* face = &group->faces[j];
+        for (int k = 0; k < RAS_MAX_MODEL_FACE_INDEXES; k++) {
+            RasModelFaceIndex* face_index = &face_index->indexes[k];
+            RasVertex* element_vert = &group->element_verts[face_index->vert_index];
+            element_vert->position->x = group->verts[face_index->vert_index].x;
+            element_vert->position->x = group->verts[face_index->vert_index].y;
+            element_vert->position->x = group->verts[face_index->vert_index].z;
+        }
+    }
+    //}
+}

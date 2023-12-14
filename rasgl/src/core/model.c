@@ -206,6 +206,25 @@ int core_parse_face(char* line, RasModelFace* dest)
     return 0;
 }
 
+// void core_model_element_vert_init(RasModel* model)
+// {
+//     //    RasModelGroup* current_group;
+
+//     for (int i = 0; i < model->num_groups; i++) {
+//         RasModelGroup* current_group = &model->groups[i];
+//         for (int j = 0; j < group->num_faces; j++) {
+//             RasModelFace* face = &group->faces[j];
+//             for (int k = 0; k < RAS_MAX_MODEL_FACE_INDEXES; k++) {
+//                 RasModelFaceIndex* face_index = &face_index->indexes[k];
+//                 RasVertex* element_vert = &group->element_verts[face_index->vert_index];
+//                 element_vert->position->x = group->verts[face_index->vert_index].x;
+//                 element_vert->position->x = group->verts[face_index->vert_index].y;
+//                 element_vert->position->x = group->verts[face_index->vert_index].z;
+//             }
+//         }
+//     }
+// }
+
 int core_load_model(char* path, RasModel* model)
 {
     char buffer[255];
@@ -273,6 +292,7 @@ int core_load_model(char* path, RasModel* model)
     }
     core_plat_free(&line);
 
+    core_model_element_vert_init(model);
     ras_log_info("%s\n", repr_model(buffer, sizeof buffer, model));
     return 0;
 }

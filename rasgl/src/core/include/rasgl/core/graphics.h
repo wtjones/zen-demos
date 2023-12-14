@@ -3,6 +3,7 @@
 
 #include "fixed_maths.h"
 #include "maths.h"
+#include "model.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -107,5 +108,7 @@ void core_renderstate_init(RenderState* state);
  * Clear index buffers buffers
  */
 void core_renderstate_clear(RenderState* state);
+
+void core_model_group_to_element_verts(RasModelGroup* group, RasVertex verts[], uint32_t* num_verts);
 
 #endif

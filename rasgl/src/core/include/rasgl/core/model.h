@@ -31,6 +31,8 @@ typedef struct RasModelGroup {
     uint32_t num_normals;
     RasModelFace faces[RAS_MAX_MODEL_FACES];
     uint32_t num_faces;
+    RasVertex element_verts[RAS_MAX_MODEL_VERTS];
+    uint32_t num_element_verts;
 } RasModelGroup;
 
 typedef struct RasModel {
