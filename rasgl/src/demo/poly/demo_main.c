@@ -5,12 +5,14 @@
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/input.h"
 #include "rasgl/core/matrix_projection.h"
+#include "rasgl/core/model.h"
 #include "rasgl/core/repr.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 ScreenSettings* settings;
 
+RasModel cube_model;
 int32_t delta_rotation = 1;
 int32_t counter = 0;
 int32_t model_rotation_y = 0;
@@ -26,6 +28,8 @@ float aspect_ratio = 1.333f; // Aspect ratio (width/height)
 float near = 0.1f;           // Near clipping plane
 float far = 100.0f;          // Far clipping plane
 float viewer_fov = 60.0f;
+
+RasPipelineElement cube_element;
 
 void proj_matrix_init(RenderState* render_state, int32_t projection_matrix[4][4])
 {
@@ -48,6 +52,14 @@ void ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
     ras_log_info("ras_app_init()... argc: %d argv: %s\n", argc, argv[0]);
     ras_log_info("ras_app_init()... screen_width.x: %d\n", init_settings->screen_width);
     settings = init_settings;
+    int result = core_load_model("./assets/models/cube.obj", &cube_model);
+
+    if (result < 0) {
+        ras_log_error("core_load_model error\n");
+        return;
+    }
+    RasModelGroup* group = &cube_model.groups[0];
+    core_model_group_to_pipeline_element(group, &cube_element);
 }
 
 void ras_app_update(__attribute__((unused)) InputState* input_state)
@@ -87,48 +99,6 @@ void ras_app_render(RenderState* render_state)
 {
     char buffer[500];
 
-    //     6- - - - -  7
-    //    /|          /|
-    // 2/ -|- - - -3/  |
-    // |   |       |   |
-    // |   |       |   |
-    // |   4- - - -| - 5
-    // |  /        |  /
-    // 0/ - - - - -1/
-
-    // front
-    // 2 ------ 3
-    // |  \     |
-    // |     \  |
-    // 0 -------1
-    // back
-    // 7 ------ 6
-    // |  \     |
-    // |     \  |
-    // 5 -------4
-
-    RasVertex vertex_buffer[] = {
-        { .position = { float_to_fixed_16_16(-0.5), float_to_fixed_16_16(-0.5), float_to_fixed_16_16(0.5) } },
-        { .position = { float_to_fixed_16_16(0.5), float_to_fixed_16_16(-0.5), float_to_fixed_16_16(0.5) } },
-        { .position = { float_to_fixed_16_16(-0.5), float_to_fixed_16_16(0.5), float_to_fixed_16_16(0.5) } },
-        { .position = { float_to_fixed_16_16(0.5), float_to_fixed_16_16(0.5), float_to_fixed_16_16(0.5) } },
-        { .position = { float_to_fixed_16_16(-0.5), float_to_fixed_16_16(-0.5), -float_to_fixed_16_16(0.5) } },
-        { .position = { float_to_fixed_16_16(0.5), float_to_fixed_16_16(-0.5), -float_to_fixed_16_16(0.5) } },
-        { .position = { float_to_fixed_16_16(-0.5), float_to_fixed_16_16(0.5), -float_to_fixed_16_16(0.5) } },
-        { .position = { float_to_fixed_16_16(0.5), float_to_fixed_16_16(0.5), -float_to_fixed_16_16(0.5) } }
-    };
-
-    uint32_t num_verts = 8;
-    uint32_t element_indexes[] = {
-        0, 2, 1, 1, 2, 3, // front
-        4, 5, 7, 4, 7, 6, // back
-        5, 1, 3, 5, 3, 7, // right
-        4, 6, 0, 0, 6, 2, // left
-        6, 3, 2, 6, 7, 3, // top
-        0, 5, 4, 0, 1, 5  // bottom
-    };
-    uint32_t num_indexes = 36;
-
     int32_t model_world_matrix[4][4];
     int32_t world_view_matrix[4][4];
     int32_t projection_matrix[4][4];
@@ -143,12 +113,9 @@ void ras_app_render(RenderState* render_state)
 
     ras_log_trace("model_world_matrix rot: %s\n", repr_mat_4x4(buffer, sizeof buffer, model_world_matrix));
 
-    core_draw_elements(
+    core_draw_element(
         render_state,
-        vertex_buffer,
-        num_verts,
-        element_indexes,
-        num_indexes,
+        &cube_element,
         model_world_matrix,
         world_view_matrix,
         projection_matrix);

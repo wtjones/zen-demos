@@ -70,16 +70,16 @@ void projected_to_screen_point(int32_t screen_width, int32_t screen_height, int3
 
 /**
  * Determine if poly is backfacing based on the normal's angle to the viewer
- * in screen space. Assumes vertices are clockwise.
+ * in screen space. Assumes vertices are counter-clockwise.
  * Based on https://github.com/wtjones/qbasic/blob/master/POLY3D.BAS
  */
 bool core_is_backface(RasPipelineVertex* pipeline_verts, uint32_t indexes[3])
 {
-    RasPipelineVertex* pv0 = &pipeline_verts[indexes[0]];
+    RasPipelineVertex* pv0 = &pipeline_verts[indexes[2]];
     RasVector4f* sv0 = &pv0->screen_space_position;
     RasPipelineVertex* pv1 = &pipeline_verts[indexes[1]];
     RasVector4f* sv1 = &pv1->screen_space_position;
-    RasPipelineVertex* pv2 = &pipeline_verts[indexes[2]];
+    RasPipelineVertex* pv2 = &pipeline_verts[indexes[0]];
     RasVector4f* sv2 = &pv2->screen_space_position;
 
     // norm1 = (1.x - 0.x) * (0.y - 2.y)
@@ -100,6 +100,23 @@ void core_projected_to_screen_point(int32_t screen_width, int32_t screen_height,
     screen_point->y = mul_fixed_16_16_by_fixed_16_16(half_screen_height, projected_point[1]) + half_screen_height;
     screen_point->z = projected_point[2];
     screen_point->w = projected_point[3];
+}
+
+void core_draw_element(
+    RenderState* render_state,
+    RasPipelineElement* element,
+    int32_t model_world_matrix[4][4],
+    int32_t world_view_matrix[4][4],
+    int32_t proj_matrix[4][4])
+{
+    core_draw_elements(render_state,
+        element->verts,
+        element->num_verts,
+        element->indexes,
+        element->num_indexes,
+        model_world_matrix,
+        world_view_matrix,
+        proj_matrix);
 }
 
 void core_draw_elements(
@@ -187,4 +204,27 @@ void core_renderstate_clear(RenderState* state)
     state->num_visible_indexes = 0;
     state->num_commands = 0;
     state->num_points = 0;
+}
+
+void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineElement* element)
+{
+    element->num_verts = group->num_verts;
+    for (int i = 0; i < group->num_verts; i++) {
+        RasVertex* element_vert = &element->verts[i];
+
+        element_vert->position.x = group->verts[i].x;
+        element_vert->position.y = group->verts[i].y;
+        element_vert->position.z = group->verts[i].z;
+    }
+
+    element->num_indexes = group->num_faces * 3;
+    uint32_t* element_index = &element->indexes[0];
+    for (int j = 0; j < group->num_faces; j++) {
+        RasModelFace* face = &group->faces[j];
+        for (int k = 0; k < RAS_MAX_MODEL_FACE_INDEXES; k++) {
+            RasModelFaceIndex* face_index = &face->indexes[k];
+            *element_index = face_index->vert_index;
+            element_index++;
+        }
+    }
 }

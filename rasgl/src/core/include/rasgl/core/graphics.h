@@ -3,6 +3,7 @@
 
 #include "fixed_maths.h"
 #include "maths.h"
+#include "model.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -62,6 +63,13 @@ typedef struct RasPipelineVertex {
     int32_t u, v;
 } RasPipelineVertex;
 
+typedef struct RasPipelineElement {
+    RasVertex verts[MAX_PIPELINE_VERTS];
+    uint32_t num_verts;
+    uint32_t indexes[MAX_VISIBLE_INDEXES];
+    uint32_t num_indexes;
+} RasPipelineElement;
+
 typedef struct RenderState {
     Point2i points[MAX_RENDER_POINTS];
     uint32_t num_points;
@@ -88,6 +96,13 @@ Point2f project_point(int32_t screen_width, int32_t screen_height, int32_t proje
  */
 void projected_to_screen_point(int32_t screen_width, int32_t screen_height, int32_t projected_point[4], Point2i* screen_point);
 
+void core_draw_element(
+    RenderState* render_state,
+    RasPipelineElement* element,
+    int32_t model_world_matrix[4][4],
+    int32_t world_view_matrix[4][4],
+    int32_t proj_matrix[4][4]);
+
 void core_draw_elements(
     RenderState* render_state,
     RasVertex* verts,
@@ -107,5 +122,7 @@ void core_renderstate_init(RenderState* state);
  * Clear index buffers buffers
  */
 void core_renderstate_clear(RenderState* state);
+
+void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineElement* element);
 
 #endif
