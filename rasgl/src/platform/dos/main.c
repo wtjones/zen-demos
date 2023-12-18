@@ -99,9 +99,9 @@ int main(int argc, const char** argv)
 {
     FILE* log_file = fopen("l:\\RASGL.LOG", "w");
 
-    log_add_fp(log_file, RAS_LOG_LEVEL);
-    log_set_level(RAS_LOG_LEVEL);
-    log_set_quiet(true);
+    log_add_fp(log_file, RAS_LOG_LEVEL_FILE);
+    log_set_level(RAS_LOG_LEVEL_STRERR);
+    log_set_quiet(false);
 
     BITMAP* buffer;
 
@@ -121,7 +121,11 @@ int main(int argc, const char** argv)
     }
     buffer = create_bitmap(SCREEN_W, SCREEN_H);
 
-    ras_app_init(argc, argv, &plat_settings);
+    RasResult result = ras_app_init(argc, argv, &plat_settings);
+    if (result != RAS_RESULT_OK) {
+        ras_log_error("Error result from ras_app_init(), exiting...");
+        return 1;
+    }
     core_renderstate_init(&state);
     core_input_init(&plat_input_state);
 

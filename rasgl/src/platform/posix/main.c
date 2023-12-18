@@ -105,9 +105,9 @@ int main(int argc, const char** argv)
 {
     FILE* log_file = fopen("/tmp/rasgl.log", "w");
 
-    log_add_fp(log_file, RAS_LOG_LEVEL);
-    log_set_level(RAS_LOG_LEVEL);
-    log_set_quiet(true);
+    log_add_fp(log_file, RAS_LOG_LEVEL_FILE);
+    log_set_level(RAS_LOG_LEVEL_STRERR);
+    log_set_quiet(false);
 
     ras_log_info("Starting SDL...");
     SDL_bool should_quit = SDL_FALSE;
@@ -126,7 +126,17 @@ int main(int argc, const char** argv)
     renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     SDL_RenderSetLogicalSize(renderer, 320, 240);
-    ras_app_init(argc, argv, &plat_settings);
+
+    RasResult result = ras_app_init(argc, argv, &plat_settings);
+    if (result != RAS_RESULT_OK) {
+        ras_log_error("Error result from ras_app_init(), exiting...");
+
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(win);
+        SDL_Quit();
+        return 1;
+    }
+
     core_renderstate_init(&state);
     core_input_init(&plat_input_state);
 

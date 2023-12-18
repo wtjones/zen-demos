@@ -1,5 +1,6 @@
 #include "rasgl/core/maths.h"
 #include "rasgl/core/debug.h"
+#include "rasgl/core/repr.h"
 
 extern int32_t cos_table[360];
 extern int32_t sin_table[360];

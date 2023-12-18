@@ -39,6 +39,8 @@ typedef struct RasModel {
     uint32_t num_groups;
 } RasModel;
 
-int core_load_model(char* path, RasModel* model);
+RasResult core_load_model(char* path, RasModel* model);
+
+char* core_repr_model(char* buffer, size_t count, RasModel* model);
 
 #endif

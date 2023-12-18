@@ -1,5 +1,6 @@
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/debug.h"
+#include "rasgl/core/repr.h"
 
 /**
  * project view point to screen

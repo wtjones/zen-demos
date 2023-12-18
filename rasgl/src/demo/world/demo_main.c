@@ -272,7 +272,7 @@ void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* 
     }
 }
 
-void ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
+RasResult ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
 {
     ras_log_info("ras_app_init()... argc: %d argv: %s\n", argc, argv[0]);
     ras_log_info("ras_app_init()... screen_width.x: %d\n", init_settings->screen_width);
@@ -284,6 +284,7 @@ void ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
 
     map_to_world(&world_state);
     origin_to_world(&world_state);
+    return RAS_RESULT_OK;
 }
 
 void ras_app_update(InputState* input_state)

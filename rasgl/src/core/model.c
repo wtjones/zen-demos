@@ -1,5 +1,6 @@
 #include "rasgl/core/model.h"
 #include "rasgl/core/debug.h"
+#include "rasgl/core/repr.h"
 #include "rasgl/core/string.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -206,7 +207,7 @@ int core_parse_face(char* line, RasModelFace* dest)
     return 0;
 }
 
-int core_load_model(char* path, RasModel* model)
+RasResult core_load_model(char* path, RasModel* model)
 {
     char buffer[255];
     FILE* file;
@@ -216,7 +217,7 @@ int core_load_model(char* path, RasModel* model)
     file = fopen(path, "r");
     if (!file) {
         ras_log_error("Can't open file: %s\n", path);
-        return -1;
+        return RAS_RESULT_ERROR;
     }
 
     strcat(model->name, path);
@@ -238,18 +239,18 @@ int core_load_model(char* path, RasModel* model)
             file_num_groups++;
             if (file_num_groups > 1) {
                 ras_log_error("Multiple groups not supported.");
-                return 1;
+                return RAS_RESULT_ERROR;
             }
             int result = core_parse_group_name(line, current_group);
             if (result != 0) {
-                return result;
+                return RAS_RESULT_ERROR;
             }
         } else if (strncmp(line, "v ", 2) == 0) {
             ras_log_trace("vertex... %s", "");
             RasVector3f* v = &current_group->verts[current_group->num_verts];
             int result = core_parse_vector(line, v);
             if (result != 0) {
-                return result;
+                return RAS_RESULT_ERROR;
             }
             current_group->num_verts++;
         } else if (strncmp(line, "vn ", 3) == 0) {
@@ -257,7 +258,7 @@ int core_load_model(char* path, RasModel* model)
             RasVector3f* v = &current_group->normals[current_group->num_normals];
             int result = core_parse_vector(line, v);
             if (result != 0) {
-                return result;
+                return RAS_RESULT_ERROR;
             }
             current_group->num_normals++;
         } else if (strncmp(line, "f ", 2) == 0) {
@@ -265,7 +266,7 @@ int core_load_model(char* path, RasModel* model)
             RasModelFace* f = &current_group->faces[current_group->num_faces];
             int result = core_parse_face(line, f);
             if (result != 0) {
-                return result;
+                return RAS_RESULT_ERROR;
             }
             current_group->num_faces++;
         }
@@ -273,6 +274,27 @@ int core_load_model(char* path, RasModel* model)
     }
     core_plat_free(&line);
 
-    ras_log_info("%s\n", repr_model(buffer, sizeof buffer, model));
-    return 0;
+    ras_log_info("%s\n", core_repr_model(buffer, sizeof buffer, model));
+    return RAS_RESULT_OK;
+}
+
+char* core_repr_model(char* buffer, size_t count, RasModel* model)
+{
+    char buffer2[255];
+    buffer[0] = '\0';
+    snprintf(buffer2, sizeof buffer2, "model obj: %s\n", model->name);
+    strcat(buffer, buffer2);
+
+    for (int i = 0; i < model->num_groups; i++) {
+        RasModelGroup* group = &model->groups[i];
+        snprintf(buffer2, sizeof buffer2, "  group %d name: %s\n", i, group->name);
+        strcat(buffer, buffer2);
+        snprintf(buffer2, sizeof buffer2, "    num_verts: %d\n", group->num_verts);
+        strcat(buffer, buffer2);
+        snprintf(buffer2, sizeof buffer2, "    num_normals: %d\n", group->num_normals);
+        strcat(buffer, buffer2);
+        snprintf(buffer2, sizeof buffer2, "    num_faces: %d\n", group->num_faces);
+        strcat(buffer, buffer2);
+    }
+    return buffer;
 }

@@ -338,9 +338,9 @@ void plane_tests()
 void model_tests()
 {
     RasModel model;
-    int result = core_load_model("./assets/models/cube.obj", &model);
+    RasResult result = core_load_model("./assets/models/cube.obj", &model);
 
-    if (result < 0) {
+    if (result != RAS_RESULT_OK) {
         ras_log_error("core_load_model error\n");
     }
 }
@@ -349,8 +349,8 @@ int main()
 {
     FILE* log_file = fopen("/tmp/rasgl.log", "w");
 
-    log_add_fp(log_file, RAS_LOG_LEVEL);
-    log_set_level(RAS_LOG_LEVEL);
+    log_add_fp(log_file, RAS_LOG_LEVEL_FILE);
+    log_set_level(LOG_INFO);
     log_set_quiet(false);
 
     ras_log_info("rasgl tests...\n");
