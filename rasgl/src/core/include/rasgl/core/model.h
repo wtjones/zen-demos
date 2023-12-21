@@ -2,6 +2,7 @@
 #define MODEL_H
 
 #include "maths.h"
+#include "debug.h"
 
 #define RAS_MAX_NAME 50
 #define RAS_MAX_MODEL_GROUPS 1
