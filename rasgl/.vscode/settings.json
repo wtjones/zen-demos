@@ -1,6 +1,11 @@
 {
     "cmake.configureOnOpen": true,
-    "cmake.configureArgs": [
-        "-DRAS_PLATFORM=ras_sdl"
-    ]
+    // FIXME: use variants or targets
+    // https://vector-of-bool.github.io/docs/vscode-cmake-tools/settings.html#cmake-configureargs
+    "cmake.configureSettings": {
+        "CMAKE_GENERATOR": "Unix Makefiles",
+        "RAS_PLATFORM": "ras_sdl",
+        "RAS_DEMO": "poly",
+        "DEBUG": "0"
+    }
 }

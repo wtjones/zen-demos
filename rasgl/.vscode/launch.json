@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "C Launch",
+            "name": "rasgl demo",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/demo",
@@ -13,7 +13,20 @@
             "linux": {
                 "MIMode": "gdb",
                 "miDebuggerPath": "/usr/bin/gdb"
-            }
+            },
+            "preLaunchTask": "CMake: build"
+        },
+        {
+            "name": "rasgl tests",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/tests",
+            "cwd": "${workspaceFolder}",
+            "linux": {
+                "MIMode": "gdb",
+                "miDebuggerPath": "/usr/bin/gdb"
+            },
+            "preLaunchTask": "CMake: build"
         }
     ]
 }
