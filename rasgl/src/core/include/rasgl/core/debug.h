@@ -2,23 +2,24 @@
 #define DEBUG_H
 
 #include "log.c/src/log.h"
-#include "repr.h"
 
-#ifndef DEBUG1
-#    define DEBUG1 0
+#ifndef DEBUG
+#    define DEBUG 0
 #endif
 
-#if defined(DEBUG1)
-#    if (DEBUG1 == 1)
-#        define RAS_LOG_LEVEL LOG_TRACE
+#define RAS_LOG_LEVEL_STRERR LOG_ERROR
+
+#if defined(DEBUG)
+#    if (DEBUG == 1)
+#        define RAS_LOG_LEVEL_FILE LOG_TRACE
 #    else
-#        define RAS_LOG_LEVEL LOG_INFO
+#        define RAS_LOG_LEVEL_FILE LOG_INFO
 #    endif
 #endif
 
 #define debug_print(fmt, ...)                  \
     do {                                       \
-        if (DEBUG1)                            \
+        if (DEBUG)                             \
             fprintf(stderr, fmt, __VA_ARGS__); \
     } while (0)
 
@@ -32,5 +33,10 @@
 #define ras_log_warn(...) log_log(LOG_WARN, __FILE_NAME__, __LINE__, __VA_ARGS__)
 #define ras_log_error(...) log_log(LOG_ERROR, __FILE_NAME__, __LINE__, __VA_ARGS__)
 #define ras_log_fatal(...) log_log(LOG_FATAL, __FILE_NAME__, __LINE__, __VA_ARGS__)
+
+typedef enum RasResult {
+    RAS_RESULT_OK,
+    RAS_RESULT_ERROR
+} RasResult;
 
 #endif

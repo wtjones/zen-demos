@@ -1,5 +1,6 @@
 #include "rasgl/core/maths.h"
 #include "rasgl/core/debug.h"
+#include "rasgl/core/repr.h"
 
 extern int32_t cos_table[360];
 extern int32_t sin_table[360];
@@ -116,25 +117,35 @@ void core_mul_vec_by_vec(Point3f* v1, Point3f* v2, Point3f* dest)
     dest->z = mul_fixed_16_16_by_fixed_16_16(v1->z, v2->z);
 }
 
-void mat_translate_init(int32_t m[4][4], Point3f* v)
+void core_translate_apply(int32_t m[4][4], Point3f* v)
 {
-    mat_set_identity_4x4(m);
     m[0][3] = v->x;
     m[1][3] = v->y;
     m[2][3] = v->z;
+}
+
+void core_translate_init(int32_t m[4][4], Point3f* v)
+{
+    mat_set_identity_4x4(m);
+    core_translate_apply(m, v);
+}
+
+void core_rotate_y_apply(int32_t m[4][4], int32_t angle)
+{
+    int32_t c = cos_table[angle];
+    int32_t s = sin_table[angle];
+
+    m[0][0] = c;
+    m[0][2] = s;
+    m[2][0] = -s;
+    m[2][2] = c;
 }
 
 void mat_rotate_y(int32_t m[4][4], int32_t angle, int32_t dest[4][4])
 {
     int32_t temp[4][4];
     mat_set_identity_4x4(temp);
-    int32_t c = cos_table[angle];
-    int32_t s = sin_table[angle];
-
-    temp[0][0] = c;
-    temp[0][2] = s;
-    temp[2][0] = -s;
-    temp[2][2] = c;
+    core_rotate_y_apply(temp, angle);
     mat_mul_4x4_4x4(temp, m, dest);
 }
 
@@ -143,7 +154,6 @@ void mat_projection_init(int32_t projection_matrix[4][4], float fov, float aspec
     double d2r = M_PI / 180.0;
     double y_scale = 1.0 / tan(d2r * fov / 2); // FOV scaling factor
     double x_scale = y_scale / aspect_ratio;
-    double nearmfar = near - far;
 
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
@@ -153,8 +163,8 @@ void mat_projection_init(int32_t projection_matrix[4][4], float fov, float aspec
 
     projection_matrix[0][0] = float_to_fixed_16_16(x_scale);
     projection_matrix[1][1] = float_to_fixed_16_16(-y_scale);
-    projection_matrix[2][2] = float_to_fixed_16_16((far + near) / near - far);
-    projection_matrix[2][3] = float_to_fixed_16_16((-far * near) / (near - far));
+    projection_matrix[2][2] = float_to_fixed_16_16((far + near) / (near - far));
+    projection_matrix[2][3] = float_to_fixed_16_16((far * near) / (near - far));
     projection_matrix[3][2] = float_to_fixed_16_16(-1.0f);
 }
 
@@ -192,6 +202,21 @@ void core_normalize(Point3f* vec)
     vec->x = div_fixed_16_16_by_fixed_16_16(vec->x, length);
     vec->y = div_fixed_16_16_by_fixed_16_16(vec->y, length);
     vec->z = div_fixed_16_16_by_fixed_16_16(vec->z, length);
+}
+
+void core_vector3f_to_4x1(RasVector3f* vec, int32_t m[4])
+{
+    m[0] = vec->x;
+    m[1] = vec->y;
+    m[2] = vec->z;
+    m[3] = INT_32_TO_FIXED_16_16(1);
+}
+
+void core_4x1_to_vector3f(int32_t m[4], RasVector3f* vec)
+{
+    vec->x = m[0];
+    vec->y = m[1];
+    vec->z = m[2];
 }
 
 bool cmp_point3f(Point3f* p1, Point3f* p2)

@@ -38,9 +38,11 @@ enum {
 Point3f viewer_pos;
 int32_t viewer_angle = 180;
 float viewer_fov = 60.0f;
+bool viewer_changed = true;
 
 ScreenSettings* settings;
 WorldState world_state;
+Frustum frustum;
 
 int map[MAP_ROWS][MAP_COLS] = {
     { 1, 1, 0, 1, 1 },
@@ -122,7 +124,7 @@ void xform_to_view_mode_persp_matrix(
     int32_t view_matrix[4][4];
     int32_t view_point[4];
     int32_t projected_point[4];
-    Frustum frustum;
+
     char buffer[255];
 
     int32_t angle = (viewer_angle + 180) % 360;
@@ -132,7 +134,7 @@ void xform_to_view_mode_persp_matrix(
 
     // Combine world to viewer translate and rotate operations
     Point3f trans_pos = { -viewer_pos->x, -viewer_pos->y, -viewer_pos->z };
-    mat_translate_init(translate_to_viewer, &trans_pos);
+    core_translate_init(translate_to_viewer, &trans_pos);
     mat_rotate_y(translate_to_viewer, angle, view_matrix);
 
     int32_t projection_matrix[4][4];
@@ -145,16 +147,19 @@ void xform_to_view_mode_persp_matrix(
     mat_projection_init(projection_matrix, viewer_fov, aspect_ratio, near, far);
 
     mat_mul_4x4_4x4(projection_matrix, view_matrix, combined_matrix);
-    ras_log_info("view proj matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, combined_matrix));
 
     core_frustum_init(combined_matrix, &frustum);
 
-    ras_log_trace("frustum left plane: %s\n", repr_point3f(buffer, sizeof buffer, &frustum.planes[PLANE_LEFT].normal));
-    ras_log_trace("frustum left plane dist: %s\n", repr_fixed_16_16(buffer, sizeof buffer, frustum.planes[PLANE_LEFT].distance));
+    if (viewer_changed) {
+        ras_log_info("view proj matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, combined_matrix));
+        ras_log_info("frustum left plane: %s\n", repr_point3f(buffer, sizeof buffer, &frustum.planes[PLANE_LEFT].normal));
+        ras_log_info("frustum left plane dist: %s\n", repr_fixed_16_16(buffer, sizeof buffer, frustum.planes[PLANE_LEFT].distance));
 
-    ras_log_trace("frustum right plane: %s\n", repr_point3f(buffer, sizeof buffer, &frustum.planes[PLANE_RIGHT].normal));
-    ras_log_trace("frustum right plane dist: %s\n", repr_fixed_16_16(buffer, sizeof buffer, frustum.planes[PLANE_RIGHT].distance));
+        ras_log_info("frustum far-left point: %s\n", repr_point3f(buffer, sizeof buffer, &frustum.points[0]));
 
+        ras_log_trace("frustum right plane: %s\n", repr_point3f(buffer, sizeof buffer, &frustum.planes[PLANE_RIGHT].normal));
+        ras_log_trace("frustum right plane dist: %s\n", repr_fixed_16_16(buffer, sizeof buffer, frustum.planes[PLANE_RIGHT].distance));
+    }
     uint32_t* num_points = &render_state->num_points;
     uint32_t* num_commands = &render_state->num_commands;
 
@@ -182,13 +187,7 @@ void xform_to_view_mode_persp_matrix(
             RenderCommand* command = &render_state->commands[*num_commands];
             Point2i* screen_point = &render_state->points[*num_points];
 
-            int32_t half_screen_width = INT_32_TO_FIXED_16_16(settings->screen_width / 2);
-            int32_t half_screen_height = INT_32_TO_FIXED_16_16(settings->screen_height / 2);
-
-            screen_point->x = FIXED_16_16_TO_INT_32(
-                mul_fixed_16_16_by_fixed_16_16(half_screen_width, projected_point[0]) + half_screen_width);
-            screen_point->y = FIXED_16_16_TO_INT_32(
-                mul_fixed_16_16_by_fixed_16_16(half_screen_height, projected_point[1]) + half_screen_height);
+            projected_to_screen_point(settings->screen_width, settings->screen_height, projected_point, screen_point);
 
             ras_log_trace("screen point: %s\n", repr_point2i(buffer, sizeof buffer, screen_point));
 
@@ -214,7 +213,7 @@ void xform_to_view_mode_persp_alt(WorldState* world_state, RenderState* render_s
 
     // Combine world to viewer translate and rotate operations
     Point3f trans_pos = { -viewer_pos->x, -viewer_pos->y, -viewer_pos->z };
-    mat_translate_init(translate_to_viewer, &trans_pos);
+    core_translate_init(translate_to_viewer, &trans_pos);
     mat_rotate_y(translate_to_viewer, angle, view_matrix);
 
     uint32_t* num_points = &render_state->num_points;
@@ -273,7 +272,7 @@ void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* 
     }
 }
 
-void ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
+RasResult ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
 {
     ras_log_info("ras_app_init()... argc: %d argv: %s\n", argc, argv[0]);
     ras_log_info("ras_app_init()... screen_width.x: %d\n", init_settings->screen_width);
@@ -285,6 +284,7 @@ void ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
 
     map_to_world(&world_state);
     origin_to_world(&world_state);
+    return RAS_RESULT_OK;
 }
 
 void ras_app_update(InputState* input_state)
@@ -340,10 +340,10 @@ void ras_app_update(InputState* input_state)
     if (input_state->keys[RAS_KEY_MINUS] == 1) {
         viewer_pos.y -= ZOOM_SPEED;
     }
-    if (input_state->keys[RAS_KEY_TAB] == 1) {
+    if (input_state->keys[RAS_KEY_TAB] == RAS_KEY_EVENT_UP) {
         view_mode = view_mode == CAMERA ? MAP : CAMERA;
     }
-    if (input_state->keys[RAS_KEY_P] == 1) {
+    if (input_state->keys[RAS_KEY_P] == RAS_KEY_EVENT_UP) {
         projection_mode = projection_mode == PERSPECTIVE_MATRIX
             ? PERSPECTIVE_ALT
             : PERSPECTIVE_MATRIX;
@@ -357,7 +357,11 @@ void ras_app_update(InputState* input_state)
         ras_log_info("FOV: %f\n", viewer_fov);
     }
 
+    viewer_changed = !cmp_point3f(&viewer_pos, &viewer_pos_prev)
+        || (viewer_angle != viewer_angle_prev);
+
     if (!cmp_point3f(&viewer_pos, &viewer_pos_prev)) {
+        viewer_changed = true;
         char buffer[100];
         ras_log_info("viewer_pos: %s\n", repr_point3f(buffer, sizeof buffer, &viewer_pos));
     }
@@ -479,6 +483,87 @@ void render_map(RenderState* render_state)
     }
 }
 
+void render_frustum(RenderState* render_state)
+{
+    Point3f source;
+    uint32_t* num_commands = &render_state->num_commands;
+    RenderCommand* command = &render_state->commands[*num_commands];
+    uint32_t frustum_points_start = render_state->num_points;
+
+    // add points
+    source.x = frustum.points[0].x;
+    source.y = 0;
+    source.z = frustum.points[0].z;
+    push_world_point(render_state, source);
+
+    source.x = frustum.points[1].x;
+    source.y = 0;
+    source.z = frustum.points[1].z;
+    push_world_point(render_state, source);
+
+    source.x = frustum.points[2].x;
+    source.y = 0;
+    source.z = frustum.points[2].z;
+    push_world_point(render_state, source);
+
+    source.x = frustum.points[3].x;
+    source.y = 0;
+    source.z = frustum.points[3].z;
+    push_world_point(render_state, source);
+
+    // left side
+    command->num_points = 2;
+    command->point_indices[0] = frustum_points_start;
+    command->point_indices[1] = frustum_points_start + 1;
+    (*num_commands)++;
+    command = &render_state->commands[*num_commands];
+
+    // near side
+    command->num_points = 2;
+    command->point_indices[0] = frustum_points_start + 1;
+    command->point_indices[1] = frustum_points_start + 2;
+    (*num_commands)++;
+    command = &render_state->commands[*num_commands];
+
+    // right side
+    command->num_points = 2;
+    command->point_indices[0] = frustum_points_start + 2;
+    command->point_indices[1] = frustum_points_start + 3;
+    (*num_commands)++;
+    command = &render_state->commands[*num_commands];
+
+    // far side
+    command->num_points = 2;
+    command->point_indices[0] = frustum_points_start;
+    command->point_indices[1] = frustum_points_start + 3;
+    (*num_commands)++;
+    command = &render_state->commands[*num_commands];
+
+    // top-left point
+    command->num_points = 1;
+    command->point_indices[0] = frustum_points_start;
+    (*num_commands)++;
+    command = &render_state->commands[*num_commands];
+
+    // near-left point
+    command->num_points = 1;
+    command->point_indices[0] = frustum_points_start + 1;
+    (*num_commands)++;
+    command = &render_state->commands[*num_commands];
+
+    // near-right point
+    command->num_points = 1;
+    command->point_indices[0] = frustum_points_start + 2;
+    (*num_commands)++;
+    command = &render_state->commands[*num_commands];
+
+    // far-right point
+    command->num_points = 1;
+    command->point_indices[0] = frustum_points_start + 3;
+    (*num_commands)++;
+    command = &render_state->commands[*num_commands];
+}
+
 void render_origin(RenderState* render_state)
 {
     Point3f world_pos;
@@ -535,13 +620,6 @@ void render_viewer(RenderState* render_state)
     world_pos.x = viewer_pos.x + (unit_vector.x * 8);
     world_pos.z = viewer_pos.z + (unit_vector.y * 8);
 
-    if (render_state->current_frame % 30 == 0) {
-        char buffer[100];
-        char buffer2[100];
-        ras_log_info("the tip: %s %s\n",
-            repr_point3f(buffer, sizeof buffer, &world_pos),
-            repr_point2f(buffer2, sizeof buffer2, &unit_vector));
-    }
     render_point(render_state, world_pos);
 
     world_pos.x = viewer_pos.x + -(unit_vector.y * 4);
@@ -558,7 +636,9 @@ void ras_app_render(RenderState* render_state)
     render_state->num_points = 0;
     render_state->num_commands = 0;
     if (view_mode == MAP) {
+        xform_to_view(&world_state, render_state, &viewer_pos);
         render_map(render_state);
+        render_frustum(render_state);
         render_origin(render_state);
         render_viewer(render_state);
     } else {

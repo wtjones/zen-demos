@@ -2,6 +2,8 @@
 #include "rasgl/core/fixed_maths.h"
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/matrix.h"
+#include "rasgl/core/matrix_projection.h"
+#include "rasgl/core/model.h"
 #include "rasgl/core/plane.h"
 #include "rasgl/core/repr.h"
 #include <assert.h>
@@ -67,6 +69,36 @@ void mat_mul_4_tests()
 
     mat_mul_4x4_4x4(m1, m2, dest);
     ras_log_info("Result of 4x4 x 4x4: %s\n", repr_mat_4x4(buffer, sizeof buffer, dest));
+}
+
+void mat_ortho_tests()
+{
+    char buffer[1000];
+    int32_t matrix[4][4];
+    int32_t projected_point[4];
+    Point2i screen_point;
+    mat_ortho_init(
+        matrix,
+        -INT_32_TO_FIXED_16_16(1),
+        INT_32_TO_FIXED_16_16(1),
+        -INT_32_TO_FIXED_16_16(1),
+        INT_32_TO_FIXED_16_16(1),
+        -INT_32_TO_FIXED_16_16(1),
+        INT_32_TO_FIXED_16_16(1));
+
+    ras_log_info("Ortho matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, matrix));
+
+    int32_t v[4] = {
+        -float_to_fixed_16_16(0.5),
+        float_to_fixed_16_16(0.5),
+        -float_to_fixed_16_16(0.5),
+        float_to_fixed_16_16(1.0)
+    };
+    mat_mul_project(matrix, v, projected_point);
+    ras_log_info("Ortho projected: %s\n", repr_mat_4x1(buffer, sizeof buffer, projected_point));
+
+    projected_to_screen_point(100, 100, projected_point, &screen_point);
+    ras_log_info("Ortho screen: %s\n", repr_point2i(buffer, sizeof buffer, &screen_point));
 }
 
 void mat_projection_tests()
@@ -303,12 +335,22 @@ void plane_tests()
     ras_log_info("3 plane intersect result: %s\n", repr_point3f(buffer, sizeof buffer, &result));
 }
 
+void model_tests()
+{
+    RasModel model;
+    RasResult result = core_load_model("./assets/models/cube.obj", &model);
+
+    if (result != RAS_RESULT_OK) {
+        ras_log_error("core_load_model error\n");
+    }
+}
+
 int main()
 {
     FILE* log_file = fopen("/tmp/rasgl.log", "w");
 
-    log_add_fp(log_file, RAS_LOG_LEVEL);
-    log_set_level(RAS_LOG_LEVEL);
+    log_add_fp(log_file, RAS_LOG_LEVEL_FILE);
+    log_set_level(LOG_INFO);
     log_set_quiet(false);
 
     ras_log_info("rasgl tests...\n");
@@ -326,5 +368,7 @@ int main()
     cross_product_tests();
     dot_product_tests();
     plane_tests();
+    mat_ortho_tests();
+    model_tests();
     return 0;
 }

@@ -11,6 +11,7 @@
 #include <stdint.h>
 
 #define FRUSTUM_PLANES 6
+#define FRUSTUM_POINTS 8
 
 enum {
     PLANE_LEFT,
@@ -22,7 +23,8 @@ enum {
 };
 
 typedef struct Frustum {
-    Plane planes[6];
+    Plane planes[FRUSTUM_PLANES];
+    Point3f points[FRUSTUM_POINTS];
 } Frustum;
 
 /**

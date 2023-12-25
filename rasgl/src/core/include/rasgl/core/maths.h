@@ -29,6 +29,15 @@ typedef struct Point3f {
     int32_t z;
 } Point3f;
 
+typedef struct Point3f RasVector3f;
+
+typedef struct RasVector4f {
+    int32_t x;
+    int32_t y;
+    int32_t z;
+    int32_t w;
+} RasVector4f;
+
 extern int32_t cos_table[360];
 extern int32_t sin_table[360];
 
@@ -70,10 +79,14 @@ void core_mul_vec_by_fixed_16_16(Point3f* v1, int32_t f, Point3f* dest);
  */
 void core_mul_vec_by_vec(Point3f* v1, Point3f* v2, Point3f* dest);
 
+void core_translate_apply(int32_t m[4][4], Point3f* v);
+
 /**
  * Inits a translation matrix by vector
  */
-void mat_translate_init(int32_t m[4][4], Point3f* v);
+void core_translate_init(int32_t m[4][4], Point3f* v);
+
+void core_rotate_y_apply(int32_t m[4][4], int32_t angle);
 
 /**
  * Rotate given matrix by angle and store in dest
@@ -88,6 +101,9 @@ void mat_projection_init(int32_t projection_matrix[4][4], float fov, float aspec
  */
 void mat_mul_project(int32_t projection_matrix[4][4], int32_t v[4], int32_t dest[4]);
 
+void core_vector3f_to_4x1(RasVector3f* vec, int32_t m[4]);
+void core_4x1_to_vector3f(int32_t m[4], RasVector3f* vec);
+
 /**
  * @brief Perform memberwise comparison of Point3f
  */
@@ -96,5 +112,7 @@ bool cmp_point3f(Point3f* p1, Point3f* p2);
 int32_t core_get_vec_length(Point3f* vec);
 
 void core_normalize(Point3f* vec);
+
+void core_mat_mul_4x4_vec3f(int32_t projection_matrix[4][4], RasVector3f* vec, RasVector3f* dest);
 
 #endif
