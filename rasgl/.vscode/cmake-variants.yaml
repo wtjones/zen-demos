@@ -1,0 +1,35 @@
+platform:
+  default: ras_sdl
+  choices:
+    ras_sdl:
+      short: POSIX SDL2
+      buildType: Debug
+      settings:
+        RAS_PLATFORM: ras_sdl
+    ras_dos:
+      short: DOS Allegro
+      buildType: Debug
+      settings:
+        RAS_PLATFORM: ras_dos
+demo:
+  default: world
+  choices:
+    world:
+      short: World demo
+      settings:
+        RAS_DEMO: world
+    poly:
+      short: Poly demo
+      settings:
+        RAS_DEMO: poly
+logging:
+  default: debug_logging
+  choices:
+    info_logging:
+      short: Info logging
+      settings:
+        DEBUG: 0
+    debug_logging:
+      short: Debug logging
+      settings:
+        DEBUG: 1
