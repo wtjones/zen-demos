@@ -23,7 +23,7 @@ demo:
       settings:
         RAS_DEMO: poly
 logging:
-  default: debug_logging
+  default: info_logging
   choices:
     info_logging:
       short: Info logging
