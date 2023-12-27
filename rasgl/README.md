@@ -202,6 +202,9 @@ run_tests.sh 1
 run_posix.sh [world | poly] 1
 run_dos.sh [world | poly] 1
 ```
+## VS Code
+
+The [cmake variant file](https://vector-of-bool.github.io/docs/vscode-cmake-tools/variants.html) allows for the selection of a buildType/platform/demo combo. As more demos are added, it may be preferable to use build targets.
 
 ## External libraries
 

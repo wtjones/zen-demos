@@ -3,6 +3,11 @@
 
 #include "log.c/src/log.h"
 
+// FIXME: needed for vscode intellisense
+#ifndef __FILE_NAME__
+#    define __FILE_NAME__ ""
+#endif
+
 #ifndef DEBUG
 #    define DEBUG 0
 #endif
