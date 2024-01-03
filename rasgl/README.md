@@ -192,6 +192,17 @@ Rotate: Q/E
 Toggle view mode: TAB
 Adjust FOV: left/right bracket
 
+### Demo: poly
+
+```
+./run_posix poly 0
+```
+
+Provide a model obj file as an optional param.
+
+```
+./run_posix poly 0 ./assets/models/cube.obj
+```
 
 ## Debug output
 

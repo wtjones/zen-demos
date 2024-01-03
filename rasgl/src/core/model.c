@@ -207,7 +207,7 @@ int core_parse_face(char* line, RasModelFace* dest)
     return 0;
 }
 
-RasResult core_load_model(char* path, RasModel* model)
+RasResult core_load_model(const char* path, RasModel* model)
 {
     char buffer[255];
     FILE* file;

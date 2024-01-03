@@ -1,8 +1,8 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include "maths.h"
 #include "debug.h"
+#include "maths.h"
 
 #define RAS_MAX_NAME 50
 #define RAS_MAX_MODEL_GROUPS 1
@@ -40,7 +40,7 @@ typedef struct RasModel {
     uint32_t num_groups;
 } RasModel;
 
-RasResult core_load_model(char* path, RasModel* model);
+RasResult core_load_model(const char* path, RasModel* model);
 
 char* core_repr_model(char* buffer, size_t count, RasModel* model);
 

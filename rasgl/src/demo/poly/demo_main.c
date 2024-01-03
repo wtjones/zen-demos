@@ -28,8 +28,9 @@ float aspect_ratio = 1.333f; // Aspect ratio (width/height)
 float near = 0.1f;           // Near clipping plane
 float far = 100.0f;          // Far clipping plane
 float viewer_fov = 60.0f;
+char* default_model = "./assets/models/ico.obj";
 
-RasPipelineElement cube_element;
+RasPipelineElement current_element;
 
 void proj_matrix_init(RenderState* render_state, int32_t projection_matrix[4][4])
 {
@@ -52,14 +53,16 @@ RasResult ras_app_init(int argc, const char** argv, ScreenSettings* init_setting
     ras_log_info("ras_app_init()... argc: %d argv: %s\n", argc, argv[0]);
     ras_log_info("ras_app_init()... screen_width.x: %d\n", init_settings->screen_width);
     settings = init_settings;
-    RasResult result = core_load_model("./assets/models/cube.obj", &cube_model);
+    const char* model_path = (argc > 1) ? argv[1] : default_model;
+
+    RasResult result = core_load_model(model_path, &cube_model);
 
     if (result != RAS_RESULT_OK) {
         ras_log_error("core_load_model error\n");
         return RAS_RESULT_ERROR;
     }
     RasModelGroup* group = &cube_model.groups[0];
-    core_model_group_to_pipeline_element(group, &cube_element);
+    core_model_group_to_pipeline_element(group, &current_element);
     return RAS_RESULT_OK;
 }
 
@@ -116,7 +119,7 @@ void ras_app_render(RenderState* render_state)
 
     core_draw_element(
         render_state,
-        &cube_element,
+        &current_element,
         model_world_matrix,
         world_view_matrix,
         projection_matrix);
