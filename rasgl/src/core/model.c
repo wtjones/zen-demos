@@ -41,7 +41,7 @@ int core_parse_group_name(char* line, RasModelGroup* group)
         ras_log_error("strsep() returned NULL %s", str);
         return 1;
     }
-    ras_log_info("parsed from token: %s", token);
+    ras_log_trace("parsed from token: %s", token);
     strcat(group->name, token);
     core_plat_free(&tofree);
     return 0;
@@ -69,9 +69,9 @@ int core_parse_vector(char* line, RasVector3f* dest)
         ras_log_error("strsep() returned NULL %s", str);
         return 1;
     }
-    ras_log_info("parsing float from token: %s", token);
+    ras_log_trace("parsing float from token: %s", token);
     int32_t x = float_to_fixed_16_16(atof(token));
-    ras_log_info("vector x: %s\n", repr_fixed_16_16(buffer, sizeof buffer, x));
+    ras_log_trace("vector x: %s\n", repr_fixed_16_16(buffer, sizeof buffer, x));
 
     do {
         token = strsep(&str, " "); // space
@@ -81,9 +81,9 @@ int core_parse_vector(char* line, RasVector3f* dest)
         ras_log_error("strsep() returned NULL %s", str);
         return 1;
     }
-    ras_log_info("parsing float from token: %s", token);
+    ras_log_trace("parsing float from token: %s", token);
     int32_t y = float_to_fixed_16_16(atof(token));
-    ras_log_info("vector y: %s\n", repr_fixed_16_16(buffer, sizeof buffer, y));
+    ras_log_trace("vector y: %s\n", repr_fixed_16_16(buffer, sizeof buffer, y));
 
     do {
         token = strsep(&str, " "); // space
@@ -93,14 +93,14 @@ int core_parse_vector(char* line, RasVector3f* dest)
         ras_log_error("strsep() returned NULL %s", str);
         return 1;
     }
-    ras_log_info("parsing float from token: %s", token);
+    ras_log_trace("parsing float from token: %s", token);
     int32_t z = float_to_fixed_16_16(atof(token));
-    ras_log_info("vector y: %s\n", repr_fixed_16_16(buffer, sizeof buffer, y));
+    ras_log_trace("vector y: %s\n", repr_fixed_16_16(buffer, sizeof buffer, y));
     core_plat_free(&tofree);
     dest->x = x;
     dest->y = y;
     dest->z = z;
-    ras_log_info("parsed vector: %s\n", repr_point3f(buffer, sizeof buffer, dest));
+    ras_log_trace("parsed vector: %s\n", repr_point3f(buffer, sizeof buffer, dest));
     return 0;
 }
 
@@ -235,7 +235,7 @@ RasResult core_load_model(const char* path, RasModel* model)
         ras_log_trace("%lu : %s", strlen(line), line);
 
         if (strncmp(line, "g ", 2) == 0) {
-            ras_log_info("group: %s", "");
+            ras_log_trace("group: %s", "");
             file_num_groups++;
             if (file_num_groups > 1) {
                 ras_log_error("Multiple groups not supported.");
