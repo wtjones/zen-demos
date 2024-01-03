@@ -63,11 +63,17 @@ typedef struct RasPipelineVertex {
     int32_t u, v;
 } RasPipelineVertex;
 
+typedef struct RasAABB {
+    RasVector3f min;
+    RasVector3f max;
+} RasAABB;
+
 typedef struct RasPipelineElement {
     RasVertex verts[MAX_PIPELINE_VERTS];
     uint32_t num_verts;
     uint32_t indexes[MAX_VISIBLE_INDEXES];
     uint32_t num_indexes;
+    RasAABB aabb;
 } RasPipelineElement;
 
 typedef struct RenderState {

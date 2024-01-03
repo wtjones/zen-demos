@@ -209,6 +209,14 @@ void core_renderstate_clear(RenderState* state)
 
 void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineElement* element)
 {
+    element->aabb.min.x = FIXED_MAX;
+    element->aabb.min.y = FIXED_MAX;
+    element->aabb.min.z = FIXED_MAX;
+
+    element->aabb.max.x = FIXED_MIN;
+    element->aabb.max.y = FIXED_MIN;
+    element->aabb.max.z = FIXED_MIN;
+
     element->num_verts = group->num_verts;
     for (int i = 0; i < group->num_verts; i++) {
         RasVertex* element_vert = &element->verts[i];
@@ -216,7 +224,13 @@ void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineEleme
         element_vert->position.x = group->verts[i].x;
         element_vert->position.y = group->verts[i].y;
         element_vert->position.z = group->verts[i].z;
+
+        core_min_vector3f(&element->aabb.min, &element_vert->position, &element->aabb.min);
+        core_max_vector3f(&element->aabb.max, &element_vert->position, &element->aabb.max);
     }
+    char buffer[255];
+    ras_log_trace("Model AABB min: %s\n", repr_point3f(buffer, sizeof buffer, &element->aabb.min));
+    ras_log_trace("Model AABB max: %s\n", repr_point3f(buffer, sizeof buffer, &element->aabb.max));
 
     element->num_indexes = group->num_faces * 3;
     uint32_t* element_index = &element->indexes[0];

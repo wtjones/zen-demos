@@ -115,4 +115,7 @@ void core_normalize(Point3f* vec);
 
 void core_mat_mul_4x4_vec3f(int32_t projection_matrix[4][4], RasVector3f* vec, RasVector3f* dest);
 
+void core_min_vector3f(RasVector3f* v1, RasVector3f* v2, RasVector3f* dest);
+void core_max_vector3f(RasVector3f* v1, RasVector3f* v2, RasVector3f* dest);
+
 #endif

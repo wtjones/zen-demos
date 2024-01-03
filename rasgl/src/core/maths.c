@@ -223,3 +223,17 @@ bool cmp_point3f(Point3f* p1, Point3f* p2)
 {
     return p1->x == p2->x && p1->y == p2->y && p1->z == p2->z;
 }
+
+void core_min_vector3f(RasVector3f* v1, RasVector3f* v2, RasVector3f* dest)
+{
+    dest->x = v1->x < v2->x ? v1->x : v2->x;
+    dest->y = v1->y < v2->y ? v1->y : v2->y;
+    dest->z = v1->z < v2->z ? v1->z : v2->z;
+}
+
+void core_max_vector3f(RasVector3f* v1, RasVector3f* v2, RasVector3f* dest)
+{
+    dest->x = v1->x > v2->x ? v1->x : v2->x;
+    dest->y = v1->y > v2->y ? v1->y : v2->y;
+    dest->z = v1->z > v2->z ? v1->z : v2->z;
+}
