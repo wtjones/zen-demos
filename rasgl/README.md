@@ -11,6 +11,8 @@ The key attributes of RasGL:
 * Triangle-based polygon pipeline
     * A single primative allows for a narrower focus and aligns with pipelines of the era.
 
+See [TODO.md](TODO.md).
+
 ## Features
 
 * Working
