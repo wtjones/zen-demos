@@ -1,4 +1,5 @@
 #include "rasgl/core/plane.h"
+#include "rasgl/core/repr.h"
 
 /**
  *
@@ -68,4 +69,21 @@ bool core_get_3_plane_intersection(Plane* p1, Plane* p2, Plane* p3, Point3f* poi
     point->z = div_fixed_16_16_by_fixed_16_16(part1.z - part2.z - part3.z, denom);
 
     return true;
+}
+
+char* core_repr_plane(char* buffer, size_t count, Plane* plane)
+{
+    char buffer2[255];
+    char buffer3[255];
+    char buffer4[255];
+
+    buffer[0] = '\0';
+    snprintf(
+        buffer2,
+        sizeof buffer2,
+        "[\n    normal: %s\n    dist: %s\n]",
+        repr_point3f(buffer3, sizeof buffer3, &plane->normal),
+        repr_fixed_16_16(buffer4, sizeof buffer4, plane->distance));
+    strcat(buffer, buffer2);
+    return buffer;
 }

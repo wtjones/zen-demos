@@ -42,7 +42,7 @@ bool viewer_changed = true;
 
 ScreenSettings* settings;
 WorldState world_state;
-Frustum frustum;
+RasFrustum frustum;
 
 int map[MAP_ROWS][MAP_COLS] = {
     { 1, 1, 0, 1, 1 },
@@ -125,7 +125,7 @@ void xform_to_view_mode_persp_matrix(
     int32_t view_point[4];
     int32_t projected_point[4];
 
-    char buffer[255];
+    char buffer[1000];
 
     int32_t angle = (viewer_angle + 180) % 360;
     if (angle < 0) {
@@ -152,13 +152,7 @@ void xform_to_view_mode_persp_matrix(
 
     if (viewer_changed) {
         ras_log_info("view proj matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, combined_matrix));
-        ras_log_info("frustum left plane: %s\n", repr_point3f(buffer, sizeof buffer, &frustum.planes[PLANE_LEFT].normal));
-        ras_log_info("frustum left plane dist: %s\n", repr_fixed_16_16(buffer, sizeof buffer, frustum.planes[PLANE_LEFT].distance));
-
-        ras_log_info("frustum far-left point: %s\n", repr_point3f(buffer, sizeof buffer, &frustum.points[0]));
-
-        ras_log_trace("frustum right plane: %s\n", repr_point3f(buffer, sizeof buffer, &frustum.planes[PLANE_RIGHT].normal));
-        ras_log_trace("frustum right plane dist: %s\n", repr_fixed_16_16(buffer, sizeof buffer, frustum.planes[PLANE_RIGHT].distance));
+        ras_log_info("frustum: %s\n", core_repr_frustum(buffer, sizeof buffer, &frustum));
     }
     uint32_t* num_points = &render_state->num_points;
     uint32_t* num_commands = &render_state->num_commands;

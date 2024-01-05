@@ -22,14 +22,16 @@ enum {
     PLANE_FAR
 };
 
-typedef struct Frustum {
+typedef struct RasFrustum {
     Plane planes[FRUSTUM_PLANES];
     Point3f points[FRUSTUM_POINTS];
-} Frustum;
+} RasFrustum;
 
 /**
  * Extract the frustum from the combined view and projection matrices.
  */
-void core_frustum_init(int32_t view_projection_matrix[4][4], Frustum* frustum);
+void core_frustum_init(int32_t view_projection_matrix[4][4], RasFrustum* frustum);
+
+char* core_repr_frustum(char* buffer, size_t count, RasFrustum* frustum);
 
 #endif

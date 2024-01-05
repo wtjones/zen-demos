@@ -13,4 +13,6 @@
 
 ### In Progress
 
+- [x] Add frustum repr function
+
 ### Done ✓

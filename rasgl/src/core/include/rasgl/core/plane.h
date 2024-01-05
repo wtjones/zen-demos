@@ -16,4 +16,6 @@ bool core_plane_line_intersect(Plane* plane, Point3f* v1, Point3f* v2);
 
 bool core_get_3_plane_intersection(Plane* p1, Plane* p2, Plane* p3, Point3f* point);
 
+char* core_repr_plane(char* buffer, size_t count, Plane* plane);
+
 #endif

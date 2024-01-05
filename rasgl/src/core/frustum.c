@@ -1,4 +1,5 @@
 #include "rasgl/core/frustum.h"
+#include "rasgl/core/repr.h"
 
 void core_frustum_plane_init(int32_t v[4], Plane* plane)
 {
@@ -25,7 +26,7 @@ void core_frustum_plane_init(int32_t v[4], Plane* plane)
  *
  *   5  7
  */
-void core_frustum_points_init(Frustum* frustum)
+void core_frustum_points_init(RasFrustum* frustum)
 {
     // top points
     core_get_3_plane_intersection(
@@ -78,7 +79,7 @@ void core_frustum_points_init(Frustum* frustum)
         &frustum->points[7]);
 }
 
-void core_frustum_planes_init(int32_t view_projection_matrix[4][4], Frustum* frustum)
+void core_frustum_planes_init(int32_t view_projection_matrix[4][4], RasFrustum* frustum)
 {
     int32_t row0[4] = {
         view_projection_matrix[0][0],
@@ -175,8 +176,42 @@ void core_frustum_planes_init(int32_t view_projection_matrix[4][4], Frustum* fru
     core_frustum_plane_init(p6, &frustum->planes[PLANE_FAR]);
 }
 
-void core_frustum_init(int32_t view_projection_matrix[4][4], Frustum* frustum)
+void core_frustum_init(int32_t view_projection_matrix[4][4], RasFrustum* frustum)
 {
     core_frustum_planes_init(view_projection_matrix, frustum);
     core_frustum_points_init(frustum);
+}
+
+char* core_repr_frustum(char* buffer, size_t count, RasFrustum* frustum)
+{
+    char buffer2[255];
+    char buffer3[255];
+    char buffer4[255];
+
+    buffer[0] = '\n';
+    buffer[1] = '\0';
+
+    snprintf(
+        buffer2,
+        sizeof buffer2,
+        "left plane:%s\n",
+        core_repr_plane(buffer3, sizeof buffer3, &frustum->planes[PLANE_LEFT]));
+    strcat(buffer, buffer2);
+
+    snprintf(
+        buffer2,
+        sizeof buffer2,
+        "right plane:%s\n",
+        core_repr_plane(buffer3, sizeof buffer3, &frustum->planes[PLANE_RIGHT]));
+    strcat(buffer, buffer2);
+
+    snprintf(
+        buffer2,
+        sizeof buffer2,
+        "frustum points:\n    far-TL: %s\n    near-TL: %s\n",
+        repr_point3f(buffer3, sizeof buffer3, &frustum->points[0]),
+        repr_point3f(buffer4, sizeof buffer4, &frustum->points[1]));
+    strcat(buffer, buffer2);
+
+    return buffer;
 }
