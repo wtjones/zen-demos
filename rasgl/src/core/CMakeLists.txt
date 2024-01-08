@@ -1,5 +1,6 @@
 add_library(core
     app.c
+    camera.c
     frustum.c
     graphics.c
     input.c

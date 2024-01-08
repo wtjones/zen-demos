@@ -1,4 +1,5 @@
 #include "rasgl/core/app.h"
+#include "rasgl/core/camera.h"
 #include "rasgl/core/debug.h"
 #include "rasgl/core/fixed_maths.h"
 #include "rasgl/core/frustum.h"
@@ -12,11 +13,6 @@
 #define MAP_COLS 5
 #define MAX_WORLD_POINTS 1024
 #define CELL_UNITS INT_32_TO_FIXED_16_16(10)
-#define ZOOM_SPEED float_to_fixed_16_16(.05)
-#define ROTATION_SPEED 1
-#define FOV_SPEED 2.0f
-#define VIEWER_SPEED float_to_fixed_16_16(.5)
-#define PROJECTION_RATIO -float_to_fixed_16_16(2.0)
 
 typedef struct WorldState {
     Point3f points[MAX_WORLD_POINTS];
@@ -35,9 +31,12 @@ enum {
 } projection_mode
     = PERSPECTIVE_MATRIX;
 
-Point3f viewer_pos;
-int32_t viewer_angle = 180;
-float viewer_fov = 60.0f;
+RasCamera camera = {
+    .angle = 180,
+    .fov = 60.0f,
+    .projection_mode = RAS_PERSPECTIVE_MATRIX
+};
+
 bool viewer_changed = true;
 
 ScreenSettings* settings;
@@ -127,7 +126,7 @@ void xform_to_view_mode_persp_matrix(
 
     char buffer[1000];
 
-    int32_t angle = (viewer_angle + 180) % 360;
+    int32_t angle = (camera.angle + 180) % 360;
     if (angle < 0) {
         angle += 360;
     }
@@ -144,7 +143,7 @@ void xform_to_view_mode_persp_matrix(
     float near = 0.1f;           // Near clipping plane
     float far = 100.0f;          // Far clipping plane
 
-    mat_projection_init(projection_matrix, viewer_fov, aspect_ratio, near, far);
+    mat_projection_init(projection_matrix, camera.fov, aspect_ratio, near, far);
 
     mat_mul_4x4_4x4(projection_matrix, view_matrix, combined_matrix);
 
@@ -200,7 +199,7 @@ void xform_to_view_mode_persp_alt(WorldState* world_state, RenderState* render_s
     int32_t view_point[4];
     char buffer[255];
 
-    int32_t angle = (viewer_angle + 180) % 360;
+    int32_t angle = (camera.angle + 180) % 360;
     if (angle < 0) {
         angle += 360;
     }
@@ -272,9 +271,9 @@ RasResult ras_app_init(int argc, const char** argv, ScreenSettings* init_setting
     ras_log_info("ras_app_init()... screen_width.x: %d\n", init_settings->screen_width);
     settings = init_settings;
 
-    viewer_pos.x = INT_32_TO_FIXED_16_16(0);
-    viewer_pos.y = INT_32_TO_FIXED_16_16(2);
-    viewer_pos.z = INT_32_TO_FIXED_16_16(40);
+    camera.position.x = INT_32_TO_FIXED_16_16(0);
+    camera.position.y = INT_32_TO_FIXED_16_16(2);
+    camera.position.z = INT_32_TO_FIXED_16_16(40);
 
     map_to_world(&world_state);
     origin_to_world(&world_state);
@@ -283,84 +282,10 @@ RasResult ras_app_init(int argc, const char** argv, ScreenSettings* init_setting
 
 void ras_app_update(InputState* input_state)
 {
-    int32_t viewer_angle_prev = viewer_angle;
-    int32_t delta_angle = 0;
-    if (input_state->keys[RAS_KEY_Q] == 1 || input_state->keys[RAS_KEY_LEFT]) {
-        delta_angle = ROTATION_SPEED;
-    }
-    if (input_state->keys[RAS_KEY_E] == 1 || input_state->keys[RAS_KEY_RIGHT]) {
-        delta_angle = -ROTATION_SPEED;
-    }
+    ras_camera_update(input_state, &camera);
 
-    viewer_angle = (viewer_angle + delta_angle) % 360;
-    if (viewer_angle < 0) {
-        viewer_angle += 360;
-    };
-
-    Point2f origin = { .x = 0, .y = 0 };
-    Point2f vector;
-    apply_unit_vector(&origin, viewer_angle, &vector);
-
-    // translate direction vector to world space
-    Point2f world_vector = { viewer_pos.x + vector.x, viewer_pos.z + vector.y };
-
-    Point2f delta = {
-        mul_fixed_16_16_by_fixed_16_16(world_vector.x - viewer_pos.x, VIEWER_SPEED),
-        mul_fixed_16_16_by_fixed_16_16(world_vector.y - viewer_pos.z, VIEWER_SPEED)
-    };
-
-    Point3f viewer_pos_prev;
-    memcpy(&viewer_pos_prev, &viewer_pos, sizeof viewer_pos);
-
-    if (input_state->keys[RAS_KEY_W] == 1) {
-        viewer_pos.z += delta.y;
-        viewer_pos.x += delta.x;
-    }
-    if (input_state->keys[RAS_KEY_A] == 1) {
-        viewer_pos.z -= delta.x;
-        viewer_pos.x += delta.y;
-    }
-    if (input_state->keys[RAS_KEY_S] == 1) {
-        viewer_pos.z -= delta.y;
-        viewer_pos.x -= delta.x;
-    }
-    if (input_state->keys[RAS_KEY_D] == 1) {
-        viewer_pos.z += delta.x;
-        viewer_pos.x -= delta.y;
-    }
-    if (input_state->keys[RAS_KEY_EQUALS] == 1) {
-        viewer_pos.y += ZOOM_SPEED;
-    }
-    if (input_state->keys[RAS_KEY_MINUS] == 1) {
-        viewer_pos.y -= ZOOM_SPEED;
-    }
     if (input_state->keys[RAS_KEY_TAB] == RAS_KEY_EVENT_UP) {
         view_mode = view_mode == CAMERA ? MAP : CAMERA;
-    }
-    if (input_state->keys[RAS_KEY_P] == RAS_KEY_EVENT_UP) {
-        projection_mode = projection_mode == PERSPECTIVE_MATRIX
-            ? PERSPECTIVE_ALT
-            : PERSPECTIVE_MATRIX;
-    }
-    if (input_state->keys[RAS_KEY_LEFTBRACKET] == 1) {
-        viewer_fov -= FOV_SPEED;
-        ras_log_info("FOV: %f\n", viewer_fov);
-    }
-    if (input_state->keys[RAS_KEY_RIGHTBRACKET] == 1) {
-        viewer_fov += FOV_SPEED;
-        ras_log_info("FOV: %f\n", viewer_fov);
-    }
-
-    viewer_changed = !cmp_point3f(&viewer_pos, &viewer_pos_prev)
-        || (viewer_angle != viewer_angle_prev);
-
-    if (!cmp_point3f(&viewer_pos, &viewer_pos_prev)) {
-        viewer_changed = true;
-        char buffer[100];
-        ras_log_info("viewer_pos: %s\n", repr_point3f(buffer, sizeof buffer, &viewer_pos));
-    }
-    if (viewer_angle != viewer_angle_prev) {
-        ras_log_info("viewer_angle: %d\n", viewer_angle);
     }
 }
 
@@ -378,7 +303,7 @@ void render_point(RenderState* render_state, Point3f world_pos)
     xform_to_screen(
         settings->screen_width,
         settings->screen_height,
-        &viewer_pos, &world_pos, &dest);
+        &camera.position, &world_pos, &dest);
 
     screen_pos->x = FIXED_16_16_TO_INT_32(dest.x);
     screen_pos->y = FIXED_16_16_TO_INT_32(dest.y);
@@ -403,7 +328,7 @@ void push_world_point(RenderState* render_state, Point3f world_pos)
     xform_to_screen(
         settings->screen_width,
         settings->screen_height,
-        &viewer_pos, &world_pos, &dest);
+        &camera.position, &world_pos, &dest);
 
     screen_pos->x = FIXED_16_16_TO_INT_32(dest.x);
     screen_pos->y = FIXED_16_16_TO_INT_32(dest.y);
@@ -590,38 +515,38 @@ void render_viewer(RenderState* render_state)
 {
     Point3f world_pos;
 
-    world_pos.x = viewer_pos.x + INT_32_TO_FIXED_16_16(0);
-    world_pos.z = viewer_pos.z + INT_32_TO_FIXED_16_16(1);
+    world_pos.x = camera.position.x + INT_32_TO_FIXED_16_16(0);
+    world_pos.z = camera.position.z + INT_32_TO_FIXED_16_16(1);
     render_point(render_state, world_pos);
 
-    world_pos.x = viewer_pos.x + INT_32_TO_FIXED_16_16(1);
-    world_pos.z = viewer_pos.z + INT_32_TO_FIXED_16_16(0);
+    world_pos.x = camera.position.x + INT_32_TO_FIXED_16_16(1);
+    world_pos.z = camera.position.z + INT_32_TO_FIXED_16_16(0);
     render_point(render_state, world_pos);
 
-    world_pos.x = viewer_pos.x + INT_32_TO_FIXED_16_16(0);
-    world_pos.z = viewer_pos.z + -INT_32_TO_FIXED_16_16(1);
+    world_pos.x = camera.position.x + INT_32_TO_FIXED_16_16(0);
+    world_pos.z = camera.position.z + -INT_32_TO_FIXED_16_16(1);
     render_point(render_state, world_pos);
 
-    world_pos.x = viewer_pos.x + -INT_32_TO_FIXED_16_16(1);
-    world_pos.z = viewer_pos.z + INT_32_TO_FIXED_16_16(0);
+    world_pos.x = camera.position.x + -INT_32_TO_FIXED_16_16(1);
+    world_pos.z = camera.position.z + INT_32_TO_FIXED_16_16(0);
     render_point(render_state, world_pos);
 
     // render vector
     Point2f origin = { .x = 0, .y = 0 };
     Point2f unit_vector;
-    apply_unit_vector(&origin, viewer_angle, &unit_vector);
+    apply_unit_vector(&origin, camera.angle, &unit_vector);
 
-    world_pos.x = viewer_pos.x + (unit_vector.x * 8);
-    world_pos.z = viewer_pos.z + (unit_vector.y * 8);
+    world_pos.x = camera.position.x + (unit_vector.x * 8);
+    world_pos.z = camera.position.z + (unit_vector.y * 8);
 
     render_point(render_state, world_pos);
 
-    world_pos.x = viewer_pos.x + -(unit_vector.y * 4);
-    world_pos.z = viewer_pos.z + (unit_vector.x * 4);
+    world_pos.x = camera.position.x + -(unit_vector.y * 4);
+    world_pos.z = camera.position.z + (unit_vector.x * 4);
     render_point(render_state, world_pos);
 
-    world_pos.x = viewer_pos.x + (unit_vector.y * 4);
-    world_pos.z = viewer_pos.z + -(unit_vector.x * 4);
+    world_pos.x = camera.position.x + (unit_vector.y * 4);
+    world_pos.z = camera.position.z + -(unit_vector.x * 4);
     render_point(render_state, world_pos);
 }
 
@@ -630,12 +555,12 @@ void ras_app_render(RenderState* render_state)
     render_state->num_points = 0;
     render_state->num_commands = 0;
     if (view_mode == MAP) {
-        xform_to_view(&world_state, render_state, &viewer_pos);
+        xform_to_view(&world_state, render_state, &camera.position);
         render_map(render_state);
         render_frustum(render_state);
         render_origin(render_state);
         render_viewer(render_state);
     } else {
-        xform_to_view(&world_state, render_state, &viewer_pos);
+        xform_to_view(&world_state, render_state, &camera.position);
     }
 }

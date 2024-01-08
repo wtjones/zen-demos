@@ -13,6 +13,8 @@
 
 ### In Progress
 
-- [x] Add frustum repr function
+- [ ] Consolidate camera with view pos
 
 ### Done ✓
+
+- [x] Add frustum repr function
