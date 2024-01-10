@@ -121,14 +121,6 @@ void mat_projection_tests()
         .z = float_to_fixed_16_16(-310.0)
     };
 
-    Point2f projected = project_point(
-        screen_width,
-        screen_height,
-        -float_to_fixed_16_16(2.0),
-        transformed);
-
-    ras_log_info("projected: %s\n", repr_point2f(buffer, sizeof buffer, &projected));
-
     int32_t world_vec[4] = {
         transformed.x,
         transformed.y,
@@ -202,23 +194,6 @@ void fixed_div_tests()
         float_to_fixed_16_16(10.4),
         float_to_fixed_16_16(2.5),
         272629); // 4.16
-}
-
-void project_point_tests()
-{
-    Point3f transformed = {
-        .x = float_to_fixed_16_16(30.0),
-        .y = float_to_fixed_16_16(20.0),
-        .z = -float_to_fixed_16_16(310.0)
-    };
-
-    Point2f projected = project_point(
-        320,
-        240,
-        -float_to_fixed_16_16(2.0),
-        transformed);
-    char buffer[100];
-    ras_log_info("projected: %s\n", repr_point2f(buffer, sizeof buffer, &projected));
 }
 
 void normalize_tests()
@@ -363,7 +338,6 @@ int main()
     mat_mul_4_tests();
     fixed_mul_tests();
     fixed_div_tests();
-    project_point_tests();
     normalize_tests();
     cross_product_tests();
     dot_product_tests();

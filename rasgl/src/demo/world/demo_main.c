@@ -25,14 +25,11 @@ enum {
 } view_mode
     = CAMERA;
 
-enum {
-    PERSPECTIVE_MATRIX,
-    PERSPECTIVE_ALT
-} projection_mode
-    = PERSPECTIVE_MATRIX;
-
 RasCamera camera = {
     .angle = 180,
+    .aspect_ratio = 1.333f,
+    .near = 0.1f,
+    .far = 100.0f,
     .fov = 60.0f,
     .projection_mode = RAS_PERSPECTIVE_MATRIX
 };
@@ -117,34 +114,20 @@ void origin_to_world(WorldState* world_state)
 }
 
 void xform_to_view_mode_persp_matrix(
-    WorldState* world_state, RenderState* render_state, Point3f* viewer_pos)
+    WorldState* world_state, RenderState* render_state, RasCamera* camera)
 {
-    int32_t translate_to_viewer[4][4];
+    // int32_t translate_to_viewer[4][4];
     int32_t view_matrix[4][4];
     int32_t view_point[4];
     int32_t projected_point[4];
 
     char buffer[1000];
 
-    int32_t angle = (camera.angle + 180) % 360;
-    if (angle < 0) {
-        angle += 360;
-    }
-
-    // Combine world to viewer translate and rotate operations
-    Point3f trans_pos = { -viewer_pos->x, -viewer_pos->y, -viewer_pos->z };
-    core_translate_init(translate_to_viewer, &trans_pos);
-    mat_rotate_y(translate_to_viewer, angle, view_matrix);
-
+    ras_camera_world_view_init(camera, view_matrix);
     int32_t projection_matrix[4][4];
     int32_t combined_matrix[4][4];
 
-    float aspect_ratio = 1.333f; // Aspect ratio (width/height)
-    float near = 0.1f;           // Near clipping plane
-    float far = 100.0f;          // Far clipping plane
-
-    mat_projection_init(projection_matrix, camera.fov, aspect_ratio, near, far);
-
+    ras_camera_projection_init(camera, projection_matrix);
     mat_mul_4x4_4x4(projection_matrix, view_matrix, combined_matrix);
 
     core_frustum_init(combined_matrix, &frustum);
@@ -192,77 +175,9 @@ void xform_to_view_mode_persp_matrix(
     }
 }
 
-void xform_to_view_mode_persp_alt(WorldState* world_state, RenderState* render_state, Point3f* viewer_pos)
+void xform_to_view(WorldState* world_state, RenderState* render_state, RasCamera* camera)
 {
-    int32_t translate_to_viewer[4][4];
-    int32_t view_matrix[4][4];
-    int32_t view_point[4];
-    char buffer[255];
-
-    int32_t angle = (camera.angle + 180) % 360;
-    if (angle < 0) {
-        angle += 360;
-    }
-
-    // Combine world to viewer translate and rotate operations
-    Point3f trans_pos = { -viewer_pos->x, -viewer_pos->y, -viewer_pos->z };
-    core_translate_init(translate_to_viewer, &trans_pos);
-    mat_rotate_y(translate_to_viewer, angle, view_matrix);
-
-    uint32_t* num_points = &render_state->num_points;
-    uint32_t* num_commands = &render_state->num_commands;
-
-    for (uint32_t i = 0; i < world_state->num_points; i++) {
-        Point3f* world_point = &world_state->points[i];
-
-        int32_t world_vec[4] = {
-            world_point->x,
-            world_point->y,
-            world_point->z,
-            INT_32_TO_FIXED_16_16(1)
-        };
-
-        ras_log_trace("view trans before: %s\n", repr_mat_4x1(buffer, sizeof buffer, world_vec));
-
-        mat_mul_4x4_4x1(view_matrix, world_vec, view_point);
-        ras_log_trace("rot trans after: %s\n", repr_mat_4x1(buffer, sizeof buffer, view_point));
-
-        Point3f transformed = {
-            .x = view_point[0],
-            .y = view_point[1],
-            .z = view_point[2]
-        };
-
-        if (transformed.z < 0) {
-
-            Point2f projected = project_point(
-                settings->screen_width,
-                settings->screen_height,
-                PROJECTION_RATIO,
-                transformed);
-
-            RenderCommand* command = &render_state->commands[*num_commands];
-            Point2i* screen_point = &render_state->points[*num_points];
-            screen_point->x = FIXED_16_16_TO_INT_32(projected.x);
-            screen_point->y = FIXED_16_16_TO_INT_32(projected.y);
-
-            ras_log_trace("screen point: %s\n", repr_point2i(buffer, sizeof buffer, screen_point));
-
-            command->num_points = 1;
-            command->point_indices[0] = *num_points;
-            (*num_commands)++;
-            (*num_points)++;
-        }
-    }
-}
-
-void xform_to_view(WorldState* world_state, RenderState* render_state, Point3f* viewer_pos)
-{
-    if (projection_mode == PERSPECTIVE_MATRIX) {
-        xform_to_view_mode_persp_matrix(world_state, render_state, viewer_pos);
-    } else {
-        xform_to_view_mode_persp_alt(world_state, render_state, viewer_pos);
-    }
+    xform_to_view_mode_persp_matrix(world_state, render_state, camera);
 }
 
 RasResult ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
@@ -282,7 +197,7 @@ RasResult ras_app_init(int argc, const char** argv, ScreenSettings* init_setting
 
 void ras_app_update(InputState* input_state)
 {
-    ras_camera_update(input_state, &camera);
+    ras_camera_update(&camera, input_state);
 
     if (input_state->keys[RAS_KEY_TAB] == RAS_KEY_EVENT_UP) {
         view_mode = view_mode == CAMERA ? MAP : CAMERA;
@@ -555,12 +470,12 @@ void ras_app_render(RenderState* render_state)
     render_state->num_points = 0;
     render_state->num_commands = 0;
     if (view_mode == MAP) {
-        xform_to_view(&world_state, render_state, &camera.position);
+        xform_to_view(&world_state, render_state, &camera);
         render_map(render_state);
         render_frustum(render_state);
         render_origin(render_state);
         render_viewer(render_state);
     } else {
-        xform_to_view(&world_state, render_state, &camera.position);
+        xform_to_view(&world_state, render_state, &camera);
     }
 }

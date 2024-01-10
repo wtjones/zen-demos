@@ -1,14 +1,14 @@
 #include "rasgl/core/camera.h"
 
-void ras_camera_update(InputState* input_state, RasCamera* camera)
+void ras_camera_update(RasCamera* camera, InputState* input_state)
 {
     int32_t viewer_angle_prev = camera->angle;
     int32_t delta_angle = 0;
     if (input_state->keys[RAS_KEY_Q] == 1 || input_state->keys[RAS_KEY_LEFT]) {
-        delta_angle = ROTATION_SPEED;
+        delta_angle = RAS_ROTATION_SPEED;
     }
     if (input_state->keys[RAS_KEY_E] == 1 || input_state->keys[RAS_KEY_RIGHT]) {
-        delta_angle = -ROTATION_SPEED;
+        delta_angle = -RAS_ROTATION_SPEED;
     }
 
     camera->angle = (camera->angle + delta_angle) % 360;
@@ -24,8 +24,8 @@ void ras_camera_update(InputState* input_state, RasCamera* camera)
     Point2f world_vector = { camera->position.x + vector.x, camera->position.z + vector.y };
 
     Point2f delta = {
-        mul_fixed_16_16_by_fixed_16_16(world_vector.x - camera->position.x, VIEWER_SPEED),
-        mul_fixed_16_16_by_fixed_16_16(world_vector.y - camera->position.z, VIEWER_SPEED)
+        mul_fixed_16_16_by_fixed_16_16(world_vector.x - camera->position.x, RAS_VIEWER_SPEED),
+        mul_fixed_16_16_by_fixed_16_16(world_vector.y - camera->position.z, RAS_VIEWER_SPEED)
     };
 
     Point3f viewer_pos_prev;
@@ -48,10 +48,10 @@ void ras_camera_update(InputState* input_state, RasCamera* camera)
         camera->position.x -= delta.y;
     }
     if (input_state->keys[RAS_KEY_EQUALS] == 1) {
-        camera->position.y += ZOOM_SPEED;
+        camera->position.y += RAS_ZOOM_SPEED;
     }
     if (input_state->keys[RAS_KEY_MINUS] == 1) {
-        camera->position.y -= ZOOM_SPEED;
+        camera->position.y -= RAS_ZOOM_SPEED;
     }
     if (input_state->keys[RAS_KEY_P] == RAS_KEY_EVENT_UP) {
         camera->projection_mode = camera->projection_mode == RAS_PERSPECTIVE_MATRIX
@@ -59,15 +59,44 @@ void ras_camera_update(InputState* input_state, RasCamera* camera)
             : RAS_PERSPECTIVE_MATRIX;
     }
     if (input_state->keys[RAS_KEY_LEFTBRACKET] == 1) {
-        camera->fov -= FOV_SPEED;
+        camera->fov -= RAS_FOV_SPEED;
         ras_log_info("FOV: %f\n", camera->fov);
     }
     if (input_state->keys[RAS_KEY_RIGHTBRACKET] == 1) {
-        camera->fov += FOV_SPEED;
+        camera->fov += RAS_FOV_SPEED;
         ras_log_info("FOV: %f\n", camera->fov);
     }
 
     if (camera->angle != viewer_angle_prev) {
         ras_log_info("camera->angle: %d\n", camera->angle);
     }
+}
+
+void ras_camera_projection_init(RasCamera* camera, int32_t projection_matrix[4][4])
+{
+    mat_projection_init(
+        projection_matrix,
+        camera->fov,
+        camera->aspect_ratio,
+        camera->near,
+        camera->far);
+}
+
+void ras_camera_world_view_init(RasCamera* camera, int32_t world_view_matrix[4][4])
+{
+    int32_t translate_to_viewer[4][4];
+
+    int32_t angle = (camera->angle + 180) % 360;
+    if (angle < 0) {
+        angle += 360;
+    }
+
+    // Combine world to viewer translate and rotate operations
+    Point3f trans_pos = {
+        -camera->position.x,
+        -camera->position.y,
+        -camera->position.z
+    };
+    core_translate_init(translate_to_viewer, &trans_pos);
+    mat_rotate_y(translate_to_viewer, angle, world_view_matrix);
 }

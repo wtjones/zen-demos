@@ -93,11 +93,6 @@ typedef struct RenderState {
 } RenderState;
 
 /**
- * Project a point in view space to screen space.
- */
-Point2f project_point(int32_t screen_width, int32_t screen_height, int32_t projection_ratio, Point3f view_point);
-
-/**
  * Transform a projected point to screen space.
  */
 void projected_to_screen_point(int32_t screen_width, int32_t screen_height, int32_t projected_point[4], Point2i* screen_point);

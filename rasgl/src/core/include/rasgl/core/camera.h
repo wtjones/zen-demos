@@ -6,20 +6,30 @@
 #include "input.h"
 #include "maths.h"
 
-#define ZOOM_SPEED float_to_fixed_16_16(.05)
-#define ROTATION_SPEED 1
-#define FOV_SPEED 2.0f
-#define VIEWER_SPEED float_to_fixed_16_16(.5)
-#define PROJECTION_RATIO -float_to_fixed_16_16(2.0)
+#define RAS_ZOOM_SPEED float_to_fixed_16_16(.05)
+#define RAS_ROTATION_SPEED 1
+#define RAS_FOV_SPEED 2.0f
+#define RAS_VIEWER_SPEED float_to_fixed_16_16(.5)
+#define RAS_PROJECTION_RATIO -float_to_fixed_16_16(2.0)
 
 typedef struct RasCamera {
     RasVector3f position;
     int32_t angle;
     float fov;
+    float aspect_ratio; // (width/height)
+    float near;         // Near clipping plane
+    float far;          // Far clipping plane
     RasProjectionMode projection_mode;
-    RasFrustum frustum;
+    int32_t projection_matrix[4][4];
 } RasCamera;
 
-void ras_camera_update(InputState* input_state, RasCamera* camera);
+void ras_camera_update(RasCamera* camera, InputState* input_state);
+
+void ras_camera_projection_init(RasCamera* camera, int32_t projection_matrix[4][4]);
+
+/**
+ * Combine world to viewer translate and rotate operations.
+ */
+void ras_camera_world_view_init(RasCamera* camera, int32_t world_view_matrix[4][4]);
 
 #endif
