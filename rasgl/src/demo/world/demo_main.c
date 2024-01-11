@@ -31,7 +31,8 @@ RasCamera camera = {
     .near = 0.1f,
     .far = 100.0f,
     .fov = 60.0f,
-    .projection_mode = RAS_PERSPECTIVE_MATRIX
+    .projection_mode = RAS_PERSPECTIVE_MATRIX,
+    .last_changed_frame = 0
 };
 
 bool viewer_changed = true;
@@ -132,7 +133,7 @@ void xform_to_view_mode_persp_matrix(
 
     core_frustum_init(combined_matrix, &frustum);
 
-    if (viewer_changed) {
+    if (camera->last_changed_frame == render_state->current_frame) {
         ras_log_info("view proj matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, combined_matrix));
         ras_log_info("frustum: %s\n", core_repr_frustum(buffer, sizeof buffer, &frustum));
     }

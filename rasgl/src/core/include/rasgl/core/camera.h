@@ -21,6 +21,7 @@ typedef struct RasCamera {
     float far;          // Far clipping plane
     RasProjectionMode projection_mode;
     int32_t projection_matrix[4][4];
+    uint32_t last_changed_frame; // frame counter
 } RasCamera;
 
 void ras_camera_update(RasCamera* camera, InputState* input_state);

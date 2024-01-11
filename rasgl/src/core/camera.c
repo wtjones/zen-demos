@@ -1,9 +1,12 @@
 #include "rasgl/core/camera.h"
+#include "rasgl/core/repr.h"
 
 void ras_camera_update(RasCamera* camera, InputState* input_state)
 {
-    int32_t viewer_angle_prev = camera->angle;
+    RasCamera camera_prev;
+    memcpy(&camera_prev, camera, sizeof camera_prev);
     int32_t delta_angle = 0;
+
     if (input_state->keys[RAS_KEY_Q] == 1 || input_state->keys[RAS_KEY_LEFT]) {
         delta_angle = RAS_ROTATION_SPEED;
     }
@@ -67,7 +70,14 @@ void ras_camera_update(RasCamera* camera, InputState* input_state)
         ras_log_info("FOV: %f\n", camera->fov);
     }
 
-    if (camera->angle != viewer_angle_prev) {
+    bool changed = (memcmp(&camera_prev, camera, sizeof camera_prev) != 0);
+    camera->last_changed_frame = changed
+        ? input_state->current_frame
+        : camera->last_changed_frame;
+
+    if (changed) {
+        char buffer[100];
+        ras_log_info("camera pos: %s\n", repr_point3f(buffer, sizeof buffer, &camera->position));
         ras_log_info("camera->angle: %d\n", camera->angle);
     }
 }

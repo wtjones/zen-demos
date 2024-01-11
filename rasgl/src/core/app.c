@@ -18,4 +18,6 @@ void ras_core_update(InputState* input_state, RenderState* render_state)
 
         ras_log_info("backface_culling_mode: %s\n", render_state->backface_culling_mode == RAS_BACKFACE_CULLING_ON ? "ON" : "OFF");
     }
+
+    input_state->current_frame = render_state->current_frame;
 }

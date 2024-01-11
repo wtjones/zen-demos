@@ -1,6 +1,8 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#include <stdint.h>
+
 #define RAS_KEY_UP 0
 #define RAS_KEY_DOWN 1
 #define RAS_KEY_LEFT 2
@@ -30,6 +32,7 @@ typedef enum {
 
 typedef struct InputState {
     RasKeyEvent keys[RAS_MAX_KEYS];
+    uint32_t current_frame;
 } InputState;
 
 void core_input_init(InputState* state);
