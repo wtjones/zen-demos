@@ -10,11 +10,12 @@
 - [ ] Polygon clipping
     - [ ] Exclude faces outside of frustum
     - [ ] Clip faces that intersect frustum
+- [ ] Render origin and grid lines
 
 ### In Progress
 
-- [ ] Consolidate camera with view pos
 
 ### Done ✓
 
 - [x] Add frustum repr function
+- [x] Consolidate camera with view pos
