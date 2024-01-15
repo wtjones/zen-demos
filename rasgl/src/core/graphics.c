@@ -84,26 +84,6 @@ void core_draw_element(
     RasFixed world_view_matrix[4][4],
     RasFixed proj_matrix[4][4])
 {
-    core_draw_elements(render_state,
-        element->verts,
-        element->num_verts,
-        element->indexes,
-        element->num_indexes,
-        model_world_matrix,
-        world_view_matrix,
-        proj_matrix);
-}
-
-void core_draw_elements(
-    RenderState* render_state,
-    RasVertex* verts,
-    uint32_t num_verts,
-    uint32_t* indexes,
-    uint32_t num_indexes,
-    RasFixed model_world_matrix[4][4],
-    RasFixed world_view_matrix[4][4],
-    RasFixed proj_matrix[4][4])
-{
     char buffer[1000];
     RasFixed model_view_matrix[4][4];
     RasFixed combined_matrix[4][4];
@@ -115,8 +95,8 @@ void core_draw_elements(
     // model/view -> projection
     mat_mul_4x4_4x4(proj_matrix, model_view_matrix, combined_matrix);
 
-    for (uint32_t i = 0; i < num_verts; i++) {
-        RasVertex* vertex = &verts[i];
+    for (uint32_t i = 0; i < element->num_verts; i++) {
+        RasVertex* vertex = &element->verts[i];
         RasPipelineVertex* pv = &render_state->pipeline_verts[i];
 
         RasFixed model_space_position[4];
@@ -150,13 +130,13 @@ void core_draw_elements(
 
     render_state->num_visible_indexes = 0;
     uint32_t vi = 0;
-    for (uint32_t i = 0; i < num_indexes; i += 3) {
-        bool is_visible = (!core_is_backface(render_state->pipeline_verts, &indexes[i]))
+    for (uint32_t i = 0; i < element->num_indexes; i += 3) {
+        bool is_visible = (!core_is_backface(render_state->pipeline_verts, &element->indexes[i]))
             || render_state->backface_culling_mode == RAS_BACKFACE_CULLING_OFF;
         if (is_visible) {
-            render_state->visible_indexes[vi] = indexes[i];
-            render_state->visible_indexes[vi + 1] = indexes[i + 1];
-            render_state->visible_indexes[vi + 2] = indexes[i + 2];
+            render_state->visible_indexes[vi] = element->indexes[i];
+            render_state->visible_indexes[vi + 1] = element->indexes[i + 1];
+            render_state->visible_indexes[vi + 2] = element->indexes[i + 2];
             render_state->num_visible_indexes += 3;
             vi += 3;
         }
