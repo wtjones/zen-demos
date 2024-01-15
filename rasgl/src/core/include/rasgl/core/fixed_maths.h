@@ -6,8 +6,8 @@
 
 #define INT_32_TO_FIXED_16_16(n) (int32_t)((n) << 16)
 #define FIXED_16_16_TO_INT_32(n) ((n) >> 16)
-#define FIXED_MAX (32767 << 16)
-#define FIXED_MIN (-32768 << 16)
+#define RAS_FIXED_MAX (32767 << 16)
+#define RAS_FIXED_MIN (-32768 << 16)
 
 /**
  * Represents a 16.16 fixed-point value.

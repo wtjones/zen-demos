@@ -4,13 +4,13 @@
 
 void core_aabb_init(RasAABB* aabb)
 {
-    aabb->min.x = FIXED_MAX;
-    aabb->min.y = FIXED_MAX;
-    aabb->min.z = FIXED_MAX;
+    aabb->min.x = RAS_FIXED_MAX;
+    aabb->min.y = RAS_FIXED_MAX;
+    aabb->min.z = RAS_FIXED_MAX;
 
-    aabb->max.x = FIXED_MIN;
-    aabb->max.y = FIXED_MIN;
-    aabb->max.z = FIXED_MIN;
+    aabb->max.x = RAS_FIXED_MIN;
+    aabb->max.y = RAS_FIXED_MIN;
+    aabb->max.z = RAS_FIXED_MIN;
 }
 
 void core_renderstate_init(RenderState* state)
