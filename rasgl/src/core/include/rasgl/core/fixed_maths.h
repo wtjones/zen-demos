@@ -10,15 +10,21 @@
 #define FIXED_MIN (-32768 << 16)
 
 /**
+ * Represents a 16.16 fixed-point value.
+ * Allows for a differentiation between int32_t and fixed-point.
+ */
+typedef int32_t RasFixed;
+
+/**
  * Multiply fixed-point by fixed-point.
  *
  * Handles underflow by rounding to smallest fractional value with the
  * same sign.
  */
-static inline int32_t mul_fixed_16_16_by_fixed_16_16(int32_t f1, int32_t f2)
+static inline RasFixed mul_fixed_16_16_by_fixed_16_16(RasFixed f1, RasFixed f2)
 {
     int64_t result64 = (int64_t)f1 * (int64_t)f2;
-    int32_t result = result64 >> 16;
+    RasFixed result = result64 >> 16;
     if (result64 != 0 && result == 0) {
         return (result64 > 0) ? 1 : -1;
     }
@@ -26,13 +32,13 @@ static inline int32_t mul_fixed_16_16_by_fixed_16_16(int32_t f1, int32_t f2)
     return result;
 }
 
-static inline int64_t mul_fixed_16_16_to_fixed_32_32(int32_t f1, int32_t f2)
+static inline int64_t mul_fixed_16_16_to_fixed_32_32(RasFixed f1, RasFixed f2)
 {
     int64_t result = (int64_t)f1 * (int64_t)f2;
     return result;
 }
 
-static inline int32_t div_fixed_16_16_by_fixed_16_16(int32_t f1, int32_t f2)
+static inline RasFixed div_fixed_16_16_by_fixed_16_16(RasFixed f1, RasFixed f2)
 {
     assert((int64_t)f2 << 16 != 0);
     int64_t result = ((int64_t)f1 << 32) / ((int64_t)f2 << 16);
@@ -41,7 +47,7 @@ static inline int32_t div_fixed_16_16_by_fixed_16_16(int32_t f1, int32_t f2)
 #define RAS_FLOAT_TO_FIXED(n) \
     (int32_t) n * 65536 + ((n - (float)((int32_t)n)) * 65536)
 
-static inline int32_t float_to_fixed_16_16(float n)
+static inline RasFixed float_to_fixed_16_16(float n)
 {
     int32_t whole = (int32_t)n;
     float frac = n - (float)whole;
@@ -49,7 +55,7 @@ static inline int32_t float_to_fixed_16_16(float n)
     return whole * 65536 + fixed_frac;
 }
 
-static inline float fixed_16_16_to_float(int32_t n)
+static inline float fixed_16_16_to_float(RasFixed n)
 {
     int32_t whole = n / 65536;
     int32_t fixed_frac = n - (whole * 65536);

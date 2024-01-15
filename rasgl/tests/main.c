@@ -13,7 +13,7 @@
 void repr_matrix_tests()
 {
     char buffer[1000];
-    int32_t matrix[4][4];
+    RasFixed matrix[4][4];
     mat_set_identity_4x4(matrix);
     ras_log_info("Matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, matrix));
 }
@@ -33,17 +33,17 @@ void repr_fixed_tests()
 void mat_mul_tests()
 {
     char buffer[100];
-    int32_t matrix[4][4];
+    RasFixed matrix[4][4];
     mat_set_identity_4x4(matrix);
 
-    int32_t src[4] = {
+    RasFixed src[4] = {
         float_to_fixed_16_16(3.5),
         float_to_fixed_16_16(1.2),
         float_to_fixed_16_16(5.375),
         float_to_fixed_16_16(1.0)
     };
 
-    int32_t dst[4];
+    RasFixed dst[4];
     mat_mul_4x4_4x1(matrix, src, dst);
     ras_log_info("Result of mul by identity: %s\n", repr_mat_4x1(buffer, sizeof buffer, dst));
 }
@@ -51,21 +51,21 @@ void mat_mul_tests()
 void mat_mul_4_tests()
 {
     char buffer[500];
-    int32_t m1[4][4] = {
+    RasFixed m1[4][4] = {
         { INT_32_TO_FIXED_16_16(5), INT_32_TO_FIXED_16_16(7), INT_32_TO_FIXED_16_16(9), INT_32_TO_FIXED_16_16(10) },
         { INT_32_TO_FIXED_16_16(2), INT_32_TO_FIXED_16_16(3), INT_32_TO_FIXED_16_16(3), INT_32_TO_FIXED_16_16(8) },
         { INT_32_TO_FIXED_16_16(8), INT_32_TO_FIXED_16_16(10), INT_32_TO_FIXED_16_16(2), INT_32_TO_FIXED_16_16(3) },
         { INT_32_TO_FIXED_16_16(3), INT_32_TO_FIXED_16_16(3), INT_32_TO_FIXED_16_16(4), INT_32_TO_FIXED_16_16(8) }
     };
 
-    int32_t m2[4][4] = {
+    RasFixed m2[4][4] = {
         { INT_32_TO_FIXED_16_16(3), INT_32_TO_FIXED_16_16(10), INT_32_TO_FIXED_16_16(12), INT_32_TO_FIXED_16_16(18) },
         { INT_32_TO_FIXED_16_16(12), INT_32_TO_FIXED_16_16(1), INT_32_TO_FIXED_16_16(4), INT_32_TO_FIXED_16_16(9) },
         { INT_32_TO_FIXED_16_16(9), INT_32_TO_FIXED_16_16(10), INT_32_TO_FIXED_16_16(12), INT_32_TO_FIXED_16_16(2) },
         { INT_32_TO_FIXED_16_16(3), INT_32_TO_FIXED_16_16(12), INT_32_TO_FIXED_16_16(4), INT_32_TO_FIXED_16_16(10) }
     };
 
-    int32_t dest[4][4];
+    RasFixed dest[4][4];
 
     mat_mul_4x4_4x4(m1, m2, dest);
     ras_log_info("Result of 4x4 x 4x4: %s\n", repr_mat_4x4(buffer, sizeof buffer, dest));
@@ -74,8 +74,8 @@ void mat_mul_4_tests()
 void mat_ortho_tests()
 {
     char buffer[1000];
-    int32_t matrix[4][4];
-    int32_t projected_point[4];
+    RasFixed matrix[4][4];
+    RasFixed projected_point[4];
     Point2i screen_point;
     mat_ortho_init(
         matrix,
@@ -88,7 +88,7 @@ void mat_ortho_tests()
 
     ras_log_info("Ortho matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, matrix));
 
-    int32_t v[4] = {
+    RasFixed v[4] = {
         -float_to_fixed_16_16(0.5),
         float_to_fixed_16_16(0.5),
         -float_to_fixed_16_16(0.5),
@@ -103,10 +103,10 @@ void mat_ortho_tests()
 
 void mat_projection_tests()
 {
-    const int32_t screen_width = 320;
-    const int32_t screen_height = 240;
+    const RasFixed screen_width = 320;
+    const RasFixed screen_height = 240;
     char buffer[500];
-    int32_t projection_matrix[4][4];
+    RasFixed projection_matrix[4][4];
     float fov = 45.0f;            // Field of view in degrees
     float aspect_ration = 1.333f; // Aspect ratio (width/height)
     float near = 0.1f;            // Near clipping plane
@@ -121,21 +121,21 @@ void mat_projection_tests()
         .z = float_to_fixed_16_16(-310.0)
     };
 
-    int32_t world_vec[4] = {
+    RasFixed world_vec[4] = {
         transformed.x,
         transformed.y,
         transformed.z,
         INT_32_TO_FIXED_16_16(1)
     };
 
-    int32_t view_point[4];
+    RasFixed view_point[4];
 
     mat_mul_project(projection_matrix, world_vec, view_point);
 
     ras_log_info("after perspective divide: %s\n", repr_mat_4x1(buffer, sizeof buffer, view_point));
 
-    int32_t half_screen_width = INT_32_TO_FIXED_16_16(screen_width / 2);
-    int32_t half_screen_height = INT_32_TO_FIXED_16_16(screen_height / 2);
+    RasFixed half_screen_width = INT_32_TO_FIXED_16_16(screen_width / 2);
+    RasFixed half_screen_height = INT_32_TO_FIXED_16_16(screen_height / 2);
 
     Point2i screen = {
         .x = FIXED_16_16_TO_INT_32(mul_fixed_16_16_by_fixed_16_16(half_screen_width, view_point[0]) + half_screen_width),
@@ -144,12 +144,12 @@ void mat_projection_tests()
     ras_log_info("screen after matrix proj: %s\n", repr_point2i(buffer, sizeof buffer, &screen));
 }
 
-void fixed_mul_test(int32_t f1, int32_t f2, int32_t expected)
+void fixed_mul_test(RasFixed f1, RasFixed f2, RasFixed expected)
 {
     char buffer1[255];
     char buffer2[255];
     char buffer3[255];
-    int32_t result = mul_fixed_16_16_by_fixed_16_16(f1, f2);
+    RasFixed result = mul_fixed_16_16_by_fixed_16_16(f1, f2);
     log_trace(
         "%s * %s = %s\n",
         repr_fixed_16_16(buffer1, sizeof buffer1, f1),
@@ -169,12 +169,12 @@ void fixed_mul_tests()
         20480);
 }
 
-void fixed_div_test(int32_t f1, int32_t f2, int32_t expected)
+void fixed_div_test(RasFixed f1, RasFixed f2, RasFixed expected)
 {
     char buffer1[255];
     char buffer2[255];
     char buffer3[255];
-    int32_t result = div_fixed_16_16_by_fixed_16_16(f1, f2);
+    RasFixed result = div_fixed_16_16_by_fixed_16_16(f1, f2);
     log_trace(
         "%s / %s = %s\n",
         repr_fixed_16_16(buffer1, sizeof buffer1, f1),
@@ -205,7 +205,7 @@ void normalize_tests()
         .z = -float_to_fixed_16_16(14.0)
     };
 
-    int32_t length = core_get_vec_length(&v);
+    RasFixed length = core_get_vec_length(&v);
 
     ras_log_info("before normalize: %s\n", repr_point3f(buffer, sizeof buffer, &v));
     ras_log_info("before normalize length: %s\n", repr_fixed_16_16(buffer, sizeof buffer, length));
@@ -250,7 +250,7 @@ void dot_product_tests()
         .z = -float_to_fixed_16_16(5.0)
     };
 
-    int32_t result = core_dot_product(&v1, &v2);
+    RasFixed result = core_dot_product(&v1, &v2);
     ras_log_info("dot product result: %s\n", repr_fixed_16_16(buffer, sizeof buffer, result));
 }
 

@@ -1,9 +1,9 @@
 #include "rasgl/core/matrix.h"
 
-void mat_set_identity_4x4(int32_t s1[4][4])
+void mat_set_identity_4x4(RasFixed s1[4][4])
 {
-    const int32_t i = INT_32_TO_FIXED_16_16(1);
-    int32_t identity_matrix[4][4] = {
+    const RasFixed i = INT_32_TO_FIXED_16_16(1);
+    RasFixed identity_matrix[4][4] = {
         { i, 0, 0, 0 },
         { 0, i, 0, 0 },
         { 0, 0, i, 0 },
@@ -13,7 +13,7 @@ void mat_set_identity_4x4(int32_t s1[4][4])
     memcpy(s1, identity_matrix, sizeof identity_matrix);
 }
 
-void mat_mul_3x3_3x1(int32_t s1[3][3], int32_t* s2, int32_t* dest)
+void mat_mul_3x3_3x1(RasFixed s1[3][3], RasFixed* s2, RasFixed* dest)
 {
     for (int i = 0; i < 3; i++) {
         dest[i] = 0;
@@ -23,7 +23,7 @@ void mat_mul_3x3_3x1(int32_t s1[3][3], int32_t* s2, int32_t* dest)
     }
 }
 
-void mat_mul_4x4_4x1(int32_t s1[4][4], int32_t* s2, int32_t* dest)
+void mat_mul_4x4_4x1(RasFixed s1[4][4], RasFixed* s2, RasFixed* dest)
 {
     for (int i = 0; i < 4; i++) {
         dest[i] = 0;
@@ -33,7 +33,7 @@ void mat_mul_4x4_4x1(int32_t s1[4][4], int32_t* s2, int32_t* dest)
     }
 }
 
-void mat_mul_4x4_4x4(int32_t s1[4][4], int32_t s2[4][4], int32_t dest[4][4])
+void mat_mul_4x4_4x4(RasFixed s1[4][4], RasFixed s2[4][4], RasFixed dest[4][4])
 {
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {

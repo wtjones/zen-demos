@@ -42,7 +42,7 @@ typedef struct RenderCommand {
 } RenderCommand;
 
 typedef struct RasVector3fBuffer {
-    int32_t* buffer;
+    RasFixed* buffer;
     uint32_t num_elements;
     uint32_t max_elements;
 } RasVector3fBuffer;
@@ -50,7 +50,7 @@ typedef struct RasVector3fBuffer {
 typedef struct RasVertex {
     RasVector3f position;
     uint8_t color;
-    int32_t u, v;
+    RasFixed u, v;
     RasVector3f normal;
 } RasVertex;
 
@@ -60,7 +60,7 @@ typedef struct RasPipelineVertex {
     uint8_t clip_flags;
     RasVector4f screen_space_position;
     uint8_t color;
-    int32_t u, v;
+    RasFixed u, v;
 } RasPipelineVertex;
 
 typedef struct RasAABB {
@@ -95,14 +95,14 @@ typedef struct RenderState {
 /**
  * Transform a projected point to screen space.
  */
-void projected_to_screen_point(int32_t screen_width, int32_t screen_height, int32_t projected_point[4], Point2i* screen_point);
+void projected_to_screen_point(int32_t screen_width, int32_t screen_height, RasFixed projected_point[4], Point2i* screen_point);
 
 void core_draw_element(
     RenderState* render_state,
     RasPipelineElement* element,
-    int32_t model_world_matrix[4][4],
-    int32_t world_view_matrix[4][4],
-    int32_t proj_matrix[4][4]);
+    RasFixed model_world_matrix[4][4],
+    RasFixed world_view_matrix[4][4],
+    RasFixed proj_matrix[4][4]);
 
 void core_draw_elements(
     RenderState* render_state,
@@ -110,9 +110,9 @@ void core_draw_elements(
     uint32_t num_verts,
     uint32_t* indexes,
     uint32_t num_indexes,
-    int32_t model_world_matrix[4][4],
-    int32_t model_view_matrix[4][4],
-    int32_t proj_matrix[4][4]);
+    RasFixed model_world_matrix[4][4],
+    RasFixed model_view_matrix[4][4],
+    RasFixed proj_matrix[4][4]);
 
 /**
  * Set sensible defaults

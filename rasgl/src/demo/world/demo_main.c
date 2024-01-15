@@ -117,16 +117,15 @@ void origin_to_world(WorldState* world_state)
 void xform_to_view_mode_persp_matrix(
     WorldState* world_state, RenderState* render_state, RasCamera* camera)
 {
-    // int32_t translate_to_viewer[4][4];
-    int32_t view_matrix[4][4];
-    int32_t view_point[4];
-    int32_t projected_point[4];
+    RasFixed view_matrix[4][4];
+    RasFixed view_point[4];
+    RasFixed projected_point[4];
 
     char buffer[1000];
 
     ras_camera_world_view_init(camera, view_matrix);
-    int32_t projection_matrix[4][4];
-    int32_t combined_matrix[4][4];
+    RasFixed projection_matrix[4][4];
+    RasFixed combined_matrix[4][4];
 
     ras_camera_projection_init(camera, projection_matrix);
     mat_mul_4x4_4x4(projection_matrix, view_matrix, combined_matrix);
@@ -143,7 +142,7 @@ void xform_to_view_mode_persp_matrix(
     for (uint32_t i = 0; i < world_state->num_points; i++) {
         Point3f* world_point = &world_state->points[i];
 
-        int32_t world_vec[4] = {
+        RasFixed world_vec[4] = {
             world_point->x,
             world_point->y,
             world_point->z,
@@ -256,8 +255,8 @@ void render_map(RenderState* render_state)
     Point3f source;
     uint32_t* num_commands = &render_state->num_commands;
 
-    int32_t offset_x = -(MAP_COLS / 2);
-    int32_t offset_z = -(MAP_ROWS / 2);
+    RasFixed offset_x = -(MAP_COLS / 2);
+    RasFixed offset_z = -(MAP_ROWS / 2);
 
     // Add map points to render list
     uint32_t map_points_start = render_state->num_points;

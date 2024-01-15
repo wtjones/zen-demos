@@ -30,7 +30,7 @@ typedef struct RasFrustum {
 /**
  * Extract the frustum from the combined view and projection matrices.
  */
-void core_frustum_init(int32_t view_projection_matrix[4][4], RasFrustum* frustum);
+void core_frustum_init(RasFixed view_projection_matrix[4][4], RasFrustum* frustum);
 
 char* core_repr_frustum(char* buffer, size_t count, RasFrustum* frustum);
 

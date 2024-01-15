@@ -70,7 +70,7 @@ int core_parse_vector(char* line, RasVector3f* dest)
         return 1;
     }
     ras_log_trace("parsing float from token: %s", token);
-    int32_t x = float_to_fixed_16_16(atof(token));
+    RasFixed x = float_to_fixed_16_16(atof(token));
     ras_log_trace("vector x: %s\n", repr_fixed_16_16(buffer, sizeof buffer, x));
 
     do {
@@ -82,7 +82,7 @@ int core_parse_vector(char* line, RasVector3f* dest)
         return 1;
     }
     ras_log_trace("parsing float from token: %s", token);
-    int32_t y = float_to_fixed_16_16(atof(token));
+    RasFixed y = float_to_fixed_16_16(atof(token));
     ras_log_trace("vector y: %s\n", repr_fixed_16_16(buffer, sizeof buffer, y));
 
     do {
@@ -94,7 +94,7 @@ int core_parse_vector(char* line, RasVector3f* dest)
         return 1;
     }
     ras_log_trace("parsing float from token: %s", token);
-    int32_t z = float_to_fixed_16_16(atof(token));
+    RasFixed z = float_to_fixed_16_16(atof(token));
     ras_log_trace("vector y: %s\n", repr_fixed_16_16(buffer, sizeof buffer, y));
     core_plat_free(&tofree);
     dest->x = x;

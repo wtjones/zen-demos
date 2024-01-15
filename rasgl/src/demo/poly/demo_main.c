@@ -93,10 +93,10 @@ void ras_app_render(RenderState* render_state)
 {
     char buffer[500];
 
-    int32_t model_world_matrix[4][4];
-    int32_t world_view_matrix[4][4];
-    int32_t projection_matrix[4][4];
-    int32_t combined_matrix[4][4];
+    RasFixed model_world_matrix[4][4];
+    RasFixed world_view_matrix[4][4];
+    RasFixed projection_matrix[4][4];
+    RasFixed combined_matrix[4][4];
     RasFrustum frustum;
 
     mat_set_identity_4x4(model_world_matrix);

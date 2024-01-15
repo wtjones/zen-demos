@@ -6,7 +6,7 @@
 
 typedef struct Plane {
     Point3f normal;
-    int32_t distance;
+    RasFixed distance;
 } Plane;
 
 /**

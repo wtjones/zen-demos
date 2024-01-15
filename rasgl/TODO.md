@@ -11,6 +11,7 @@
     - [ ] Exclude faces outside of frustum
     - [ ] Clip faces that intersect frustum
 - [ ] Render origin and grid lines
+- [ ] Increase whole part of fixed-point scheme from 16 bits
 
 ### In Progress
 

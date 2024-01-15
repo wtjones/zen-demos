@@ -20,17 +20,17 @@ typedef struct RasCamera {
     float near;         // Near clipping plane
     float far;          // Far clipping plane
     RasProjectionMode projection_mode;
-    int32_t projection_matrix[4][4];
+    RasFixed projection_matrix[4][4];
     uint32_t last_changed_frame; // frame counter
 } RasCamera;
 
 void ras_camera_update(RasCamera* camera, InputState* input_state);
 
-void ras_camera_projection_init(RasCamera* camera, int32_t projection_matrix[4][4]);
+void ras_camera_projection_init(RasCamera* camera, RasFixed projection_matrix[4][4]);
 
 /**
  * Combine world to viewer translate and rotate operations.
  */
-void ras_camera_world_view_init(RasCamera* camera, int32_t world_view_matrix[4][4]);
+void ras_camera_world_view_init(RasCamera* camera, RasFixed world_view_matrix[4][4]);
 
 #endif

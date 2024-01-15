@@ -1,9 +1,9 @@
 #include "rasgl/core/frustum.h"
 #include "rasgl/core/repr.h"
 
-void core_frustum_plane_init(int32_t v[4], Plane* plane)
+void core_frustum_plane_init(RasFixed v[4], Plane* plane)
 {
-    int32_t length;
+    RasFixed length;
     plane->normal.x = v[0];
     plane->normal.y = v[1];
     plane->normal.z = v[2];
@@ -79,30 +79,30 @@ void core_frustum_points_init(RasFrustum* frustum)
         &frustum->points[7]);
 }
 
-void core_frustum_planes_init(int32_t view_projection_matrix[4][4], RasFrustum* frustum)
+void core_frustum_planes_init(RasFixed view_projection_matrix[4][4], RasFrustum* frustum)
 {
-    int32_t row0[4] = {
+    RasFixed row0[4] = {
         view_projection_matrix[0][0],
         view_projection_matrix[0][1],
         view_projection_matrix[0][2],
         view_projection_matrix[0][3]
     };
 
-    int32_t row1[4] = {
+    RasFixed row1[4] = {
         view_projection_matrix[1][0],
         view_projection_matrix[1][1],
         view_projection_matrix[1][2],
         view_projection_matrix[1][3]
     };
 
-    int32_t row2[4] = {
+    RasFixed row2[4] = {
         view_projection_matrix[2][0],
         view_projection_matrix[2][1],
         view_projection_matrix[2][2],
         view_projection_matrix[2][3]
     };
 
-    int32_t row3[4] = {
+    RasFixed row3[4] = {
         view_projection_matrix[3][0],
         view_projection_matrix[3][1],
         view_projection_matrix[3][2],
@@ -111,7 +111,7 @@ void core_frustum_planes_init(int32_t view_projection_matrix[4][4], RasFrustum* 
 
     // left
     // p1 = row3 + row0
-    int32_t p1[4] = {
+    RasFixed p1[4] = {
         row3[0] + row0[0],
         row3[1] + row0[1],
         row3[2] + row0[2],
@@ -122,7 +122,7 @@ void core_frustum_planes_init(int32_t view_projection_matrix[4][4], RasFrustum* 
 
     // right
     // p2 = row3 - row0
-    int32_t p2[4] = {
+    RasFixed p2[4] = {
         row3[0] - row0[0],
         row3[1] - row0[1],
         row3[2] - row0[2],
@@ -133,7 +133,7 @@ void core_frustum_planes_init(int32_t view_projection_matrix[4][4], RasFrustum* 
 
     // bottom
     // p3 = row3 + row1
-    int32_t p3[4] = {
+    RasFixed p3[4] = {
         row3[0] + row1[0],
         row3[1] + row1[1],
         row3[2] + row1[2],
@@ -144,7 +144,7 @@ void core_frustum_planes_init(int32_t view_projection_matrix[4][4], RasFrustum* 
 
     // top
     // p4 = row3 - row1
-    int32_t p4[4] = {
+    RasFixed p4[4] = {
         row3[0] - row1[0],
         row3[1] - row1[1],
         row3[2] - row1[2],
@@ -155,7 +155,7 @@ void core_frustum_planes_init(int32_t view_projection_matrix[4][4], RasFrustum* 
 
     // near
     // p5 = row3 + row2
-    int32_t p5[4] = {
+    RasFixed p5[4] = {
         row3[0] + row2[0],
         row3[1] + row2[1],
         row3[2] + row2[2],
@@ -166,7 +166,7 @@ void core_frustum_planes_init(int32_t view_projection_matrix[4][4], RasFrustum* 
 
     // far
     // p6 = row3 - row2
-    int32_t p6[4] = {
+    RasFixed p6[4] = {
         row3[0] - row2[0],
         row3[1] - row2[1],
         row3[2] - row2[2],
@@ -176,7 +176,7 @@ void core_frustum_planes_init(int32_t view_projection_matrix[4][4], RasFrustum* 
     core_frustum_plane_init(p6, &frustum->planes[PLANE_FAR]);
 }
 
-void core_frustum_init(int32_t view_projection_matrix[4][4], RasFrustum* frustum)
+void core_frustum_init(RasFixed view_projection_matrix[4][4], RasFrustum* frustum)
 {
     core_frustum_planes_init(view_projection_matrix, frustum);
     core_frustum_points_init(frustum);

@@ -1,8 +1,7 @@
 #include "rasgl/core/maths_tables.h"
-#include "rasgl/core/fixed_maths.h"
 #include <stdio.h>
 
-int32_t cos_table[360] = {
+RasFixed cos_table[360] = {
     65536,
     65526,
     65496,
@@ -364,7 +363,7 @@ int32_t cos_table[360] = {
     65496,
     65526
 };
-int32_t sin_table[360] = {
+RasFixed sin_table[360] = {
     0,
     -1143,
     -2287,

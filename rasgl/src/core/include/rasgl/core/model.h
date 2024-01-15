@@ -12,9 +12,9 @@
 #define RAS_MAX_MODEL_NORMALS 256
 
 typedef struct RasModelFaceIndex {
-    int32_t vert_index;    // -1 if undefined
-    int32_t texture_index; // -1 if undefined
-    int32_t normal_index;  // -1 if undefined
+    RasFixed vert_index;    // -1 if undefined
+    RasFixed texture_index; // -1 if undefined
+    RasFixed normal_index;  // -1 if undefined
 } RasModelFaceIndex;
 
 /**

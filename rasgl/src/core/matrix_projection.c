@@ -1,15 +1,15 @@
 #include "rasgl/core/matrix_projection.h"
 
 void mat_ortho_init(
-    int32_t matrix[4][4],
-    int32_t l,
-    int32_t r,
-    int32_t b,
-    int32_t t,
-    int32_t n,
-    int32_t f)
+    RasFixed matrix[4][4],
+    RasFixed l,
+    RasFixed r,
+    RasFixed b,
+    RasFixed t,
+    RasFixed n,
+    RasFixed f)
 {
-    const int32_t two_f = INT_32_TO_FIXED_16_16(2);
+    const RasFixed two_f = INT_32_TO_FIXED_16_16(2);
 
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {

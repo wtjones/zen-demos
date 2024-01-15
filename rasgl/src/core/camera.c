@@ -82,7 +82,7 @@ void ras_camera_update(RasCamera* camera, InputState* input_state)
     }
 }
 
-void ras_camera_projection_init(RasCamera* camera, int32_t projection_matrix[4][4])
+void ras_camera_projection_init(RasCamera* camera, RasFixed projection_matrix[4][4])
 {
     mat_projection_init(
         projection_matrix,
@@ -92,9 +92,9 @@ void ras_camera_projection_init(RasCamera* camera, int32_t projection_matrix[4][
         camera->far);
 }
 
-void ras_camera_world_view_init(RasCamera* camera, int32_t world_view_matrix[4][4])
+void ras_camera_world_view_init(RasCamera* camera, RasFixed world_view_matrix[4][4])
 {
-    int32_t translate_to_viewer[4][4];
+    RasFixed translate_to_viewer[4][4];
 
     int32_t angle = (camera->angle + 180) % 360;
     if (angle < 0) {

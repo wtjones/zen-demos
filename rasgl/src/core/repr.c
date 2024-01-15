@@ -47,7 +47,7 @@ char* repr_vector4f(char* buffer, size_t count, RasVector4f* p)
     return buffer;
 }
 
-char* repr_fixed_16_16(char* buffer, size_t count, int32_t f)
+char* repr_fixed_16_16(char* buffer, size_t count, RasFixed f)
 {
     snprintf(
         buffer,
@@ -57,7 +57,7 @@ char* repr_fixed_16_16(char* buffer, size_t count, int32_t f)
         f);
     return buffer;
 }
-char* repr_mat_4x4(char* buffer, size_t count, int32_t s1[4][4])
+char* repr_mat_4x4(char* buffer, size_t count, RasFixed s1[4][4])
 {
     char matrix_buffer[255];
     buffer[0] = '\0';
@@ -88,7 +88,7 @@ char* repr_mat_4x4(char* buffer, size_t count, int32_t s1[4][4])
     return buffer;
 }
 
-char* repr_mat_4x1(char* buffer, size_t count, int32_t s[4])
+char* repr_mat_4x1(char* buffer, size_t count, RasFixed s[4])
 {
     char matrix_buffer[255];
     buffer[0] = '\0';

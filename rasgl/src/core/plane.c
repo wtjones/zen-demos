@@ -16,7 +16,7 @@
  */
 bool core_plane_line_intersect(Plane* plane, Point3f* v1, Point3f* v2)
 {
-    int32_t v1pos, v2pos;
+    RasFixed v1pos, v2pos;
 
     v1pos = mul_fixed_16_16_by_fixed_16_16(plane->normal.x, v1->x)
         + mul_fixed_16_16_by_fixed_16_16(plane->normal.y, v1->y)
@@ -52,7 +52,7 @@ bool core_get_3_plane_intersection(Plane* p1, Plane* p2, Plane* p3, Point3f* poi
     Point3f part1, part2, part3;
 
     core_cross_product(&p2->normal, &p3->normal, &cross1);
-    int32_t denom = core_dot_product(&p1->normal, &cross1);
+    RasFixed denom = core_dot_product(&p1->normal, &cross1);
 
     if (denom == 0)
         return false;
