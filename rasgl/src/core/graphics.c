@@ -2,6 +2,35 @@
 #include "rasgl/core/debug.h"
 #include "rasgl/core/repr.h"
 
+void core_aabb_init(RasAABB* aabb)
+{
+    aabb->min.x = FIXED_MAX;
+    aabb->min.y = FIXED_MAX;
+    aabb->min.z = FIXED_MAX;
+
+    aabb->max.x = FIXED_MIN;
+    aabb->max.y = FIXED_MIN;
+    aabb->max.z = FIXED_MIN;
+}
+
+void core_renderstate_init(RenderState* state)
+{
+    state->num_commands = 0;
+    state->num_points = 0;
+    state->num_pipeline_verts = 0;
+    state->current_frame = 0;
+    state->max_frames = UINT32_MAX;
+    state->projection_mode = RAS_PERSPECTIVE_MATRIX;
+    state->backface_culling_mode = RAS_BACKFACE_CULLING_ON;
+};
+
+void core_renderstate_clear(RenderState* state)
+{
+    state->num_visible_indexes = 0;
+    state->num_commands = 0;
+    state->num_points = 0;
+}
+
 void projected_to_screen_point(RasFixed screen_width, RasFixed screen_height, RasFixed projected_point[4], Point2i* screen_point)
 {
 
@@ -134,33 +163,23 @@ void core_draw_elements(
     }
 }
 
-void core_renderstate_init(RenderState* state)
+void core_get_element_aabb(RasPipelineElement* element, RasAABB* aabb)
 {
-    state->num_commands = 0;
-    state->num_points = 0;
-    state->num_pipeline_verts = 0;
-    state->current_frame = 0;
-    state->max_frames = UINT32_MAX;
-    state->projection_mode = RAS_PERSPECTIVE_MATRIX;
-    state->backface_culling_mode = RAS_BACKFACE_CULLING_ON;
-};
+    core_aabb_init(aabb);
 
-void core_renderstate_clear(RenderState* state)
-{
-    state->num_visible_indexes = 0;
-    state->num_commands = 0;
-    state->num_points = 0;
+    for (int i = 0; i < element->num_verts; i++) {
+        RasVertex* element_vert = &element->verts[i];
+        core_min_vector3f(&element->aabb.min, &element_vert->position, &element->aabb.min);
+        core_max_vector3f(&element->aabb.max, &element_vert->position, &element->aabb.max);
+    }
+
+    char buffer[255];
+    ras_log_trace("Model AABB min: %s\n", repr_point3f(buffer, sizeof buffer, &element->aabb.min));
+    ras_log_trace("Model AABB max: %s\n", repr_point3f(buffer, sizeof buffer, &element->aabb.max));
 }
 
 void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineElement* element)
 {
-    element->aabb.min.x = FIXED_MAX;
-    element->aabb.min.y = FIXED_MAX;
-    element->aabb.min.z = FIXED_MAX;
-
-    element->aabb.max.x = FIXED_MIN;
-    element->aabb.max.y = FIXED_MIN;
-    element->aabb.max.z = FIXED_MIN;
 
     element->num_verts = group->num_verts;
     for (int i = 0; i < group->num_verts; i++) {
@@ -169,13 +188,9 @@ void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineEleme
         element_vert->position.x = group->verts[i].x;
         element_vert->position.y = group->verts[i].y;
         element_vert->position.z = group->verts[i].z;
-
-        core_min_vector3f(&element->aabb.min, &element_vert->position, &element->aabb.min);
-        core_max_vector3f(&element->aabb.max, &element_vert->position, &element->aabb.max);
     }
-    char buffer[255];
-    ras_log_trace("Model AABB min: %s\n", repr_point3f(buffer, sizeof buffer, &element->aabb.min));
-    ras_log_trace("Model AABB max: %s\n", repr_point3f(buffer, sizeof buffer, &element->aabb.max));
+
+    core_get_element_aabb(element, &element->aabb);
 
     element->num_indexes = group->num_faces * 3;
     uint32_t* element_index = &element->indexes[0];

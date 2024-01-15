@@ -93,6 +93,18 @@ typedef struct RenderState {
 } RenderState;
 
 /**
+ * Set sensible defaults
+ */
+void core_renderstate_init(RenderState* state);
+
+/**
+ * Clear index buffers buffers
+ */
+void core_renderstate_clear(RenderState* state);
+
+void core_aabb_init(RasAABB* aabb);
+
+/**
  * Transform a projected point to screen space.
  */
 void projected_to_screen_point(int32_t screen_width, int32_t screen_height, RasFixed projected_point[4], Point2i* screen_point);
@@ -113,16 +125,6 @@ void core_draw_elements(
     RasFixed model_world_matrix[4][4],
     RasFixed model_view_matrix[4][4],
     RasFixed proj_matrix[4][4]);
-
-/**
- * Set sensible defaults
- */
-void core_renderstate_init(RenderState* state);
-
-/**
- * Clear index buffers buffers
- */
-void core_renderstate_clear(RenderState* state);
 
 void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineElement* element);
 
