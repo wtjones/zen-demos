@@ -7,10 +7,10 @@ void ras_camera_update(RasCamera* camera, InputState* input_state)
     memcpy(&camera_prev, camera, sizeof camera_prev);
     int32_t delta_angle = 0;
 
-    if (input_state->keys[RAS_KEY_Q] == 1 || input_state->keys[RAS_KEY_LEFT]) {
+    if (input_state->keys[RAS_KEY_Q] == 1) {
         delta_angle = RAS_ROTATION_SPEED;
     }
-    if (input_state->keys[RAS_KEY_E] == 1 || input_state->keys[RAS_KEY_RIGHT]) {
+    if (input_state->keys[RAS_KEY_E] == 1) {
         delta_angle = -RAS_ROTATION_SPEED;
     }
 
