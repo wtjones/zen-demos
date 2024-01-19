@@ -89,10 +89,8 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
     }
 }
 
-void ras_app_render(RenderState* render_state)
+void ras_app_render(__attribute__((unused)) RenderState* render_state)
 {
-    char buffer[500];
-
     RasFixed model_world_matrix[4][4];
     RasFixed world_view_matrix[4][4];
     RasFixed projection_matrix[4][4];
@@ -111,14 +109,13 @@ void ras_app_render(RenderState* render_state)
     mat_mul_4x4_4x4(projection_matrix, world_view_matrix, combined_matrix);
 
     // TODO: unused
-    core_frustum_init(combined_matrix, &frustum);
-
-    ras_log_trace("model_world_matrix rot: %s\n", repr_mat_4x4(buffer, sizeof buffer, model_world_matrix));
+    core_frustum_init(projection_matrix, &frustum);
 
     core_draw_element(
         render_state,
         &current_element,
         model_world_matrix,
         world_view_matrix,
-        projection_matrix);
+        projection_matrix,
+        &frustum);
 }

@@ -35,6 +35,23 @@ bool core_plane_line_intersect(Plane* plane, Point3f* v1, Point3f* v2)
         return true;
 }
 
+bool core_plane_vector_side(Plane* plane, Point3f* v1)
+{
+    RasFixed v1pos;
+
+    v1pos = mul_fixed_16_16_by_fixed_16_16(plane->normal.x, v1->x)
+        + mul_fixed_16_16_by_fixed_16_16(plane->normal.y, v1->y)
+        + mul_fixed_16_16_by_fixed_16_16(plane->normal.z, v1->z)
+        + plane->distance;
+
+    if (v1pos > 0)
+        return false;
+    else if (v1pos < 0)
+        return true;
+    else
+        return true;
+}
+
 /**
  *
  * v = ( a.n.Cross ( b.n ) * -d - b.n.Cross ( n )  * a.d - n.Cross ( a.n ) * b.d ) / denom;

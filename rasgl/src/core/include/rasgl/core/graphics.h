@@ -2,6 +2,7 @@
 #define GRAPHICS_H
 
 #include "fixed_maths.h"
+#include "frustum.h"
 #include "maths.h"
 #include "model.h"
 #include <stdbool.h>
@@ -13,6 +14,7 @@
 #define MAX_COMMAND_POINTS 3
 #define MAX_PIPELINE_VERTS 10000
 #define MAX_VISIBLE_INDEXES MAX_PIPELINE_VERTS * 3
+#define RAS_MAX_AABB_POINTS 8
 
 typedef enum {
     RAS_PRIMATIVE_POINTS,
@@ -92,6 +94,8 @@ typedef struct RenderState {
     RasBackfaceCullingMode backface_culling_mode;
 } RenderState;
 
+typedef uint8_t RasClipFlags;
+
 /**
  * Set sensible defaults
  */
@@ -105,6 +109,13 @@ void core_renderstate_clear(RenderState* state);
 void core_aabb_init(RasAABB* aabb);
 
 /**
+ * Rotate the 8 points of the AABB and generate a new AABB from the result.
+ */
+void core_aabb_xform(RasAABB* aabb, RasFixed matrix[4][4], RasAABB* dest);
+
+RasClipFlags core_aabb_in_frustum(RasAABB* view_aabb, RasFrustum* frustum);
+
+/**
  * Transform a projected point to screen space.
  */
 void projected_to_screen_point(int32_t screen_width, int32_t screen_height, RasFixed projected_point[4], Point2i* screen_point);
@@ -114,17 +125,8 @@ void core_draw_element(
     RasPipelineElement* element,
     RasFixed model_world_matrix[4][4],
     RasFixed world_view_matrix[4][4],
-    RasFixed proj_matrix[4][4]);
-
-void core_draw_elements(
-    RenderState* render_state,
-    RasVertex* verts,
-    uint32_t num_verts,
-    uint32_t* indexes,
-    uint32_t num_indexes,
-    RasFixed model_world_matrix[4][4],
-    RasFixed model_view_matrix[4][4],
-    RasFixed proj_matrix[4][4]);
+    RasFixed proj_matrix[4][4],
+    RasFrustum* frustum);
 
 void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineElement* element);
 

@@ -13,14 +13,14 @@
 #define FRUSTUM_PLANES 6
 #define FRUSTUM_POINTS 8
 
-enum {
+typedef enum RasFrustumPlane {
     PLANE_LEFT,
     PLANE_RIGHT,
     PLANE_BOTTOM,
     PLANE_TOP,
     PLANE_NEAR,
     PLANE_FAR
-};
+} RasFrustumPlane;
 
 typedef struct RasFrustum {
     Plane planes[FRUSTUM_PLANES];

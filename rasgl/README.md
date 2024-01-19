@@ -75,6 +75,12 @@ Platform support progress:
 
 ## Render Pipeline
 
+Transform object AABB points to view space
+Construct view AABB from transformed points
+Transform frustum to view space
+Test AABB points against frustum
+    - could be optimized
+Test object view space AABB against view-space frustum
 Transform object vertices to world vertices
 Transform world vertices to view vertices
 Transform view vertices to screen vertices
