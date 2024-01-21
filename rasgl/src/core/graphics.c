@@ -254,14 +254,14 @@ void core_draw_element(
     RasAABB view_aabb;
     core_aabb_xform(&element->aabb, model_view_matrix, &view_aabb);
 
-    ras_log_info("AABB orig min: %s\n", repr_point3f(buffer, sizeof buffer, &element->aabb.min));
-    ras_log_info("AABB view min: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb.min));
+    ras_log_buffer("AABB orig min: %s\n", repr_point3f(buffer, sizeof buffer, &element->aabb.min));
+    ras_log_buffer("AABB view min: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb.min));
 
     core_render_aabb(render_state, proj_matrix, &view_aabb);
 
     RasClipFlags clip_flags = core_aabb_in_frustum(&view_aabb, frustum);
 
-    ras_log_info("AABB side: %d\n", clip_flags);
+    ras_log_buffer("AABB side: %d\n", clip_flags);
 
     for (uint32_t i = 0; i < element->num_verts; i++) {
         RasVertex* vertex = &element->verts[i];

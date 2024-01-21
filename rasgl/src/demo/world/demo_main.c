@@ -133,8 +133,8 @@ void xform_to_view_mode_persp_matrix(
     core_frustum_init(combined_matrix, &frustum);
 
     if (camera->last_changed_frame == render_state->current_frame) {
-        ras_log_info("view proj matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, combined_matrix));
-        ras_log_info("frustum: %s\n", core_repr_frustum(buffer, sizeof buffer, &frustum));
+        ras_log_buffer("view proj matrix: %s\n", repr_mat_4x4(buffer, sizeof buffer, combined_matrix));
+        ras_log_buffer("frustum: %s\n", core_repr_frustum(buffer, sizeof buffer, &frustum));
     }
     uint32_t* num_points = &render_state->num_points;
     uint32_t* num_commands = &render_state->num_commands;

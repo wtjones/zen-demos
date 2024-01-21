@@ -188,6 +188,7 @@ export DJGPP_PREFIX="/usr/local/bin/dosbox-x"
 
 Toggle projection mode: p
 Toggle backface culling mode: b
+Flush per-frame logs: f
 
 ### Demo: world
 

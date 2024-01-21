@@ -20,3 +20,4 @@
 
 - [x] Add frustum repr function
 - [x] Consolidate camera with view pos
+- [x] Frame-based log buffering

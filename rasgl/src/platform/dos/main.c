@@ -26,6 +26,7 @@ void map_input()
         { .ras_key = RAS_KEY_E, .plat_key = KEY_E },
         { .ras_key = RAS_KEY_Q, .plat_key = KEY_Q },
         { .ras_key = RAS_KEY_P, .plat_key = KEY_P },
+        { .ras_key = RAS_KEY_F, .plat_key = KEY_F },
         { .ras_key = RAS_KEY_EQUALS, .plat_key = KEY_EQUALS },
         { .ras_key = RAS_KEY_MINUS, .plat_key = KEY_MINUS },
         { .ras_key = RAS_KEY_ESCAPE, .plat_key = KEY_ESC },
