@@ -113,7 +113,11 @@ void core_aabb_init(RasAABB* aabb);
  */
 void core_aabb_xform(RasAABB* aabb, RasFixed matrix[4][4], RasAABB* dest);
 
-RasClipFlags core_aabb_in_frustum(RasAABB* view_aabb, RasFrustum* frustum);
+/**
+ * Sets bitmask of planes with an ouside AABB point.
+ * Returns true if all points are outside.
+ */
+bool core_aabb_in_frustum(RasAABB* view_aabb, RasFrustum* frustum, RasClipFlags* flags);
 
 /**
  * Transform a projected point to screen space.

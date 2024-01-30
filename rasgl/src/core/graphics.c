@@ -98,26 +98,27 @@ void core_aabb_xform(RasAABB* aabb, RasFixed matrix[4][4], RasAABB* dest)
     }
 }
 
-RasClipFlags core_aabb_in_frustum(RasAABB* aabb, RasFrustum* frustum)
+bool core_aabb_in_frustum(RasAABB* aabb, RasFrustum* frustum, RasClipFlags* flags)
 {
-    RasClipFlags result = 0;
+    bool all_out = true;
     RasVector3f points[RAS_MAX_AABB_POINTS];
+
+    *flags = 0;
     core_aabb_to_points(aabb, points);
 
-    for (RasFrustumPlane p = 0; p < 6; p++) {
-        Plane* plane = &frustum->planes[p];
+    for (int i = 0; i < RAS_MAX_AABB_POINTS; i++) {
 
-        bool outside = false;
-        for (int i = 0; i < RAS_MAX_AABB_POINTS; i++) {
+        bool outside_any_plane = false;
+        for (RasFrustumPlane p = 0; p < 6; p++) {
+            Plane* plane = &frustum->planes[p];
 
-            outside = core_plane_vector_side(plane, &points[i]);
-            if (outside) {
-                break;
-            }
+            bool outside = core_plane_vector_side(plane, &points[i]);
+            outside_any_plane = outside ? outside : outside_any_plane;
+            *flags = *flags | outside << p;
         }
-        result = result | outside << p;
+        all_out = !outside_any_plane ? false : all_out;
     }
-    return result;
+    return all_out;
 }
 
 void core_renderstate_init(RenderState* state)
@@ -257,11 +258,16 @@ void core_draw_element(
     ras_log_buffer("AABB orig min: %s\n", repr_point3f(buffer, sizeof buffer, &element->aabb.min));
     ras_log_buffer("AABB view min: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb.min));
 
+    RasClipFlags clip_flags = 0;
+    bool all_out = core_aabb_in_frustum(&view_aabb, frustum, &clip_flags);
+
+    ras_log_buffer("AABB flags: %hhu, all_out: %s\n", clip_flags, all_out ? "true" : "false");
+
+    if (all_out) {
+        return;
+    }
+
     core_render_aabb(render_state, proj_matrix, &view_aabb);
-
-    RasClipFlags clip_flags = core_aabb_in_frustum(&view_aabb, frustum);
-
-    ras_log_buffer("AABB side: %d\n", clip_flags);
 
     for (uint32_t i = 0; i < element->num_verts; i++) {
         RasVertex* vertex = &element->verts[i];
