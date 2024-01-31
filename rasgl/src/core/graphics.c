@@ -106,16 +106,9 @@ bool core_aabb_in_frustum(RasAABB* aabb, RasFrustum* frustum, RasClipFlags* flag
     core_aabb_to_points(aabb, points);
 
     for (int i = 0; i < RAS_MAX_AABB_POINTS; i++) {
-
-        bool outside_any_plane = false;
-        for (RasFrustumPlane p = 0; p < 6; p++) {
-            Plane* plane = &frustum->planes[p];
-
-            bool outside = core_plane_vector_side(plane, &points[i]);
-            outside_any_plane = outside ? outside : outside_any_plane;
-            *flags = *flags | outside << p;
-        }
-        all_out = !outside_any_plane ? false : all_out;
+        RasClipFlags point_flags = core_point_in_frustum_planes(frustum, &points[i]);
+        *flags = *flags | point_flags;
+        all_out = point_flags == 0 ? false : all_out;
     }
     return all_out;
 }

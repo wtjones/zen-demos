@@ -196,6 +196,18 @@ bool core_point_in_frustum(RasFrustum* frustum, RasVector3f* point)
     return true;
 }
 
+RasClipFlags core_point_in_frustum_planes(RasFrustum* frustum, RasVector3f* point)
+{
+    RasClipFlags flags = 0;
+    for (RasFrustumPlane p = 0; p < 6; p++) {
+        Plane* plane = &frustum->planes[p];
+
+        bool outside = core_plane_vector_side(plane, point);
+        flags = flags | outside << p;
+    }
+    return flags;
+}
+
 char* core_repr_frustum(char* buffer, size_t count, RasFrustum* frustum)
 {
     char buffer2[255];

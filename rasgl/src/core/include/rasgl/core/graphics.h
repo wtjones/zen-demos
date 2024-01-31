@@ -94,8 +94,6 @@ typedef struct RenderState {
     RasBackfaceCullingMode backface_culling_mode;
 } RenderState;
 
-typedef uint8_t RasClipFlags;
-
 /**
  * Set sensible defaults
  */

@@ -28,6 +28,11 @@ typedef struct RasFrustum {
 } RasFrustum;
 
 /**
+ * Bitmask of frustum plane indices
+ */
+typedef uint8_t RasClipFlags;
+
+/**
  * Extract the frustum from the combined view and projection matrices.
  */
 void core_frustum_init(RasFixed view_projection_matrix[4][4], RasFrustum* frustum);
@@ -35,5 +40,10 @@ void core_frustum_init(RasFixed view_projection_matrix[4][4], RasFrustum* frustu
 bool core_point_in_frustum(RasFrustum* frustum, RasVector3f* point);
 
 char* core_repr_frustum(char* buffer, size_t count, RasFrustum* frustum);
+
+/**
+ * Returns bitmask of planes where the point is outside.
+ */
+RasClipFlags core_point_in_frustum_planes(RasFrustum* frustum, RasVector3f* point);
 
 #endif
