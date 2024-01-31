@@ -32,6 +32,8 @@ typedef struct RasFrustum {
  */
 void core_frustum_init(RasFixed view_projection_matrix[4][4], RasFrustum* frustum);
 
+bool core_point_in_frustum(RasFrustum* frustum, RasVector3f* point);
+
 char* core_repr_frustum(char* buffer, size_t count, RasFrustum* frustum);
 
 #endif

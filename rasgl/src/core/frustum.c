@@ -182,6 +182,20 @@ void core_frustum_init(RasFixed view_projection_matrix[4][4], RasFrustum* frustu
     core_frustum_points_init(frustum);
 }
 
+bool core_point_in_frustum(RasFrustum* frustum, RasVector3f* point)
+{
+    bool outside_any_plane = false;
+    for (RasFrustumPlane p = 0; p < 6; p++) {
+        Plane* plane = &frustum->planes[p];
+
+        bool outside = core_plane_vector_side(plane, point);
+        if (outside) {
+            return false;
+        }
+    }
+    return true;
+}
+
 char* core_repr_frustum(char* buffer, size_t count, RasFrustum* frustum)
 {
     char buffer2[255];

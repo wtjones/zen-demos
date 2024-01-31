@@ -102,7 +102,6 @@ bool core_aabb_in_frustum(RasAABB* aabb, RasFrustum* frustum, RasClipFlags* flag
 {
     bool all_out = true;
     RasVector3f points[RAS_MAX_AABB_POINTS];
-
     *flags = 0;
     core_aabb_to_points(aabb, points);
 
@@ -207,12 +206,16 @@ void core_projected_to_screen_point(int32_t screen_width, int32_t screen_height,
 void core_render_aabb(
     RenderState* render_state,
     RasFixed proj_matrix[4][4],
+    RasFrustum* frustum,
     RasAABB* aabb)
 {
     RasVector3f points[RAS_MAX_AABB_POINTS];
     core_aabb_to_points(aabb, points);
-
+    uint32_t num_points = 0;
     for (int i = 0; i < RAS_MAX_AABB_POINTS; i++) {
+        if (!core_point_in_frustum(frustum, &points[i])) {
+            continue;
+        }
         RasFixed view_vec[4];
         RasFixed projected_vec[4];
         RasVector4f screen_space_position;
@@ -229,7 +232,9 @@ void core_render_aabb(
             &screen_space_position);
 
         core_render_point(render_state, &screen_space_position);
+        num_points++;
     }
+    ras_log_buffer("AABB points rendered: %d\n", num_points);
 }
 
 void core_draw_element(
@@ -267,7 +272,7 @@ void core_draw_element(
         return;
     }
 
-    core_render_aabb(render_state, proj_matrix, &view_aabb);
+    core_render_aabb(render_state, proj_matrix, frustum, &view_aabb);
 
     for (uint32_t i = 0; i < element->num_verts; i++) {
         RasVertex* vertex = &element->verts[i];
