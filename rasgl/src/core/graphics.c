@@ -266,7 +266,7 @@ void core_draw_element(
     }
 
     core_render_aabb(render_state, proj_matrix, frustum, &view_aabb);
-
+    uint32_t num_visible = 0;
     for (uint32_t i = 0; i < element->num_verts; i++) {
         RasVertex* vertex = &element->verts[i];
         RasPipelineVertex* pv = &render_state->pipeline_verts[i];
@@ -281,6 +281,9 @@ void core_draw_element(
         core_4x1_to_vector3f(view_space_position, &pv->view_space_position);
 
         ras_log_trace("pipeline view space pos: %s\n", repr_point3f(buffer, sizeof buffer, &pv->view_space_position));
+
+        pv->clip_flags = core_point_in_frustum_planes(frustum, &pv->view_space_position);
+        num_visible += pv->clip_flags == 0 ? 1 : 0;
 
         // Screen space in NDC coords
         mat_mul_project(proj_matrix, view_space_position, projected_vec);
@@ -299,6 +302,7 @@ void core_draw_element(
 
         render_state->num_pipeline_verts++;
     }
+    ras_log_buffer("Verts in frustum: %d\n", num_visible);
 
     render_state->num_visible_indexes = 0;
     uint32_t vi = 0;
