@@ -266,7 +266,7 @@ void core_draw_element(
     }
 
     core_render_aabb(render_state, proj_matrix, frustum, &view_aabb);
-    uint32_t num_visible = 0;
+    uint32_t num_verts_in_frustum = 0;
     for (uint32_t i = 0; i < element->num_verts; i++) {
         RasVertex* vertex = &element->verts[i];
         RasPipelineVertex* pv = &render_state->pipeline_verts[i];
@@ -283,7 +283,7 @@ void core_draw_element(
         ras_log_trace("pipeline view space pos: %s\n", repr_point3f(buffer, sizeof buffer, &pv->view_space_position));
 
         pv->clip_flags = core_point_in_frustum_planes(frustum, &pv->view_space_position);
-        num_visible += pv->clip_flags == 0 ? 1 : 0;
+        num_verts_in_frustum += pv->clip_flags == 0 ? 1 : 0;
 
         // Screen space in NDC coords
         mat_mul_project(proj_matrix, view_space_position, projected_vec);
@@ -302,21 +302,38 @@ void core_draw_element(
 
         render_state->num_pipeline_verts++;
     }
-    ras_log_buffer("Verts in frustum: %d\n", num_visible);
 
     render_state->num_visible_indexes = 0;
+    uint32_t num_faces_visible = 0;
+    uint32_t num_faces_in_frustum = 0;
     uint32_t vi = 0;
     for (uint32_t i = 0; i < element->num_indexes; i += 3) {
-        bool is_visible = (!core_is_backface(render_state->pipeline_verts, &element->indexes[i]))
-            || render_state->backface_culling_mode == RAS_BACKFACE_CULLING_OFF;
-        if (is_visible) {
-            render_state->visible_indexes[vi] = element->indexes[i];
-            render_state->visible_indexes[vi + 1] = element->indexes[i + 1];
-            render_state->visible_indexes[vi + 2] = element->indexes[i + 2];
-            render_state->num_visible_indexes += 3;
-            vi += 3;
+        RasPipelineVertex* pv1 = &render_state->pipeline_verts[element->indexes[i]];
+        RasPipelineVertex* pv2 = &render_state->pipeline_verts[element->indexes[i + 1]];
+        RasPipelineVertex* pv3 = &render_state->pipeline_verts[element->indexes[i + 2]];
+
+        if (pv1->clip_flags & pv2->clip_flags & pv3->clip_flags) {
+            continue; // face is all out
         }
+        num_faces_in_frustum += 1;
+
+        if (core_is_backface(render_state->pipeline_verts, &element->indexes[i])
+            && render_state->backface_culling_mode == RAS_BACKFACE_CULLING_ON) {
+            continue;
+        }
+        render_state->visible_indexes[vi] = element->indexes[i];
+        render_state->visible_indexes[vi + 1] = element->indexes[i + 1];
+        render_state->visible_indexes[vi + 2] = element->indexes[i + 2];
+        render_state->num_visible_indexes += 3;
+        vi += 3;
+        num_faces_visible += 1;
     }
+    ras_log_buffer("Verts in frustum: %d\n", num_verts_in_frustum);
+    ras_log_buffer(
+        "Total faces: %d. Faces in frustum: %d Faces visible: %d\n",
+        element->num_indexes / 3,
+        num_faces_in_frustum,
+        num_faces_visible);
 }
 
 void core_get_element_aabb(RasPipelineElement* element, RasAABB* aabb)

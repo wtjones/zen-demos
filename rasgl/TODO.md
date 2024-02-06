@@ -10,7 +10,7 @@
 ### In Progress
 
 - [ ] Polygon clipping
-    - [ ] Exclude faces outside of frustum
+    - [x] Exclude faces outside of frustum
     - [ ] Clip faces that intersect frustum
 
 ### Done ✓
