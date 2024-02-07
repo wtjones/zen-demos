@@ -306,6 +306,7 @@ void core_draw_element(
     render_state->num_visible_indexes = 0;
     uint32_t num_faces_visible = 0;
     uint32_t num_faces_in_frustum = 0;
+    uint32_t num_faces_must_clip = 0;
     uint32_t vi = 0;
     for (uint32_t i = 0; i < element->num_indexes; i += 3) {
         RasPipelineVertex* pv1 = &render_state->pipeline_verts[element->indexes[i]];
@@ -321,6 +322,9 @@ void core_draw_element(
             && render_state->backface_culling_mode == RAS_BACKFACE_CULLING_ON) {
             continue;
         }
+
+        RasClipFlags face_clip_flags = pv1->clip_flags | pv2->clip_flags | pv3->clip_flags;
+        num_faces_must_clip += face_clip_flags == 0 ? 0 : 1;
         render_state->visible_indexes[vi] = element->indexes[i];
         render_state->visible_indexes[vi + 1] = element->indexes[i + 1];
         render_state->visible_indexes[vi + 2] = element->indexes[i + 2];
@@ -330,10 +334,11 @@ void core_draw_element(
     }
     ras_log_buffer("Verts in frustum: %d\n", num_verts_in_frustum);
     ras_log_buffer(
-        "Total faces: %d. Faces in frustum: %d Faces visible: %d\n",
+        "Total faces: %d. In frustum: %d. Visible: %d. Must clip %d\n",
         element->num_indexes / 3,
         num_faces_in_frustum,
-        num_faces_visible);
+        num_faces_visible,
+        num_faces_must_clip);
 }
 
 void core_get_element_aabb(RasPipelineElement* element, RasAABB* aabb)
