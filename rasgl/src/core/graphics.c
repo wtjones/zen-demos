@@ -166,6 +166,58 @@ bool core_is_backface(RasPipelineVertex* pipeline_verts, uint32_t indexes[3])
 }
 
 /**
+ * Sets the clip flags of a pipeline vert based on AABB clip flags.
+ * Near and far planes checked in view space. The rest in screen space.
+ */
+void core_set_pv_clip_flags(RasFrustum* view_frustum, RasClipFlags aabb_flags, RasPipelineVertex* pv)
+{
+    RasFixed right_x = INT_32_TO_FIXED_16_16(320);  // FIXME
+    RasFixed bottom_y = INT_32_TO_FIXED_16_16(240); // FIXME
+
+    pv->clip_flags = 0;
+
+    if (aabb_flags & (1 << PLANE_NEAR)) {
+        RasFrustumPlane* plane = &view_frustum->planes[PLANE_NEAR];
+        bool outside = core_plane_vector_side(plane, &pv->view_space_position);
+        pv->clip_flags |= outside
+            ? (1 << PLANE_NEAR)
+            : 0;
+    }
+
+    if (aabb_flags & (1 << PLANE_FAR)) {
+        RasFrustumPlane* plane = &view_frustum->planes[PLANE_FAR];
+        bool outside = core_plane_vector_side(plane, &pv->view_space_position);
+        pv->clip_flags |= outside
+            ? (1 << PLANE_FAR)
+            : 0;
+    }
+
+    if (aabb_flags & (1 << PLANE_LEFT)) {
+        pv->clip_flags |= pv->screen_space_position.x <= 0
+            ? (1 << PLANE_LEFT)
+            : 0;
+    }
+
+    if (aabb_flags & (1 << PLANE_RIGHT)) {
+        pv->clip_flags |= pv->screen_space_position.x >= right_x
+            ? (1 << PLANE_RIGHT)
+            : 0;
+    }
+
+    if (aabb_flags & (1 << PLANE_TOP)) {
+        pv->clip_flags |= pv->screen_space_position.y <= 0
+            ? (1 << PLANE_TOP)
+            : 0;
+    }
+
+    if (aabb_flags & (1 << PLANE_BOTTOM)) {
+        pv->clip_flags |= pv->screen_space_position.x >= bottom_y
+            ? (1 << PLANE_BOTTOM)
+            : 0;
+    }
+}
+
+/**
  * Add a screen-space point to the command list.
  */
 void core_render_point(RenderState* render_state, RasVector4f* screen_space_position)
@@ -239,6 +291,7 @@ void core_draw_element(
     RasFrustum* frustum)
 {
     char buffer[1000];
+    char buffer2[1000];
     RasFixed model_view_matrix[4][4];
     RasFixed combined_matrix[4][4];
     RasFixed dest_vec[4];
@@ -255,6 +308,7 @@ void core_draw_element(
 
     ras_log_buffer("AABB orig min: %s\n", repr_point3f(buffer, sizeof buffer, &element->aabb.min));
     ras_log_buffer("AABB view min: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb.min));
+    ras_log_buffer("AABB view max: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb.max));
 
     RasClipFlags clip_flags = 0;
     bool all_out = core_aabb_in_frustum(&view_aabb, frustum, &clip_flags);
@@ -282,9 +336,6 @@ void core_draw_element(
 
         ras_log_trace("pipeline view space pos: %s\n", repr_point3f(buffer, sizeof buffer, &pv->view_space_position));
 
-        pv->clip_flags = core_point_in_frustum_planes(frustum, &pv->view_space_position);
-        num_verts_in_frustum += pv->clip_flags == 0 ? 1 : 0;
-
         // Screen space in NDC coords
         mat_mul_project(proj_matrix, view_space_position, projected_vec);
 
@@ -296,12 +347,23 @@ void core_draw_element(
 
         ras_log_trace("pipeline screen space pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->screen_space_position));
 
+        core_set_pv_clip_flags(frustum, clip_flags, pv);
+
+        num_verts_in_frustum
+            += pv->clip_flags == 0 ? 1 : 0;
+
         pv->color = vertex->color;
         pv->u = vertex->u;
         pv->v = vertex->v;
 
         render_state->num_pipeline_verts++;
     }
+
+    RasPipelineVertex* pv = &render_state->pipeline_verts[0];
+    ras_log_buffer(
+        "pv 0: view space pos: %s\nscreen space pos: %s\n",
+        repr_point3f(buffer, sizeof buffer, &pv->view_space_position),
+        repr_vector4f(buffer2, sizeof buffer, &pv->screen_space_position));
 
     render_state->num_visible_indexes = 0;
     uint32_t num_faces_visible = 0;

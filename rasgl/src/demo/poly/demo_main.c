@@ -26,11 +26,11 @@ Point3f model_pos = { .x = 0, .y = 0, .z = -RAS_FLOAT_TO_FIXED(2.5) }; // world 
 RasCamera camera = {
     .position = { .x = 0, .y = 0, .z = RAS_FLOAT_TO_FIXED(2.5) },
     .angle = 180,
-    .aspect_ratio = 1.333f,
-    .near = 0.1f,
-    .far = 100.0f,
-    .fov = 60.0f,
-    .projection_mode = RAS_PERSPECTIVE_MATRIX
+    .aspect_ratio = RAS_CAMERA_DEFAULT_ASPECT_RATIO,
+    .near = RAS_CAMERA_DEFAULT_NEAR,
+    .far = RAS_CAMERA_DEFAULT_FAR,
+    .fov = RAS_CAMERA_DEFAULT_FOV,
+    .projection_mode = RAS_CAMERA_DEFAULT_PROJECTION_MODE
 };
 
 char* default_model = "./assets/models/ico.obj";
