@@ -1,17 +1,24 @@
-# Demos relating to scaling and rotation
+# zen-demos
 
-## Python Demos
+A monorepo of demos, research, and experiments.
 
-```
-cd py_demos
-pip3 install -r requirements.txt
-```
+## Rendering
 
-`python3 -m sin_cos_fixed`
+* [Py Demos](./py_demos/)
 
-`python3 -m demos.mode_7`
+    - Sine/cosine math
+    - Texture rotation
+    - Mode 7
+    - Fixed math
 
-`python3 -m demos.rotate_2d`
+* [RasGL](./rasgl/)
+
+    - Sofware rasterizer
+    - Targets multiple retro platforms
+
+* [Sand](./sand/)
+
+    - Sand simulation in C
 
 ## Game Boy mode 7 demo
 
@@ -24,16 +31,21 @@ Load the rom in `/build` or use `run.sh`
 
 ### Renderers
 
-#### A
+#### Renderer A
 
 Default renderer. Uses a buffer to process the screen-space rotation.
 
-#### B
+#### Renderer B
 
 Performs rotation and 'sub-tile' translation in the same pass. Runs slightly slower.
 
 `make renderer_b -B`
 
+## Language experiments
+
+* [Loitar](./loitar/) - Lisp variant
+
 ## Samples
 
 * [xform](samples/xform/README.md) Simple matrix transforms in C
+
