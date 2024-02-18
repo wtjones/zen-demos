@@ -7,6 +7,7 @@
     - [ ] Clip faces that intersect frustum
 - [ ] Render origin and grid lines
 - [ ] Increase whole part of fixed-point scheme from 16 bits
+- [ ] Fix DOS version not taking model param
 
 ### In Progress
 
@@ -21,4 +22,3 @@
   - [x] Add frustum to poly demo
   - [x] Transform object AABB to world
   - [x] Set clip flags based on AABB/frustum
-  
