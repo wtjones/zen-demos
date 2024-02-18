@@ -177,7 +177,7 @@ void core_set_pv_clip_flags(RasFrustum* view_frustum, RasClipFlags aabb_flags, R
     pv->clip_flags = 0;
 
     if (aabb_flags & (1 << PLANE_NEAR)) {
-        RasFrustumPlane* plane = &view_frustum->planes[PLANE_NEAR];
+        RasPlane* plane = &view_frustum->planes[PLANE_NEAR];
         bool outside = core_plane_vector_side(plane, &pv->view_space_position);
         pv->clip_flags |= outside
             ? (1 << PLANE_NEAR)
@@ -185,7 +185,7 @@ void core_set_pv_clip_flags(RasFrustum* view_frustum, RasClipFlags aabb_flags, R
     }
 
     if (aabb_flags & (1 << PLANE_FAR)) {
-        RasFrustumPlane* plane = &view_frustum->planes[PLANE_FAR];
+        RasPlane* plane = &view_frustum->planes[PLANE_FAR];
         bool outside = core_plane_vector_side(plane, &pv->view_space_position);
         pv->clip_flags |= outside
             ? (1 << PLANE_FAR)
