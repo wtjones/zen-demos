@@ -196,8 +196,8 @@ Demonstrates movement controls over world geometry.
 
 #### Controls
 
-Move: WASD
-Rotate: Q/E
+Move camera: WASD
+Rotate camera: Q/E
 Toggle view mode: TAB
 Adjust FOV: left/right bracket
 
@@ -212,6 +212,17 @@ Provide a model obj file as an optional param.
 ```
 ./run_posix poly 0 ./assets/models/cube.obj
 ```
+
+#### Controls
+
+Move camera: WASD
+Rotate camera: Q/E
+Toggle view mode: TAB
+Adjust FOV: left/right bracket
+Move object Z axis: up/down arrow keys
+Move object X axis: left/right arrow keys
+Move object Y axis: shift + up/down arrow keys
+Rotate object Y axis: ctrl + left/right arrow keys
 
 ## Debug output
 

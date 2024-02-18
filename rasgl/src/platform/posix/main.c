@@ -39,6 +39,8 @@ void map_input()
     plat_input_state.keys[RAS_KEY_LEFT] = keys[SDL_SCANCODE_LEFT];
     plat_input_state.keys[RAS_KEY_LEFTBRACKET] = keys[SDL_SCANCODE_LEFTBRACKET];
     plat_input_state.keys[RAS_KEY_RIGHTBRACKET] = keys[SDL_SCANCODE_RIGHTBRACKET];
+    plat_input_state.keys[RAS_KEY_LSHIFT] = keys[SDL_SCANCODE_LSHIFT];
+    plat_input_state.keys[RAS_KEY_LCTRL] = keys[SDL_SCANCODE_LCTRL];
 }
 
 void render_state(RenderState* state)

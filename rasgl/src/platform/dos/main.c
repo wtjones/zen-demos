@@ -34,7 +34,9 @@ void map_input()
         { .ras_key = RAS_KEY_UP, .plat_key = KEY_UP },
         { .ras_key = RAS_KEY_LEFT, .plat_key = KEY_LEFT },
         { .ras_key = RAS_KEY_RIGHT, .plat_key = KEY_RIGHT },
-        { .ras_key = RAS_KEY_TAB, .plat_key = KEY_TAB }
+        { .ras_key = RAS_KEY_TAB, .plat_key = KEY_TAB },
+        { .ras_key = RAS_KEY_LSHIFT, .plat_key = KEY_LSHIFT },
+        { .ras_key = RAS_KEY_LCTRL, .plat_key = KEY_LCONTROL }
     };
 
     for (uint32_t i = 0; i < sizeof(key_maps) / sizeof(RasKeyMap); i++) {

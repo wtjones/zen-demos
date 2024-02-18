@@ -17,9 +17,9 @@ RasModel cube_model;
 int32_t delta_rotation = 1;
 int32_t model_rotation_y = 0;
 Point3f delta = {
-    .x = RAS_FLOAT_TO_FIXED(0.2f),
-    .y = RAS_FLOAT_TO_FIXED(0.2f),
-    .z = RAS_FLOAT_TO_FIXED(0.2f)
+    .x = RAS_FLOAT_TO_FIXED(0.1f),
+    .y = RAS_FLOAT_TO_FIXED(0.1f),
+    .z = RAS_FLOAT_TO_FIXED(0.1f)
 };
 Point3f model_pos = { .x = 0, .y = 0, .z = -RAS_FLOAT_TO_FIXED(2.5) }; // world space
 
@@ -63,19 +63,51 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
 
     memcpy(&model_pos_prev, &model_pos, sizeof model_pos);
 
-    if (input_state->keys[RAS_KEY_UP] == 1) {
+    bool modifiers = input_state->keys[RAS_KEY_LCTRL] == 1 || input_state->keys[RAS_KEY_LSHIFT] == 1;
 
+    // Model Z axis movement
+
+    if (input_state->keys[RAS_KEY_UP] == 1 && !modifiers) {
         model_pos.z -= delta.z;
     }
-    if (input_state->keys[RAS_KEY_DOWN] == 1) {
+    if (input_state->keys[RAS_KEY_DOWN] == 1 && !modifiers) {
         model_pos.z += delta.z;
     }
-    if (input_state->keys[RAS_KEY_LEFT] == 1) {
 
+    // Model X axis movement
+
+    if (input_state->keys[RAS_KEY_LEFT] == 1 && !modifiers) {
         model_pos.x -= delta.x;
     }
-    if (input_state->keys[RAS_KEY_RIGHT] == 1) {
+    if (input_state->keys[RAS_KEY_RIGHT] == 1 && !modifiers) {
         model_pos.x += delta.x;
+    }
+
+    // Model Y axis movement
+
+    if (input_state->keys[RAS_KEY_UP] == 1
+        && input_state->keys[RAS_KEY_LSHIFT] == 1
+        && input_state->keys[RAS_KEY_LCTRL] != 1) {
+        model_pos.y += delta.y;
+    }
+    if (input_state->keys[RAS_KEY_DOWN] == 1
+        && input_state->keys[RAS_KEY_LSHIFT] == 1
+        && input_state->keys[RAS_KEY_LCTRL] != 1) {
+        model_pos.y -= delta.y;
+    }
+
+    // Model Y rotation
+
+    delta_rotation = 0;
+    if (input_state->keys[RAS_KEY_LEFT] == 1
+        && input_state->keys[RAS_KEY_LSHIFT] != 1
+        && input_state->keys[RAS_KEY_LCTRL] == 1) {
+        delta_rotation = 1;
+    }
+    if (input_state->keys[RAS_KEY_RIGHT] == 1
+        && input_state->keys[RAS_KEY_LSHIFT] != 1
+        && input_state->keys[RAS_KEY_LCTRL] == 1) {
+        delta_rotation = -1;
     }
 
     model_rotation_y = (model_rotation_y + delta_rotation) % 360;
