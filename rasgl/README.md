@@ -211,6 +211,8 @@ Provide a model obj file as an optional param.
 
 ```
 ./run_posix poly 0 ./assets/models/cube.obj
+./run_posix poly 0 ./assets/models/ico.obj
+./run_posix poly 0 ./assets/models/tri.obj
 ```
 
 #### Controls
