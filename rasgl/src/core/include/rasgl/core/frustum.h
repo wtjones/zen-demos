@@ -23,7 +23,7 @@ typedef enum RasFrustumPlane {
 } RasFrustumPlane;
 
 typedef struct RasFrustum {
-    Plane planes[FRUSTUM_PLANES];
+    RasPlane planes[FRUSTUM_PLANES];
     Point3f points[FRUSTUM_POINTS];
 } RasFrustum;
 

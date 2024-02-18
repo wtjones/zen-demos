@@ -280,7 +280,7 @@ void plane_tests()
 
     char buffer[255];
 
-    Plane pl1 = {
+    RasPlane pl1 = {
         .normal = {
             .x = float_to_fixed_16_16(-0.18973),
             .y = float_to_fixed_16_16(0.83205),
@@ -288,7 +288,7 @@ void plane_tests()
         .distance = float_to_fixed_16_16(355.17627)
     };
 
-    Plane pl2 = {
+    RasPlane pl2 = {
         .normal = {
             .x = float_to_fixed_16_16(0.34209),
             .y = float_to_fixed_16_16(0.0),
@@ -296,7 +296,7 @@ void plane_tests()
         .distance = float_to_fixed_16_16(7178.25342)
     };
 
-    Plane pl3 = {
+    RasPlane pl3 = {
         .normal = {
             .x = float_to_fixed_16_16(-0.97159),
             .y = float_to_fixed_16_16(0.0),

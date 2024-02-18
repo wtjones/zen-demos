@@ -1,7 +1,7 @@
 #include "rasgl/core/frustum.h"
 #include "rasgl/core/repr.h"
 
-void core_frustum_plane_init(RasFixed v[4], Plane* plane)
+void core_frustum_plane_init(RasFixed v[4], RasPlane* plane)
 {
     RasFixed length;
     plane->normal.x = v[0];
@@ -186,7 +186,7 @@ bool core_point_in_frustum(RasFrustum* frustum, RasVector3f* point)
 {
     bool outside_any_plane = false;
     for (RasFrustumPlane p = 0; p < 6; p++) {
-        Plane* plane = &frustum->planes[p];
+        RasPlane* plane = &frustum->planes[p];
 
         bool outside = core_plane_vector_side(plane, point);
         if (outside) {
@@ -200,7 +200,7 @@ RasClipFlags core_point_in_frustum_planes(RasFrustum* frustum, RasVector3f* poin
 {
     RasClipFlags flags = 0;
     for (RasFrustumPlane p = 0; p < 6; p++) {
-        Plane* plane = &frustum->planes[p];
+        RasPlane* plane = &frustum->planes[p];
 
         bool outside = core_plane_vector_side(plane, point);
         flags = flags | outside << p;

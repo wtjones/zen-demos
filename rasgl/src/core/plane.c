@@ -14,7 +14,7 @@
  * the point is behind the plane. If value is greater than zero, the point is in
  * front of the plane."
  */
-bool core_plane_line_intersect(Plane* plane, Point3f* v1, Point3f* v2)
+bool core_plane_line_intersect(RasPlane* plane, Point3f* v1, Point3f* v2)
 {
     RasFixed v1pos, v2pos;
 
@@ -35,7 +35,7 @@ bool core_plane_line_intersect(Plane* plane, Point3f* v1, Point3f* v2)
         return true;
 }
 
-bool core_plane_vector_side(Plane* plane, Point3f* v1)
+bool core_plane_vector_side(RasPlane* plane, Point3f* v1)
 {
     RasFixed v1pos;
 
@@ -62,7 +62,7 @@ bool core_plane_vector_side(Plane* plane, Point3f* v1)
  *
  *  v = (part1 - part2 - part3) / denom;
  */
-bool core_get_3_plane_intersection(Plane* p1, Plane* p2, Plane* p3, Point3f* point)
+bool core_get_3_plane_intersection(RasPlane* p1, RasPlane* p2, RasPlane* p3, Point3f* point)
 {
     Point3f crossTemp;
     Point3f cross1, cross2, cross3;
@@ -88,7 +88,7 @@ bool core_get_3_plane_intersection(Plane* p1, Plane* p2, Plane* p3, Point3f* poi
     return true;
 }
 
-char* core_repr_plane(char* buffer, size_t count, Plane* plane)
+char* core_repr_plane(char* buffer, size_t count, RasPlane* plane)
 {
     char buffer2[255];
     char buffer3[255];
