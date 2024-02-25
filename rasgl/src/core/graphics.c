@@ -118,6 +118,7 @@ void core_renderstate_init(RenderState* state)
     state->num_commands = 0;
     state->num_points = 0;
     state->num_pipeline_verts = 0;
+    state->num_visible_indexes = 0;
     state->current_frame = 0;
     state->max_frames = UINT32_MAX;
     state->projection_mode = RAS_PERSPECTIVE_MATRIX;
@@ -129,6 +130,8 @@ void core_renderstate_clear(RenderState* state)
     state->num_visible_indexes = 0;
     state->num_commands = 0;
     state->num_points = 0;
+    state->num_pipeline_verts = 0;
+    state->num_visible_indexes = 0;
 }
 
 void projected_to_screen_point(RasFixed screen_width, RasFixed screen_height, RasFixed projected_point[4], Point2i* screen_point)
