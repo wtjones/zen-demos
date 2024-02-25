@@ -14,7 +14,10 @@
                 "MIMode": "gdb",
                 "miDebuggerPath": "/usr/bin/gdb"
             },
-            "preLaunchTask": "CMake: build"
+            "preLaunchTask": "CMake: build",
+            "args": [
+                "./assets/models/tri.obj"
+            ]
         },
         {
             "name": "rasgl tests",
