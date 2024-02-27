@@ -131,7 +131,7 @@ void core_frustum_planes_init(RasFixed view_projection_matrix[4][4], RasFrustum*
 
     core_frustum_plane_init(p2, &frustum->planes[PLANE_RIGHT]);
 
-    // bottom
+    // top
     // p3 = row3 + row1
     RasFixed p3[4] = {
         row3[0] + row1[0],
@@ -140,9 +140,9 @@ void core_frustum_planes_init(RasFixed view_projection_matrix[4][4], RasFrustum*
         row3[3] + row1[3]
     };
 
-    core_frustum_plane_init(p3, &frustum->planes[PLANE_BOTTOM]);
+    core_frustum_plane_init(p3, &frustum->planes[PLANE_TOP]);
 
-    // top
+    // bottom
     // p4 = row3 - row1
     RasFixed p4[4] = {
         row3[0] - row1[0],
@@ -151,7 +151,7 @@ void core_frustum_planes_init(RasFixed view_projection_matrix[4][4], RasFrustum*
         row3[3] - row1[3]
     };
 
-    core_frustum_plane_init(p4, &frustum->planes[PLANE_TOP]);
+    core_frustum_plane_init(p4, &frustum->planes[PLANE_BOTTOM]);
 
     // near
     // p5 = row3 + row2
