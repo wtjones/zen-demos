@@ -334,19 +334,19 @@ void core_clip_poly_plane(
     ras_log_buffer("cpp: num_in: %d\n", num_in);
     ras_log_buffer("cpp: first_in: %d, 2nd_in: %d\n", first_in, second_in);
 
-    /**
-     * scenario: 1 vertex in
-     * Identify verts ABC:
-     * A = in vertex
-     * B = out vertex left of A
-     * C = out vertext right of A
-     *
-     * From https://gabrielgambetta.com/computer-graphics-from-scratch/11-clipping.html
-     * > Let A be the vertex of the triangle ABC that is in front of the plane.
-     * > In this case, we discard ABC, and add a new triangle AB′C′, where B′ and C′
-     * > are the intersections of AB and AC with the clipping plane
-     */
     if (num_in == 1) {
+        /**
+         * scenario: 1 vertex in
+         * Identify verts ABC:
+         * A = in vertex
+         * B = out vertex left of A
+         * C = out vertex right of A
+         *
+         * From https://gabrielgambetta.com/computer-graphics-from-scratch/11-clipping.html
+         * > Let A be the vertex of the triangle ABC that is in front of the plane.
+         * > In this case, we discard ABC, and add a new triangle AB′C′, where B′ and C′
+         * > are the intersections of AB and AC with the clipping plane
+         */
 
         // Identify vertex A
 
@@ -356,8 +356,11 @@ void core_clip_poly_plane(
 
         ras_log_buffer("cpp: A = %d, B = %d, C = %d\n", index_a, index_b, index_c);
 
-        RasPipelineVertex* pv_a
-            = &pipeline_verts[indexes[index_a]];
+        int pv_a_index = indexes[index_a];
+        int pv_b_index = indexes[index_b];
+        int pv_c_index = indexes[index_c];
+
+        RasPipelineVertex* pv_a = &pipeline_verts[indexes[index_a]];
         RasPipelineVertex* pv_b = &pipeline_verts[indexes[index_b]];
         RasPipelineVertex* pv_c = &pipeline_verts[indexes[index_c]];
 
@@ -387,11 +390,110 @@ void core_clip_poly_plane(
 
         // Connect A -> B'
         uint32_t* vi = &render_state->num_visible_indexes;
-        render_state->visible_indexes[(*vi)++] = index_a;
+        render_state->visible_indexes[(*vi)++] = pv_a_index;
         render_state->visible_indexes[(*vi)++] = pv_b_alt_index;
 
         // Connect B' -> C' -> A
         render_state->visible_indexes[(*vi)++] = pv_c_alt_index;
+    } else if (num_in == 2) {
+        /**
+         * scenario: 2 vertices in
+         * Identify verts ABC:
+         * A = in vertex
+         * B = in vertex
+         * C = out vertex
+         *
+         * From https://gabrielgambetta.com/computer-graphics-from-scratch/11-clipping.html
+         * > Let A and B be the vertices of the triangle ABC that are in front of the plane.
+         * > In this case, we discard ABC and add two new triangles: ABA′ and A′BB′,
+         * > where A′ and B′ are the intersections of AC and BC with the clipping plane.
+         *
+         */
+
+        // Identify vertex A
+
+        int index_a = -1, index_b = -1, index_c = -1;
+
+        if (first_in == 0) {
+            if (second_in == 1) {
+                index_a = 1;
+                index_b = 0;
+                index_c = 2;
+            } else {
+                index_a = 0;
+                index_b = 2;
+                index_c = 1;
+            }
+        } else if (first_in == 1) {
+            if (second_in == 2) {
+                index_a = 2;
+                index_b = 1;
+                index_c = 0;
+            } else {
+                index_a = 1;
+                index_b = 0;
+                index_c = 2;
+            }
+        } else if (first_in == 2) {
+            if (second_in == 0) {
+                index_a = 0;
+                index_b = 2;
+                index_c = 1;
+            } else {
+                index_a = 2;
+                index_b = 1;
+                index_c = 0;
+            }
+        } else {
+            assert(true);
+        }
+
+        ras_log_buffer("cpp: A = %d, B = %d, C = %d\n", index_a, index_b, index_c);
+
+        int pv_a_index = indexes[index_a];
+        int pv_b_index = indexes[index_b];
+        int pv_c_index = indexes[index_c];
+
+        RasPipelineVertex* pv_a = &pipeline_verts[indexes[index_a]];
+        RasPipelineVertex* pv_b = &pipeline_verts[indexes[index_b]];
+        RasPipelineVertex* pv_c = &pipeline_verts[indexes[index_c]];
+
+        // Allocate vertices A' and B' on the pv array
+        uint32_t pv_a_alt_index = render_state->num_pipeline_verts++;
+        RasPipelineVertex* pv_a_alt = &render_state->pipeline_verts[pv_a_alt_index];
+        uint32_t pv_b_alt_index = render_state->num_pipeline_verts++;
+        RasPipelineVertex* pv_b_alt = &render_state->pipeline_verts[pv_b_alt_index];
+
+        // Find A' to create side AA'
+        core_get_line_plane_intersect(
+            &pv_a->view_space_position,
+            &pv_c->view_space_position,
+            plane,
+            &pv_a_alt->view_space_position);
+
+        // Find B' to create side BB'
+        core_get_line_plane_intersect(
+            &pv_b->view_space_position,
+            &pv_c->view_space_position,
+            plane,
+            &pv_b_alt->view_space_position);
+
+        ras_log_buffer("cpp: clip: pv_a_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_b_alt->view_space_position));
+        ras_log_buffer("cpp: clip: pv_b_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_b_alt->view_space_position));
+
+        uint32_t* vi = &render_state->num_visible_indexes;
+
+        // Connect A -> A' -> B
+        render_state->visible_indexes[(*vi)++] = pv_a_index;
+        render_state->visible_indexes[(*vi)++] = pv_a_alt_index;
+        render_state->visible_indexes[(*vi)++] = pv_b_index;
+
+        // Connect A' -> B' -> B
+        render_state->visible_indexes[(*vi)++] = pv_a_alt_index;
+        render_state->visible_indexes[(*vi)++] = pv_b_alt_index;
+        render_state->visible_indexes[(*vi)++] = pv_b_index;
+    } else {
+        assert(true);
     }
 }
 
@@ -571,9 +673,8 @@ void core_draw_element(
             render_state->visible_indexes[*vi + 1] = element->indexes[i + 1];
             render_state->visible_indexes[*vi + 2] = element->indexes[i + 2];
             render_state->num_visible_indexes += 3;
-            (*vi) += 3;
         }
-        num_faces_visible += 1;
+        num_faces_visible = render_state->num_visible_indexes / 3;
     }
 
     // Project to screen space
