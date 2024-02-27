@@ -325,7 +325,7 @@ void core_clip_poly_plane(
     int first_in = -1, second_in = -1;
     for (int i = 0; i < 3; i++) {
         RasPipelineVertex* pv = &pipeline_verts[indexes[i]];
-        bool is_in = !(pv->clip_flags & side);
+        bool is_in = !(pv->clip_flags & (1 << side));
         num_in += is_in ? 1 : 0;
         first_in = (first_in == -1 && num_in == 1 && is_in) ? i : first_in;
         second_in = (second_in == -1 && num_in == 2 && is_in) ? i : second_in;
@@ -405,7 +405,7 @@ void core_clip_poly(
         uint8_t mask = 1 << i;
         if (face_clip_flags & mask) {
             ras_log_buffer("PV clipping against plane %d\n", i);
-            core_clip_poly_plane(&frustum->planes[i], (RasFrustumPlane)i + 1, render_state, indexes);
+            core_clip_poly_plane(&frustum->planes[i], (RasFrustumPlane)i, render_state, indexes);
         }
     }
 }
