@@ -171,11 +171,11 @@ int main(int argc, const char** argv)
         }
 
         if (state.max_frames == UINT32_MAX || state.current_frame < state.max_frames) {
+            core_renderstate_clear(&state);
             ras_core_update(&plat_input_state, &state);
             ras_app_update(&plat_input_state);
             state.screen_settings.screen_width = plat_settings.screen_width;
             state.screen_settings.screen_height = plat_settings.screen_height;
-            core_renderstate_clear(&state);
             ras_app_render(&state);
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
             SDL_RenderClear(renderer);

@@ -127,7 +127,6 @@ void core_renderstate_init(RenderState* state)
 
 void core_renderstate_clear(RenderState* state)
 {
-    state->num_visible_indexes = 0;
     state->num_commands = 0;
     state->num_points = 0;
     state->num_pipeline_verts = 0;
