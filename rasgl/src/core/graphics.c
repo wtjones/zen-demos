@@ -180,7 +180,7 @@ void core_set_pv_clip_flags_alt(RasFrustum* view_frustum, RasClipFlags aabb_flag
 
     if (aabb_flags & (1 << PLANE_NEAR)) {
         RasPlane* plane = &view_frustum->planes[PLANE_NEAR];
-        bool outside = core_plane_vector_side(plane, &pv->view_space_position);
+        bool outside = core_plane_vector_side(plane, &pv->view_space_position) == RAS_PLANE_SIDE_A;
         pv->clip_flags |= outside
             ? (1 << PLANE_NEAR)
             : 0;
@@ -188,7 +188,7 @@ void core_set_pv_clip_flags_alt(RasFrustum* view_frustum, RasClipFlags aabb_flag
 
     if (aabb_flags & (1 << PLANE_FAR)) {
         RasPlane* plane = &view_frustum->planes[PLANE_FAR];
-        bool outside = core_plane_vector_side(plane, &pv->view_space_position);
+        bool outside = core_plane_vector_side(plane, &pv->view_space_position) == RAS_PLANE_SIDE_A;
         pv->clip_flags |= outside
             ? (1 << PLANE_FAR)
             : 0;
@@ -229,7 +229,7 @@ void core_set_pv_clip_flags(RasFrustum* view_frustum, RasClipFlags aabb_flags, R
 
     if (aabb_flags & (1 << PLANE_NEAR)) {
         RasPlane* plane = &view_frustum->planes[PLANE_NEAR];
-        bool outside = core_plane_vector_side(plane, &pv->view_space_position);
+        bool outside = core_plane_vector_side(plane, &pv->view_space_position) == RAS_PLANE_SIDE_A;
         pv->clip_flags |= outside
             ? (1 << PLANE_NEAR)
             : 0;
@@ -237,7 +237,7 @@ void core_set_pv_clip_flags(RasFrustum* view_frustum, RasClipFlags aabb_flags, R
 
     if (aabb_flags & (1 << PLANE_FAR)) {
         RasPlane* plane = &view_frustum->planes[PLANE_FAR];
-        bool outside = core_plane_vector_side(plane, &pv->view_space_position);
+        bool outside = core_plane_vector_side(plane, &pv->view_space_position) == RAS_PLANE_SIDE_A;
         pv->clip_flags |= outside
             ? (1 << PLANE_FAR)
             : 0;
@@ -245,7 +245,7 @@ void core_set_pv_clip_flags(RasFrustum* view_frustum, RasClipFlags aabb_flags, R
 
     if (aabb_flags & (1 << PLANE_LEFT)) {
         RasPlane* plane = &view_frustum->planes[PLANE_LEFT];
-        bool outside = core_plane_vector_side(plane, &pv->view_space_position);
+        bool outside = core_plane_vector_side(plane, &pv->view_space_position) == RAS_PLANE_SIDE_A;
         pv->clip_flags |= outside
             ? (1 << PLANE_LEFT)
             : 0;
@@ -253,7 +253,7 @@ void core_set_pv_clip_flags(RasFrustum* view_frustum, RasClipFlags aabb_flags, R
 
     if (aabb_flags & (1 << PLANE_RIGHT)) {
         RasPlane* plane = &view_frustum->planes[PLANE_RIGHT];
-        bool outside = core_plane_vector_side(plane, &pv->view_space_position);
+        bool outside = core_plane_vector_side(plane, &pv->view_space_position) == RAS_PLANE_SIDE_A;
         pv->clip_flags |= outside
             ? (1 << PLANE_RIGHT)
             : 0;
@@ -261,7 +261,7 @@ void core_set_pv_clip_flags(RasFrustum* view_frustum, RasClipFlags aabb_flags, R
 
     if (aabb_flags & (1 << PLANE_TOP)) {
         RasPlane* plane = &view_frustum->planes[PLANE_TOP];
-        bool outside = core_plane_vector_side(plane, &pv->view_space_position);
+        bool outside = core_plane_vector_side(plane, &pv->view_space_position) == RAS_PLANE_SIDE_A;
         pv->clip_flags |= outside
             ? (1 << PLANE_TOP)
             : 0;
@@ -269,21 +269,13 @@ void core_set_pv_clip_flags(RasFrustum* view_frustum, RasClipFlags aabb_flags, R
 
     if (aabb_flags & (1 << PLANE_BOTTOM)) {
         RasPlane* plane = &view_frustum->planes[PLANE_BOTTOM];
-        bool outside = core_plane_vector_side(plane, &pv->view_space_position);
+        bool outside = core_plane_vector_side(plane, &pv->view_space_position) == RAS_PLANE_SIDE_A;
         pv->clip_flags |= outside
             ? (1 << PLANE_BOTTOM)
             : 0;
     }
 }
 
-/**
- * @brief Sets a vector at the intersection of the given line and plane.
- *
- * @param v1 line point outside of plane
- * @param v2 line point inside of plane
- * @param plane
- * @param dest_vec
- */
 void core_get_line_plane_intersect(
     RasVector3f* v1, RasVector3f* v2, RasPlane* plane, RasVector3f* dest_vec)
 {
@@ -305,15 +297,16 @@ void core_get_line_plane_intersect(
 }
 
 void core_clip_poly_plane(
-    RasPlane* plane,
+    RasFrustum* frustum,
     RasFrustumPlane side,
     RenderState* render_state,
     uint32_t indexes[3])
 {
+    RasPlane* plane = &frustum->planes[side];
     RasPipelineVertex* pipeline_verts = &render_state->pipeline_verts[0];
     RasPipelineVertex* pv_0 = &pipeline_verts[indexes[0]];
     RasPipelineVertex* pv_1 = &pipeline_verts[indexes[1]];
-    RasPipelineVertex* pv_2 = &pipeline_verts[indexes[1]];
+    RasPipelineVertex* pv_2 = &pipeline_verts[indexes[2]];
 
     RasPipelineVertex* cur_pv = &pipeline_verts[indexes[0]];
     RasVector3f* cur_vert = &cur_pv->view_space_position;
@@ -372,6 +365,9 @@ void core_clip_poly_plane(
 
         // FIME: need to set other values on vertex, like screen pos
 
+        pv_b_alt->aabb_clip_flags = pv_b->aabb_clip_flags;
+        pv_c_alt->aabb_clip_flags = pv_c->aabb_clip_flags;
+
         // Find B' to create side AB'
         core_get_line_plane_intersect(
             &pv_a->view_space_position,
@@ -379,12 +375,16 @@ void core_clip_poly_plane(
             plane,
             &pv_b_alt->view_space_position);
 
+        core_set_pv_clip_flags(frustum, pv_b_alt->aabb_clip_flags, pv_b_alt);
+
         // Find C' to create side AC'
         core_get_line_plane_intersect(
             &pv_a->view_space_position,
             &pv_c->view_space_position,
             plane,
             &pv_c_alt->view_space_position);
+
+        core_set_pv_clip_flags(frustum, pv_c_alt->aabb_clip_flags, pv_c_alt);
 
         ras_log_buffer("cpp: clip: pv_b_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_b_alt->view_space_position));
 
@@ -395,6 +395,13 @@ void core_clip_poly_plane(
 
         // Connect B' -> C' -> A
         render_state->visible_indexes[(*vi)++] = pv_c_alt_index;
+
+        // The first face is the repurposed face. Point element indices to new pvs
+        // so that the subsequent calls to this function clip correctly.
+        indexes[0] = pv_a_index;
+        indexes[1] = pv_b_alt_index;
+        indexes[2] = pv_c_alt_index;
+
     } else if (num_in == 2) {
         /**
          * scenario: 2 vertices in
@@ -464,6 +471,9 @@ void core_clip_poly_plane(
         uint32_t pv_b_alt_index = render_state->num_pipeline_verts++;
         RasPipelineVertex* pv_b_alt = &render_state->pipeline_verts[pv_b_alt_index];
 
+        pv_a_alt->aabb_clip_flags = pv_a->aabb_clip_flags;
+        pv_b_alt->aabb_clip_flags = pv_b->aabb_clip_flags;
+
         // Find A' to create side AA'
         core_get_line_plane_intersect(
             &pv_a->view_space_position,
@@ -471,12 +481,16 @@ void core_clip_poly_plane(
             plane,
             &pv_a_alt->view_space_position);
 
+        core_set_pv_clip_flags(frustum, pv_a_alt->aabb_clip_flags, pv_a_alt);
+
         // Find B' to create side BB'
         core_get_line_plane_intersect(
             &pv_b->view_space_position,
             &pv_c->view_space_position,
             plane,
             &pv_b_alt->view_space_position);
+
+        core_set_pv_clip_flags(frustum, pv_b_alt->aabb_clip_flags, pv_b_alt);
 
         ras_log_buffer("cpp: clip: pv_a_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_b_alt->view_space_position));
         ras_log_buffer("cpp: clip: pv_b_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_b_alt->view_space_position));
@@ -488,10 +502,20 @@ void core_clip_poly_plane(
         render_state->visible_indexes[(*vi)++] = pv_a_alt_index;
         render_state->visible_indexes[(*vi)++] = pv_b_index;
 
+        // The first face is the repurposed face. Point element indices to new pvs
+        // so that the subsequent calls to this function clip correctly.
+        indexes[0] = pv_a_index;
+        indexes[1] = pv_a_alt_index;
+        indexes[2] = pv_b_index;
+
         // Connect A' -> B' -> B
         render_state->visible_indexes[(*vi)++] = pv_a_alt_index;
         render_state->visible_indexes[(*vi)++] = pv_b_alt_index;
         render_state->visible_indexes[(*vi)++] = pv_b_index;
+
+        // Recurse to clip added face
+        uint32_t new_face_indexes[3] = { pv_a_alt_index, pv_b_alt_index, pv_b_index };
+        core_clip_poly(frustum, 0, render_state, new_face_indexes);
     } else {
         assert(true);
     }
@@ -501,13 +525,22 @@ void core_clip_poly(
     RasFrustum* frustum,
     RasClipFlags face_clip_flags,
     RenderState* render_state,
-    uint32_t indexes[3])
+    uint32_t in_indexes[3])
 {
+    uint32_t indexes[3] = { in_indexes[0], in_indexes[1], in_indexes[2] };
+
     for (uint8_t i = 0; i < FRUSTUM_PLANES; i++) {
+
+        // recalc flags as the face may point to new verts
+        RasPipelineVertex* pv1 = &render_state->pipeline_verts[indexes[0]];
+        RasPipelineVertex* pv2 = &render_state->pipeline_verts[indexes[1]];
+        RasPipelineVertex* pv3 = &render_state->pipeline_verts[indexes[2]];
+        face_clip_flags = pv1->clip_flags | pv2->clip_flags | pv3->clip_flags;
+
         uint8_t mask = 1 << i;
         if (face_clip_flags & mask) {
             ras_log_buffer("PV clipping against plane %d\n", i);
-            core_clip_poly_plane(&frustum->planes[i], (RasFrustumPlane)i, render_state, indexes);
+            core_clip_poly_plane(frustum, (RasFrustumPlane)i, render_state, indexes);
         }
     }
 }
@@ -605,15 +638,19 @@ void core_draw_element(
     ras_log_buffer("AABB view min: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb.min));
     ras_log_buffer("AABB view max: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb.max));
 
-    RasClipFlags clip_flags = 0;
-    bool all_out = core_aabb_in_frustum(&view_aabb, frustum, &clip_flags);
+    RasClipFlags aabb_clip_flags = 0;
+    bool all_out = core_aabb_in_frustum(&view_aabb, frustum, &aabb_clip_flags);
 
-    ras_log_buffer("AABB flags: %hhu, all_out: %s\n", clip_flags, all_out ? "true" : "false");
+    ras_log_buffer("AABB flags: %hhu, all_out: %s\n", aabb_clip_flags, all_out ? "true" : "false");
 
     if (all_out) {
         return;
     }
 
+    /**
+     * @brief Transform pipeline verts
+     *
+     */
     core_render_aabb(render_state, proj_matrix, frustum, &view_aabb);
     uint32_t num_verts_in_frustum = 0;
     for (uint32_t i = 0; i < element->num_verts; i++) {
@@ -629,8 +666,8 @@ void core_draw_element(
         mat_mul_4x4_4x1(model_view_matrix, model_space_position, view_space_position);
         core_4x1_to_vector3f(view_space_position, &pv->view_space_position);
 
-        core_set_pv_clip_flags(frustum, clip_flags, pv);
-
+        core_set_pv_clip_flags(frustum, aabb_clip_flags, pv);
+        pv->aabb_clip_flags = aabb_clip_flags;
         num_verts_in_frustum
             += pv->clip_flags == 0 ? 1 : 0;
 
@@ -641,6 +678,10 @@ void core_draw_element(
         render_state->num_pipeline_verts++;
     }
 
+    /**
+     * @brief Determine visible faces
+     *
+     */
     render_state->num_visible_indexes = 0;
     uint32_t num_faces_visible = 0;
     uint32_t num_faces_in_frustum = 0;
@@ -705,11 +746,12 @@ void core_draw_element(
 
     ras_log_buffer("Verts in frustum: %d\n", num_verts_in_frustum);
     ras_log_buffer(
-        "Total faces: %d. In frustum: %d. Visible: %d. Must clip %d\n",
+        "Faces:\n    In Model: %d. In frustum: %d. Visible: %d. Must clip %d. After clip: %d\n",
         element->num_indexes / 3,
         num_faces_in_frustum,
         num_faces_visible,
-        num_faces_must_clip);
+        num_faces_must_clip,
+        render_state->num_visible_indexes / 3);
 }
 
 void core_get_element_aabb(RasPipelineElement* element, RasAABB* aabb)

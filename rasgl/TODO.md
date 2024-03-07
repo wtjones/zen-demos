@@ -11,7 +11,8 @@
 
 - [ ] Polygon clipping
     - [x] Exclude faces outside of frustum
-    - [ ] Clip faces that intersect frustum
+    - [x] Clip faces that intersect frustum
+    - [x] Recalc clip flags when new PVs added
 
 ### Done ✓
 

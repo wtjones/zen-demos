@@ -4,6 +4,12 @@
 #include "debug.h"
 #include "maths.h"
 
+typedef enum RasPlaneSideResult {
+    RAS_PLANE_SIDE_A,
+    RAS_PLANE_SIDE_B,
+    RAS_PLANE_SIDE_EQUAL
+} RasPlaneSideResult;
+
 typedef struct RasPlane {
     Point3f normal;
     RasFixed distance;
@@ -14,7 +20,7 @@ typedef struct RasPlane {
  */
 bool core_plane_line_intersect(RasPlane* plane, Point3f* v1, Point3f* v2);
 
-bool core_plane_vector_side(RasPlane* plane, Point3f* v1);
+RasPlaneSideResult core_plane_vector_side(RasPlane* plane, Point3f* v1);
 
 bool core_get_3_plane_intersection(RasPlane* p1, RasPlane* p2, RasPlane* p3, Point3f* point);
 

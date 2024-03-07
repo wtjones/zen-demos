@@ -188,7 +188,7 @@ bool core_point_in_frustum(RasFrustum* frustum, RasVector3f* point)
     for (RasFrustumPlane p = 0; p < 6; p++) {
         RasPlane* plane = &frustum->planes[p];
 
-        bool outside = core_plane_vector_side(plane, point);
+        bool outside = core_plane_vector_side(plane, point) == RAS_PLANE_SIDE_A;
         if (outside) {
             return false;
         }
@@ -202,7 +202,7 @@ RasClipFlags core_point_in_frustum_planes(RasFrustum* frustum, RasVector3f* poin
     for (RasFrustumPlane p = 0; p < 6; p++) {
         RasPlane* plane = &frustum->planes[p];
 
-        bool outside = core_plane_vector_side(plane, point);
+        bool outside = core_plane_vector_side(plane, point) == RAS_PLANE_SIDE_A;
         flags = flags | outside << p;
     }
     return flags;

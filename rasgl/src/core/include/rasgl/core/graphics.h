@@ -66,6 +66,7 @@ typedef struct RasPipelineVertex {
     RasVector3f view_space_position;
     RasVector3f view_space_normal;
     RasClipFlags clip_flags;
+    RasClipFlags aabb_clip_flags;
     RasVector4f screen_space_position;
     uint8_t color;
     RasFixed u, v;
@@ -99,6 +100,23 @@ typedef struct RenderState {
     RasProjectionMode projection_mode;
     RasBackfaceCullingMode backface_culling_mode;
 } RenderState;
+
+void core_clip_poly(
+    RasFrustum* frustum,
+    RasClipFlags face_clip_flags,
+    RenderState* render_state,
+    uint32_t in_indexes[3]);
+
+/**
+ * @brief Sets a vector at the intersection of the given line and plane.
+ *
+ * @param v1 line point outside of plane
+ * @param v2 line point inside of plane
+ * @param plane
+ * @param dest_vec
+ */
+void core_get_line_plane_intersect(
+    RasVector3f* v1, RasVector3f* v2, RasPlane* plane, RasVector3f* dest_vec);
 
 /**
  * Set sensible defaults

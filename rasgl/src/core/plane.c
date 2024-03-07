@@ -35,7 +35,7 @@ bool core_plane_line_intersect(RasPlane* plane, Point3f* v1, Point3f* v2)
         return true;
 }
 
-bool core_plane_vector_side(RasPlane* plane, Point3f* v1)
+RasPlaneSideResult core_plane_vector_side(RasPlane* plane, Point3f* v1)
 {
     RasFixed v1pos;
 
@@ -45,11 +45,11 @@ bool core_plane_vector_side(RasPlane* plane, Point3f* v1)
         + plane->distance;
 
     if (v1pos > 0)
-        return false;
+        return RAS_PLANE_SIDE_B;
     else if (v1pos < 0)
-        return true;
+        return RAS_PLANE_SIDE_A;
     else
-        return true;
+        return RAS_PLANE_SIDE_EQUAL;
 }
 
 /**
