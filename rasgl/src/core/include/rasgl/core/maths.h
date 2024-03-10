@@ -86,12 +86,26 @@ void core_translate_apply(RasFixed m[4][4], Point3f* v);
  */
 void core_translate_init(RasFixed m[4][4], Point3f* v);
 
+void core_rotate_x_apply(RasFixed m[4][4], int32_t angle);
+
 void core_rotate_y_apply(RasFixed m[4][4], int32_t angle);
+
+void core_rotate_z_apply(RasFixed m[4][4], int32_t angle);
+
+/**
+ * Rotate given matrix by angle and store in dest
+ */
+void mat_rotate_x(RasFixed m[4][4], int32_t angle, RasFixed dest[4][4]);
 
 /**
  * Rotate given matrix by angle and store in dest
  */
 void mat_rotate_y(RasFixed m[4][4], int32_t angle, RasFixed dest[4][4]);
+
+/**
+ * Rotate given matrix by angle and store in dest
+ */
+void mat_rotate_z(RasFixed m[4][4], int32_t angle, RasFixed dest[4][4]);
 
 void mat_projection_init(RasFixed projection_matrix[4][4], float fov, float aspect_ratio, float near, float far);
 

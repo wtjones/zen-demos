@@ -130,6 +130,17 @@ void core_translate_init(RasFixed m[4][4], Point3f* v)
     core_translate_apply(m, v);
 }
 
+void core_rotate_x_apply(RasFixed m[4][4], int32_t angle)
+{
+    RasFixed c = cos_table[angle];
+    RasFixed s = sin_table[angle];
+
+    m[1][1] = c;
+    m[1][2] = -s;
+    m[2][1] = s;
+    m[2][2] = c;
+}
+
 void core_rotate_y_apply(RasFixed m[4][4], int32_t angle)
 {
     RasFixed c = cos_table[angle];
@@ -141,11 +152,38 @@ void core_rotate_y_apply(RasFixed m[4][4], int32_t angle)
     m[2][2] = c;
 }
 
+void core_rotate_z_apply(RasFixed m[4][4], int32_t angle)
+{
+    RasFixed c = cos_table[angle];
+    RasFixed s = sin_table[angle];
+
+    m[0][0] = c;
+    m[0][1] = -s;
+    m[1][0] = s;
+    m[1][1] = c;
+}
+
+void mat_rotate_x(RasFixed m[4][4], int32_t angle, RasFixed dest[4][4])
+{
+    RasFixed temp[4][4];
+    mat_set_identity_4x4(temp);
+    core_rotate_x_apply(temp, angle);
+    mat_mul_4x4_4x4(temp, m, dest);
+}
+
 void mat_rotate_y(RasFixed m[4][4], int32_t angle, RasFixed dest[4][4])
 {
     RasFixed temp[4][4];
     mat_set_identity_4x4(temp);
     core_rotate_y_apply(temp, angle);
+    mat_mul_4x4_4x4(temp, m, dest);
+}
+
+void mat_rotate_z(RasFixed m[4][4], int32_t angle, RasFixed dest[4][4])
+{
+    RasFixed temp[4][4];
+    mat_set_identity_4x4(temp);
+    core_rotate_z_apply(temp, angle);
     mat_mul_4x4_4x4(temp, m, dest);
 }
 

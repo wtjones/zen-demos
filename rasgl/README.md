@@ -221,10 +221,14 @@ Move camera: WASD
 Rotate camera: Q/E
 Toggle view mode: TAB
 Adjust FOV: left/right bracket
-Move object Z axis: up/down arrow keys
-Move object X axis: left/right arrow keys
-Move object Y axis: shift + up/down arrow keys
-Rotate object Y axis: ctrl + left/right arrow keys
+
+Move model left/right along X: key left/right
+Move model up/down along Y: key up/down
+Move model in/out along Z: key up/down + shift
+Tilt model fwd/back around X: up/down + ctrl + shift
+Rotate model left/right around Y: left/right + ctrl
+Tilt model left/right around Z: up/down + ctrl
+
 
 ## Debug output
 

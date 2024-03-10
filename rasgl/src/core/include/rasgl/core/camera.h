@@ -9,7 +9,7 @@
 #define RAS_ZOOM_SPEED float_to_fixed_16_16(.05)
 #define RAS_ROTATION_SPEED 1
 #define RAS_FOV_SPEED 2.0f
-#define RAS_VIEWER_SPEED float_to_fixed_16_16(.5)
+#define RAS_VIEWER_SPEED float_to_fixed_16_16(0.05)
 #define RAS_PROJECTION_RATIO -float_to_fixed_16_16(2.0)
 
 typedef struct RasCamera {

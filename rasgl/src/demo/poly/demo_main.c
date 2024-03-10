@@ -15,11 +15,13 @@ ScreenSettings* settings;
 
 RasModel cube_model;
 int32_t delta_rotation = 1;
+int32_t model_rotation_x = 0;
 int32_t model_rotation_y = 0;
+int32_t model_rotation_z = 0;
 Point3f delta = {
-    .x = RAS_FLOAT_TO_FIXED(0.1f),
-    .y = RAS_FLOAT_TO_FIXED(0.1f),
-    .z = RAS_FLOAT_TO_FIXED(0.1f)
+    .x = RAS_FLOAT_TO_FIXED(0.05f),
+    .y = RAS_FLOAT_TO_FIXED(0.05f),
+    .z = RAS_FLOAT_TO_FIXED(0.05f)
 };
 Point3f model_pos = { .x = 0, .y = 0, .z = -RAS_FLOAT_TO_FIXED(2.5) }; // world space
 
@@ -65,15 +67,6 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
 
     bool modifiers = input_state->keys[RAS_KEY_LCTRL] == 1 || input_state->keys[RAS_KEY_LSHIFT] == 1;
 
-    // Model Z axis movement
-
-    if (input_state->keys[RAS_KEY_UP] == 1 && !modifiers) {
-        model_pos.z -= delta.z;
-    }
-    if (input_state->keys[RAS_KEY_DOWN] == 1 && !modifiers) {
-        model_pos.z += delta.z;
-    }
-
     // Model X axis movement
 
     if (input_state->keys[RAS_KEY_LEFT] == 1 && !modifiers) {
@@ -85,15 +78,43 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
 
     // Model Y axis movement
 
+    if (input_state->keys[RAS_KEY_UP] == 1 && !modifiers) {
+        model_pos.y += delta.y;
+    }
+    if (input_state->keys[RAS_KEY_DOWN] == 1 && !modifiers) {
+        model_pos.y -= delta.y;
+    }
+
+    // Model Z axis movement
+
     if (input_state->keys[RAS_KEY_UP] == 1
         && input_state->keys[RAS_KEY_LSHIFT] == 1
         && input_state->keys[RAS_KEY_LCTRL] != 1) {
-        model_pos.y += delta.y;
+        model_pos.z += delta.y;
     }
     if (input_state->keys[RAS_KEY_DOWN] == 1
         && input_state->keys[RAS_KEY_LSHIFT] == 1
         && input_state->keys[RAS_KEY_LCTRL] != 1) {
-        model_pos.y -= delta.y;
+        model_pos.z -= delta.y;
+    }
+
+    // Model X rotation
+
+    delta_rotation = 0;
+    if (input_state->keys[RAS_KEY_LEFT] == 1
+        && input_state->keys[RAS_KEY_LSHIFT] == 1
+        && input_state->keys[RAS_KEY_LCTRL] == 1) {
+        delta_rotation = 1;
+    }
+    if (input_state->keys[RAS_KEY_RIGHT] == 1
+        && input_state->keys[RAS_KEY_LSHIFT] == 1
+        && input_state->keys[RAS_KEY_LCTRL] == 1) {
+        delta_rotation = -1;
+    }
+
+    model_rotation_x = (model_rotation_x + delta_rotation) % 360;
+    if (model_rotation_x < 0) {
+        model_rotation_x += 360;
     }
 
     // Model Y rotation
@@ -115,6 +136,25 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
         model_rotation_y += 360;
     }
 
+    // Model Z rotation
+
+    delta_rotation = 0;
+    if (input_state->keys[RAS_KEY_DOWN] == 1
+        && input_state->keys[RAS_KEY_LSHIFT] != 1
+        && input_state->keys[RAS_KEY_LCTRL] == 1) {
+        delta_rotation = 1;
+    }
+    if (input_state->keys[RAS_KEY_UP] == 1
+        && input_state->keys[RAS_KEY_LSHIFT] != 1
+        && input_state->keys[RAS_KEY_LCTRL] == 1) {
+        delta_rotation = -1;
+    }
+
+    model_rotation_z = (model_rotation_z + delta_rotation) % 360;
+    if (model_rotation_z < 0) {
+        model_rotation_z += 360;
+    }
+
     if (!cmp_point3f(&model_pos, &model_pos_prev)) {
         char buffer[100];
         ras_log_info("model_pos: %s", repr_point3f(buffer, sizeof(buffer), &model_pos));
@@ -133,7 +173,13 @@ void ras_app_render(__attribute__((unused)) RenderState* render_state)
     mat_set_identity_4x4(world_view_matrix);
 
     core_translate_apply(model_world_matrix, &model_pos);
-    core_rotate_y_apply(model_world_matrix, model_rotation_y);
+    RasFixed model_world2[4][4];
+    RasFixed model_world3[4][4];
+
+    // FIXME: Should rotate around model origin
+    core_rotate_x_apply(model_world_matrix, model_rotation_x);
+    mat_rotate_y(model_world_matrix, model_rotation_y, model_world2);
+    mat_rotate_z(model_world2, model_rotation_z, model_world3);
 
     ras_camera_world_view_init(&camera, world_view_matrix);
     ras_camera_projection_init(&camera, projection_matrix);
@@ -146,7 +192,7 @@ void ras_app_render(__attribute__((unused)) RenderState* render_state)
     core_draw_element(
         render_state,
         &current_element,
-        model_world_matrix,
+        model_world3,
         world_view_matrix,
         projection_matrix,
         &frustum);
