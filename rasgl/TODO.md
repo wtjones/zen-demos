@@ -6,13 +6,14 @@
 - [ ] Increase whole part of fixed-point scheme from 16 bits
 - [ ] Fix DOS version not taking model param
 - [ ] Add AABB debug view toggle
+- [ ] Validate screen points are in screen bounds
+- [ ] Filled polygon mode
+- [ ] Shaded polygon mode
+- [ ] Fix assert on certain far plain clip scenarios
+- [ ] Fix model rotation origin
 
 ### In Progress
 
-- [ ] Polygon clipping
-    - [x] Exclude faces outside of frustum
-    - [x] Clip faces that intersect frustum
-    - [x] Recalc clip flags when new PVs added
 
 ### Done ✓
 
@@ -24,3 +25,7 @@
   - [x] Add frustum to poly demo
   - [x] Transform object AABB to world
   - [x] Set clip flags based on AABB/frustum
+- [x] Polygon clipping
+    - [x] Exclude faces outside of frustum
+    - [x] Clip faces that intersect frustum
+    - [x] Recalc clip flags when new PVs added
