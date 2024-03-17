@@ -130,7 +130,9 @@ cmake --build build
 ./build/ras_sdl
 ```
 
-or `run_posix.sh [world | poly]`
+or `run_posix.sh [world | poly] [0 | 1] [model path]`
+
+example: `./run_posix.sh poly 0 assets/models/ico.obj`
 
 ### DOS
 
@@ -179,8 +181,9 @@ export DJGPP_PREFIX="/usr/local/bin/dosbox-x"
 ```
 
 ```
-./run_dos.sh [world | poly]
+./run_dos.sh [world | poly] [0 | 1] [model path]`
 ```
+example: `./run_dos.sh poly 0 assets/models/ico.obj`
 
 ## Demos
 

@@ -4,7 +4,6 @@
 
 - [ ] Render origin and grid lines
 - [ ] Increase whole part of fixed-point scheme from 16 bits
-- [ ] Fix DOS version not taking model param
 - [ ] Add AABB debug view toggle
 - [ ] Validate screen points are in screen bounds
 - [ ] Filled polygon mode
@@ -29,3 +28,4 @@
     - [x] Exclude faces outside of frustum
     - [x] Clip faces that intersect frustum
     - [x] Recalc clip flags when new PVs added
+- [x] Fix DOS version not taking model param
