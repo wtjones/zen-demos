@@ -234,6 +234,13 @@ char* core_repr_frustum(char* buffer, size_t count, RasFrustum* frustum)
     snprintf(
         buffer2,
         sizeof buffer2,
+        "far plane:%s\n",
+        core_repr_plane(buffer3, sizeof buffer3, &frustum->planes[PLANE_FAR]));
+    strcat(buffer, buffer2);
+
+    snprintf(
+        buffer2,
+        sizeof buffer2,
         "frustum points:\n    far-TL: %s\n    near-TL: %s\n",
         repr_point3f(buffer3, sizeof buffer3, &frustum->points[0]),
         repr_point3f(buffer4, sizeof buffer4, &frustum->points[1]));
