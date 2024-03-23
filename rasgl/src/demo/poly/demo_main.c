@@ -181,6 +181,8 @@ void ras_app_render(__attribute__((unused)) RenderState* render_state)
     mat_rotate_y(model_world_matrix, model_rotation_y, model_world2);
     mat_rotate_z(model_world2, model_rotation_z, model_world3);
 
+    core_translate_apply(model_world3, &model_pos);
+
     ras_camera_world_view_init(&camera, world_view_matrix);
     ras_camera_projection_init(&camera, projection_matrix);
 
