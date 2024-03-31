@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -8,6 +9,8 @@
 #define MAX_ATOM_LENGTH 100
 #define PARSE_TOKEN_MAX 255
 #define PARSE_MAX_DEPTH 4
+static const char* PARSE_TOKEN_OPEN_LIST = "(";
+static const char* PARSE_TOKEN_CLOSE_LIST = ")";
 
 typedef enum NodeType {
     LP_NODE_ATOM_SYMBOL,
@@ -47,6 +50,57 @@ ParseResult parse_expression(
     Node* node)
 {
     return LP_PARSE_RESULT_OK;
+}
+
+char* strcat_alloc(char* str, const char* append)
+{
+    size_t old_size = str == NULL
+        ? 0
+        : strlen(str);
+
+    char* result = realloc(str, old_size + strlen(append) + 1);
+
+    result[0] = old_size == 0 ? '\0' : result[0];
+    return strcat(result, append);
+}
+
+char* repr_expression_walk(Node* node, char* result, int depth)
+{
+    assert(depth <= PARSE_MAX_DEPTH);
+
+    switch (node->node_type) {
+    case LP_NODE_LIST:
+        result = strcat_alloc(result, PARSE_TOKEN_OPEN_LIST);
+
+        for (int i = 0; i < node->length; i++) {
+
+            Node* list_item = &node->val.list[i];
+
+            char* item_result = repr_expression_walk(list_item, result, depth + 1);
+            if (node->length > 1 && i != node->length - 1) {
+                result = strcat_alloc(result, " ");
+            }
+        }
+        result = strcat_alloc(result, PARSE_TOKEN_CLOSE_LIST);
+
+        break;
+
+    case LP_NODE_ATOM_SYMBOL:
+        result = strcat_alloc(result, node->val.atom.symbol);
+    }
+}
+
+/**
+ * @brief Returns a formated s-expression.
+ *
+ * @param node
+ * @return char* Formatted expression. Must be freed.
+ */
+char* repr_expression(Node* node)
+{
+    char* result = NULL;
+
+    repr_expression_walk(node, result, 0);
 }
 
 ParseResult parse_token_symbol(
@@ -250,10 +304,15 @@ int main(int argc, char* argv[])
     Node node;
 
     if (argc == 1) {
-        printf("No!!!");
+        printf("%s error: Input file required.", argv[0]);
         return 1;
     }
     ParseResult result = parse_file(argv[1], &node);
+    char* pretty = repr_expression(&node);
+
+    printf("%s\n", pretty);
+
+    // TODO: free expression
 
     return 0;
 }
