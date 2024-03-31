@@ -110,11 +110,12 @@ ParseResult parse_token_symbol(
 {
     token[0] = '\0';
 
-    char ch = file_buffer[(*buffer_pos)];
-    while ('\0' != ch && (isalnum(ch) || ch == '-')) {
-        strcat(token, &ch);
+    char ch[2] = "";
+    ch[0] = file_buffer[(*buffer_pos)];
+    while ('\0' != ch[0] && (isalnum(ch[0]) || ch[0] == '-')) {
+        strcat(token, ch);
         (*buffer_pos)++;
-        ch = file_buffer[(*buffer_pos)];
+        ch[0] = file_buffer[(*buffer_pos)];
     }
     //(*buffer_pos)++;
     return LP_PARSE_RESULT_OK;
