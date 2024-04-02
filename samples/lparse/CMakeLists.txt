@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.7)
 
 project(
     lparse
@@ -16,3 +16,9 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(lparse PRIVATE m PUBLIC)
 
 target_include_directories(lparse PUBLIC ${SDL2_INCLUDE_DIRS})
+
+if(MSVC)
+  target_compile_options(lparse PRIVATE /W4 /WX)
+else()
+  target_compile_options(lparse PRIVATE -Wall -Wextra -Werror)
+endif()

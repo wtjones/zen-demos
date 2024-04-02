@@ -19,7 +19,7 @@ typedef enum NodeType {
 
 typedef struct Node {
     NodeType node_type;
-    size_t length;
+    int length;
     union {
         union {
             char* symbol;
@@ -44,14 +44,6 @@ typedef enum ParseTokenType {
     LP_PARSE_TOKEN_SEXP_SYMBOL,
 } ParseTokenType;
 
-ParseResult parse_expression(
-    const char* file_buffer,
-    int* buffer_pos,
-    Node* node)
-{
-    return LP_PARSE_RESULT_OK;
-}
-
 char* strcat_alloc(char* str, const char* append)
 {
     size_t old_size = str == NULL
@@ -64,8 +56,9 @@ char* strcat_alloc(char* str, const char* append)
     return strcat(result, append);
 }
 
-char* repr_expression_walk(Node* node, char* result, int depth)
+char* repr_expression_walk(Node* node, char* work, int depth)
 {
+    char* result = work;
     assert(depth <= PARSE_MAX_DEPTH);
 
     switch (node->node_type) {
@@ -76,7 +69,7 @@ char* repr_expression_walk(Node* node, char* result, int depth)
 
             Node* list_item = &node->val.list[i];
 
-            char* item_result = repr_expression_walk(list_item, result, depth + 1);
+            result = repr_expression_walk(list_item, result, depth + 1);
             if (node->length > 1 && i != node->length - 1) {
                 result = strcat_alloc(result, " ");
             }
@@ -88,6 +81,7 @@ char* repr_expression_walk(Node* node, char* result, int depth)
     case LP_NODE_ATOM_SYMBOL:
         result = strcat_alloc(result, node->val.atom.symbol);
     }
+    return result;
 }
 
 /**
@@ -98,9 +92,7 @@ char* repr_expression_walk(Node* node, char* result, int depth)
  */
 char* repr_expression(Node* node)
 {
-    char* result = NULL;
-
-    repr_expression_walk(node, result, 0);
+    return repr_expression_walk(node, (char*)NULL, 0);
 }
 
 ParseResult parse_token_symbol(
@@ -125,7 +117,6 @@ ParseResult parse_token(
     const char* file_buffer,
     int* buffer_pos,
     char* token,
-    size_t token_size,
     ParseTokenType* token_type)
 {
 
@@ -200,7 +191,11 @@ ParseResult parse_list(
 
     while (true) {
         ParseResult result = parse_token(
-            file_buffer, buffer_pos, token, PARSE_TOKEN_MAX, &token_type);
+            file_buffer, buffer_pos, token, &token_type);
+
+        if (result == LP_PARSE_RESULT_ERROR) {
+            return result;
+        }
 
         switch (token_type) {
         case LP_PARSE_TOKEN_NONE:
@@ -253,12 +248,10 @@ ParseResult parse_list(
     return LP_PARSE_RESULT_OK;
 }
 
-ParseResult parse_file(const char* path, Node* node)
+ParseResult parse_file(const char* path, Node** node)
 {
-    FILE* file;
-    char buffer[255];
+    FILE* file = fopen(path, "r");
 
-    file = fopen(path, "r");
     if (!file) {
         printf("Can't open file: %s\n", path);
         return LP_PARSE_RESULT_ERROR;
@@ -283,7 +276,10 @@ ParseResult parse_file(const char* path, Node* node)
     char token[PARSE_TOKEN_MAX] = "";
     // token = "))";
     ParseResult token_result = parse_token(
-        file_buffer, &buffer_pos, token, PARSE_TOKEN_MAX, &token_type);
+        file_buffer, &buffer_pos, token, &token_type);
+    if (token_result == LP_PARSE_RESULT_ERROR) {
+        return token_result;
+    }
 
     printf("Called parse_token(): %s\n", token);
 
@@ -293,8 +289,13 @@ ParseResult parse_file(const char* path, Node* node)
     }
 
     int depth = 0;
+    *node = malloc(sizeof(Node));
     ParseResult exp_result = parse_list(
-        file_buffer, &buffer_pos, node, &depth);
+        file_buffer, &buffer_pos, *node, &depth);
+
+    if (exp_result == LP_PARSE_RESULT_ERROR) {
+        return exp_result;
+    }
 
     free(file_buffer);
     return LP_PARSE_RESULT_OK;
@@ -302,16 +303,20 @@ ParseResult parse_file(const char* path, Node* node)
 
 int main(int argc, char* argv[])
 {
-    Node node;
-
+    Node* node;
     if (argc == 1) {
         printf("%s error: Input file required.", argv[0]);
         return 1;
     }
     ParseResult result = parse_file(argv[1], &node);
-    char* pretty = repr_expression(&node);
+    if (result == LP_PARSE_RESULT_ERROR) {
+        printf("parse_file(): error\n");
+        return 1;
+    }
+    char* pretty = repr_expression(node);
 
     printf("%s\n", pretty);
+    free(pretty);
 
     // TODO: free expression
 
