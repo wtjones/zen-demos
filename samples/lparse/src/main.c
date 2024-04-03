@@ -56,6 +56,31 @@ char* strcat_alloc(char* str, const char* append)
     return strcat(result, append);
 }
 
+void free_expression_walk(Node* node, int depth)
+{
+    assert(depth <= PARSE_MAX_DEPTH);
+    switch (node->node_type) {
+    case LP_NODE_LIST:
+
+        for (int i = 0; i < node->length; i++) {
+            Node* node_item = &node->val.list[i];
+            free_expression_walk(node_item, depth + 1);
+        }
+        free(node->val.list);
+        break;
+
+    case LP_NODE_ATOM_SYMBOL:
+        free(node->val.atom.symbol);
+        break;
+    }
+}
+
+void free_expression(Node* node)
+{
+    free_expression_walk(node, 1);
+    free(node);
+}
+
 char* repr_expression_walk(Node* node, char* work, int depth)
 {
     char* result = work;
@@ -119,7 +144,6 @@ ParseResult parse_token(
     char* token,
     ParseTokenType* token_type)
 {
-
     token[0] = '\0';
 
     // Find first non-whitespace
@@ -154,8 +178,10 @@ ParseResult parse_token(
             file_buffer, buffer_pos, token);
         return result;
     }
-    printf("the val: %d\n", ch);
-    return LP_PARSE_RESULT_OK;
+
+    printf("Unhandled char: %c\n", ch);
+    assert(true);
+    return LP_PARSE_RESULT_ERROR;
 }
 
 Node* append_list_node(Node* node)
@@ -174,21 +200,16 @@ ParseResult parse_list(
     const char* file_buffer,
     int* buffer_pos,
     Node* node,
-    int* depth)
+    int depth)
 {
-    char token[PARSE_TOKEN_MAX];
+    char token[PARSE_TOKEN_MAX] = "";
     ParseTokenType token_type;
 
-    (*depth)++;
-    if (*depth > PARSE_MAX_DEPTH) {
-        printf("Max depth\n");
-        return LP_PARSE_RESULT_ERROR;
-    }
+    assert(depth < PARSE_MAX_DEPTH);
 
     node->node_type = LP_NODE_LIST;
     node->val.list = NULL;
     node->length = 0;
-
     while (true) {
         ParseResult result = parse_token(
             file_buffer, buffer_pos, token, &token_type);
@@ -232,7 +253,7 @@ ParseResult parse_list(
             new_list_node->length = 0;
 
             ParseResult list_result = parse_list(
-                file_buffer, buffer_pos, new_list_node, depth);
+                file_buffer, buffer_pos, new_list_node, depth + 1);
 
             if (list_result == LP_PARSE_RESULT_ERROR) {
                 return list_result;
@@ -288,10 +309,9 @@ ParseResult parse_file(const char* path, Node** node)
         return LP_PARSE_RESULT_ERROR;
     }
 
-    int depth = 0;
     *node = malloc(sizeof(Node));
     ParseResult exp_result = parse_list(
-        file_buffer, &buffer_pos, *node, &depth);
+        file_buffer, &buffer_pos, *node, 1);
 
     if (exp_result == LP_PARSE_RESULT_ERROR) {
         return exp_result;
@@ -318,7 +338,7 @@ int main(int argc, char* argv[])
     printf("%s\n", pretty);
     free(pretty);
 
-    // TODO: free expression
+    free_expression(node);
 
     return 0;
 }
