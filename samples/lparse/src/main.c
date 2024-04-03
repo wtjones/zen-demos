@@ -134,7 +134,7 @@ ParseResult parse_token_symbol(
         (*buffer_pos)++;
         ch[0] = file_buffer[(*buffer_pos)];
     }
-    //(*buffer_pos)++;
+
     return LP_PARSE_RESULT_OK;
 }
 
@@ -269,35 +269,14 @@ ParseResult parse_list(
     return LP_PARSE_RESULT_OK;
 }
 
-ParseResult parse_file(const char* path, Node** node)
+ParseResult parse_raw(const char* exp, Node** node)
 {
-    FILE* file = fopen(path, "r");
-
-    if (!file) {
-        printf("Can't open file: %s\n", path);
-        return LP_PARSE_RESULT_ERROR;
-    }
-    fseek(file, 0, SEEK_END);
-    size_t file_size = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    char* file_buffer = malloc(file_size + 1);
-    if (NULL == file_buffer) {
-        printf("Can't malloc()!\n");
-        return LP_PARSE_RESULT_ERROR;
-    }
-
-    fread(file_buffer, file_size, 1, file);
-    fclose(file);
-    file_buffer[file_size] = 0;
-
-    printf("%lu : %s", strlen(file_buffer), file_buffer);
-
     ParseTokenType token_type;
     int buffer_pos = 0;
     char token[PARSE_TOKEN_MAX] = "";
-    // token = "))";
+
     ParseResult token_result = parse_token(
-        file_buffer, &buffer_pos, token, &token_type);
+        exp, &buffer_pos, token, &token_type);
     if (token_result == LP_PARSE_RESULT_ERROR) {
         return token_result;
     }
@@ -310,15 +289,49 @@ ParseResult parse_file(const char* path, Node** node)
     }
 
     *node = malloc(sizeof(Node));
+
+    if (*node == NULL) {
+        printf("Cannot malloc()\n");
+        return LP_PARSE_RESULT_ERROR;
+    }
+
     ParseResult exp_result = parse_list(
-        file_buffer, &buffer_pos, *node, 1);
+        exp, &buffer_pos, *node, 1);
 
     if (exp_result == LP_PARSE_RESULT_ERROR) {
         return exp_result;
     }
-
-    free(file_buffer);
     return LP_PARSE_RESULT_OK;
+}
+
+/**
+ * @brief Reads input file and returns an allocated string
+ * with contents.
+ *
+ * @param path
+ * @return char*
+ */
+char* read_file(const char* path)
+{
+    FILE* file = fopen(path, "r");
+
+    if (!file) {
+        printf("Can't open file: %s\n", path);
+        return NULL;
+    }
+    fseek(file, 0, SEEK_END);
+    size_t file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    char* file_buffer = malloc(file_size + 1);
+    if (NULL == file_buffer) {
+        printf("Can't malloc()!\n");
+        return NULL;
+    }
+
+    fread(file_buffer, file_size, 1, file);
+    fclose(file);
+    file_buffer[file_size] = '\0';
+    return file_buffer;
 }
 
 int main(int argc, char* argv[])
@@ -328,11 +341,20 @@ int main(int argc, char* argv[])
         printf("%s error: Input file required.", argv[0]);
         return 1;
     }
-    ParseResult result = parse_file(argv[1], &node);
-    if (result == LP_PARSE_RESULT_ERROR) {
-        printf("parse_file(): error\n");
+
+    char* file_buffer = read_file(argv[1]);
+
+    if (file_buffer == NULL) {
+        printf("Error loading file %s\n", argv[1]);
         return 1;
     }
+    printf("Bytes: %lu : %s", strlen(file_buffer), file_buffer);
+    ParseResult result = parse_raw(file_buffer, &node);
+    if (result == LP_PARSE_RESULT_ERROR) {
+        printf("parse_raw(): error\n");
+        return 1;
+    }
+    free(file_buffer);
     char* pretty = repr_expression(node);
 
     printf("%s\n", pretty);
