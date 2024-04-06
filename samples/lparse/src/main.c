@@ -179,7 +179,7 @@ ParseResult parse_token(
         return result;
     }
 
-    printf("Unhandled char: %c\n", ch);
+    fprintf(stderr, "Unhandled char: %c\n", ch);
     assert(true);
     return LP_PARSE_RESULT_ERROR;
 }
@@ -220,7 +220,7 @@ ParseResult parse_list(
 
         switch (token_type) {
         case LP_PARSE_TOKEN_NONE:
-            printf("parse_list: found error\n");
+            fprintf(stderr, "parse_list: found error\n");
 
             return LP_PARSE_RESULT_ERROR;
             break;
@@ -284,14 +284,14 @@ ParseResult parse_raw(const char* exp, Node** node)
     printf("Called parse_token(): %s\n", token);
 
     if (LP_PARSE_TOKEN_SEXP_START != token_type) {
-        printf("Expression not found.\n");
+        fprintf(stderr, "Expression not found.\n");
         return LP_PARSE_RESULT_ERROR;
     }
 
     *node = malloc(sizeof(Node));
 
     if (*node == NULL) {
-        printf("Cannot malloc()\n");
+        fprintf(stderr, "Cannot malloc()\n");
         return LP_PARSE_RESULT_ERROR;
     }
 
@@ -316,7 +316,7 @@ char* read_file(const char* path)
     FILE* file = fopen(path, "r");
 
     if (!file) {
-        printf("Can't open file: %s\n", path);
+        fprintf(stderr, "Can't open file: %s\n", path);
         return NULL;
     }
     fseek(file, 0, SEEK_END);
@@ -338,20 +338,20 @@ int main(int argc, char* argv[])
 {
     Node* node;
     if (argc == 1) {
-        printf("%s error: Input file required.", argv[0]);
+        fprintf(stderr, "%s error: Input file required.\n", argv[0]);
         return 1;
     }
 
     char* file_buffer = read_file(argv[1]);
 
     if (file_buffer == NULL) {
-        printf("Error loading file %s\n", argv[1]);
+        fprintf(stderr, "Error loading file %s\n", argv[1]);
         return 1;
     }
     printf("Bytes: %lu : %s", strlen(file_buffer), file_buffer);
     ParseResult result = parse_raw(file_buffer, &node);
     if (result == LP_PARSE_RESULT_ERROR) {
-        printf("parse_raw(): error\n");
+        fprintf(stderr, "parse_raw(): error\n");
         return 1;
     }
     free(file_buffer);
