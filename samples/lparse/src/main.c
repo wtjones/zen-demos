@@ -19,15 +19,17 @@ typedef enum NodeType {
 
 typedef struct Node {
     NodeType node_type;
-    int length;
     union {
         union {
             char* symbol;
             char* string;
             int integer;
         } atom;
-        struct Node* list;
-    } val;
+        struct {
+            size_t length;
+            struct Node* nodes;
+        } list;
+    };
 } Node;
 
 typedef enum ParseResult {
@@ -62,15 +64,15 @@ void free_expression_walk(Node* node, int depth)
     switch (node->node_type) {
     case LP_NODE_LIST:
 
-        for (int i = 0; i < node->length; i++) {
-            Node* node_item = &node->val.list[i];
+        for (size_t i = 0; i < node->list.length; i++) {
+            Node* node_item = &node->list.nodes[i];
             free_expression_walk(node_item, depth + 1);
         }
-        free(node->val.list);
+        free(node->list.nodes);
         break;
 
     case LP_NODE_ATOM_SYMBOL:
-        free(node->val.atom.symbol);
+        free(node->atom.symbol);
         break;
     }
 }
@@ -90,12 +92,12 @@ char* repr_expression_walk(Node* node, char* work, int depth)
     case LP_NODE_LIST:
         result = strcat_alloc(result, PARSE_TOKEN_OPEN_LIST);
 
-        for (int i = 0; i < node->length; i++) {
+        for (size_t i = 0; i < node->list.length; i++) {
 
-            Node* list_item = &node->val.list[i];
+            Node* list_item = &node->list.nodes[i];
 
             result = repr_expression_walk(list_item, result, depth + 1);
-            if (node->length > 1 && i != node->length - 1) {
+            if (node->list.length > 1 && i != node->list.length - 1) {
                 result = strcat_alloc(result, " ");
             }
         }
@@ -104,7 +106,7 @@ char* repr_expression_walk(Node* node, char* work, int depth)
         break;
 
     case LP_NODE_ATOM_SYMBOL:
-        result = strcat_alloc(result, node->val.atom.symbol);
+        result = strcat_alloc(result, node->atom.symbol);
     }
     return result;
 }
@@ -186,14 +188,14 @@ ParseResult parse_token(
 
 Node* append_list_node(Node* node)
 {
-    if (node->length == 0) {
-        node->length = 1;
-        node->val.list = malloc(sizeof(Node) * node->length);
+    if (node->list.length == 0) {
+        node->list.length = 1;
+        node->list.nodes = malloc(sizeof(Node) * node->list.length);
     } else {
-        node->length++;
-        node->val.list = realloc(node->val.list, sizeof(Node) * node->length);
+        node->list.length++;
+        node->list.nodes = realloc(node->list.nodes, sizeof(Node) * node->list.length);
     }
-    return &node->val.list[node->length - 1];
+    return &node->list.nodes[node->list.length - 1];
 }
 
 ParseResult parse_list(
@@ -208,8 +210,8 @@ ParseResult parse_list(
     assert(depth < PARSE_MAX_DEPTH);
 
     node->node_type = LP_NODE_LIST;
-    node->val.list = NULL;
-    node->length = 0;
+    node->list.nodes = NULL;
+    node->list.length = 0;
     while (true) {
         ParseResult result = parse_token(
             file_buffer, buffer_pos, token, &token_type);
@@ -238,8 +240,8 @@ ParseResult parse_list(
             new_symbol_node->node_type = LP_NODE_ATOM_SYMBOL;
             // allocate the string?
 
-            new_symbol_node->val.atom.symbol = malloc(strlen(token) + 1);
-            strcpy(new_symbol_node->val.atom.symbol, token);
+            new_symbol_node->atom.symbol = malloc(strlen(token) + 1);
+            strcpy(new_symbol_node->atom.symbol, token);
             if (*buffer_pos >= 33) {
                 return LP_PARSE_RESULT_ERROR;
             }
@@ -250,7 +252,7 @@ ParseResult parse_list(
 
             Node* new_list_node = append_list_node(node);
             new_list_node->node_type = LP_NODE_LIST;
-            new_list_node->length = 0;
+            new_list_node->list.length = 0;
 
             ParseResult list_result = parse_list(
                 file_buffer, buffer_pos, new_list_node, depth + 1);
