@@ -16,7 +16,7 @@
             },
             "preLaunchTask": "CMake: build",
             "args": [
-                "./test/test1.lisp"
+                "${workspaceFolder}/test/test1.lisp"
             ]
         }
     ]
