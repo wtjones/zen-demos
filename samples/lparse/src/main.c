@@ -14,6 +14,7 @@ static const char* PARSE_TOKEN_CLOSE_LIST = ")";
 
 typedef enum NodeType {
     LP_NODE_ATOM_SYMBOL,
+    LP_NODE_ATOM_STRING,
     LP_NODE_LIST
 } NodeType;
 
@@ -35,16 +36,16 @@ typedef struct Node {
 typedef enum ParseResult {
     LP_PARSE_RESULT_OK,
     LP_PARSE_RESULT_ERROR,
-    LP_PARSE_RESULT_END
+    LP_PARSE_RESULT_END,
+    LP_PARSE_RESULT_PASS
 } ParseResult;
 
-typedef enum ParseTokenType {
-    LP_PARSE_TOKEN_NONE,
-    LP_PARSE_TOKEN_STRING,
-    LP_PARSE_TOKEN_SEXP_START,
-    LP_PARSE_TOKEN_SEXP_END,
-    LP_PARSE_TOKEN_SEXP_SYMBOL,
-} ParseTokenType;
+typedef enum ParseExpressionType {
+    LP_PARSE_EXP_NONE,
+    LP_PARSE_EXP_ATOM,
+    LP_PARSE_EXP_LIST_START,
+    LP_PARSE_EXP_LIST_END,
+} ParseExpressionType;
 
 char* strcat_alloc(char* str, const char* append)
 {
@@ -73,6 +74,13 @@ void free_expression_walk(Node* node, int depth)
 
     case LP_NODE_ATOM_SYMBOL:
         free(node->atom.symbol);
+        break;
+
+    case LP_NODE_ATOM_STRING:
+        free(node->atom.string);
+        break;
+
+    default:
         break;
     }
 }
@@ -107,6 +115,13 @@ char* repr_expression_walk(Node* node, char* work, int depth)
 
     case LP_NODE_ATOM_SYMBOL:
         result = strcat_alloc(result, node->atom.symbol);
+        break;
+
+    case LP_NODE_ATOM_STRING:
+        result = strcat_alloc(result, "\"");
+        result = strcat_alloc(result, node->atom.string);
+        result = strcat_alloc(result, "\"");
+        break;
     }
     return result;
 }
@@ -122,14 +137,72 @@ char* repr_expression(Node* node)
     return repr_expression_walk(node, (char*)NULL, 0);
 }
 
-ParseResult parse_token_symbol(
+/**
+ * @brief Tries to parse a string out of given position.
+ * If a valid string, node is populated and result is OK
+ * If a string but not valid, result is ERROR.
+ * If not a string, result is PASS.
+ * A valid string starts with a double quote.
+ *
+ * @param file_buffer
+ * @param buffer_pos
+ * @param node
+ * @return ParseResult
+ */
+ParseResult parse_token_atom_string(const char* file_buffer,
+    int* buffer_pos,
+    Node* node)
+{
+    char token[PARSE_TOKEN_MAX] = "";
+    char ch[2] = "";
+
+    ch[0] = file_buffer[(*buffer_pos)];
+    assert(ch[0] != '\0');
+
+    if (ch[0] != '"') {
+        return LP_PARSE_RESULT_PASS;
+    }
+
+    (*buffer_pos)++;
+    ch[0] = file_buffer[(*buffer_pos)];
+    while (true) {
+        if (ch[0] == '\0') {
+            return LP_PARSE_RESULT_ERROR;
+        }
+
+        if (ch[0] == '"') {
+            (*buffer_pos)++;
+            break;
+        }
+
+        if (ch[0] == '\\') {
+            (*buffer_pos)++;
+            ch[0] = file_buffer[(*buffer_pos)];
+            if (ch[0] != '"' && ch[0] != '\\') {
+                fprintf(stderr, "Backslash must be followed by \" or \\. Instead found: %s\n", ch);
+                return LP_PARSE_RESULT_ERROR;
+            }
+        }
+        strcat(token, ch);
+        (*buffer_pos)++;
+        ch[0] = file_buffer[(*buffer_pos)];
+    }
+
+    printf("String found, adding to node: \"%s\"\n", token);
+    node->node_type = LP_NODE_ATOM_STRING;
+    node->atom.string = malloc(strlen(token) + 1);
+    strcpy(node->atom.string, token);
+    return LP_PARSE_RESULT_OK;
+}
+
+ParseResult parse_token_atom_symbol(
     const char* file_buffer,
     int* buffer_pos,
-    char* token)
+    Node* node)
 {
-    token[0] = '\0';
-
+    char token[PARSE_TOKEN_MAX] = "";
     char ch[2] = "";
+
     ch[0] = file_buffer[(*buffer_pos)];
     while ('\0' != ch[0] && (isalnum(ch[0]) || ch[0] == '-')) {
         strcat(token, ch);
@@ -137,17 +210,49 @@ ParseResult parse_token_symbol(
         ch[0] = file_buffer[(*buffer_pos)];
     }
 
+    printf("Symbol found, adding to node: \"%s\"\n", token);
+    node->node_type = LP_NODE_ATOM_SYMBOL;
+    node->atom.symbol = malloc(strlen(token) + 1);
+    strcpy(node->atom.symbol, token);
+
     return LP_PARSE_RESULT_OK;
 }
 
-ParseResult parse_token(
+ParseResult parse_token_atom(
     const char* file_buffer,
     int* buffer_pos,
-    char* token,
-    ParseTokenType* token_type)
+    Node* node)
 {
-    token[0] = '\0';
+    // figure out if string/symbol/number
+    // string: starts with double quote
+    // number: starts with a digit or +/- followed by a digit
+    // boolean: true or false
 
+    ParseResult result;
+
+    result = parse_token_atom_string(file_buffer, buffer_pos, node);
+    if (result != LP_PARSE_RESULT_PASS) {
+        return result;
+    }
+
+    result = parse_token_atom_symbol(file_buffer, buffer_pos, node);
+
+    return result;
+}
+
+/**
+ * @brief Seek to next token and identify next top-level expression type
+ *
+ * @param file_buffer
+ * @param buffer_pos
+ * @param token_type
+ * @return ParseResult
+ */
+ParseResult seek_expression(
+    const char* file_buffer,
+    int* buffer_pos,
+    ParseExpressionType* exp_type)
+{
     // Find first non-whitespace
     char ch = file_buffer[(*buffer_pos)];
     while ('\0' != ch && ' ' == ch) {
@@ -156,34 +261,23 @@ ParseResult parse_token(
     }
 
     if ('\0' == ch) {
-        *token_type = LP_PARSE_TOKEN_NONE;
+        *exp_type = LP_PARSE_EXP_NONE;
         return LP_PARSE_RESULT_OK;
     }
 
     if ('(' == ch) {
-        *token_type = LP_PARSE_TOKEN_SEXP_START;
-        strcpy(token, "(");
-        (*buffer_pos)++;
+        *exp_type = LP_PARSE_EXP_LIST_START;
+
         return LP_PARSE_RESULT_OK;
     }
 
     if (')' == ch) {
-        *token_type = LP_PARSE_TOKEN_SEXP_END;
-        strcpy(token, "(");
-        (*buffer_pos)++;
+        *exp_type = LP_PARSE_EXP_LIST_END;
         return LP_PARSE_RESULT_OK;
     }
 
-    if (isalpha(ch)) {
-        *token_type = LP_PARSE_TOKEN_SEXP_SYMBOL;
-        ParseResult result = parse_token_symbol(
-            file_buffer, buffer_pos, token);
-        return result;
-    }
-
-    fprintf(stderr, "Unhandled char: %c\n", ch);
-    assert(true);
-    return LP_PARSE_RESULT_ERROR;
+    *exp_type = LP_PARSE_EXP_ATOM;
+    return LP_PARSE_RESULT_OK;
 }
 
 Node* append_list_node(Node* node)
@@ -204,50 +298,48 @@ ParseResult parse_list(
     Node* node,
     int depth)
 {
-    char token[PARSE_TOKEN_MAX] = "";
-    ParseTokenType token_type;
+    ParseExpressionType exp_type;
 
     assert(depth < PARSE_MAX_DEPTH);
 
     node->node_type = LP_NODE_LIST;
     node->list.nodes = NULL;
     node->list.length = 0;
+
+    (*buffer_pos)++; // Move past list open token
     while (true) {
-        ParseResult result = parse_token(
-            file_buffer, buffer_pos, token, &token_type);
+        ParseResult result = seek_expression(
+            file_buffer, buffer_pos, &exp_type);
 
         if (result == LP_PARSE_RESULT_ERROR) {
             return result;
         }
 
-        switch (token_type) {
-        case LP_PARSE_TOKEN_NONE:
-            fprintf(stderr, "parse_list: found error\n");
+        switch (exp_type) {
+        case LP_PARSE_EXP_NONE:
+            fprintf(stderr, "parse_list: expression not found\n");
 
             return LP_PARSE_RESULT_ERROR;
             break;
 
-        case LP_PARSE_TOKEN_SEXP_END:
+        case LP_PARSE_EXP_LIST_END:
             printf("parse_list: found: )\n");
+            (*buffer_pos)++;
 
             return LP_PARSE_RESULT_OK;
             break;
 
-        case LP_PARSE_TOKEN_SEXP_SYMBOL:
-            printf("parse_list: found: symbol %s\n", token);
+        case LP_PARSE_EXP_ATOM:
+            printf("parse_list: found: atom\n");
+            Node* new_atom_node = append_list_node(node);
+            ParseResult atom_result = parse_token_atom(file_buffer, buffer_pos, new_atom_node);
 
-            Node* new_symbol_node = append_list_node(node);
-            new_symbol_node->node_type = LP_NODE_ATOM_SYMBOL;
-            // allocate the string?
-
-            new_symbol_node->atom.symbol = malloc(strlen(token) + 1);
-            strcpy(new_symbol_node->atom.symbol, token);
-            if (*buffer_pos >= 33) {
-                return LP_PARSE_RESULT_ERROR;
+            if (atom_result != LP_PARSE_RESULT_OK) {
+                return atom_result;
             }
 
             break;
-        case LP_PARSE_TOKEN_SEXP_START:
+        case LP_PARSE_EXP_LIST_START:
             printf("parse_list: found: (\n");
 
             Node* new_list_node = append_list_node(node);
@@ -273,19 +365,16 @@ ParseResult parse_list(
 
 ParseResult parse_raw(const char* exp, Node** node)
 {
-    ParseTokenType token_type;
+    ParseExpressionType exp_type;
     int buffer_pos = 0;
-    char token[PARSE_TOKEN_MAX] = "";
 
-    ParseResult token_result = parse_token(
-        exp, &buffer_pos, token, &token_type);
-    if (token_result == LP_PARSE_RESULT_ERROR) {
-        return token_result;
+    ParseResult result = seek_expression(
+        exp, &buffer_pos, &exp_type);
+
+    if (result == LP_PARSE_RESULT_ERROR) {
+        return result;
     }
-
-    printf("Called parse_token(): %s\n", token);
-
-    if (LP_PARSE_TOKEN_SEXP_START != token_type) {
+    if (exp_type != LP_PARSE_EXP_LIST_START) {
         fprintf(stderr, "Expression not found.\n");
         return LP_PARSE_RESULT_ERROR;
     }
