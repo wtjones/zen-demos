@@ -15,6 +15,7 @@ static const char* PARSE_TOKEN_CLOSE_LIST = ")";
 typedef enum NodeType {
     LP_NODE_ATOM_SYMBOL,
     LP_NODE_ATOM_STRING,
+    LP_NODE_ATOM_BOOLEAN,
     LP_NODE_LIST
 } NodeType;
 
@@ -25,6 +26,7 @@ typedef struct Node {
             char* symbol;
             char* string;
             int integer;
+            bool val_bool;
         } atom;
         struct {
             size_t length;
@@ -122,6 +124,10 @@ char* repr_expression_walk(Node* node, char* work, int depth)
         result = strcat_alloc(result, node->atom.string);
         result = strcat_alloc(result, "\"");
         break;
+
+    case LP_NODE_ATOM_BOOLEAN:
+        result = strcat_alloc(result, node->atom.val_bool ? "true" : "false");
+        break;
     }
     return result;
 }
@@ -135,6 +141,49 @@ char* repr_expression_walk(Node* node, char* work, int depth)
 char* repr_expression(Node* node)
 {
     return repr_expression_walk(node, (char*)NULL, 0);
+}
+
+/**
+ * @brief Rries to parse a boolean out of given position.
+ * If a valid boolean [yes|no], node is populated and result is OK
+ * If not a boolean, result is PASS.
+ *
+ * @param file_buffer
+ * @param buffer_pos
+ * @param node
+ * @return ParseResult
+ */
+ParseResult parse_token_atom_boolean(const char* file_buffer,
+    int* buffer_pos,
+    Node* node)
+{
+    char token[PARSE_TOKEN_MAX] = "";
+    char ch[2] = "";
+    int pos = *buffer_pos;
+
+    ch[0] = file_buffer[pos];
+    assert(ch[0] != '\0');
+
+    char end_chars[] = " )(\n)";
+    while (strchr(end_chars, ch[0]) == NULL) {
+        strcat(token, ch);
+        pos++;
+        ch[0] = file_buffer[pos];
+    }
+
+    bool is_true = strcmp(token, "true") == 0;
+    bool is_false = strcmp(token, "false") == 0;
+
+    if (!is_true && !is_false) {
+        return LP_PARSE_RESULT_PASS;
+    }
+
+    printf("Boolean found, adding to node: %s\n", is_true ? "true" : "false");
+    node->node_type = LP_NODE_ATOM_BOOLEAN;
+    node->atom.val_bool = is_true;
+    *buffer_pos = pos;
+
+    return LP_PARSE_RESULT_OK;
 }
 
 /**
@@ -210,7 +259,7 @@ ParseResult parse_token_atom_symbol(
         ch[0] = file_buffer[(*buffer_pos)];
     }
 
-    printf("Symbol found, adding to node: \"%s\"\n", token);
+    printf("Symbol found, adding to node: %s\n", token);
     node->node_type = LP_NODE_ATOM_SYMBOL;
     node->atom.symbol = malloc(strlen(token) + 1);
     strcpy(node->atom.symbol, token);
@@ -223,21 +272,28 @@ ParseResult parse_token_atom(
     int* buffer_pos,
     Node* node)
 {
-    // figure out if string/symbol/number
-    // string: starts with double quote
-    // number: starts with a digit or +/- followed by a digit
-    // boolean: true or false
-
     ParseResult result;
 
     result = parse_token_atom_string(file_buffer, buffer_pos, node);
     if (result != LP_PARSE_RESULT_PASS) {
+        printf("parse_token_atom: found atom string\n");
+        return result;
+    }
+
+    result = parse_token_atom_boolean(file_buffer, buffer_pos, node);
+    if (result != LP_PARSE_RESULT_PASS) {
+        printf("parse_token_atom: found atom boolean\n");
         return result;
     }
 
     result = parse_token_atom_symbol(file_buffer, buffer_pos, node);
+    if (result != LP_PARSE_RESULT_PASS) {
+        printf("parse_token_atom: found atom symbol\n");
+        return result;
+    }
 
-    return result;
+    fprintf(stderr, "parse_token_atom: atom not identifed at pos %d\n", *buffer_pos);
+    return LP_PARSE_RESULT_ERROR;
 }
 
 /**
