@@ -156,6 +156,12 @@ bool is_atom_end_char(char ch)
     return strchr(end_chars, ch) != NULL;
 }
 
+bool is_whitespace_char(char ch)
+{
+    char search_chars[] = " \n";
+    return strchr(search_chars, ch) != NULL;
+}
+
 /**
  * @brief Rries to parse a boolean out of given position.
  * If a valid boolean [yes|no], node is populated and result is OK
@@ -346,7 +352,7 @@ ParseResult seek_expression(
 {
     // Find first non-whitespace
     char ch = file_buffer[(*buffer_pos)];
-    while ('\0' != ch && ' ' == ch) {
+    while ('\0' != ch && is_whitespace_char(ch)) {
         (*buffer_pos)++;
         ch = file_buffer[(*buffer_pos)];
     }
