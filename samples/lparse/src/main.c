@@ -144,6 +144,19 @@ char* repr_expression(Node* node)
 }
 
 /**
+ * @brief Is this a valid char to trail an atom?
+ *
+ * @param ch
+ * @return true
+ * @return false
+ */
+bool is_atom_end_char(char ch)
+{
+    char end_chars[] = " )(\n";
+    return strchr(end_chars, ch) != NULL;
+}
+
+/**
  * @brief Rries to parse a boolean out of given position.
  * If a valid boolean [yes|no], node is populated and result is OK
  * If not a boolean, result is PASS.
@@ -164,8 +177,7 @@ ParseResult parse_token_atom_boolean(const char* file_buffer,
     ch[0] = file_buffer[pos];
     assert(ch[0] != '\0');
 
-    char end_chars[] = " )(\n)";
-    while (strchr(end_chars, ch[0]) == NULL) {
+    while (!is_atom_end_char(ch[0])) {
         strcat(token, ch);
         pos++;
         ch[0] = file_buffer[pos];
@@ -244,6 +256,18 @@ ParseResult parse_token_atom_string(const char* file_buffer,
     return LP_PARSE_RESULT_OK;
 }
 
+bool is_valid_symbol_start(char ch)
+{
+    char special_chars[] = "+-*/_!?$%%&=<>@^~:";
+    return (!isdigit(ch) && (isalpha(ch) || strchr(special_chars, ch) != NULL));
+}
+
+bool is_valid_symbol(char ch)
+{
+    char special_chars[] = "+-*/_!?$%%&=<>@^~:";
+    return (isalnum(ch) || strchr(special_chars, ch) != NULL);
+}
+
 ParseResult parse_token_atom_symbol(
     const char* file_buffer,
     int* buffer_pos,
@@ -251,15 +275,26 @@ ParseResult parse_token_atom_symbol(
 {
     char token[PARSE_TOKEN_MAX] = "";
     char ch[2] = "";
+    int pos = *buffer_pos;
 
-    ch[0] = file_buffer[(*buffer_pos)];
-    while ('\0' != ch[0] && (isalnum(ch[0]) || ch[0] == '-')) {
+    ch[0] = file_buffer[pos];
+
+    if (!is_valid_symbol_start(ch[0])) {
+        return LP_PARSE_RESULT_PASS;
+    }
+
+    while ('\0' != ch[0] && !is_atom_end_char(ch[0])) {
+        if (!is_valid_symbol(ch[0])) {
+            fprintf(stderr, "parse_token_atom_symbol: Invalid char: %c\n", ch[0]);
+            return LP_PARSE_RESULT_ERROR;
+        }
         strcat(token, ch);
-        (*buffer_pos)++;
-        ch[0] = file_buffer[(*buffer_pos)];
+        pos++;
+        ch[0] = file_buffer[pos];
     }
 
     printf("Symbol found, adding to node: %s\n", token);
+    *buffer_pos = pos;
     node->node_type = LP_NODE_ATOM_SYMBOL;
     node->atom.symbol = malloc(strlen(token) + 1);
     strcpy(node->atom.symbol, token);
