@@ -9,8 +9,12 @@
 #define MAX_ATOM_LENGTH 100
 #define PARSE_TOKEN_MAX 255
 #define PARSE_MAX_DEPTH 4
-static const char* PARSE_TOKEN_OPEN_LIST = "(";
-static const char* PARSE_TOKEN_CLOSE_LIST = ")";
+#define LP_REPR_INDENT 2
+#define LP_REPR_MAX_LINE 255
+static const char* LP_REPR_LIST = "[List]";
+static const char* LP_REPR_ATOM_SYMBOL = "[Atom: symbol]";
+static const char* LP_REPR_ATOM_STRING = "[Atom: string]";
+static const char* LP_REPR_ATOM_BOOLEAN = "[Atom: boolean]";
 
 typedef enum NodeType {
     LP_NODE_ATOM_SYMBOL,
@@ -89,44 +93,78 @@ void free_expression_walk(Node* node, int depth)
 
 void free_expression(Node* node)
 {
-    free_expression_walk(node, 1);
+    free_expression_walk(node, 0);
     free(node);
 }
 
-char* repr_expression_walk(Node* node, char* work, int depth)
+char* repr_expression_walk(Node* node, char* work, char* buffer, int depth)
 {
     char* result = work;
+    char* buffer_append = buffer;
+    buffer[0] = '\0';
+
     assert(depth <= PARSE_MAX_DEPTH);
 
     switch (node->node_type) {
     case LP_NODE_LIST:
-        result = strcat_alloc(result, PARSE_TOKEN_OPEN_LIST);
+
+        for (int i = 0; i < depth * LP_REPR_INDENT; i++) {
+            printf("buff len %d\n", LP_REPR_MAX_LINE - (int)(buffer_append - buffer));
+            buffer_append += snprintf(
+                buffer_append, LP_REPR_MAX_LINE - (int)(buffer_append - buffer), " ");
+        }
+
+        buffer_append += snprintf(
+            buffer_append, LP_REPR_MAX_LINE - (int)(buffer_append - buffer), "%s\n", LP_REPR_LIST);
+        result = strcat_alloc(result, buffer);
 
         for (size_t i = 0; i < node->list.length; i++) {
-
             Node* list_item = &node->list.nodes[i];
 
-            result = repr_expression_walk(list_item, result, depth + 1);
+            result = repr_expression_walk(list_item, result, buffer, depth + 1);
             if (node->list.length > 1 && i != node->list.length - 1) {
-                result = strcat_alloc(result, " ");
+                result = strcat_alloc(result, "\n");
             }
         }
-        result = strcat_alloc(result, PARSE_TOKEN_CLOSE_LIST);
-
         break;
 
     case LP_NODE_ATOM_SYMBOL:
-        result = strcat_alloc(result, node->atom.symbol);
+        for (int i = 0; i < depth * LP_REPR_INDENT; i++) {
+            buffer_append += snprintf(
+                buffer_append, LP_REPR_MAX_LINE - (int)(buffer_append - buffer), " ");
+        }
+        buffer_append += snprintf(
+            buffer_append,
+            LP_REPR_MAX_LINE - (int)(buffer_append - buffer),
+            "%s %s", node->atom.symbol, LP_REPR_ATOM_SYMBOL);
+        result = strcat_alloc(result, buffer);
         break;
 
     case LP_NODE_ATOM_STRING:
-        result = strcat_alloc(result, "\"");
-        result = strcat_alloc(result, node->atom.string);
-        result = strcat_alloc(result, "\"");
+        for (int i = 0; i < depth * LP_REPR_INDENT; i++) {
+            buffer_append += snprintf(
+                buffer_append,
+                LP_REPR_MAX_LINE - (int)(buffer_append - buffer),
+                " ");
+        }
+        buffer_append += snprintf(
+            buffer_append,
+            LP_REPR_MAX_LINE - (int)(buffer_append - buffer),
+            "\"%s\" %s", node->atom.string, LP_REPR_ATOM_STRING);
+        result = strcat_alloc(result, buffer);
         break;
 
     case LP_NODE_ATOM_BOOLEAN:
-        result = strcat_alloc(result, node->atom.val_bool ? "true" : "false");
+        for (int i = 0; i < depth * LP_REPR_INDENT; i++) {
+            buffer_append += snprintf(buffer_append,
+                LP_REPR_MAX_LINE - (int)(buffer_append - buffer),
+                " ");
+        }
+        buffer_append += snprintf(
+            buffer_append,
+            LP_REPR_MAX_LINE - (int)(buffer_append - buffer),
+            "%s %s", node->atom.val_bool ? "true" : "false", LP_REPR_ATOM_BOOLEAN);
+        result = strcat_alloc(result, buffer);
         break;
     }
     return result;
@@ -140,7 +178,13 @@ char* repr_expression_walk(Node* node, char* work, int depth)
  */
 char* repr_expression(Node* node)
 {
-    return repr_expression_walk(node, (char*)NULL, 0);
+    char* buffer = malloc(LP_REPR_MAX_LINE);
+    if (buffer == NULL) {
+        return NULL;
+    }
+    char* result = repr_expression_walk(node, (char*)NULL, buffer, 0);
+    free(buffer);
+    return result;
 }
 
 /**
@@ -544,7 +588,10 @@ int main(int argc, char* argv[])
     }
     free(file_buffer);
     char* pretty = repr_expression(node);
-
+    if (pretty == NULL) {
+        fprintf(stderr, "repr_expression(): error\n");
+        return 1;
+    }
     printf("%s\n", pretty);
     free(pretty);
 
