@@ -30,7 +30,7 @@ typedef struct Node {
     union {
         union {
             char* symbol;
-            char* string;
+            char* val_string;
             int val_integer;
             bool val_bool;
         } atom;
@@ -85,7 +85,7 @@ void free_expression_walk(Node* node, int depth)
         break;
 
     case LP_NODE_ATOM_STRING:
-        free(node->atom.string);
+        free(node->atom.val_string);
         break;
 
     default:
@@ -111,7 +111,6 @@ char* repr_expression_walk(Node* node, char* work, char* buffer, int depth)
     case LP_NODE_LIST:
 
         for (int i = 0; i < depth * LP_REPR_INDENT; i++) {
-            printf("buff len %d\n", LP_REPR_MAX_LINE - (int)(buffer_append - buffer));
             buffer_append += snprintf(
                 buffer_append, LP_REPR_MAX_LINE - (int)(buffer_append - buffer), " ");
         }
@@ -152,7 +151,7 @@ char* repr_expression_walk(Node* node, char* work, char* buffer, int depth)
         buffer_append += snprintf(
             buffer_append,
             LP_REPR_MAX_LINE - (int)(buffer_append - buffer),
-            "\"%s\" %s", node->atom.string, LP_REPR_ATOM_STRING);
+            "\"%s\" %s", node->atom.val_string, LP_REPR_ATOM_STRING);
         result = strcat_alloc(result, buffer);
         break;
 
@@ -222,7 +221,7 @@ bool is_whitespace_char(char ch)
 }
 
 /**
- * @brief Rries to parse a boolean out of given position.
+ * @brief Tries to parse a boolean out of given position.
  * If a valid boolean [yes|no], node is populated and result is OK
  * If not a boolean, result is PASS.
  *
@@ -374,8 +373,8 @@ ParseResult parse_token_atom_string(const char* file_buffer,
 
     printf("String found, adding to node: \"%s\"\n", token);
     node->node_type = LP_NODE_ATOM_STRING;
-    node->atom.string = malloc(strlen(token) + 1);
-    strcpy(node->atom.string, token);
+    node->atom.val_string = malloc(strlen(token) + 1);
+    strcpy(node->atom.val_string, token);
     return LP_PARSE_RESULT_OK;
 }
 
