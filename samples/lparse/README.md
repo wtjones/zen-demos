@@ -22,11 +22,11 @@ S-expression parse example
 
 ### string
 
- starts with double quote
+Starts and ends with double quotes.
 
 ### number-integer
 
-starts with a digit or +/- followed by a digit
+Starts with a digit or +/- followed by at least one digit.
 
 ### number-decimal
 

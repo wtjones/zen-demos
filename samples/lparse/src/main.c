@@ -15,11 +15,13 @@ static const char* LP_REPR_LIST = "[List]";
 static const char* LP_REPR_ATOM_SYMBOL = "[Atom: symbol]";
 static const char* LP_REPR_ATOM_STRING = "[Atom: string]";
 static const char* LP_REPR_ATOM_BOOLEAN = "[Atom: boolean]";
+static const char* LP_REPR_ATOM_INTEGER = "[Atom: integer]";
 
 typedef enum NodeType {
     LP_NODE_ATOM_SYMBOL,
     LP_NODE_ATOM_STRING,
     LP_NODE_ATOM_BOOLEAN,
+    LP_NODE_ATOM_INTEGER,
     LP_NODE_LIST
 } NodeType;
 
@@ -29,7 +31,7 @@ typedef struct Node {
         union {
             char* symbol;
             char* string;
-            int integer;
+            int val_integer;
             bool val_bool;
         } atom;
         struct {
@@ -166,6 +168,19 @@ char* repr_expression_walk(Node* node, char* work, char* buffer, int depth)
             "%s %s", node->atom.val_bool ? "true" : "false", LP_REPR_ATOM_BOOLEAN);
         result = strcat_alloc(result, buffer);
         break;
+
+    case LP_NODE_ATOM_INTEGER:
+        for (int i = 0; i < depth * LP_REPR_INDENT; i++) {
+            buffer_append += snprintf(buffer_append,
+                LP_REPR_MAX_LINE - (int)(buffer_append - buffer),
+                " ");
+        }
+        buffer_append += snprintf(
+            buffer_append,
+            LP_REPR_MAX_LINE - (int)(buffer_append - buffer),
+            "%d %s", node->atom.val_integer, LP_REPR_ATOM_INTEGER);
+        result = strcat_alloc(result, buffer);
+        break;
     }
     return result;
 }
@@ -244,6 +259,64 @@ ParseResult parse_token_atom_boolean(const char* file_buffer,
     node->node_type = LP_NODE_ATOM_BOOLEAN;
     node->atom.val_bool = is_true;
     *buffer_pos = pos;
+
+    return LP_PARSE_RESULT_OK;
+}
+
+/**
+ * @brief Tries to parse an integer out of given position.
+ * A valid integer consists of an optional sign char followed
+ * by digits.
+ * If a valid integer, node is populated and result is OK.
+ * If not a valid integer, result is PASS.
+ *
+ * @param file_buffer
+ * @param buffer_pos
+ * @param node
+ * @return ParseResult
+ */
+ParseResult parse_token_atom_integer(
+    const char* file_buffer,
+    int* buffer_pos,
+    Node* node)
+{
+    char token[PARSE_TOKEN_MAX] = "";
+    char ch[2] = "";
+    int pos = *buffer_pos;
+    char sign;
+
+    ch[0] = file_buffer[pos];
+    assert(ch[0] != '\0');
+
+    bool has_sign = (ch[0] == '+' || ch[0] == '-');
+    sign = has_sign ? ch[0] : '+';
+
+    if (has_sign) {
+        pos++;
+        ch[0] = file_buffer[pos];
+    }
+
+    // Treat as atom and copy to token
+    size_t num_digits = 0, num_decimal_points = 0;
+    while ('\0' != ch[0] && !is_atom_end_char(ch[0])) {
+        num_digits += isdigit(ch[0]) ? 1 : 0;
+        num_decimal_points += ch[0] == '.' ? 1 : 0;
+        strcat(token, ch);
+        pos++;
+        ch[0] = file_buffer[pos];
+    }
+
+    bool is_integer = num_digits > 0 && num_digits == strlen(token);
+
+    if (!is_integer) {
+        printf("parse_token_atom_number(): token %s not int, passing...\n", token);
+        return LP_PARSE_RESULT_PASS;
+    }
+
+    node->node_type = LP_NODE_ATOM_INTEGER;
+    node->atom.val_integer = atoi(token) * (sign == '-' ? -1 : 1);
+    printf("Integer found, adding to node: %d\n", node->atom.val_integer);
+    (*buffer_pos) = pos;
 
     return LP_PARSE_RESULT_OK;
 }
@@ -371,6 +444,10 @@ ParseResult parse_token_atom(
         return result;
     }
 
+    result = parse_token_atom_integer(file_buffer, buffer_pos, node);
+    if (result != LP_PARSE_RESULT_PASS) {
+        return result;
+    }
     result = parse_token_atom_symbol(file_buffer, buffer_pos, node);
     if (result != LP_PARSE_RESULT_PASS) {
         printf("parse_token_atom: found atom symbol\n");
