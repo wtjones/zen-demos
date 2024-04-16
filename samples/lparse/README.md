@@ -64,6 +64,10 @@ cmake -D CMAKE_BUILD_TYPE:STRING=Debug -D CMAKE_C_FLAGS="-g3 -fsanitize=address"
 cmake --build build --config Debug && setarch `uname -m` -R ./build/lparse test/test1.lisp
 ```
 
+## TODO
+
+[ ] 32.32 fixed point
+
 
 ## References
 

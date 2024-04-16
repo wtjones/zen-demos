@@ -1,6 +1,8 @@
 #include <assert.h>
 #include <ctype.h>
+#include <math.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,12 +18,16 @@ static const char* LP_REPR_ATOM_SYMBOL = "[Atom: symbol]";
 static const char* LP_REPR_ATOM_STRING = "[Atom: string]";
 static const char* LP_REPR_ATOM_BOOLEAN = "[Atom: boolean]";
 static const char* LP_REPR_ATOM_INTEGER = "[Atom: integer]";
+static const char* LP_REPR_ATOM_FIXED = "[Atom: fixed 16.16]";
+
+typedef int32_t LPFixed;
 
 typedef enum NodeType {
     LP_NODE_ATOM_SYMBOL,
     LP_NODE_ATOM_STRING,
     LP_NODE_ATOM_BOOLEAN,
     LP_NODE_ATOM_INTEGER,
+    LP_NODE_ATOM_FIXED,
     LP_NODE_LIST
 } NodeType;
 
@@ -32,6 +38,7 @@ typedef struct Node {
             char* symbol;
             char* val_string;
             int val_integer;
+            LPFixed val_fixed;
             bool val_bool;
         } atom;
         struct {
@@ -54,6 +61,25 @@ typedef enum ParseExpressionType {
     LP_PARSE_EXP_LIST_START,
     LP_PARSE_EXP_LIST_END,
 } ParseExpressionType;
+
+int32_t decimal_to_fixed(char sign, char* whole, char* frac)
+{
+
+    int32_t exp = pow(10, (int)strlen(frac));
+    int32_t frac_part = atoi(frac) * 65536 / exp;
+    printf("Fractional shifted: %d\n", frac_part);
+    LPFixed result = atoi(whole) * 65536 + frac_part;
+    result *= (sign == '+' ? 1 : -1);
+    return result;
+}
+
+float fixed_to_float(LPFixed n)
+{
+
+    int32_t whole = n / 65536;
+    int32_t fixed_frac = n - (whole * 65536);
+    return (float)(whole + (float)(fixed_frac) / 65536);
+}
 
 char* strcat_alloc(char* str, const char* append)
 {
@@ -178,6 +204,19 @@ char* repr_expression_walk(Node* node, char* work, char* buffer, int depth)
             buffer_append,
             LP_REPR_MAX_LINE - (int)(buffer_append - buffer),
             "%d %s", node->atom.val_integer, LP_REPR_ATOM_INTEGER);
+        result = strcat_alloc(result, buffer);
+        break;
+
+    case LP_NODE_ATOM_FIXED:
+        for (int i = 0; i < depth * LP_REPR_INDENT; i++) {
+            buffer_append += snprintf(buffer_append,
+                LP_REPR_MAX_LINE - (int)(buffer_append - buffer),
+                " ");
+        }
+        buffer_append += snprintf(
+            buffer_append,
+            LP_REPR_MAX_LINE - (int)(buffer_append - buffer),
+            "%f %s", fixed_to_float(node->atom.val_fixed), LP_REPR_ATOM_FIXED);
         result = strcat_alloc(result, buffer);
         break;
     }
@@ -321,6 +360,83 @@ ParseResult parse_token_atom_integer(
 }
 
 /**
+ * @brief Tries to parse a fixed point decimal out of given position.
+ * A valid decimal consists of an optional sign char followed
+ * by digits with a decimal point.
+ * The result is a 16.16 fixed point numeric.
+ *
+ * If a valid decimal, node is populated and result is OK.
+ * If not a valid integer, result is PASS.
+ *
+ * @param file_buffer
+ * @param buffer_pos
+ * @param node
+ * @return ParseResult
+ */
+ParseResult parse_token_atom_fixed(
+    const char* file_buffer,
+    int* buffer_pos,
+    Node* node)
+{
+    char token[PARSE_TOKEN_MAX] = "";
+    char whole[PARSE_TOKEN_MAX] = "";
+    char frac[PARSE_TOKEN_MAX] = "";
+
+    char ch[2] = "";
+    int pos = *buffer_pos;
+    char sign;
+
+    ch[0] = file_buffer[pos];
+    assert(ch[0] != '\0');
+
+    bool has_sign = (ch[0] == '+' || ch[0] == '-');
+    sign = has_sign ? ch[0] : '+';
+
+    if (has_sign) {
+        pos++;
+        ch[0] = file_buffer[pos];
+    }
+
+    // Treat as atom and copy to token
+    size_t num_digits = 0,
+           num_decimal_points = 0,
+           decimal_offset = 0,
+           token_offset = 0;
+    while ('\0' != ch[0] && !is_atom_end_char(ch[0])) {
+        num_digits += isdigit(ch[0]) ? 1 : 0;
+        num_decimal_points += ch[0] == '.' ? 1 : 0;
+        // Advance the offset until decimal point found
+        decimal_offset = ch[0] == '.' ? token_offset : decimal_offset;
+        strcat(token, ch);
+        pos++;
+        token_offset++;
+        ch[0] = file_buffer[pos];
+    }
+
+    bool is_decimal = num_digits > 1
+        && num_digits == strlen(token) - 1
+        && num_decimal_points == 1;
+
+    if (!is_decimal) {
+        printf("parse_token_atom_decimal(): token %s not decimal, passing...\n", token);
+        return LP_PARSE_RESULT_PASS;
+    }
+
+    printf("Decimal found in token %s at pos %zu\n", token, decimal_offset);
+
+    strncpy(whole, token, decimal_offset);
+    whole[decimal_offset] = '\0';
+
+    strcpy(frac, token + decimal_offset + 1); // Skip the decimal point
+
+    node->node_type = LP_NODE_ATOM_FIXED;
+    node->atom.val_fixed = decimal_to_fixed(sign, whole, frac);
+    (*buffer_pos) = pos;
+
+    return LP_PARSE_RESULT_OK;
+}
+
+/**
  * @brief Tries to parse a string out of given position.
  * If a valid string, node is populated and result is OK
  * If a string but not valid, result is ERROR.
@@ -447,6 +563,12 @@ ParseResult parse_token_atom(
     if (result != LP_PARSE_RESULT_PASS) {
         return result;
     }
+
+    result = parse_token_atom_fixed(file_buffer, buffer_pos, node);
+    if (result != LP_PARSE_RESULT_PASS) {
+        return result;
+    }
+
     result = parse_token_atom_symbol(file_buffer, buffer_pos, node);
     if (result != LP_PARSE_RESULT_PASS) {
         printf("parse_token_atom: found atom symbol\n");
