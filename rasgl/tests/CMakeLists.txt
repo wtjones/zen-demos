@@ -5,7 +5,8 @@ target_link_libraries(tests PRIVATE core)
 
 target_include_directories(tests PUBLIC include)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address")
+add_compile_options(-fsanitize=address)
+add_link_options(-fsanitize=address)
 
 if(MSVC)
   target_compile_options(tests PRIVATE /W4 /WX)
