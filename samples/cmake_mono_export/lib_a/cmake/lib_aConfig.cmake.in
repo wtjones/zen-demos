@@ -1,0 +1,19 @@
+# - Config file for lib_a
+
+# Set the include directory
+set(LIB_A_INCLUDE_DIR "@PACKAGE_INCLUDE_DIR@")
+
+set(@CMAKE_PROJECT_NAME@_FOUND TRUE) 
+set(@CMAKE_PROJECT_NAME@_INCLUDE_DIRS ${@CMAKE_PROJECT_NAME@_INCLUDE_DIRS} ${INCLUDE_DIRS})
+
+# Create a target for the library
+add_library(lib_a::lib_a INTERFACE IMPORTED)
+
+# Set properties for the target
+set_target_properties(lib_a::lib_a PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${LIB_A_INCLUDE_DIR}"
+)
+
+# Include any additional configuration settings here
+
+set(TACO_VALUE "SUPER!!!")

@@ -1,0 +1,8 @@
+app_b/build
+lib_a/build
+build
+.vscode
+**/.clang-format
+**/.editorconfig
+**/.gitignore
+README.md
