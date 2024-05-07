@@ -8,18 +8,20 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 message("current src: ${CMAKE_CURRENT_SOURCE_DIR}")
 
-cmake_path(SET lib_a_BIN NORMALIZE "${CMAKE_CURRENT_SOURCE_DIR}/../lib_a/build/liblib_a.so")
-message("Value of lib_a_BIN: ${lib_a_BIN}")
+
+find_library(lib_a_LIBRARY NAMES lib_a HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../lib_a/build")
+
+if(NOT lib_a_LIBRARY)
+    message(FATAL_ERROR "lib_a library not found")
+endif()
+
+message("Value of lib_a_LIBRARY: ${lib_a_LIBRARY}")
+
 
 add_executable(app_b
     src/main.c
 )
 
-add_library(lib_a SHARED IMPORTED)
-set_property(TARGET lib_a PROPERTY
-    IMPORTED_LOCATION ${lib_a_BIN})
-             
-target_link_libraries(app_b PRIVATE lib_a)
+target_link_libraries(app_b PRIVATE ${lib_a_LIBRARY})
 
-target_include_directories(app_b PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/../lib_a/include)
+target_include_directories(app_b PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../lib_a/include")
