@@ -46,7 +46,6 @@ In /app_b:
 
 ### Cons
 
-- The `IMPORTED_LOCATION` requires a path to `liblib_a.so`
 - The build for `lib_a` is not automatically triggered.
 - Doesn't seem as clean as `find_package`.  
 
