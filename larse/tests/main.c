@@ -1,24 +1,30 @@
+#include "larse/core/expression.h"
 #include "larse/core/parse.h"
 #include "test_support.h"
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
 
-int test_symbol()
+int test_parse_single()
 {
-    // FIXME
-    lar_parse_expression(NULL);
+
+    LarNode* node;
+
+    LarParseResult result;
+    result = lar_parse_single("(\"test\")", &node);
+    assert(strcmp(node->list.nodes[0].atom.val_string, "test") == 0);
+    printf("got string: %s\n", node->list.nodes[0].atom.val_string);
     return 0;
 }
 
-int test_string()
+int test_parse()
 {
     return 0;
 }
 
 TestFn test_fns[] = {
-    { "TEST_STRING", test_string },
-    { "TEST_SYMBOL", test_symbol }
+    { "TEST_PARSE_SINGLE", test_parse_single },
+    { "TEST_PARSE", test_parse }
 };
 
 int main(int argc, const char** argv)
