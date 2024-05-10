@@ -3,7 +3,8 @@
 set -euo pipefail
 
 main() {
-    env CTEST_OUTPUT_ON_FAILURE=TRUE cmake --build build -t tests test
+    cmake --build build
+    env CTEST_OUTPUT_ON_FAILURE=TRUE ctest --test-dir build --verbose
 }
 
 main

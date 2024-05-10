@@ -7,6 +7,20 @@
 			"command": "test",
 			"problemMatcher": [],
 			"detail": "CMake template test task"
+		},
+		{
+			"type": "cmake",
+			"label": "CMake: build",
+			"command": "build",
+			"targets": [
+				"all"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": [],
+			"detail": "CMake template build task"
 		}
 	]
 }
