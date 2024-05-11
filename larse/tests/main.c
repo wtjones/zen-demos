@@ -17,12 +17,24 @@ int test_parse_single()
     return 0;
 }
 
+int test_parse_symbol()
+{
+
+    LarNode* node;
+
+    LarParseResult result;
+    result = lar_parse_single("(my-symbol 1 3)", &node);
+    assert(strcmp(node->list.nodes[0].atom.val_symbol, "my-symbol") == 0);
+    return 0;
+}
+
 int test_parse()
 {
     return 0;
 }
 
 TestFn test_fns[] = {
+    { "TEST_PARSE_SYMBOL", test_parse_symbol },
     { "TEST_PARSE_SINGLE", test_parse_single },
     { "TEST_PARSE", test_parse }
 };

@@ -1,26 +1,8 @@
 #include "larse/core/parse.h"
 #include "larse/core/expression.h"
+#include "larse/core/parse_token.h"
 #include <assert.h>
 #include <stdio.h>
-
-/**
- * @brief Is this a valid char to trail an atom?
- *
- * @param ch
- * @return true
- * @return false
- */
-bool is_atom_end_char(char ch)
-{
-    char end_chars[] = " )(\n";
-    return strchr(end_chars, ch) != NULL;
-}
-
-bool is_whitespace_char(char ch)
-{
-    char search_chars[] = " \n";
-    return strchr(search_chars, ch) != NULL;
-}
 
 LarNode* append_list_node(LarNode* node)
 {
@@ -32,6 +14,12 @@ LarNode* append_list_node(LarNode* node)
         node->list.nodes = realloc(node->list.nodes, sizeof(LarNode) * node->list.length);
     }
     return &node->list.nodes[node->list.length - 1];
+}
+
+bool is_whitespace_char(char ch)
+{
+    char search_chars[] = " \n";
+    return strchr(search_chars, ch) != NULL;
 }
 
 /**
@@ -51,7 +39,6 @@ LarParseResult seek_expression(
     char ch = file_buffer[(*buffer_pos)];
     while ('\0' != ch && is_whitespace_char(ch)) {
         (*buffer_pos)++;
-        printf("help!!!\n");
         ch = file_buffer[(*buffer_pos)];
     }
 
@@ -73,83 +60,6 @@ LarParseResult seek_expression(
 
     *exp_type = LAR_PARSE_EXP_ATOM;
     return LAR_PARSE_RESULT_OK;
-}
-
-/**
- * @brief Tries to parse a string out of given position.
- * If a valid string, node is populated and result is OK
- * If a string but not valid, result is ERROR.
- * If not a string, result is PASS.
- * A valid string starts with a double quote.
- *
- * @param file_buffer
- * @param buffer_pos
- * @param node
- * @return ParseResult
- */
-LarParseResult parse_token_atom_string(const char* file_buffer,
-    int* buffer_pos,
-    LarNode* node)
-{
-    char token[LAR_PARSE_TOKEN_MAX] = "";
-    char ch[2] = "";
-
-    ch[0] = file_buffer[(*buffer_pos)];
-    assert(ch[0] != '\0');
-
-    if (ch[0] != '"') {
-        return LAR_PARSE_RESULT_PASS;
-    }
-
-    (*buffer_pos)++;
-    ch[0] = file_buffer[(*buffer_pos)];
-    while (true) {
-        if (ch[0] == '\0') {
-            return LAR_PARSE_RESULT_ERROR;
-        }
-
-        if (ch[0] == '"') {
-            (*buffer_pos)++;
-            break;
-        }
-
-        if (ch[0] == '\\') {
-            (*buffer_pos)++;
-            ch[0] = file_buffer[(*buffer_pos)];
-            if (ch[0] != '"' && ch[0] != '\\') {
-                fprintf(stderr, "Backslash must be followed by \" or \\. Instead found: %s\n", ch);
-                return LAR_PARSE_RESULT_ERROR;
-            }
-        }
-        strcat(token, ch);
-        (*buffer_pos)++;
-        ch[0] = file_buffer[(*buffer_pos)];
-    }
-
-    printf("String found, adding to node: \"%s\"\n", token);
-    node->node_type = LAR_NODE_ATOM_STRING;
-    node->atom.val_string = malloc(strlen(token) + 1);
-    strcpy(node->atom.val_string, token);
-    return LAR_PARSE_RESULT_OK;
-}
-
-LarParseResult parse_token_atom(
-    const char* file_buffer,
-    int* buffer_pos,
-    LarNode* node)
-{
-    LarParseResult result;
-
-    result = parse_token_atom_string(file_buffer, buffer_pos, node);
-    if (result != LAR_PARSE_RESULT_PASS) {
-        printf("parse_token_atom: found atom string\n");
-        return result;
-    }
-
-    // TODO: symbol, numeric, boolean
-
-    fprintf(stderr, "parse_token_atom: atom not identifed at pos %d\n", *buffer_pos);
-    return LAR_PARSE_RESULT_ERROR;
 }
 
 LarParseResult parse_list(

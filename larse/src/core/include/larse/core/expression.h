@@ -22,7 +22,7 @@ typedef struct LarNode {
     LarNodeType node_type;
     union {
         union {
-            char* symbol;
+            char* val_symbol;
             char* val_string;
             int val_integer;
             LarFixed val_fixed;
@@ -39,5 +39,19 @@ typedef struct LarExpressions {
     size_t count;
     LarNode** nodes;
 } LarExpressions;
+
+typedef enum LarParseResult {
+    LAR_PARSE_RESULT_OK,
+    LAR_PARSE_RESULT_ERROR,
+    LAR_PARSE_RESULT_END,
+    LAR_PARSE_RESULT_PASS
+} LarParseResult;
+
+typedef enum LarParseExpressionType {
+    LAR_PARSE_EXP_NONE,
+    LAR_PARSE_EXP_ATOM,
+    LAR_PARSE_EXP_LIST_START,
+    LAR_PARSE_EXP_LIST_END,
+} LarParseExpressionType;
 
 #endif
