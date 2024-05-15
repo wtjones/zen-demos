@@ -1,5 +1,6 @@
 #include "larse/core/expression.h"
 #include "larse/core/parse.h"
+#include "larse/core/repr.h"
 #include "test_support.h"
 #include <assert.h>
 #include <stdint.h>
@@ -28,6 +29,34 @@ int test_parse_symbol()
     return 0;
 }
 
+int test_repr()
+{
+    const char* exp1_in = "(this :here\n"
+                          "(is math)\n"
+                          "(+ 1 2))";
+
+    const char* expected = "[List]\n"
+                           "  this [Atom: symbol]\n"
+                           "  :here [Atom: symbol]\n"
+                           "  [List]\n"
+                           "    is [Atom: symbol]\n"
+                           "    math [Atom: symbol]\n"
+                           "  [List]\n"
+                           "    + [Atom: symbol]\n"
+                           "    1 [Atom: integer]\n"
+                           "    2 [Atom: integer]";
+
+    LarNode* node1;
+    LarParseResult result;
+    result = lar_parse_single(exp1_in, &node1);
+    assert(result == LAR_PARSE_RESULT_OK);
+    char* actual = lar_repr_expression(node1);
+    printf("repr test:\n\nexpected:\n%s\n\nactual:\n%s\n", expected, actual);
+    bool pass = (strcmp(expected, actual) == 0);
+    free(actual);
+    return !pass;
+}
+
 int test_parse()
 {
     return 0;
@@ -36,7 +65,8 @@ int test_parse()
 TestFn test_fns[] = {
     { "TEST_PARSE_SYMBOL", test_parse_symbol },
     { "TEST_PARSE_SINGLE", test_parse_single },
-    { "TEST_PARSE", test_parse }
+    { "TEST_PARSE", test_parse },
+    { "TEST_REPR", test_repr }
 };
 
 int main(int argc, const char** argv)

@@ -7,6 +7,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define LAR_PARSE_EXPRESSIONS_MAX 10
+#define LAR_PARSE_DEPTH_MAX 10
+#define LAR_PARSE_TOKEN_MAX 255
+
 typedef int32_t LarFixed;
 
 typedef enum LarNodeType {

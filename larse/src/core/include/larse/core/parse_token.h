@@ -10,10 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define LAR_PARSE_EXPRESSIONS_MAX 10
-#define LAR_PARSE_DEPTH_MAX 10
-#define LAR_PARSE_TOKEN_MAX 255
-
 /**
  * @brief Tries to parse a boolean out of given position.
  * If a valid boolean [yes|no], node is populated and result is OK

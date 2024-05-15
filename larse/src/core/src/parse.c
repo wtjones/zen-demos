@@ -117,7 +117,6 @@ LarParseResult parse_list(
             new_list_node->node_type = LAR_NODE_LIST;
             new_list_node->list.length = 0;
 
-            return LAR_PARSE_RESULT_ERROR;
             LarParseResult list_result = parse_list(
                 file_buffer, buffer_pos, new_list_node, depth + 1);
 
