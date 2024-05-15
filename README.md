@@ -4,19 +4,19 @@ A monorepo of demos, research, and experiments.
 
 ## Rendering
 
-* [Py Demos](./py_demos/)
+* [Py Demos](py_demos/)
 
     - Sine/cosine math
     - Texture rotation
     - Mode 7
     - Fixed math
 
-* [RasGL](./rasgl/)
+* [RasGL](rasgl/)
 
     - Sofware rasterizer
     - Targets multiple retro platforms
 
-* [Sand](./sand/)
+* [Sand](sand/)
 
     - Sand simulation in C
 
@@ -43,9 +43,11 @@ Performs rotation and 'sub-tile' translation in the same pass. Runs slightly slo
 
 ## Language experiments
 
-* [Loitar](./loitar/) - Lisp variant
+* [Loitar](loitar/) - Lisp variant
+* [Larse](larse/) - Lisp-like config library
 
 ## Samples
 
-* [xform](samples/xform/README.md) Simple matrix transforms in C
+* [xform](samples/xform/) Simple matrix transforms in C
+* [cmake_mono_export](samples/cmake_mono_export/) CMake monorepo dependency example
 
