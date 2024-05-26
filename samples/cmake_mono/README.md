@@ -7,16 +7,16 @@ A demonstration of dependency management between CMake projects that are peers i
 
 The possible approaches:
 
-- Module mode
-- Config mode
+- Module mode of `find_package()`
+- Config mode of `find_package()`
 - FetchContent
+- Direct reference
 
-The current approach is to utilize config mode.
+The current approach is to directly reference the sibling directory.
 
 
 ## TODO
 
-[ ] Resolve error `undefined reference to 'parse_int'`
 
 ## GPT prompt
 

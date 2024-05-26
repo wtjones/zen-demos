@@ -7,12 +7,18 @@ project(app_b)
 set(CMAKE_C_STANDARD 17 CMAKE_C_STANDARD_REQUIRED ON)
 
 
-# Find the lib_a package
-find_package(lib_a REQUIRED)
+
+# Specify the path to the build directory of lib_a
+set(LIB_A_DIR ../lib_a/build)
+set(LIB_A_INCLUDE_DIR ../lib_a/include)
 
 
-# Include directories for lib_a
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../lib_a/include)
+# Include lib_a headers
+include_directories(${LIB_A_INCLUDE_DIR})
+
+# Link against the static library of lib_a
+link_directories(${LIB_A_DIR})
+
 
 # Add your application executable
 add_executable(app_b
@@ -20,14 +26,6 @@ add_executable(app_b
     # Add all the source files of your application here
 )
 
-# Link your target to lib_a
-target_link_libraries(app_b PRIVATE lib_a::lib_a)
 
-# Set include directories for your application
-target_include_directories(app_b PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-# Optionally, set any compiler options, etc.
-# target_compile_options(app_b PRIVATE ...)
-
-# Optionally, set any linker options, etc.
-# target_link_options(app_b PRIVATE ...)
+# Link lib_a to app_b
+target_link_libraries(app_b lib_a)

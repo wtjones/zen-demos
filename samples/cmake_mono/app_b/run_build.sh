@@ -1,4 +1,4 @@
 #! /bin/bash -x
 
-cmake -S . -B build -DCMAKE_PREFIX_PATH=../lib_a/build
+cmake -S . -B build
 cmake --build build
