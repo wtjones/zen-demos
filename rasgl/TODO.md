@@ -8,8 +8,12 @@
 - [ ] Validate screen points are in screen bounds
 - [ ] Filled polygon mode
 - [ ] Shaded polygon mode
-- [ ] Fix assert on certain far plain clip scenarios
+- [ ] Fix assert on certain far plane clip scenarios
 - [ ] Fix model rotation origin
+- [ ] Scene loading
+  - [ ] Scene camera position
+  - [ ] Scene model position
+- [ ] Support dynamic allocation for models
 
 ### In Progress
 
