@@ -15,7 +15,32 @@ The possible approaches:
 The current approach is to directly reference the sibling directory.
 
 
+## Usage
+
+### POSIX
+
+```
+pushd lib_a
+./run_build.sh
+popd
+pushd app_b
+./run_build.sh
+
+```
+
+### DOS
+
+See RasGL in the repo root regarding DJGPP setup.
+
+```
+pushd app_b
+./run_dos.sh
+```
+
 ## TODO
+
+- [ ] DOS build is CMake-like.
+  - Proper find_package() usage is likley needed.
 
 
 ## GPT prompt

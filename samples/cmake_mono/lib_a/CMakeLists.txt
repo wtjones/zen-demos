@@ -1,6 +1,6 @@
 # CMakeLists.txt for lib_a
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.7)
 project(lib_a)
 
 
