@@ -1,4 +1,4 @@
-#include "larse/core/parse_token.h"
+#include "parse_token.h"
 
 /**
  * @brief Is this a valid char to trail an atom?

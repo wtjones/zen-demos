@@ -1,6 +1,6 @@
 #include "larse/core/parse.h"
 #include "larse/core/expression.h"
-#include "larse/core/parse_token.h"
+#include "parse_token.h"
 #include <assert.h>
 #include <stdio.h>
 

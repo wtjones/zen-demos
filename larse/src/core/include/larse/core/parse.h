@@ -3,8 +3,6 @@
 
 #include "expression.h"
 
-int lar_parse_expression(char* exp);
-
 /**
  * @brief Parse a single expression from a string
  *

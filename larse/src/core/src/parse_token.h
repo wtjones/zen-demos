@@ -1,7 +1,7 @@
 #ifndef LAR_PARSE_TOKEN_H
 #define LAR_PARSE_TOKEN_H
 
-#include "expression.h"
+#include "larse/core/expression.h"
 #include <assert.h>
 #include <math.h>
 #include <stdbool.h>
