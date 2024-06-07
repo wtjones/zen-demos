@@ -39,10 +39,13 @@ typedef struct LarNode {
     };
 } LarNode;
 
-typedef struct LarExpressions {
-    size_t count;
-    LarNode** nodes;
-} LarExpressions;
+/**
+ * @brief Represents a parsed script of top-level expressions.
+ *
+ */
+typedef struct LarScript {
+    LarNode* expressions; // array of expressions
+} LarScript;
 
 typedef enum LarParseResult {
     LAR_PARSE_RESULT_OK,

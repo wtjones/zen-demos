@@ -29,6 +29,26 @@ int test_parse_symbol()
     return 0;
 }
 
+int test_parse_script()
+{
+    const char* script_in = "(expr1 (howdy))\n"
+                            "(expr2 :hi)(expr3 1 2 3)";
+    const size_t expected_expressions = 3;
+    LarScript* script;
+    LarParseResult result;
+    int buffer_pos;
+
+    result = lar_parse_script(script_in, &script);
+    assert(result == LAR_PARSE_RESULT_OK);
+    const size_t actual_expressions = script->expressions->list.length;
+    bool pass = expected_expressions == actual_expressions;
+
+    LarNode* last_exp = &script->expressions->list.nodes[2];
+    bool found_atom = strcmp(last_exp->list.nodes[0].atom.val_symbol, "expr3") == 0;
+    pass = pass && found_atom;
+    return !pass;
+}
+
 int test_repr()
 {
     const char* exp1_in = "(this :here\n"
@@ -65,6 +85,7 @@ int test_parse()
 TestFn test_fns[] = {
     { "TEST_PARSE_SYMBOL", test_parse_symbol },
     { "TEST_PARSE_SINGLE", test_parse_single },
+    { "TEST_PARSE_SCRIPT", test_parse_script },
     { "TEST_PARSE", test_parse },
     { "TEST_REPR", test_repr }
 };

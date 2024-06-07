@@ -8,6 +8,7 @@
 - [ ] Add shell app
 - [ ] Add test framework
     - https://github.com/ThrowTheSwitch/Unity
+- [ ] Free expression on error
 
 ### In Progress
 

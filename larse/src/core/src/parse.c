@@ -169,27 +169,55 @@ LarParseResult lar_parse_single(
     return LAR_PARSE_RESULT_OK;
 }
 
-LarParseResult lar_parse(
-    const char* exp, LarExpressions* expressions)
+LarParseResult lar_parse_script(
+    const char* exp, LarScript** script)
 {
-
-    expressions->count = 1;
-
-    // Allocate initial expression array size
-    expressions->nodes = malloc(sizeof(LarNode*) * LAR_PARSE_EXPRESSIONS_MAX);
-
-    if (expressions->nodes == NULL) {
+    int buffer_pos = 0;
+    LarScript* new_script = malloc(sizeof(LarScript));
+    if (new_script == NULL) {
+        fprintf(stderr, "Error from malloc().\n");
         return LAR_PARSE_RESULT_ERROR;
     }
 
-    expressions->nodes[0] = malloc(sizeof(LarNode));
-    if (expressions->nodes[0] == NULL) {
+    new_script->expressions = malloc(sizeof(LarNode));
+    if (new_script->expressions == NULL) {
+        fprintf(stderr, "Error from malloc().\n");
+        free(new_script);
         return LAR_PARSE_RESULT_ERROR;
     }
 
-    // FIXME
-    fprintf(stderr, "Error: Function not implemented yet\n");
-    abort();
+    new_script->expressions->node_type = LAR_NODE_LIST;
+    new_script->expressions->list.length = 0;
 
+    LarParseExpressionType exp_type;
+
+    LarParseResult result = seek_expression(
+        exp, &buffer_pos, &exp_type);
+
+    while (exp_type != LAR_PARSE_EXP_NONE) {
+
+        if (exp_type != LAR_PARSE_EXP_LIST_START) {
+            fprintf(stderr, "Expression not found.\n");
+            // TODO: free
+            return LAR_PARSE_RESULT_ERROR;
+        }
+
+        LarNode* new_list_node = append_list_node(new_script->expressions);
+        new_list_node->node_type = LAR_NODE_LIST;
+        new_list_node->list.length = 0;
+
+        LarParseResult list_result = parse_list(
+            exp, &buffer_pos, new_list_node, 1);
+
+        if (list_result == LAR_PARSE_RESULT_ERROR) {
+            // TODO: free
+            return list_result;
+        }
+
+        LarParseResult result = seek_expression(
+            exp, &buffer_pos, &exp_type);
+    }
+
+    *script = new_script;
     return LAR_PARSE_RESULT_OK;
 }
