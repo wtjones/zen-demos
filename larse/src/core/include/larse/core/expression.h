@@ -61,4 +61,7 @@ typedef enum LarParseExpressionType {
     LAR_PARSE_EXP_LIST_END,
 } LarParseExpressionType;
 
+void lar_free_expression(LarNode** node);
+void lar_free_script(LarScript** script);
+
 #endif

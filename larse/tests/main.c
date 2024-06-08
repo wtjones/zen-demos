@@ -15,17 +15,19 @@ int test_parse_single()
     result = lar_parse_single("(\"test\")", &node);
     assert(strcmp(node->list.nodes[0].atom.val_string, "test") == 0);
     printf("got string: %s\n", node->list.nodes[0].atom.val_string);
+    lar_free_expression(&node);
     return 0;
 }
 
 int test_parse_symbol()
 {
-
     LarNode* node;
 
     LarParseResult result;
     result = lar_parse_single("(my-symbol 1 3)", &node);
     assert(strcmp(node->list.nodes[0].atom.val_symbol, "my-symbol") == 0);
+    lar_free_expression(&node);
+
     return 0;
 }
 
@@ -46,6 +48,7 @@ int test_parse_script()
     LarNode* last_exp = &script->expressions->list.nodes[2];
     bool found_atom = strcmp(last_exp->list.nodes[0].atom.val_symbol, "expr3") == 0;
     pass = pass && found_atom;
+    lar_free_script(&script);
     return !pass;
 }
 
@@ -73,6 +76,7 @@ int test_repr()
     char* actual = lar_repr_expression(node1);
     printf("repr test:\n\nexpected:\n%s\n\nactual:\n%s\n", expected, actual);
     bool pass = (strcmp(expected, actual) == 0);
+    lar_free_expression(&node1);
     free(actual);
     return !pass;
 }

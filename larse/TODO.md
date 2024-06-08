@@ -9,6 +9,7 @@
 - [ ] Add test framework
     - https://github.com/ThrowTheSwitch/Unity
 - [ ] Free expression on error
+- [ ] Add sanitizer build
 
 ### In Progress
 
