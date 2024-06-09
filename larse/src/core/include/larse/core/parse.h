@@ -4,6 +4,17 @@
 #include "expression.h"
 
 /**
+ * @brief Parse expressions from a file
+ * The script must be freed.
+ *
+ * @param path
+ * @param script
+ * @return LarParseResult
+ */
+LarParseResult lar_parse_file(
+    const char* path, LarScript** script);
+
+/**
  * @brief Parse expressions from a string input
  * The script must be freed.
  *

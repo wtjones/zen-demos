@@ -7,11 +7,18 @@ target_link_libraries(tests PRIVATE larse_core)
 
 target_include_directories(tests PUBLIC include)
 
+target_compile_definitions(tests PRIVATE TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
+
 enable_testing()
 
 add_test(
     NAME TEST_PARSE
     COMMAND $<TARGET_FILE:tests> TEST_PARSE)
+
+
+add_test(
+    NAME TEST_PARSE_FILE
+    COMMAND $<TARGET_FILE:tests> TEST_PARSE_FILE)
 
 add_test(
     NAME TEST_PARSE_SCRIPT

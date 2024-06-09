@@ -1,4 +1,5 @@
 #include "larse/core/parse.h"
+#include "io.h"
 #include "larse/core/expression.h"
 #include "parse_token.h"
 #include <assert.h>
@@ -167,6 +168,21 @@ LarParseResult lar_parse_single(
     }
 
     return LAR_PARSE_RESULT_OK;
+}
+
+LarParseResult lar_parse_file(
+    const char* file_path, LarScript** script)
+{
+    char* file_buffer = io_read_file(file_path);
+    if (file_buffer == NULL) {
+        return LAR_PARSE_RESULT_ERROR;
+    }
+
+    LarParseResult result = lar_parse_script(file_buffer, script);
+
+    free(file_buffer);
+
+    return result;
 }
 
 LarParseResult lar_parse_script(

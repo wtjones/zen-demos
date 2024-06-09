@@ -28,9 +28,8 @@ void free_expression_walk(LarNode* node, int depth)
         break;
 
     case LAR_NODE_ATOM_INTEGER:
-        break;
-
     case LAR_NODE_ATOM_FIXED:
+    case LAR_NODE_ATOM_BOOLEAN:
         break;
 
     default:

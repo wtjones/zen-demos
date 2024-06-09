@@ -1,5 +1,6 @@
 add_library(larse_core
     src/expression.c
+    src/io.c
     src/parse.c
     src/parse_token.c
     src/repr.c

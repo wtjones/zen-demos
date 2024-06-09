@@ -6,6 +6,20 @@
 #include <stdint.h>
 #include <stdio.h>
 
+int test_parse_file()
+{
+    const char* file_path = TEST_DATA_DIR "/test1.lsp";
+    const size_t expected_expressions = 2;
+    LarScript* script;
+    LarParseResult result;
+    result = lar_parse_file(file_path, &script);
+    assert(result == LAR_PARSE_RESULT_OK);
+    bool pass = script->expressions->list.length == expected_expressions;
+
+    lar_free_script(&script);
+    return !pass;
+}
+
 int test_parse_single()
 {
 
@@ -87,6 +101,7 @@ int test_parse()
 }
 
 TestFn test_fns[] = {
+    { "TEST_PARSE_FILE", test_parse_file },
     { "TEST_PARSE_SYMBOL", test_parse_symbol },
     { "TEST_PARSE_SINGLE", test_parse_single },
     { "TEST_PARSE_SCRIPT", test_parse_script },
@@ -96,15 +111,12 @@ TestFn test_fns[] = {
 
 int main(int argc, const char** argv)
 {
-
     if (argc == 1) {
         fprintf(stderr, "Test name required.\n");
         return 1;
     }
 
-    for (int i = 1; i < argc; ++i) {
-        printf("main(): argv[%d]: %s\n", i, argv[i]);
-    }
+    printf("Test data directory: %s\n", TEST_DATA_DIR);
     size_t num_fns = sizeof(test_fns) / sizeof(test_fns[0]);
 
     TestFn* test_fn = test_fn_lookup(test_fns, num_fns, argv[1]);
