@@ -2,12 +2,31 @@
 
 Lisp-like language for scripting and configuration
 
+## Features
+
+- Parse s-expressions
+    - Single s-expression
+    - Script as an array of expressions
+- Pretty-print expressions
+
 See [TODO](TODO.md) for roadmap.
 
 ## Build
+
 ```
+# Also contained in run_build.sh
+
 cmake -S . -Bbuild
 cmake --build build
+```
+
+## Shell Usage
+
+### Expression example
+
+```
+./run_shell.sh -x "(super-symbol:x (4 5))"
+
 ```
 
 ## Library Usage

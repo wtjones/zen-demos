@@ -5,13 +5,15 @@
 - [ ] Test coverage for decimal
 - [ ] Test coverage for integer
 - [ ] Test coverage for boolean
-- [ ] Add shell app
+- [ ] Shell debug output should be optional
 - [ ] Add test framework
     - https://github.com/ThrowTheSwitch/Unity
 - [ ] Free expression on error
 - [ ] Add sanitizer build
 
 ### In Progress
+
+- [ ] Add shell app
 
 ### Done
 
