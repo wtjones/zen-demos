@@ -131,3 +131,26 @@ char* lar_repr_expression(LarNode* node)
     free(buffer);
     return result;
 }
+
+char* lar_repr_script(LarScript* script)
+{
+    char* result = NULL;
+    char* buffer = malloc(LAR_REPR_MAX_LINE);
+    if (buffer == NULL) {
+        return NULL;
+    }
+
+    result = strcat_alloc(result, LAR_REPR_SCRIPT);
+    strcat_alloc(result, "\n");
+
+    for (size_t i = 0; i < script->expressions->list.length; i++) {
+        LarNode* node = &script->expressions->list.nodes[i];
+        result = repr_expression_walk(node, result, buffer, 1);
+        if (script->expressions->list.length > 1 && i != script->expressions->list.length - 1) {
+            result = strcat_alloc(result, "\n");
+        }
+    }
+
+    free(buffer);
+    return result;
+}

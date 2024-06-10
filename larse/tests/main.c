@@ -66,7 +66,7 @@ int test_parse_script()
     return !pass;
 }
 
-int test_repr()
+int test_repr_expression()
 {
     const char* exp1_in = "(this :here\n"
                           "(is math)\n"
@@ -95,6 +95,35 @@ int test_repr()
     return !pass;
 }
 
+int test_repr_script()
+{
+    const char* exp1_in = "(this :here (is math))\n"
+                          "(+ 1 2)";
+
+    const char* expected = "[Script]\n"
+                           "  [List]\n"
+                           "    this [Atom: symbol]\n"
+                           "    :here [Atom: symbol]\n"
+                           "    [List]\n"
+                           "      is [Atom: symbol]\n"
+                           "      math [Atom: symbol]\n"
+                           "  [List]\n"
+                           "    + [Atom: symbol]\n"
+                           "    1 [Atom: integer]\n"
+                           "    2 [Atom: integer]";
+
+    LarScript* script;
+    LarParseResult result;
+    result = lar_parse_script(exp1_in, &script);
+    assert(result == LAR_PARSE_RESULT_OK);
+    char* actual = lar_repr_script(script);
+    printf("repr test:\n\nexpected:\n%s\n\nactual:\n%s\n", expected, actual);
+    bool pass = (strcmp(expected, actual) == 0);
+    lar_free_script(&script);
+    free(actual);
+    return !pass;
+}
+
 int test_parse()
 {
     return 0;
@@ -106,7 +135,8 @@ TestFn test_fns[] = {
     { "TEST_PARSE_SINGLE", test_parse_single },
     { "TEST_PARSE_SCRIPT", test_parse_script },
     { "TEST_PARSE", test_parse },
-    { "TEST_REPR", test_repr }
+    { "TEST_REPR_EXPRESSION", test_repr_expression },
+    { "TEST_REPR_SCRIPT", test_repr_script }
 };
 
 int main(int argc, const char** argv)

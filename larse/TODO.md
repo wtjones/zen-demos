@@ -15,4 +15,5 @@
 
 ### Done
 
-[x] Add repr to string
+- [x] Add repr expression to string
+- [x] Add repr script to string

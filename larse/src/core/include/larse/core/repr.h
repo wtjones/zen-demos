@@ -5,6 +5,7 @@
 
 #define LAR_REPR_INDENT 2
 #define LAR_REPR_MAX_LINE 255
+static const char* LAR_REPR_SCRIPT = "[Script]";
 static const char* LAR_REPR_LIST = "[List]";
 static const char* LAR_REPR_ATOM_SYMBOL = "[Atom: symbol]";
 static const char* LAR_REPR_ATOM_STRING = "[Atom: string]";
@@ -19,5 +20,13 @@ static const char* LAR_REPR_ATOM_FIXED = "[Atom: fixed 16.16]";
  * @return char* Formatted expression. Must be freed.
  */
 char* lar_repr_expression(LarNode* node);
+
+/**
+ * @brief Returns a formated script of s-expressions.
+ *
+ * @param script
+ * @return char* Formatted script. Must be freed.
+ */
+char* lar_repr_script(LarScript* script);
 
 #endif
