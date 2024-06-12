@@ -4,31 +4,55 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void print_usage()
+{
+    printf("Larse is a configuration language based on lisp\n"
+           "Usage: larse [options] [scriptfile]\n"
+           " When 'scriptfile' is given, it is loaded.\n"
+           "Informative output:\n"
+           " -h, --help    - print this help and exit\n"
+           "Actions:\n"
+           " -x expressions - execute the expressions, then exit\n");
+}
+
 int main(int argc, char* argv[])
 {
-    if (argc != 3) {
-        printf("Usage: %s -x \"(my-script 1 2 3)\"\n", argv[0]);
-        return 1;
+    if (argc >= 3 && strcmp(argv[1], "-x") == 0) {
+
+        const char* script_raw = argv[2];
+        LarScript* script;
+        LarParseResult result = lar_parse_script(script_raw, &script);
+
+        if (result != LAR_PARSE_RESULT_OK) {
+            fprintf(stderr, "Error parsing script\n");
+            return 1;
+        }
+
+        char* repr = lar_repr_script(script);
+        printf("%s\n", repr);
+        free(repr);
+        lar_free_script(&script);
+        return 0;
     }
 
-    if (strcmp(argv[1], "-x") != 0) {
-        printf("Invalid option: %s\n", argv[1]);
-        return 1;
+    if (argc == 2) {
+        const char* script_path = argv[1];
+        LarScript* script;
+        LarParseResult result = lar_parse_file(script_path, &script);
+
+        if (result != LAR_PARSE_RESULT_OK) {
+            fprintf(stderr, "Error parsing script\n");
+            return 1;
+        }
+
+        char* repr = lar_repr_script(script);
+        printf("%s\n", repr);
+        free(repr);
+        lar_free_script(&script);
+        return 0;
     }
 
-    const char* script_raw = argv[2];
-    LarScript* script;
-    LarParseResult result = lar_parse_script(script_raw, &script);
-
-    if (result != LAR_PARSE_RESULT_OK) {
-        fprintf(stderr, "Error parsing script\n");
-        return 1;
-    }
-
-    char* repr = lar_repr_script(script);
-    printf("%s\n", repr);
-    free(repr);
-    lar_free_script(&script);
+    print_usage();
 
     return 0;
 }

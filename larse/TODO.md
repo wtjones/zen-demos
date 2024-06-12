@@ -13,9 +13,8 @@
 
 ### In Progress
 
-- [ ] Add shell app
-
 ### Done
 
 - [x] Add repr expression to string
 - [x] Add repr script to string
+- [x] Add shell app
