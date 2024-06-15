@@ -9,14 +9,16 @@
 - [ ] Filled polygon mode
 - [ ] Shaded polygon mode
 - [ ] Fix assert on certain far plane clip scenarios
-- [ ] Fix model rotation origin
 - [ ] Scene loading
-  - [ ] Scene camera position
-  - [ ] Scene model position
+    [ ] DOS support
+- [ ] Fix model rotation origin
 - [ ] Support dynamic allocation for models
 
 ### In Progress
 
+- [ ] Scene loading
+  - [ ] Scene camera position
+  - [ ] Scene model position
 
 ### Done ✓
 

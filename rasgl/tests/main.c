@@ -6,9 +6,11 @@
 #include "rasgl/core/model.h"
 #include "rasgl/core/plane.h"
 #include "rasgl/core/repr.h"
+#include "rasgl/core/scene.h"
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 void repr_matrix_tests()
 {
@@ -320,6 +322,17 @@ void model_tests()
     }
 }
 
+void scene_tests()
+{
+    RasScene* scene;
+    RasResult result = core_load_scene("./assets/scenes/scene01.lsp", &scene);
+
+    if (result != RAS_RESULT_OK) {
+        ras_log_error("core_load_scene error\n");
+    }
+    free(scene); // TODO: free using api
+}
+
 int main()
 {
     FILE* log_file = fopen("/tmp/rasgl.log", "w");
@@ -344,5 +357,6 @@ int main()
     plane_tests();
     mat_ortho_tests();
     model_tests();
+    scene_tests();
     return 0;
 }

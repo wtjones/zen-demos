@@ -122,6 +122,14 @@ A [right-handed system](https://learnopengl.com/Getting-started/Coordinate-Syste
 
 ## Build and Run
 
+### Build dependencies
+
+Run `build_deps.sh` to build the script system.
+
+### Tests
+
+`run_tests.sh`
+
 ### Posix/SDL
 
 ```

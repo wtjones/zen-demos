@@ -1,4 +1,4 @@
-add_library(larse_core
+add_library(larse_core STATIC
     src/expression.c
     src/io.c
     src/parse.c
