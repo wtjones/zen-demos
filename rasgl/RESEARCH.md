@@ -8,6 +8,39 @@ https://github.com/francisrstokes/githublog/blob/main/2024/5/10/cordic.md
 
 > CORDIC is an algorithm for computing trig functions like sin, cos, tan etc on low powered hardware, without an FPU (i.e. no floating point) or expensive lookup tables. In fact, it reduces these complex functions to simple additions and bit shifts.
 
+## Scene management
+
+### Standards
+
+The standard for 3d scenes is [gltf](https://github.com/KhronosGroup/glTF/blob/main/specification/2.0/figures/gltfOverview-2.0.0d.png).
+
+### Scene primatives
+
+Consider [kons-9](https://kaveh808.github.io/kons-9/#KONS-9:@POINT%20MGL-PAX:SECTION).
+
+### Scene format
+
+From Trials camera [example](https://github.com/Shirakumo/trial/blob/ee2b107d5f21f089e8a78fb7e4272b26e9ada99b/examples/scene-loader.lisp#L52):
+
+```
+(setf (camera scene) camera)
+(enter (make-instance 'editor-camera :name :camera :location (VEC3 10.0 20 14) :rotation (vec3 0.75 5.5 0.0) :fov 50 :move-speed 0.1) scene)
+
+```
+
+RasGL ideas
+
+```
+(scene "MyScene"
+  (objects
+    (object "object1" "/path/to/object1.obj" :position (vector 1.0 2.0 3.0) :orientation (vector 0.0 0.0 0.0))
+    (object "object2" "/path/to/object2.obj" :position (vector 4.0 5.0 6.0) :orientation (vector 0.0 0.0 0.0))
+    (object "object3" "/path/to/object3.obj" :position (vector 7.0 8.0 9.0) :orientation (vector 0.0 0.0 0.0))
+  )
+  (camera :position (vector 10.0 11.0 12.0) :orientation (vector 0.0 0.0 0.0))
+)
+```
+
 ## Platform
 
 ### Classic Mac
