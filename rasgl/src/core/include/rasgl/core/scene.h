@@ -3,6 +3,13 @@
 
 #include "debug.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#include <larse/core/expression.h>
+#include <larse/core/parse.h>
+#include <larse/core/repr.h>
+#pragma GCC diagnostic pop
+
 #define MAX_SCENE_NAME 50
 
 typedef struct {

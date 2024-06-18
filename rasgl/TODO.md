@@ -13,6 +13,7 @@
     [ ] DOS support
 - [ ] Fix model rotation origin
 - [ ] Support dynamic allocation for models
+- [ ] Reference larse as a target or package
 
 ### In Progress
 
