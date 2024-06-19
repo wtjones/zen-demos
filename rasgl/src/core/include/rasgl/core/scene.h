@@ -2,6 +2,9 @@
 #define SCENE_H
 
 #include "debug.h"
+#include "graphics.h"
+#include "maths.h"
+#include "model.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
@@ -11,9 +14,46 @@
 #pragma GCC diagnostic pop
 
 #define MAX_SCENE_NAME 50
+#define MAX_FILE_PATH 50
+#define SCRIPT_SYMBOL_SCENE "scene"
+#define SCRIPT_SYMBOL_MODEL "model"
+#define SCRIPT_SYMBOL_OBJECT "object"
+#define SCRIPT_SYMBOL_POSITION "position"
+#define SCRIPT_SYMBOL_ROTATION "rotation"
+#define SCRIPT_SYMBOL_ROTATION_DELTA "rotation_delta"
+#define SCRIPT_SYMBOL_VEC "vec"
+
+/**
+ * @brief Represents a RasModel in a scene
+ * Must be freed via core_free_scene_model()
+ *
+ */
+typedef struct {
+    char name[MAX_SCENE_NAME]; // Reference name of the model
+    char path[MAX_FILE_PATH];
+    // RasModel* model;
+    RasPipelineElement* element; // Scene-level elements converted from RasModel
+} RasSceneModel;
+
+typedef struct {
+    /**
+     * @brief The model referenced via :name in script is converted to
+     * a pipeline element and referenced here.
+     *
+     */
+    RasPipelineElement* element_ref;
+    RasVector3f position;
+    RasVector3f rotation;
+    RasVector3f rotation_delta; // Rotation speed
+} RasSceneObject;
 
 typedef struct {
     char name[MAX_SCENE_NAME];
+    RasSceneModel* models;
+    size_t num_models;
+    RasSceneObject* objects;
+    size_t num_objects;
+
 } RasScene;
 
 /**
@@ -24,5 +64,18 @@ typedef struct {
  * @return RasResult
  */
 RasResult core_load_scene(const char* path, RasScene** scene);
+
+void core_free_scene(RasScene** scene);
+
+RasResult core_script_map_vec(LarNode* node, RasVector3f* vec);
+
+/**
+ * @brief Map a scene script to a RasScene
+ *
+ * @param script The parsed larse script
+ * @param scene Must be freed by caller
+ * @return RasResult
+ */
+RasResult core_script_map_scene(LarScript* script, RasScene** scene);
 
 #endif

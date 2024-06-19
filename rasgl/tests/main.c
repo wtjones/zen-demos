@@ -324,13 +324,17 @@ void model_tests()
 
 void scene_tests()
 {
-    RasScene* scene;
+    // arrange
+    const char* expected_name = "poly";
+    RasScene* scene = NULL;
+
+    // act
     RasResult result = core_load_scene("./assets/scenes/scene01.lsp", &scene);
 
-    if (result != RAS_RESULT_OK) {
-        ras_log_error("core_load_scene error\n");
-    }
-    free(scene); // TODO: free using api
+    // assert
+    assert(result == RAS_RESULT_OK);
+    bool pass = strcmp(scene->name, expected_name) == 0;
+    assert(pass);
 }
 
 int main()

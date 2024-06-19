@@ -18,5 +18,5 @@ add_library(core
     scene.c
     string.c)
 
-target_include_directories(core PUBLIC include )
+target_include_directories(core PUBLIC include)
 target_link_libraries(core PUBLIC external m ${LARSE_LIB})

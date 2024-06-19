@@ -4,7 +4,7 @@
 #include "debug.h"
 #include "maths.h"
 
-#define RAS_MAX_NAME 50
+#define RAS_MAX_MODEL_NAME 50
 #define RAS_MAX_MODEL_GROUPS 1
 #define RAS_MAX_MODEL_VERTS 1024
 #define RAS_MAX_MODEL_FACES 256
@@ -25,7 +25,7 @@ typedef struct RasModelFace {
 } RasModelFace;
 
 typedef struct RasModelGroup {
-    char name[RAS_MAX_NAME];
+    char name[RAS_MAX_MODEL_NAME];
     RasVector3f verts[RAS_MAX_MODEL_VERTS];
     uint32_t num_verts;
     RasVector3f normals[RAS_MAX_MODEL_NORMALS];
@@ -35,7 +35,7 @@ typedef struct RasModelGroup {
 } RasModelGroup;
 
 typedef struct RasModel {
-    char name[RAS_MAX_NAME];
+    char name[RAS_MAX_MODEL_NAME];
     RasModelGroup groups[RAS_MAX_MODEL_GROUPS];
     uint32_t num_groups;
 } RasModel;
