@@ -2,5 +2,8 @@
     "cmake.configureOnOpen": true,
     "cmake.configureSettings": {
         "CMAKE_GENERATOR": "Unix Makefiles"
+    },
+    "files.associations": {
+        "*.h": "c"
     }
 }
