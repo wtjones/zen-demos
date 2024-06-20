@@ -64,4 +64,23 @@ typedef enum LarParseExpressionType {
 void lar_free_expression(LarNode** node);
 void lar_free_script(LarScript** script);
 
+/**
+ * @brief Get first node in list
+ *
+ * @param list
+ * @return LarNode* Returns NULL if node is not a list or is empty
+ */
+LarNode* lar_get_first(const LarNode* list);
+
+/**
+ * @brief Given list node and property name, get the string
+ *
+ * @param list
+ * @param property_name symbol value of propery
+ *      example: ":some_string"
+ * @return LarNode*
+ */
+LarNode* lar_get_string_property(
+    const LarNode* list, const char* property_name);
+
 #endif

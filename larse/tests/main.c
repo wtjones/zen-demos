@@ -129,6 +129,27 @@ int test_parse()
     return 0;
 }
 
+int test_get_string_property()
+{
+    const char* exp1_in = "(this :here \"val\")";
+    const char* expected = "val";
+    "(+ 1 2)";
+    LarScript* script;
+    LarParseResult result;
+    result = lar_parse_script(exp1_in, &script);
+    assert(result == LAR_PARSE_RESULT_OK);
+    LarNode* exp1 = lar_get_first(script->expressions);
+    assert(exp1 != NULL);
+
+    LarNode* string_node;
+    string_node = lar_get_string_property(exp1, ":here");
+    assert(string_node != NULL);
+    bool pass = strcmp(string_node->atom.val_string, expected) == 0;
+
+    lar_free_script(&script);
+    return 0;
+}
+
 TestFn test_fns[] = {
     { "TEST_PARSE_FILE", test_parse_file },
     { "TEST_PARSE_SYMBOL", test_parse_symbol },
@@ -136,7 +157,8 @@ TestFn test_fns[] = {
     { "TEST_PARSE_SCRIPT", test_parse_script },
     { "TEST_PARSE", test_parse },
     { "TEST_REPR_EXPRESSION", test_repr_expression },
-    { "TEST_REPR_SCRIPT", test_repr_script }
+    { "TEST_REPR_SCRIPT", test_repr_script },
+    { "TEST_GET_STRING_PROPERTY", test_get_string_property }
 };
 
 int main(int argc, const char** argv)
