@@ -73,14 +73,14 @@ void lar_free_script(LarScript** script);
 LarNode* lar_get_first(const LarNode* list);
 
 /**
- * @brief Given list node and property name, get the string
+ * @brief Get a ":property_name" from a list node
  *
  * @param list
- * @param property_name symbol value of propery
- *      example: ":some_string"
- * @return LarNode*
+ * @param property_name
+ * @param type
+ * @return LarNode* NULL if not found or type does not match
  */
-LarNode* lar_get_string_property(
-    const LarNode* list, const char* property_name);
+LarNode* lar_get_property_by_type(
+    const LarNode* list, const char* property_name, LarNodeType type);
 
 #endif

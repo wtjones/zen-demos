@@ -61,8 +61,7 @@ LarNode* lar_get_first(const LarNode* list)
     return &list->list.nodes[0];
 }
 
-LarNode* lar_get_string_property(
-    const LarNode* list, const char* property_name)
+LarNode* lar_get_property(const LarNode* list, const char* property_name)
 {
     LarNode* symbol_node = NULL;
     bool found_symbol = false;
@@ -83,9 +82,15 @@ LarNode* lar_get_string_property(
     if (symbol_index + 1 >= list->list.length) {
         return NULL;
     }
-    LarNode* next_node = &list->list.nodes[symbol_index + 1];
-    if (next_node->node_type != LAR_NODE_ATOM_STRING) {
+    return &list->list.nodes[symbol_index + 1];
+}
+
+LarNode* lar_get_property_by_type(
+    const LarNode* list, const char* property_name, LarNodeType type)
+{
+    LarNode* node = lar_get_property(list, property_name);
+    if (node == NULL || node->node_type != type) {
         return NULL;
     }
-    return next_node;
+    return node;
 }

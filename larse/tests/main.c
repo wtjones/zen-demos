@@ -129,11 +129,14 @@ int test_parse()
     return 0;
 }
 
-int test_get_string_property()
+int test_get_property()
 {
-    const char* exp1_in = "(this :here \"val\")";
-    const char* expected = "val";
-    "(+ 1 2)";
+    // arrange
+    const char* exp1_in = "(this :my_string \"val\" :my_int 1 :my_nothing)";
+    const char* expected_string = "val";
+    const int expected_int = 1;
+    const char* expected_nothing = NULL;
+
     LarScript* script;
     LarParseResult result;
     result = lar_parse_script(exp1_in, &script);
@@ -141,13 +144,35 @@ int test_get_string_property()
     LarNode* exp1 = lar_get_first(script->expressions);
     assert(exp1 != NULL);
 
-    LarNode* string_node;
-    string_node = lar_get_string_property(exp1, ":here");
-    assert(string_node != NULL);
-    bool pass = strcmp(string_node->atom.val_string, expected) == 0;
+    // act
+    LarNode* string_node = lar_get_property_by_type(
+        exp1, ":my_string", LAR_NODE_ATOM_STRING);
+    LarNode* int_node = lar_get_property_by_type(
+        exp1, ":my_int", LAR_NODE_ATOM_INTEGER);
+    LarNode* nothing_node = lar_get_property_by_type(
+        exp1, ":my_nothing", LAR_NODE_ATOM_SYMBOL);
 
+    // assert
+    assert(string_node != NULL);
+    bool pass = true;
+    pass = string_node != NULL
+        && strcmp(string_node->atom.val_string, expected_string) == 0;
+    if (!pass) {
+        printf("expected: %s\n", expected_string);
+        printf("actual: %s\n", string_node->atom.val_string);
+    }
+    pass = pass && int_node != NULL
+        && int_node->atom.val_integer == expected_int;
+    if (!pass) {
+        printf("expected: %d\n", expected_int);
+        printf("actual: %d\n", int_node->atom.val_integer);
+    }
+    pass = pass && nothing_node == NULL;
+    if (!pass) {
+        printf("expected: NULL\n");
+    }
     lar_free_script(&script);
-    return 0;
+    return !pass;
 }
 
 TestFn test_fns[] = {
@@ -158,7 +183,7 @@ TestFn test_fns[] = {
     { "TEST_PARSE", test_parse },
     { "TEST_REPR_EXPRESSION", test_repr_expression },
     { "TEST_REPR_SCRIPT", test_repr_script },
-    { "TEST_GET_STRING_PROPERTY", test_get_string_property }
+    { "TEST_GET_PROPERTY", test_get_property }
 };
 
 int main(int argc, const char** argv)
