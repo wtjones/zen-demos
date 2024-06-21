@@ -61,6 +61,26 @@ LarNode* lar_get_first(const LarNode* list)
     return &list->list.nodes[0];
 }
 
+LarNode* lar_get_list(const LarNode* list, const char* symbol)
+{
+    if (list->node_type != LAR_NODE_LIST) {
+        return NULL;
+    }
+
+    for (size_t i = 0; i < list->list.length; i++) {
+        LarNode* node_item = &list->list.nodes[i];
+        if (node_item->node_type == LAR_NODE_LIST) {
+            LarNode* first_node = lar_get_first(node_item);
+            if (first_node != NULL
+                && first_node->node_type == LAR_NODE_ATOM_SYMBOL
+                && strcmp(first_node->atom.val_symbol, symbol) == 0) {
+                return node_item;
+            }
+        }
+    }
+    return NULL;
+}
+
 LarNode* lar_get_property(const LarNode* list, const char* property_name)
 {
     LarNode* symbol_node = NULL;

@@ -175,6 +175,30 @@ int test_get_property()
     return !pass;
 }
 
+int test_get_list()
+{
+    // arrange
+    const char* exp1_in = "(this :foo test (models 1 2 3 4 5))";
+
+    LarScript* script;
+    LarParseResult result;
+    result = lar_parse_script(exp1_in, &script);
+    assert(result == LAR_PARSE_RESULT_OK);
+    LarNode* exp1 = lar_get_first(script->expressions);
+    assert(exp1 != NULL);
+
+    // act
+    LarNode* list_node = lar_get_list(exp1, "models");
+
+    // assert
+    assert(list_node != NULL);
+    bool pass = list_node->node_type == LAR_NODE_LIST;
+    pass = pass && list_node->list.length == 6;
+
+    lar_free_script(&script);
+    return !pass;
+}
+
 TestFn test_fns[] = {
     { "TEST_PARSE_FILE", test_parse_file },
     { "TEST_PARSE_SYMBOL", test_parse_symbol },
@@ -183,7 +207,8 @@ TestFn test_fns[] = {
     { "TEST_PARSE", test_parse },
     { "TEST_REPR_EXPRESSION", test_repr_expression },
     { "TEST_REPR_SCRIPT", test_repr_script },
-    { "TEST_GET_PROPERTY", test_get_property }
+    { "TEST_GET_PROPERTY", test_get_property },
+    { "TEST_GET_LIST", test_get_list }
 };
 
 int main(int argc, const char** argv)

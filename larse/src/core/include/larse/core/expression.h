@@ -83,4 +83,13 @@ LarNode* lar_get_first(const LarNode* list);
 LarNode* lar_get_property_by_type(
     const LarNode* list, const char* property_name, LarNodeType type);
 
+/**
+ * @brief Get the first list that starts with the given symbol
+ *
+ * @param list
+ * @param symbol
+ * @return LarNode* NULL if not found or input is not a list
+ */
+LarNode* lar_get_list(const LarNode* list, const char* symbol);
+
 #endif

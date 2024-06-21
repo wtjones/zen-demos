@@ -42,3 +42,7 @@ add_test(
 add_test(
     NAME TEST_GET_PROPERTY
     COMMAND $<TARGET_FILE:tests> TEST_GET_PROPERTY)
+
+add_test(
+    NAME TEST_GET_LIST
+    COMMAND $<TARGET_FILE:tests> TEST_GET_LIST)
