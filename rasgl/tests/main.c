@@ -326,6 +326,8 @@ void scene_tests()
 {
     // arrange
     const char* expected_name = "poly";
+    const char* expected_model_name = "ico";
+    const char* expected_path = "./assets/models/ico.obj";
     RasScene* scene = NULL;
 
     // act
@@ -334,7 +336,12 @@ void scene_tests()
     // assert
     assert(result == RAS_RESULT_OK);
     bool pass = strcmp(scene->name, expected_name) == 0;
+    RasSceneModel* model = &scene->models[0];
+    assert(model != NULL);
+    pass = pass && strcmp(model->name, expected_model_name) == 0;
+    pass = pass && strcmp(model->path, expected_path) == 0;
     assert(pass);
+    core_free_scene(&scene);
 }
 
 int main()

@@ -16,7 +16,9 @@
 #define MAX_SCENE_NAME 50
 #define MAX_FILE_PATH 50
 #define SCRIPT_SYMBOL_SCENE "scene"
+#define SCRIPT_SYMBOL_PATH ":path"
 #define SCRIPT_SYMBOL_MODEL "model"
+#define SCRIPT_SYMBOL_MODELS "models"
 #define SCRIPT_SYMBOL_OBJECT "object"
 #define SCRIPT_SYMBOL_POSITION "position"
 #define SCRIPT_SYMBOL_ROTATION "rotation"
