@@ -90,6 +90,6 @@ LarNode* lar_get_property_by_type(
  * @param symbol
  * @return LarNode* NULL if not found or input is not a list
  */
-LarNode* lar_get_list(const LarNode* list, const char* symbol);
+LarNode* lar_get_list_by_symbol(const LarNode* list, const char* symbol);
 
 #endif

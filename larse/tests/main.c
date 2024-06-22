@@ -188,7 +188,7 @@ int test_get_list()
     assert(exp1 != NULL);
 
     // act
-    LarNode* list_node = lar_get_list(exp1, "models");
+    LarNode* list_node = lar_get_list_by_symbol(exp1, "models");
 
     // assert
     assert(list_node != NULL);

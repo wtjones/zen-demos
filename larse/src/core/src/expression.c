@@ -61,7 +61,7 @@ LarNode* lar_get_first(const LarNode* list)
     return &list->list.nodes[0];
 }
 
-LarNode* lar_get_list(const LarNode* list, const char* symbol)
+LarNode* lar_get_list_by_symbol(const LarNode* list, const char* symbol)
 {
     if (list->node_type != LAR_NODE_LIST) {
         return NULL;
