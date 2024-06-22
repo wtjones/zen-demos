@@ -92,4 +92,6 @@ LarNode* lar_get_property_by_type(
  */
 LarNode* lar_get_list_by_symbol(const LarNode* list, const char* symbol);
 
+LarNode* lar_get_list_node_by_index(const LarNode* list, size_t index);
+
 #endif

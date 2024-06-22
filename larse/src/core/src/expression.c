@@ -114,3 +114,11 @@ LarNode* lar_get_property_by_type(
     }
     return node;
 }
+
+LarNode* lar_get_list_node_by_index(const LarNode* list, size_t index)
+{
+    if (list->node_type != LAR_NODE_LIST || index >= list->list.length) {
+        return NULL;
+    }
+    return &list->list.nodes[index];
+}
