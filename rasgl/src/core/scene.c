@@ -3,42 +3,25 @@
 
 RasResult core_script_map_scene(LarScript* script, RasScene** scene)
 {
+    LarNode* scene_exp = lar_get_list_by_symbol(
+        script->expressions, SCRIPT_SYMBOL_SCENE);
 
-    if (script->expressions->list.length == 0) {
-        ras_log_error("No expressions in script");
+    if (scene_exp == NULL) {
+        ras_log_error("Scene expression not found in script");
+
         return RAS_RESULT_ERROR;
     }
 
-    LarNode* scene_exp = &script->expressions->list.nodes[0];
+    LarNode* scene_name = lar_get_property_by_type(
+        scene_exp, SCRIPT_SYMBOL_NAME, LAR_NODE_ATOM_STRING);
 
-    if (scene_exp->list.length < 3) {
-        ras_log_error("Scene expression must have at least 3 elements");
-        return RAS_RESULT_ERROR;
-    }
-
-    LarNode* symbol = &scene_exp->list.nodes[0];
-    if (symbol->node_type != LAR_NODE_ATOM_SYMBOL
-        || strcmp(symbol->atom.val_symbol, SCRIPT_SYMBOL_SCENE) != 0) {
-        ras_log_error("Symbol 'scene' expected in expression");
-        return RAS_RESULT_ERROR;
-    }
-
-    LarNode* scene_name_symbol = &scene_exp->list.nodes[1];
-    LarNode* scene_name_string = &scene_exp->list.nodes[2];
-
-    if (scene_name_symbol->node_type != LAR_NODE_ATOM_SYMBOL
-        || strcmp(scene_name_symbol->atom.val_symbol, ":name") != 0) {
-        ras_log_error("Scene :name is required");
-        return RAS_RESULT_ERROR;
-    }
-
-    if (scene_name_string->node_type != LAR_NODE_ATOM_STRING) {
-        ras_log_error("Scene :name must be a string");
+    if (scene_name == NULL) {
+        ras_log_error("Scene %s is required", SCRIPT_SYMBOL_NAME);
         return RAS_RESULT_ERROR;
     }
 
     RasScene* new_scene = (RasScene*)malloc(sizeof(RasScene));
-    strcpy(new_scene->name, scene_name_string->atom.val_string);
+    strcpy(new_scene->name, scene_name->atom.val_string);
 
     *scene = new_scene;
 

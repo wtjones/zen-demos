@@ -22,6 +22,7 @@
 #define SCRIPT_SYMBOL_ROTATION "rotation"
 #define SCRIPT_SYMBOL_ROTATION_DELTA "rotation_delta"
 #define SCRIPT_SYMBOL_VEC "vec"
+#define SCRIPT_SYMBOL_NAME ":name"
 
 /**
  * @brief Represents a RasModel in a scene
