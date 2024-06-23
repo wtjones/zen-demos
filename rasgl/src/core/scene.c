@@ -16,6 +16,40 @@ RasResult core_script_map_name(LarNode* scene_exp, RasScene* scene)
     return RAS_RESULT_OK;
 }
 
+/**
+ * @brief With the given script model, load the RasModel and
+ * apply to the RasSceneModel
+ *
+ * @param model_exp
+ * @param model must be freed via core_free_scene_model()
+ * @return RasResult
+ */
+RasResult core_script_map_model(LarNode* model_exp, RasSceneModel* model)
+{
+    LarNode* model_name = lar_get_property_by_type(
+        model_exp, SCRIPT_SYMBOL_NAME, LAR_NODE_ATOM_STRING);
+
+    if (model_name == NULL) {
+        ras_log_error("Property %s is required", SCRIPT_SYMBOL_NAME);
+        return RAS_RESULT_ERROR;
+    }
+
+    strcpy(model->name, model_name->atom.val_string);
+
+    LarNode* model_path = lar_get_property_by_type(
+        model_exp, SCRIPT_SYMBOL_PATH, LAR_NODE_ATOM_STRING);
+
+    if (model_path == NULL) {
+        ras_log_error("Property %s is required", SCRIPT_SYMBOL_PATH);
+        return RAS_RESULT_ERROR;
+    }
+
+    strcpy(model->path, model_path->atom.val_string);
+    ras_log_info("Mapped model %s to %s", model->name, model->path);
+
+    return RAS_RESULT_OK;
+}
+
 RasResult core_script_map_models(LarNode* scene_exp, RasScene* scene)
 {
     LarNode* models_list = lar_get_list_by_symbol(
@@ -42,27 +76,13 @@ RasResult core_script_map_models(LarNode* scene_exp, RasScene* scene)
 
         RasSceneModel* model = &models[i];
 
-        LarNode* model_name = lar_get_property_by_type(
-            model_exp, SCRIPT_SYMBOL_NAME, LAR_NODE_ATOM_STRING);
+        RasResult result = core_script_map_model(model_exp, model);
 
-        if (model_name == NULL) {
-            ras_log_error("Symbol '%s' is required", SCRIPT_SYMBOL_NAME);
+        if (result != RAS_RESULT_OK) {
+            ras_log_error("Failed to map model");
             free(models);
             return RAS_RESULT_ERROR;
         }
-
-        strcpy(model->name, model_name->atom.val_string);
-
-        LarNode* model_path = lar_get_property_by_type(
-            model_exp, SCRIPT_SYMBOL_PATH, LAR_NODE_ATOM_STRING);
-
-        if (model_path == NULL) {
-            ras_log_error("Property %s is required", SCRIPT_SYMBOL_PATH);
-            free(models);
-            return RAS_RESULT_ERROR;
-        }
-
-        strcpy(model->path, model_path->atom.val_string);
     }
 
     scene->models = models;
@@ -104,6 +124,7 @@ RasResult core_script_map_scene(LarScript* script, RasScene** scene)
         return RAS_RESULT_ERROR;
     }
 
+    ras_log_info("Mapped scene %s", new_scene->name);
     *scene = new_scene;
 
     return RAS_RESULT_OK;
@@ -134,10 +155,16 @@ RasResult core_load_scene(const char* path, RasScene** scene)
     return RAS_RESULT_OK;
 }
 
+void core_free_scene_models(RasScene* scene)
+{
+    // TODO: free RasModel
+    free(scene->models);
+}
+
 void core_free_scene(RasScene** scene)
 {
     RasScene* s = *scene;
-    free(s->models);
+    core_free_scene_models(s);
     free(s);
     *scene = NULL;
 }
