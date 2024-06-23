@@ -1,4 +1,6 @@
 #include "rasgl/core/scene.h"
+#include "rasgl/core/graphics.h"
+#include "rasgl/core/model.h"
 #include <string.h>
 
 RasResult core_script_map_name(LarNode* scene_exp, RasScene* scene)
@@ -24,7 +26,7 @@ RasResult core_script_map_name(LarNode* scene_exp, RasScene* scene)
  * @param model must be freed via core_free_scene_model()
  * @return RasResult
  */
-RasResult core_script_map_model(LarNode* model_exp, RasSceneModel* model)
+RasResult core_script_map_model(LarNode* model_exp, RasSceneModel* scene_model)
 {
     LarNode* model_name = lar_get_property_by_type(
         model_exp, SCRIPT_SYMBOL_NAME, LAR_NODE_ATOM_STRING);
@@ -34,7 +36,7 @@ RasResult core_script_map_model(LarNode* model_exp, RasSceneModel* model)
         return RAS_RESULT_ERROR;
     }
 
-    strcpy(model->name, model_name->atom.val_string);
+    strcpy(scene_model->name, model_name->atom.val_string);
 
     LarNode* model_path = lar_get_property_by_type(
         model_exp, SCRIPT_SYMBOL_PATH, LAR_NODE_ATOM_STRING);
@@ -44,9 +46,28 @@ RasResult core_script_map_model(LarNode* model_exp, RasSceneModel* model)
         return RAS_RESULT_ERROR;
     }
 
-    strcpy(model->path, model_path->atom.val_string);
-    ras_log_info("Mapped model %s to %s", model->name, model->path);
+    strcpy(scene_model->path, model_path->atom.val_string);
+    ras_log_info("Mapped model %s to %s", scene_model->name, scene_model->path);
 
+    RasModel* file_model = (RasModel*)malloc(sizeof(RasModel));
+
+    if (file_model == NULL) {
+        ras_log_error("Failed to allocate memory for model");
+        return RAS_RESULT_ERROR;
+    }
+    memset(file_model, 0, sizeof(RasModel));
+    RasResult result = core_load_model(scene_model->path, file_model);
+    if (result != RAS_RESULT_OK) {
+        ras_log_error("Failed to load model %s", scene_model->path);
+        free(file_model);
+        return RAS_RESULT_ERROR;
+    }
+
+    core_model_group_to_pipeline_element(
+        &file_model->groups[0], &scene_model->element);
+    ras_log_info("Mapped model %s to pipeline elements", scene_model->name);
+
+    free(file_model);
     return RAS_RESULT_OK;
 }
 

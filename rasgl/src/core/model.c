@@ -220,7 +220,7 @@ RasResult core_load_model(const char* path, RasModel* model)
         return RAS_RESULT_ERROR;
     }
 
-    strcat(model->name, path);
+    strcpy(model->name, path);
     // We default to the first group even if group isn't specifed. The actual
     // file group count is tracked to determine when to move past the default.
     int file_num_groups = 0;

@@ -340,6 +340,7 @@ void scene_tests()
     assert(model != NULL);
     pass = pass && strcmp(model->name, expected_model_name) == 0;
     pass = pass && strcmp(model->path, expected_path) == 0;
+    pass = pass && model->element.num_verts > 0;
     assert(pass);
     core_free_scene(&scene);
 }

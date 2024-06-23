@@ -34,8 +34,7 @@
 typedef struct {
     char name[MAX_SCENE_NAME]; // Reference name of the model
     char path[MAX_FILE_PATH];
-    // RasModel* model;
-    RasPipelineElement* element; // Scene-level elements converted from RasModel
+    RasPipelineElement element; // Scene-level elements converted from RasModel
 } RasSceneModel;
 
 typedef struct {
