@@ -341,6 +341,8 @@ void scene_tests()
     pass = pass && strcmp(model->name, expected_model_name) == 0;
     pass = pass && strcmp(model->path, expected_path) == 0;
     pass = pass && model->element.num_verts > 0;
+    pass = pass && scene->num_objects == 1;
+    pass = pass && scene->objects[0].element_ref != NULL;
     assert(pass);
     core_free_scene(&scene);
 }
