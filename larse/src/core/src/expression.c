@@ -122,3 +122,10 @@ LarNode* lar_get_list_node_by_index(const LarNode* list, size_t index)
     }
     return &list->list.nodes[index];
 }
+
+bool lar_is_symbol(const LarNode* node, const char* symbol)
+{
+    return node != NULL
+        && node->node_type == LAR_NODE_ATOM_SYMBOL
+        && strcmp(node->atom.val_symbol, symbol) == 0;
+}

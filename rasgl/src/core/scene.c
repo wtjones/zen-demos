@@ -3,6 +3,30 @@
 #include "rasgl/core/model.h"
 #include <string.h>
 
+RasResult core_script_map_vector(LarNode* vector_exp, RasVector3f* dest)
+{
+
+    if (!lar_is_symbol(lar_get_first(vector_exp), "vec")) {
+        ras_log_error("Vector must have a symbol");
+        return RAS_RESULT_ERROR;
+    }
+
+    LarNode* x = lar_get_list_node_by_index(vector_exp, 1);
+    LarNode* y = lar_get_list_node_by_index(vector_exp, 2);
+    LarNode* z = lar_get_list_node_by_index(vector_exp, 3);
+
+    if (x == NULL || y == NULL || z == NULL) {
+        ras_log_error("Vector must have 3 components");
+        return RAS_RESULT_ERROR;
+    }
+
+    dest->x = x->atom.val_fixed;
+    dest->y = y->atom.val_fixed;
+    dest->z = z->atom.val_fixed;
+
+    return RAS_RESULT_OK;
+}
+
 RasResult core_script_map_object(
     RasScene* scene, LarNode* object_exp, RasSceneObject* scene_object)
 {
@@ -27,6 +51,37 @@ RasResult core_script_map_object(
 
     if (scene_object->element_ref == NULL) {
         ras_log_error("Model %s referenced by object not found", model_name->atom.val_symbol);
+        return RAS_RESULT_ERROR;
+    }
+
+    LarNode* position = lar_get_property_by_type(
+        object_exp, SCRIPT_SYMBOL_POSITION, LAR_NODE_LIST);
+
+    if (position == NULL) {
+        ras_log_error("Property %s is required", SCRIPT_SYMBOL_POSITION);
+        return RAS_RESULT_ERROR;
+    }
+
+    RasResult result = core_script_map_vector(position, &scene_object->position);
+
+    if (result != RAS_RESULT_OK) {
+        ras_log_error("Failed to map position vec");
+        return RAS_RESULT_ERROR;
+    }
+
+    LarNode* orientation = lar_get_property_by_type(
+        object_exp, SCRIPT_SYMBOL_ORIENTATION, LAR_NODE_LIST);
+
+    if (orientation == NULL) {
+        ras_log_error("Property %s is required", SCRIPT_SYMBOL_ORIENTATION);
+        return RAS_RESULT_ERROR;
+    }
+
+    // Set initial rotation based on orientation
+    result = core_script_map_vector(orientation, &scene_object->rotation);
+
+    if (result != RAS_RESULT_OK) {
+        ras_log_error("Failed to map orientation vec");
         return RAS_RESULT_ERROR;
     }
 

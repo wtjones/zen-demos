@@ -5,4 +5,4 @@
     (object
       :model_name "ico"
       :position (vec 0.0 0.0 -2.5)
-      :orientation (vec 0.0 0.0 0.0))))
+      :orientation (vec 0.0 0.5 0.0))))

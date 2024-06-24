@@ -22,9 +22,9 @@
 #define SCRIPT_SYMBOL_MODELS "models"
 #define SCRIPT_SYMBOL_OBJECT "object"
 #define SCRIPT_SYMBOL_OBJECTS "objects"
-#define SCRIPT_SYMBOL_POSITION "position"
-#define SCRIPT_SYMBOL_ROTATION "rotation"
-#define SCRIPT_SYMBOL_ROTATION_DELTA "rotation_delta"
+#define SCRIPT_SYMBOL_POSITION ":position"
+#define SCRIPT_SYMBOL_ORIENTATION ":orientation"
+#define SCRIPT_SYMBOL_ROTATION_DELTA ":rotation_delta"
 #define SCRIPT_SYMBOL_VEC "vec"
 #define SCRIPT_SYMBOL_NAME ":name"
 
@@ -47,7 +47,7 @@ typedef struct {
      */
     RasPipelineElement* element_ref;
     RasVector3f position;
-    RasVector3f rotation;
+    RasVector3f rotation;       // Intialized from :orientation in scene script
     RasVector3f rotation_delta; // Rotation speed
 } RasSceneObject;
 
