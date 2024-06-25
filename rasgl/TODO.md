@@ -14,6 +14,8 @@
 - [ ] Fix model rotation origin
 - [ ] Support dynamic allocation for models
 - [ ] Reference larse as a target or package
+- [ ] Consider macro for check result pattern
+- [ ] Support CTest
 
 ### In Progress
 
