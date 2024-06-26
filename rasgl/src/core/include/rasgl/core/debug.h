@@ -47,4 +47,22 @@ void ras_log_flush();
 
 void ras_log_clear();
 
+#define RAS_CHECK_RESULT(result)                  \
+    if ((result) != RAS_RESULT_OK) {              \
+        ras_log_error("Result != RAS_RESULT_OK"); \
+        return RAS_RESULT_ERROR;                  \
+    }
+
+#define RAS_CHECK_RESULT_AND_LOG(result, message, ...) \
+    if ((result) != RAS_RESULT_OK) {                   \
+        ras_log_error(message, ##__VA_ARGS__);         \
+        return RAS_RESULT_ERROR;                       \
+    }
+
+#define RAS_CHECK_AND_LOG(condition, message, ...) \
+    if (condition) {                               \
+        ras_log_error(message, ##__VA_ARGS__);     \
+        return RAS_RESULT_ERROR;                   \
+    }
+
 #endif
