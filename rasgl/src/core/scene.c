@@ -3,6 +3,17 @@
 #include "rasgl/core/model.h"
 #include <string.h>
 
+RasResult core_script_map_int32(LarNode* exp, const char* symbol, int32_t* dest)
+{
+    LarNode* node = lar_get_property_by_type(exp, symbol, LAR_NODE_ATOM_INTEGER);
+
+    RAS_CHECK_AND_LOG(node == NULL,
+        "Failed to find property %s", symbol);
+
+    *dest = node->atom.val_integer;
+    return RAS_RESULT_OK;
+}
+
 RasResult core_script_map_vector(LarNode* vector_exp, RasVector3f* dest)
 {
     RAS_CHECK_AND_LOG(!lar_is_symbol(lar_get_first(vector_exp), "vec"),
@@ -23,6 +34,65 @@ RasResult core_script_map_vector(LarNode* vector_exp, RasVector3f* dest)
     dest->x = x->atom.val_fixed;
     dest->y = y->atom.val_fixed;
     dest->z = z->atom.val_fixed;
+
+    return RAS_RESULT_OK;
+}
+
+RasResult core_script_map_camera(RasScene* scene, LarNode* camera_exp, RasCamera* camera)
+{
+    LarNode* position = lar_get_property_by_type(
+        camera_exp, SCRIPT_SYMBOL_POSITION, LAR_NODE_LIST);
+
+    RAS_CHECK_AND_LOG(position == NULL,
+        "Failed to find property %s", SCRIPT_SYMBOL_POSITION);
+
+    RasResult result = core_script_map_vector(position, &camera->position);
+
+    RAS_CHECK_RESULT_AND_LOG(result,
+        "Failed to map property %s", SCRIPT_SYMBOL_POSITION);
+
+    result = core_script_map_int32(
+        camera_exp, SCRIPT_SYMBOL_ANGLE, &camera->angle);
+
+    RAS_CHECK_RESULT_AND_LOG(result,
+        "Failed to map property %s", SCRIPT_SYMBOL_ANGLE);
+
+    return RAS_RESULT_OK;
+}
+
+RasResult core_script_map_cameras(LarNode* scene_exp, RasScene* scene)
+{
+    LarNode* cameras_list = lar_get_list_by_symbol(
+        scene_exp, SCRIPT_SYMBOL_CAMERAS);
+
+    RAS_CHECK_AND_LOG(cameras_list == NULL,
+        "Objects list not found in script");
+
+    size_t num_cameras = cameras_list->list.length - 1; // exclude the symbol
+
+    RasCamera* cameras = (RasCamera*)malloc(
+        sizeof(RasCamera) * num_cameras);
+
+    RAS_CHECK_AND_LOG(cameras == NULL,
+        "Failed to allocate memory for cameras");
+
+    for (size_t i = 0; i < num_cameras; i++) {
+        // skip the symbol
+        LarNode* item_exp = lar_get_list_node_by_index(cameras_list, i + 1);
+
+        RasCamera* camera = &cameras[i];
+
+        RasResult result = core_script_map_camera(scene, item_exp, camera);
+
+        if (result != RAS_RESULT_OK) {
+            ras_log_error("Failed to map camera");
+            free(cameras);
+            return RAS_RESULT_ERROR;
+        }
+    }
+
+    scene->cameras = cameras;
+    scene->num_cameras = num_cameras;
 
     return RAS_RESULT_OK;
 }
@@ -243,6 +313,14 @@ RasResult core_script_map_scene(LarScript* script, RasScene** scene)
 
     if (result != RAS_RESULT_OK) {
         ras_log_error("Failed to map objects");
+        free(new_scene);
+        return RAS_RESULT_ERROR;
+    }
+
+    result = core_script_map_cameras(scene_exp, new_scene);
+
+    if (result != RAS_RESULT_OK) {
+        ras_log_error("Failed to map cameras");
         free(new_scene);
         return RAS_RESULT_ERROR;
     }

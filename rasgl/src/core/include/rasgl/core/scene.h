@@ -1,6 +1,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include "camera.h"
 #include "debug.h"
 #include "graphics.h"
 #include "maths.h"
@@ -22,6 +23,9 @@
 #define SCRIPT_SYMBOL_MODELS "models"
 #define SCRIPT_SYMBOL_OBJECT "object"
 #define SCRIPT_SYMBOL_OBJECTS "objects"
+#define SCRIPT_SYMBOL_CAMERA "camera"
+#define SCRIPT_SYMBOL_CAMERAS "cameras"
+#define SCRIPT_SYMBOL_ANGLE ":angle"
 #define SCRIPT_SYMBOL_POSITION ":position"
 #define SCRIPT_SYMBOL_ORIENTATION ":orientation"
 #define SCRIPT_SYMBOL_ROTATION_DELTA ":rotation_delta"
@@ -57,6 +61,8 @@ typedef struct {
     size_t num_models;
     RasSceneObject* objects;
     size_t num_objects;
+    RasCamera* cameras;
+    size_t num_cameras;
 
 } RasScene;
 

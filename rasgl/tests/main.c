@@ -345,6 +345,9 @@ void scene_tests()
     pass = pass && scene->objects[0].element_ref != NULL;
     pass = pass && scene->objects[0].position.z == -float_to_fixed_16_16(2.5);
     pass = pass && scene->objects[0].rotation.y == float_to_fixed_16_16(0.5);
+    pass = pass && scene->num_cameras == 1;
+    pass = pass && scene->cameras[0].position.z == float_to_fixed_16_16(2.5);
+    pass = pass && scene->cameras[0].angle == 180;
     assert(pass);
     core_free_scene(&scene);
 }
