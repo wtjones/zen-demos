@@ -331,7 +331,7 @@ void scene_tests()
     RasScene* scene = NULL;
 
     // act
-    RasResult result = core_load_scene("./assets/scenes/scene01.lsp", &scene);
+    RasResult result = core_load_scene("./tests/data/scene01.lsp", &scene);
 
     // assert
     assert(result == RAS_RESULT_OK);

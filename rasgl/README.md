@@ -138,19 +138,20 @@ cmake --build build
 ./build/ras_sdl
 ```
 
-or `run_posix.sh [world | poly] [0 | 1] [model path]`
+or `run_posix.sh [world | poly] [0 | 1] [scene path]`
 
-example: `./run_posix.sh poly 0 assets/models/ico.obj`
+example: `./run_posix.sh poly 0 assets/scenes/tri.lsp`
 
 ### DOS
 
 #### Get DJGPP
 
-Obtain DJGPP in some manner such as https://github.com/andrewwutw/build-djgpp.
+Obtain DJGPP in some manner such as <https://github.com/andrewwutw/build-djgpp>.
 
 Extract somewhere such as `/opt/djgpp`.
 
 Set variable `DJGPP_PREFIX` in shell or profile:
+
 ```
 export DJGPP_PREFIX="/opt/djgpp"
 ```
@@ -189,9 +190,10 @@ export DJGPP_PREFIX="/usr/local/bin/dosbox-x"
 ```
 
 ```
-./run_dos.sh [world | poly] [0 | 1] [model path]`
+./run_dos.sh [world | poly] [0 | 1] [scene path]`
 ```
-example: `./run_dos.sh poly 0 assets/models/ico.obj`
+
+example: `./run_dos.sh poly 0 assets/secenes/tri.lsp`
 
 ## Demos
 
