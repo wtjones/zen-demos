@@ -7,27 +7,27 @@ RasGL is software rendering library with cross-platform support for 90's era tar
 The key attributes of RasGL:
 
 * Fixed-point calculations
-    * Many 32-bit platforms of the mid 90's lack strong floating-point support.
+  * Many 32-bit platforms of the mid 90's lack strong floating-point support.
 * Triangle-based polygon pipeline
-    * A single primative allows for a narrower focus and aligns with pipelines of the era.
+  * A single primative allows for a narrower focus and aligns with pipelines of the era.
 
 See [TODO.md](TODO.md) and [RESEARCH.md](RESEARCH.md).
 
 ## Features
 
 * Working
-    * Fixed-point math
-        * Currently 16.16
-    * Transformation pipeline based on 4x4 matrix math
-    * View frustum creation from projection matrix
-    * Backface culling
-    * Wireframe polygon rendering
+  * Fixed-point math
+    * Currently 16.16
+  * Transformation pipeline based on 4x4 matrix math
+  * View frustum creation from projection matrix
+  * Backface culling
+  * Wireframe polygon rendering
 * Planned
-    * Frustum culling
-    * Polygon clipping
-    * Flat shaded polygons
-    * Texture-mapped polygons
-    * Depth sorting
+  * Frustum culling
+  * Polygon clipping
+  * Flat shaded polygons
+  * Texture-mapped polygons
+  * Depth sorting
 
 ## Target platforms
 
@@ -40,18 +40,18 @@ The ideal candidate platform has these attributes:
 Platform support progress:
 
 * Working
-    * POSIX - Linux/Mac OS
-        * Default target for development
-        * Uses SDL2
-    * DOS protected mode
-        * DJGPP
-        * Allegro.cc for rending primatives and input
-        * Tested with dosbox-x built-in extender
+  * POSIX - Linux/Mac OS
+    * Default target for development
+    * Uses SDL2
+  * DOS protected mode
+    * DJGPP
+    * Allegro.cc for rending primatives and input
+    * Tested with dosbox-x built-in extender
 * Proposed
-    * GBA
-        * Framebuffer modes should be suitable
-    * PSX
-        * Has hardware 3D support. Could either support the hardware via abstraction or use framebuffer rendering.
+  * GBA
+    * Framebuffer modes should be suitable
+  * PSX
+    * Has hardware 3D support. Could either support the hardware via abstraction or use framebuffer rendering.
 
 ## Proposed Structure
 
@@ -162,14 +162,16 @@ Set PATH or use provided shell script.
 
 #### Get Allegro
 
-Clone repo somewhere locally: https://github.com/wtjones/allegro-4.2.2-xc
+Clone repo somewhere locally: <https://github.com/wtjones/allegro-4.2.2-xc>
 
 ```
 cd allegro-4.2.2-xc
 ```
+
 Review and run `xmake.sh` to generate files such as `lib/djgpp/liballeg.a`
 
 Set variable `ALLEGRO` in shell or profile:
+
 ```
 export ALLEGRO="/home/myuser/dev/allegro-4.2.2-xc"
 ```
@@ -242,7 +244,6 @@ Tilt model fwd/back around X: up/down + ctrl + shift
 Rotate model left/right around Y: left/right + ctrl
 Tilt model left/right around Z: up/down + ctrl
 
-
 ## Debug output
 
 Pass a value of 1 in the run script:
@@ -252,6 +253,7 @@ run_tests.sh 1
 run_posix.sh [world | poly] 1
 run_dos.sh [world | poly] 1
 ```
+
 ## VS Code
 
 The [cmake variant file](https://vector-of-bool.github.io/docs/vscode-cmake-tools/variants.html) allows for the selection of a buildType/platform/demo combo. As more demos are added, it may be preferable to use build targets.
