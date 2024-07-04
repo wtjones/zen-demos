@@ -7,9 +7,10 @@
 - [ ] Test coverage for boolean
 - [ ] Shell debug output should be optional
 - [ ] Add test framework
-    - https://github.com/ThrowTheSwitch/Unity
+  - <https://github.com/ThrowTheSwitch/Unity>
 - [ ] Free expression on error
 - [ ] Add sanitizer build
+- [ ] Support dosbox.conf templating for param passing
 
 ### In Progress
 
@@ -18,3 +19,4 @@
 - [x] Add repr expression to string
 - [x] Add repr script to string
 - [x] Add shell app
+- [x] Add DOS build
