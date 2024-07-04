@@ -146,7 +146,7 @@ example: `./run_posix.sh poly 0 assets/scenes/tri.lsp`
 
 #### Get DJGPP
 
-Obtain DJGPP in some manner such as <https://github.com/andrewwutw/build-djgpp>.
+Build or get DJGPP binaries from <https://github.com/andrewwutw/build-djgpp>.
 
 Extract somewhere such as `/opt/djgpp`.
 
@@ -154,9 +154,12 @@ Set variable `DJGPP_PREFIX` in shell or profile:
 
 ```
 export DJGPP_PREFIX="/opt/djgpp"
+# if building with defaults:
+export DJGPP_PREFIX="/usr/local/djgpp"
+
 ```
 
-Set PATH or use provided shell script.
+Optional: Set PATH or use provided shell script.
 
 `PATH="${DJGPP_PREFIX}/bin:${PATH}"`
 
@@ -168,7 +171,12 @@ Clone repo somewhere locally: <https://github.com/wtjones/allegro-4.2.2-xc>
 cd allegro-4.2.2-xc
 ```
 
-Review and run `xmake.sh` to generate files such as `lib/djgpp/liballeg.a`
+Review and run `xmake.sh` to generate files such as `lib/djgpp/liballeg.a`. On Linux, it may output a warning about `setup.exe`, but this is fine.
+
+```text
+i586-pc-msdosdjgpp-ar: creating lib/djgpp/liballeg.a
+make: *** No rule to make target 'setup/setup.exe', needed by 'setup'.  Stop.
+```
 
 Set variable `ALLEGRO` in shell or profile:
 
@@ -183,13 +191,22 @@ cmake -S . -DCMAKE_TOOLCHAIN_FILE=tools/djgpp.cmake -DRAS_PLATFORM=ras_dos -B bu
 cmake --build build -t demo
 ```
 
+#### DOSBox
+
+[DOSBox-X](https://github.com/joncampbell123/dosbox-x/) is recommended due to the built-in 32-bit extender.
+
+```bash
+export DOSBOX_BIN="/usr/local/bin/dosbox-x"
+```
+
+Flatpak example:
+
+```bash
+flatpak install flathub com.dosbox_x.DOSBox-X
+export DOSBOX_BIN="/var/lib/flatpak/exports/bin/com.dosbox_x.DOSBox-X"
+```
+
 #### Run
-
-Set variable `$DOSBOX_BIN`
-
-```
-export DJGPP_PREFIX="/usr/local/bin/dosbox-x"
-```
 
 ```
 ./run_dos.sh [world | poly] [0 | 1] [scene path]`
