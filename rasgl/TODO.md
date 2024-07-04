@@ -13,10 +13,12 @@
 - [ ] Validate screen points are in screen bounds
 - [ ] Filled polygon mode
 - [ ] Shaded polygon mode
+- [ ] Backface culling is broken
 
 ### Clipping - Polygon
 
 - [ ] Fix assert on certain far plane clip scenarios
+- [ ] Fix assert when a triangle is rotating and clipping on the left side
 
 ### Math
 
@@ -34,10 +36,6 @@
 - [ ] Add scene explanation to README
 
 ## In Progress
-
-### Scene loading
-
-- [ ] Render multiple scene objects
 
 ## Done ✓
 
@@ -72,3 +70,4 @@
 
 - [x] Scene camera position
 - [x] Scene model position
+- [x] Render multiple scene objects

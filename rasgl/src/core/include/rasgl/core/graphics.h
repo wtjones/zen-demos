@@ -85,6 +85,13 @@ typedef struct RasPipelineElement {
     RasAABB aabb;
 } RasPipelineElement;
 
+typedef struct RasPipelineVertexBuffer {
+    RasPipelineVertex verts[MAX_PIPELINE_VERTS];
+    uint32_t num_verts;
+    uint32_t visible_indexes[MAX_VISIBLE_INDEXES];
+    uint32_t num_visible_indexes;
+} RasPipelineVertexBuffer;
+
 typedef struct RenderState {
     Point2i points[MAX_RENDER_POINTS];
     uint32_t num_points;
@@ -104,7 +111,7 @@ typedef struct RenderState {
 void core_clip_poly(
     RasFrustum* frustum,
     RasClipFlags face_clip_flags,
-    RenderState* render_state,
+    RasPipelineVertexBuffer* vert_buffer,
     uint32_t in_indexes[3]);
 
 /**

@@ -150,13 +150,13 @@ void projected_to_screen_point(RasFixed screen_width, RasFixed screen_height, Ra
  * in screen space. Assumes vertices are counter-clockwise.
  * Based on https://github.com/wtjones/qbasic/blob/master/POLY3D.BAS
  */
-bool core_is_backface(RasPipelineVertex* pipeline_verts, uint32_t indexes[3])
+bool core_is_backface(RasPipelineVertexBuffer* vertex_buffer, uint32_t indexes[3])
 {
-    RasPipelineVertex* pv0 = &pipeline_verts[indexes[2]];
+    RasPipelineVertex* pv0 = &vertex_buffer->verts[indexes[2]];
     RasVector4f* sv0 = &pv0->screen_space_position;
-    RasPipelineVertex* pv1 = &pipeline_verts[indexes[1]];
+    RasPipelineVertex* pv1 = &vertex_buffer->verts[indexes[1]];
     RasVector4f* sv1 = &pv1->screen_space_position;
-    RasPipelineVertex* pv2 = &pipeline_verts[indexes[0]];
+    RasPipelineVertex* pv2 = &vertex_buffer->verts[indexes[0]];
     RasVector4f* sv2 = &pv2->screen_space_position;
 
     // norm1 = (1.x - 0.x) * (0.y - 2.y)
@@ -299,11 +299,15 @@ void core_get_line_plane_intersect(
 void core_clip_poly_plane(
     RasFrustum* frustum,
     RasFrustumPlane side,
-    RenderState* render_state,
+    RasPipelineVertexBuffer* vertex_buffer,
+
     uint32_t indexes[3])
 {
+    // FIXME: Happens when a triangle is rotating and clipping on the left side
+    assert(vertex_buffer->num_verts < MAX_PIPELINE_VERTS);
     RasPlane* plane = &frustum->planes[side];
-    RasPipelineVertex* pipeline_verts = &render_state->pipeline_verts[0];
+    RasPipelineVertex* pipeline_verts = &vertex_buffer->verts[0];
+
     RasPipelineVertex* pv_0 = &pipeline_verts[indexes[0]];
     RasPipelineVertex* pv_1 = &pipeline_verts[indexes[1]];
     RasPipelineVertex* pv_2 = &pipeline_verts[indexes[2]];
@@ -358,10 +362,10 @@ void core_clip_poly_plane(
         RasPipelineVertex* pv_c = &pipeline_verts[indexes[index_c]];
 
         // Allocate vertices B' and C' on the pv array
-        uint32_t pv_b_alt_index = render_state->num_pipeline_verts++;
-        RasPipelineVertex* pv_b_alt = &render_state->pipeline_verts[pv_b_alt_index];
-        uint32_t pv_c_alt_index = render_state->num_pipeline_verts++;
-        RasPipelineVertex* pv_c_alt = &render_state->pipeline_verts[pv_c_alt_index];
+        uint32_t pv_b_alt_index = vertex_buffer->num_verts++;
+        RasPipelineVertex* pv_b_alt = &vertex_buffer->verts[pv_b_alt_index];
+        uint32_t pv_c_alt_index = vertex_buffer->num_verts++;
+        RasPipelineVertex* pv_c_alt = &vertex_buffer->verts[pv_c_alt_index];
 
         // FIME: need to set other values on vertex, like screen pos
 
@@ -389,12 +393,12 @@ void core_clip_poly_plane(
         ras_log_buffer("cpp: clip: pv_b_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_b_alt->view_space_position));
 
         // Connect A -> B'
-        uint32_t* vi = &render_state->num_visible_indexes;
-        render_state->visible_indexes[(*vi)++] = pv_a_index;
-        render_state->visible_indexes[(*vi)++] = pv_b_alt_index;
+        uint32_t* vi = &vertex_buffer->num_visible_indexes;
+        vertex_buffer->visible_indexes[(*vi)++] = pv_a_index;
+        vertex_buffer->visible_indexes[(*vi)++] = pv_b_alt_index;
 
         // Connect B' -> C' -> A
-        render_state->visible_indexes[(*vi)++] = pv_c_alt_index;
+        vertex_buffer->visible_indexes[(*vi)++] = pv_c_alt_index;
 
         // The first face is the repurposed face. Point element indices to new pvs
         // so that the subsequent calls to this function clip correctly.
@@ -466,10 +470,10 @@ void core_clip_poly_plane(
         RasPipelineVertex* pv_c = &pipeline_verts[indexes[index_c]];
 
         // Allocate vertices A' and B' on the pv array
-        uint32_t pv_a_alt_index = render_state->num_pipeline_verts++;
-        RasPipelineVertex* pv_a_alt = &render_state->pipeline_verts[pv_a_alt_index];
-        uint32_t pv_b_alt_index = render_state->num_pipeline_verts++;
-        RasPipelineVertex* pv_b_alt = &render_state->pipeline_verts[pv_b_alt_index];
+        uint32_t pv_a_alt_index = vertex_buffer->num_verts++;
+        RasPipelineVertex* pv_a_alt = &vertex_buffer->verts[pv_a_alt_index];
+        uint32_t pv_b_alt_index = vertex_buffer->num_verts++;
+        RasPipelineVertex* pv_b_alt = &vertex_buffer->verts[pv_b_alt_index];
 
         pv_a_alt->aabb_clip_flags = pv_a->aabb_clip_flags;
         pv_b_alt->aabb_clip_flags = pv_b->aabb_clip_flags;
@@ -495,12 +499,12 @@ void core_clip_poly_plane(
         ras_log_buffer("cpp: clip: pv_a_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_b_alt->view_space_position));
         ras_log_buffer("cpp: clip: pv_b_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_b_alt->view_space_position));
 
-        uint32_t* vi = &render_state->num_visible_indexes;
+        uint32_t* vi = &vertex_buffer->num_visible_indexes;
 
         // Connect A -> A' -> B
-        render_state->visible_indexes[(*vi)++] = pv_a_index;
-        render_state->visible_indexes[(*vi)++] = pv_a_alt_index;
-        render_state->visible_indexes[(*vi)++] = pv_b_index;
+        vertex_buffer->visible_indexes[(*vi)++] = pv_a_index;
+        vertex_buffer->visible_indexes[(*vi)++] = pv_a_alt_index;
+        vertex_buffer->visible_indexes[(*vi)++] = pv_b_index;
 
         // The first face is the repurposed face. Point element indices to new pvs
         // so that the subsequent calls to this function clip correctly.
@@ -509,13 +513,13 @@ void core_clip_poly_plane(
         indexes[2] = pv_b_index;
 
         // Connect A' -> B' -> B
-        render_state->visible_indexes[(*vi)++] = pv_a_alt_index;
-        render_state->visible_indexes[(*vi)++] = pv_b_alt_index;
-        render_state->visible_indexes[(*vi)++] = pv_b_index;
+        vertex_buffer->visible_indexes[(*vi)++] = pv_a_alt_index;
+        vertex_buffer->visible_indexes[(*vi)++] = pv_b_alt_index;
+        vertex_buffer->visible_indexes[(*vi)++] = pv_b_index;
 
         // Recurse to clip added face
         uint32_t new_face_indexes[3] = { pv_a_alt_index, pv_b_alt_index, pv_b_index };
-        core_clip_poly(frustum, 0, render_state, new_face_indexes);
+        core_clip_poly(frustum, 0, vertex_buffer, new_face_indexes);
     } else {
         assert(true);
     }
@@ -524,7 +528,7 @@ void core_clip_poly_plane(
 void core_clip_poly(
     RasFrustum* frustum,
     RasClipFlags face_clip_flags,
-    RenderState* render_state,
+    RasPipelineVertexBuffer* vertex_buffer,
     uint32_t in_indexes[3])
 {
     uint32_t indexes[3] = { in_indexes[0], in_indexes[1], in_indexes[2] };
@@ -532,15 +536,15 @@ void core_clip_poly(
     for (uint8_t i = 0; i < FRUSTUM_PLANES; i++) {
 
         // recalc flags as the face may point to new verts
-        RasPipelineVertex* pv1 = &render_state->pipeline_verts[indexes[0]];
-        RasPipelineVertex* pv2 = &render_state->pipeline_verts[indexes[1]];
-        RasPipelineVertex* pv3 = &render_state->pipeline_verts[indexes[2]];
+        RasPipelineVertex* pv1 = &vertex_buffer->verts[indexes[0]];
+        RasPipelineVertex* pv2 = &vertex_buffer->verts[indexes[1]];
+        RasPipelineVertex* pv3 = &vertex_buffer->verts[indexes[2]];
         face_clip_flags = pv1->clip_flags | pv2->clip_flags | pv3->clip_flags;
 
         uint8_t mask = 1 << i;
         if (face_clip_flags & mask) {
             ras_log_buffer("PV clipping against plane %d\n", i);
-            core_clip_poly_plane(frustum, (RasFrustumPlane)i, render_state, indexes);
+            core_clip_poly_plane(frustum, (RasFrustumPlane)i, vertex_buffer, indexes);
         }
     }
 }
@@ -610,6 +614,33 @@ void core_render_aabb(
     ras_log_buffer("AABB points rendered: %d\n", num_points);
 }
 
+/**
+ * @brief Append object-level vertext buffer to render state array
+ *
+ * @param render_state
+ * @param vert_buffer
+ */
+void core_append_vertex_buffer(
+    RenderState* render_state,
+    RasPipelineVertexBuffer* vert_buffer)
+{
+    uint32_t num_pipeline_verts_prev = render_state->num_pipeline_verts;
+
+    memcpy(
+        &render_state->pipeline_verts[render_state->num_pipeline_verts],
+        vert_buffer->verts,
+        sizeof(RasPipelineVertex) * vert_buffer->num_verts);
+
+    render_state->num_pipeline_verts += vert_buffer->num_verts;
+
+    // Add an offset to convert object indices from relative to absolute
+    uint32_t* si = &render_state->num_visible_indexes;
+    for (uint32_t i = 0; i < vert_buffer->num_visible_indexes; i++) {
+        render_state->visible_indexes[*si] = num_pipeline_verts_prev + vert_buffer->visible_indexes[i];
+        (*si)++;
+    }
+}
+
 void core_draw_element(
     RenderState* render_state,
     RasPipelineElement* element,
@@ -620,9 +651,12 @@ void core_draw_element(
 {
     char buffer[1000];
     char buffer2[1000];
+    static RasPipelineVertexBuffer vert_buffer;
     RasFixed model_view_matrix[4][4];
     RasFixed combined_matrix[4][4];
     RasFixed dest_vec[4];
+
+    ras_log_buffer("core_draw_element ##################\n");
 
     // model -> view transform
     mat_mul_4x4_4x4(world_view_matrix, model_world_matrix, model_view_matrix);
@@ -651,11 +685,17 @@ void core_draw_element(
      * @brief Transform pipeline verts
      *
      */
+    vert_buffer.num_verts = 0;
+    vert_buffer.num_visible_indexes = 0;
+    memset(vert_buffer.visible_indexes, 0, sizeof(vert_buffer.visible_indexes));
+    memset(vert_buffer.verts, 0, sizeof(vert_buffer.verts));
+
     core_render_aabb(render_state, proj_matrix, frustum, &view_aabb);
     uint32_t num_verts_in_frustum = 0;
+
     for (uint32_t i = 0; i < element->num_verts; i++) {
         RasVertex* vertex = &element->verts[i];
-        RasPipelineVertex* pv = &render_state->pipeline_verts[i];
+        RasPipelineVertex* pv = &vert_buffer.verts[i];
 
         RasFixed model_space_position[4];
         RasFixed view_space_position[4];
@@ -675,29 +715,31 @@ void core_draw_element(
         pv->u = vertex->u;
         pv->v = vertex->v;
 
-        render_state->num_pipeline_verts++;
+        vert_buffer.num_verts++;
     }
 
     /**
      * @brief Determine visible faces
      *
      */
-    render_state->num_visible_indexes = 0;
-    uint32_t num_faces_visible = 0;
+    uint32_t num_visible_indexes_prev = render_state->num_visible_indexes;
+    uint32_t* npv = &render_state->num_pipeline_verts;
     uint32_t num_faces_in_frustum = 0;
     uint32_t num_faces_must_clip = 0;
-    uint32_t* vi = &render_state->num_visible_indexes;
+    uint32_t* vi = &vert_buffer.num_visible_indexes;
+
     for (uint32_t i = 0; i < element->num_indexes; i += 3) {
-        RasPipelineVertex* pv1 = &render_state->pipeline_verts[element->indexes[i]];
-        RasPipelineVertex* pv2 = &render_state->pipeline_verts[element->indexes[i + 1]];
-        RasPipelineVertex* pv3 = &render_state->pipeline_verts[element->indexes[i + 2]];
+        RasPipelineVertex* pv1 = &vert_buffer.verts[element->indexes[i]];
+        RasPipelineVertex* pv2 = &vert_buffer.verts[element->indexes[i + 1]];
+        RasPipelineVertex* pv3 = &vert_buffer.verts[element->indexes[i + 2]];
 
         if (pv1->clip_flags & pv2->clip_flags & pv3->clip_flags) {
             continue; // face is all out
         }
         num_faces_in_frustum += 1;
 
-        if (core_is_backface(render_state->pipeline_verts, &element->indexes[i])
+        // FIXME: Looking at screen space coord?
+        if (core_is_backface(&vert_buffer, &element->indexes[i])
             && render_state->backface_culling_mode == RAS_BACKFACE_CULLING_ON) {
             continue;
         }
@@ -705,25 +747,22 @@ void core_draw_element(
         RasClipFlags face_clip_flags = pv1->clip_flags | pv2->clip_flags | pv3->clip_flags;
         num_faces_must_clip += face_clip_flags == 0 ? 0 : 1;
 
-        // FIXME: first poly for testing
-        if (i == 0 && face_clip_flags != 0) {
-            core_clip_poly(frustum, face_clip_flags, render_state, &element->indexes[i]);
+        if (face_clip_flags != 0) {
+            core_clip_poly(frustum, face_clip_flags, &vert_buffer, &element->indexes[i]);
         } else {
-
-            render_state->visible_indexes[*vi] = element->indexes[i];
-            render_state->visible_indexes[*vi + 1] = element->indexes[i + 1];
-            render_state->visible_indexes[*vi + 2] = element->indexes[i + 2];
-            render_state->num_visible_indexes += 3;
+            vert_buffer.visible_indexes[*vi] = element->indexes[i];
+            vert_buffer.visible_indexes[*vi + 1] = element->indexes[i + 1];
+            vert_buffer.visible_indexes[*vi + 2] = element->indexes[i + 2];
+            vert_buffer.num_visible_indexes += 3;
         }
-        num_faces_visible = render_state->num_visible_indexes / 3;
     }
 
     // Project to screen space
-    for (uint32_t i = 0; i < render_state->num_pipeline_verts; i++) {
+    for (size_t i = 0; i < vert_buffer.num_verts; i++) {
         RasFixed view_space_position[4];
         RasFixed screen_space_vec[4];
         RasFixed projected_vec[4];
-        RasPipelineVertex* pv = &render_state->pipeline_verts[i];
+        RasPipelineVertex* pv = &vert_buffer.verts[i];
 
         core_vector3f_to_4x1(&pv->view_space_position, view_space_position);
         // Screen space in NDC coords
@@ -738,13 +777,17 @@ void core_draw_element(
         ras_log_trace("pipeline screen space pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->screen_space_position));
     }
 
-    RasPipelineVertex* pv = &render_state->pipeline_verts[0];
+    core_append_vertex_buffer(render_state, &vert_buffer);
+    RasPipelineVertex* pv = &vert_buffer.verts[0];
+
     ras_log_buffer(
         "pv 0: view space pos: %s\nscreen space pos: %s\n",
         repr_point3f(buffer, sizeof buffer, &pv->view_space_position),
         repr_vector4f(buffer2, sizeof buffer, &pv->screen_space_position));
 
     ras_log_buffer("Verts in frustum: %d\n", num_verts_in_frustum);
+    uint32_t num_faces_visible = (render_state->num_visible_indexes - num_visible_indexes_prev) / 3;
+
     ras_log_buffer(
         "Faces:\n    In Model: %d. In frustum: %d. Visible: %d. Must clip %d. After clip: %d\n",
         element->num_indexes / 3,
