@@ -5,7 +5,7 @@
     (model :name "cube" :path "./assets/models/cube.obj"))
   (objects
     (object
-      :model_name "ico"
+      :model_name "tri"
       :position (vec -2.5 0.0 -2.5)
       :orientation (vec 0.0 0.0 0.0))
     (object

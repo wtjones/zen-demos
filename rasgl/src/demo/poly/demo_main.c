@@ -53,12 +53,14 @@ RasResult ras_app_init(int argc, const char** argv, ScreenSettings* init_setting
 void ras_app_update(__attribute__((unused)) InputState* input_state)
 {
     RasVector3f model_pos_prev;
+    RasVector3f model_rot_prev;
     RasVector3f* model_pos = &current_object->position;
     RasVector3f* model_rotation = &current_object->rotation;
 
     ras_camera_update(camera, input_state);
 
     memcpy(&model_pos_prev, &current_object->position, sizeof model_pos_prev);
+    memcpy(&model_rot_prev, &current_object->rotation, sizeof model_rot_prev);
 
     bool modifiers = input_state->keys[RAS_KEY_LCTRL] == 1
         || input_state->keys[RAS_KEY_LSHIFT] == 1;
@@ -151,10 +153,13 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
         model_rotation->z += 360;
     }
 
-    if (!cmp_point3f(model_pos, &model_pos_prev)) {
+    if (!cmp_point3f(model_pos, &model_pos_prev)
+        || !cmp_point3f(model_rotation, &model_rot_prev)) {
         char buffer[100];
         ras_log_info(
             "model_pos: %s", repr_point3f(buffer, sizeof(buffer), model_pos));
+        ras_log_info(
+            "model_rot: %s", repr_point3f(buffer, sizeof(buffer), model_rotation));
     }
 }
 
