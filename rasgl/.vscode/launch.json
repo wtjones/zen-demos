@@ -16,7 +16,7 @@
             },
             "preLaunchTask": "CMake: build",
             "args": [
-                "./assets/models/tri.obj"
+                "${input:scenePath}"
             ]
         },
         {
@@ -30,6 +30,18 @@
                 "miDebuggerPath": "/usr/bin/gdb"
             },
             "preLaunchTask": "CMake: build"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "scenePath",
+            "type": "pickString",
+            "description": "Enter the argument value:",
+            "default": "./assets/scenes/tri.lsp",
+            "options": [
+                "./assets/scenes/tri.lsp",
+                "./assets/scenes/multi01.lsp"
+            ]
         }
     ]
 }
