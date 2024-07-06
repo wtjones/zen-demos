@@ -203,7 +203,7 @@ Flatpak example:
 
 ```bash
 flatpak install flathub com.dosbox_x.DOSBox-X
-export DOSBOX_BIN="/var/lib/flatpak/exports/bin/com.dosbox_x.DOSBox-X"
+export DOSBOX_BIN="flatpak run --filesystem=/tmp com.dosbox_x.DOSBox-X"
 ```
 
 #### Run

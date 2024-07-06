@@ -7,6 +7,8 @@ DEBUG=${2:-0}
 DEMO_PARAM_01=${3:-}
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+${SCRIPT_DIR}/build_deps_dos.sh
 ${SCRIPT_DIR}/tools/gen_dosbox.sh $DEMO_PARAM_01
 
 main() {
