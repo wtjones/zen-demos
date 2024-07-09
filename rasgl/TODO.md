@@ -31,7 +31,6 @@
 
 ### Scene loading
 
-- [ ] DOS scene support
 - [ ] Reference larse as a target or package
 - [ ] Add scene explanation to README
 
@@ -71,3 +70,4 @@
 - [x] Scene camera position
 - [x] Scene model position
 - [x] Render multiple scene objects
+- [x] DOS scene support
