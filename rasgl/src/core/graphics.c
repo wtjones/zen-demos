@@ -153,10 +153,11 @@ void projected_to_screen_point(RasFixed screen_width, RasFixed screen_height, Ra
 bool core_is_backface(RasPipelineVertexBuffer* vertex_buffer, uint32_t indexes[3])
 {
     RasPipelineVertex* pv0 = &vertex_buffer->verts[indexes[2]];
-    RasVector4f* sv0 = &pv0->screen_space_position;
     RasPipelineVertex* pv1 = &vertex_buffer->verts[indexes[1]];
-    RasVector4f* sv1 = &pv1->screen_space_position;
     RasPipelineVertex* pv2 = &vertex_buffer->verts[indexes[0]];
+
+    RasVector4f* sv0 = &pv0->screen_space_position;
+    RasVector4f* sv1 = &pv1->screen_space_position;
     RasVector4f* sv2 = &pv2->screen_space_position;
 
     // norm1 = (1.x - 0.x) * (0.y - 2.y)
@@ -715,6 +716,19 @@ void core_draw_element(
         pv->u = vertex->u;
         pv->v = vertex->v;
 
+        // project to screen space
+        core_vector3f_to_4x1(&pv->view_space_position, view_space_position);
+        // Screen space in NDC coords
+        mat_mul_project(proj_matrix, view_space_position, projected_vec);
+
+        core_projected_to_screen_point(
+            render_state->screen_settings.screen_width,
+            render_state->screen_settings.screen_height,
+            projected_vec,
+            &pv->screen_space_position);
+
+        ras_log_trace("pipeline screen space pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->screen_space_position));
+
         vert_buffer.num_verts++;
     }
 
@@ -723,10 +737,10 @@ void core_draw_element(
      *
      */
     uint32_t num_visible_indexes_prev = render_state->num_visible_indexes;
-    uint32_t* npv = &render_state->num_pipeline_verts;
     uint32_t num_faces_in_frustum = 0;
     uint32_t num_faces_must_clip = 0;
     uint32_t* vi = &vert_buffer.num_visible_indexes;
+    uint32_t num_projected_verts = vert_buffer.num_verts;
 
     for (uint32_t i = 0; i < element->num_indexes; i += 3) {
         RasPipelineVertex* pv1 = &vert_buffer.verts[element->indexes[i]];
@@ -738,7 +752,6 @@ void core_draw_element(
         }
         num_faces_in_frustum += 1;
 
-        // FIXME: Looking at screen space coord?
         if (core_is_backface(&vert_buffer, &element->indexes[i])
             && render_state->backface_culling_mode == RAS_BACKFACE_CULLING_ON) {
             continue;
@@ -757,13 +770,14 @@ void core_draw_element(
         }
     }
 
-    // Project to screen space
-    for (size_t i = 0; i < vert_buffer.num_verts; i++) {
+    // Project verts created from clipping
+    for (uint32_t i = num_projected_verts; i < vert_buffer.num_verts; i++) {
         RasFixed view_space_position[4];
         RasFixed screen_space_vec[4];
         RasFixed projected_vec[4];
         RasPipelineVertex* pv = &vert_buffer.verts[i];
 
+        // project to screen space
         core_vector3f_to_4x1(&pv->view_space_position, view_space_position);
         // Screen space in NDC coords
         mat_mul_project(proj_matrix, view_space_position, projected_vec);

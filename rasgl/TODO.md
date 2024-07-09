@@ -13,7 +13,6 @@
 - [ ] Validate screen points are in screen bounds
 - [ ] Filled polygon mode
 - [ ] Shaded polygon mode
-- [ ] Backface culling is broken
 
 ### Clipping - Polygon
 
@@ -64,6 +63,10 @@
 ### Models
 
 - [x] Fix DOS version not taking model param
+
+### Rendering
+
+- [x] Backface culling is broken
 
 ### Scene Loading
 
