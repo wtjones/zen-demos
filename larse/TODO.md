@@ -5,7 +5,6 @@
 - [ ] Test coverage for decimal
 - [ ] Test coverage for integer
 - [ ] Test coverage for boolean
-- [ ] Shell debug output should be optional
 - [ ] Add test framework
   - <https://github.com/ThrowTheSwitch/Unity>
 - [ ] Free expression on error
@@ -13,6 +12,9 @@
 - [ ] Support dosbox.conf templating for param passing
 
 ### In Progress
+
+- [ ] Shell debug output should be optional
+- [ ] Add log config to README
 
 ### Done
 

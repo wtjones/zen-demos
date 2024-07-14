@@ -1,6 +1,7 @@
 #include "larse/core/parse.h"
 #include "io.h"
 #include "larse/core/expression.h"
+#include "log.c/src/log.h"
 #include "parse_token.h"
 #include <assert.h>
 #include <stdio.h>
@@ -88,20 +89,20 @@ LarParseResult parse_list(
 
         switch (exp_type) {
         case LAR_PARSE_EXP_NONE:
-            fprintf(stderr, "parse_list: expression not found\n");
+            log_error("parse_list: expression not found\n");
 
             return LAR_PARSE_RESULT_ERROR;
             break;
 
         case LAR_PARSE_EXP_LIST_END:
-            printf("parse_list: found: )\n");
+            log_info("parse_list: found: )", "");
             (*buffer_pos)++;
 
             return LAR_PARSE_RESULT_OK;
             break;
 
         case LAR_PARSE_EXP_ATOM:
-            printf("parse_list: found: atom\n");
+            log_info("parse_list: found: atom", "");
             LarNode* new_atom_node = append_list_node(node);
             new_atom_node->node_type = LAR_NODE_ATOM_INTEGER;
             LarParseResult atom_result = parse_token_atom(file_buffer, buffer_pos, new_atom_node);
@@ -112,7 +113,7 @@ LarParseResult parse_list(
 
             break;
         case LAR_PARSE_EXP_LIST_START:
-            printf("parse_list: found: (\n");
+            log_info("parse_list: found: (", "");
 
             LarNode* new_list_node = append_list_node(node);
             new_list_node->node_type = LAR_NODE_LIST;
@@ -149,14 +150,14 @@ LarParseResult lar_parse_single(
         return result;
     }
     if (exp_type != LAR_PARSE_EXP_LIST_START) {
-        fprintf(stderr, "Expression not found.\n");
+        log_error("Expression not found.\n");
         return LAR_PARSE_RESULT_ERROR;
     }
 
     *node = malloc(sizeof(LarNode));
 
     if (*node == NULL) {
-        fprintf(stderr, "Cannot malloc()\n");
+        log_error("Cannot malloc()\n");
         return LAR_PARSE_RESULT_ERROR;
     }
 
@@ -191,13 +192,13 @@ LarParseResult lar_parse_script(
     int buffer_pos = 0;
     LarScript* new_script = malloc(sizeof(LarScript));
     if (new_script == NULL) {
-        fprintf(stderr, "Error from malloc().\n");
+        log_error("Error from malloc().\n");
         return LAR_PARSE_RESULT_ERROR;
     }
 
     new_script->expressions = malloc(sizeof(LarNode));
     if (new_script->expressions == NULL) {
-        fprintf(stderr, "Error from malloc().\n");
+        log_error("Error from malloc().\n");
         free(new_script);
         return LAR_PARSE_RESULT_ERROR;
     }
@@ -213,7 +214,7 @@ LarParseResult lar_parse_script(
     while (exp_type != LAR_PARSE_EXP_NONE) {
 
         if (exp_type != LAR_PARSE_EXP_LIST_START) {
-            fprintf(stderr, "Expression not found.\n");
+            log_error("Expression not found.\n");
             // TODO: free
             return LAR_PARSE_RESULT_ERROR;
         }

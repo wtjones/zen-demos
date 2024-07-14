@@ -1,4 +1,5 @@
 #include "io.h"
+#include "log.c/src/log.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -7,7 +8,7 @@ char* io_read_file(const char* path)
     FILE* file = fopen(path, "r");
 
     if (!file) {
-        fprintf(stderr, "Can't open file: %s\n", path);
+        log_error("Can't open file: %s\n", path);
         return NULL;
     }
     fseek(file, 0, SEEK_END);
@@ -15,7 +16,7 @@ char* io_read_file(const char* path)
     fseek(file, 0, SEEK_SET);
     char* file_buffer = malloc(file_size + 1);
     if (NULL == file_buffer) {
-        fprintf(stderr, "Can't malloc()!\n");
+        log_error(stderr, "Can't malloc()!", "");
         return NULL;
     }
 

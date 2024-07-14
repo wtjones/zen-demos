@@ -1,4 +1,5 @@
 #include "larse/core/expression.h"
+#include "log.c/src/log.h"
 #include <assert.h>
 #include <stdio.h>
 
@@ -33,7 +34,7 @@ void free_expression_walk(LarNode* node, int depth)
         break;
 
     default:
-        fprintf(stderr, "Invalid node type\n");
+        log_error("Invalid node type", "");
         assert(false);
         break;
     }

@@ -1,4 +1,5 @@
 #include "parse_token.h"
+#include "log.c/src/log.h"
 
 /**
  * @brief Is this a valid char to trail an atom?
@@ -37,7 +38,7 @@ LarParseResult parse_token_atom_boolean(const char* file_buffer,
         return LAR_PARSE_RESULT_PASS;
     }
 
-    printf("Boolean found, adding to node: %s\n", is_true ? "true" : "false");
+    log_info("Boolean found, adding to node: %s\n", is_true ? "true" : "false");
     node->node_type = LAR_NODE_ATOM_BOOLEAN;
     node->atom.val_bool = is_true;
     *buffer_pos = pos;
@@ -79,13 +80,13 @@ LarParseResult parse_token_atom_integer(
     bool is_integer = num_digits > 0 && num_digits == strlen(token);
 
     if (!is_integer) {
-        printf("parse_token_atom_number(): token %s not int, passing...\n", token);
+        log_info("parse_token_atom_number(): token %s not int, passing...\n", token);
         return LAR_PARSE_RESULT_PASS;
     }
 
     node->node_type = LAR_NODE_ATOM_INTEGER;
     node->atom.val_integer = atoi(token) * (sign == '-' ? -1 : 1);
-    printf("Integer found, adding to node: %d\n", node->atom.val_integer);
+    log_info("Integer found, adding to node: %d\n", node->atom.val_integer);
     (*buffer_pos) = pos;
 
     return LAR_PARSE_RESULT_OK;
@@ -96,7 +97,7 @@ int32_t decimal_to_fixed(char sign, char* whole, char* frac)
 
     int32_t exp = pow(10, (int)strlen(frac));
     int32_t frac_part = atoi(frac) * 65536 / exp;
-    printf("Fractional shifted: %d\n", frac_part);
+    log_info("Fractional shifted: %d\n", frac_part);
     LarFixed result = atoi(whole) * 65536 + frac_part;
     result *= (sign == '+' ? 1 : -1);
     return result;
@@ -147,11 +148,11 @@ LarParseResult parse_token_atom_fixed(
         && num_decimal_points == 1;
 
     if (!is_decimal) {
-        printf("parse_token_atom_decimal(): token %s not decimal, passing...\n", token);
+        log_info("parse_token_atom_decimal(): token %s not decimal, passing...\n", token);
         return LAR_PARSE_RESULT_PASS;
     }
 
-    printf("Decimal found in token %s at pos %zu\n", token, decimal_offset);
+    log_info("Decimal found in token %s at pos %zu\n", token, decimal_offset);
 
     strncpy(whole, token, decimal_offset);
     whole[decimal_offset] = '\0';
@@ -195,7 +196,7 @@ LarParseResult parse_token_atom_string(const char* file_buffer,
             (*buffer_pos)++;
             ch[0] = file_buffer[(*buffer_pos)];
             if (ch[0] != '"' && ch[0] != '\\') {
-                fprintf(stderr, "Backslash must be followed by \" or \\. Instead found: %s\n", ch);
+                log_error("Backslash must be followed by \" or \\. Instead found: %s\n", ch);
                 return LAR_PARSE_RESULT_ERROR;
             }
         }
@@ -204,7 +205,7 @@ LarParseResult parse_token_atom_string(const char* file_buffer,
         ch[0] = file_buffer[(*buffer_pos)];
     }
 
-    printf("String found, adding to node: \"%s\"\n", token);
+    log_info("String found, adding to node: \"%s\"\n", token);
     node->node_type = LAR_NODE_ATOM_STRING;
     node->atom.val_string = malloc(strlen(token) + 1);
     strcpy(node->atom.val_string, token);
@@ -240,7 +241,7 @@ LarParseResult parse_token_atom_symbol(
 
     while ('\0' != ch[0] && !is_atom_end_char(ch[0])) {
         if (!is_valid_symbol(ch[0])) {
-            fprintf(stderr, "parse_token_atom_symbol: Invalid char: %c\n", ch[0]);
+            log_error("parse_token_atom_symbol: Invalid char: %c\n", ch[0]);
             return LAR_PARSE_RESULT_ERROR;
         }
         strcat(token, ch);
@@ -248,7 +249,7 @@ LarParseResult parse_token_atom_symbol(
         ch[0] = file_buffer[pos];
     }
 
-    printf("Symbol found, adding to node: %s\n", token);
+    log_info("Symbol found, adding to node: %s\n", token);
     *buffer_pos = pos;
     node->node_type = LAR_NODE_ATOM_SYMBOL;
     node->atom.val_symbol = malloc(strlen(token) + 1);
@@ -266,13 +267,13 @@ LarParseResult parse_token_atom(
 
     result = parse_token_atom_string(file_buffer, buffer_pos, node);
     if (result != LAR_PARSE_RESULT_PASS) {
-        printf("parse_token_atom: found atom string\n");
+        log_info("parse_token_atom: found atom string\n");
         return result;
     }
 
     result = parse_token_atom_boolean(file_buffer, buffer_pos, node);
     if (result != LAR_PARSE_RESULT_PASS) {
-        printf("parse_token_atom: found atom boolean\n");
+        log_info("parse_token_atom: found atom boolean\n");
         return result;
     }
 
@@ -288,10 +289,10 @@ LarParseResult parse_token_atom(
 
     result = parse_token_atom_symbol(file_buffer, buffer_pos, node);
     if (result != LAR_PARSE_RESULT_PASS) {
-        printf("parse_token_atom: found atom symbol\n");
+        log_info("parse_token_atom: found atom symbol\n");
         return result;
     }
 
-    fprintf(stderr, "parse_token_atom: atom not identifed at pos %d\n", *buffer_pos);
+    log_error("parse_token_atom: atom not identifed at pos %d\n", *buffer_pos);
     return LAR_PARSE_RESULT_ERROR;
 }
