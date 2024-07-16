@@ -13,7 +13,6 @@
 
 ### In Progress
 
-- [ ] Shell debug output should be optional
 - [ ] Add log config to README
 
 ### Done
@@ -22,3 +21,4 @@
 - [x] Add repr script to string
 - [x] Add shell app
 - [x] Add DOS build
+- [x] Shell debug output should be optional

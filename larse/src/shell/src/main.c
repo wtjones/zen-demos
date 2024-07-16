@@ -3,8 +3,10 @@
 #include "larse/core/parse.h"
 #include "larse/core/repr.h"
 #include "log.c/src/log.h"
+#include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 void print_usage()
 {
@@ -17,45 +19,62 @@ void print_usage()
            " -x expressions - execute the expressions, then exit\n");
 }
 
-int main(int argc, char* argv[])
+int handle_parse_result(LarParseResult result, LarScript** script)
 {
+    if (result != LAR_PARSE_RESULT_OK) {
+        log_error("Error parsing script", "");
+        return 1;
+    }
+
+    char* repr = lar_repr_script(*script);
+    log_info("Shell output: \n%s", repr);
+    printf("%s\n", repr);
+    free(repr);
+    lar_free_script(script);
+    return 0;
+}
+
+int main(int argc, char** argv)
+{
+    int vflag = 0;
+    char* expression = NULL;
+    int c;
+
     FILE* log_file = fopen("/tmp/larse.log", "w");
     lar_log_configure(log_file);
 
-    if (argc >= 3 && strcmp(argv[1], "-x") == 0) {
-
-        const char* script_raw = argv[2];
-        LarScript* script;
-        LarParseResult result = lar_parse_script(script_raw, &script);
-
-        if (result != LAR_PARSE_RESULT_OK) {
-            log_error("Error parsing script", "");
+    while ((c = getopt(argc, argv, "vx:")) != -1) {
+        switch (c) {
+        case 'v':
+            vflag = 1;
+            log_set_level(LOG_INFO);
+            break;
+        case 'x':
+            expression = optarg;
+            break;
+        case '?':
+            if (optopt == 'x') {
+                log_error("Option -%c requires an argument.", optopt);
+            }
+            print_usage();
             return 1;
+        default:
+            abort();
         }
-
-        char* repr = lar_repr_script(script);
-        log_info("Shell output: \n%s", repr);
-        printf("%s\n", repr);
-        free(repr);
-        lar_free_script(&script);
-        return 0;
     }
 
-    if (argc == 2) {
-        const char* script_path = argv[1];
-        LarScript* script;
-        LarParseResult result = lar_parse_file(script_path, &script);
+    log_info("vflag = %d, expression = %s\n", vflag, expression ? expression : "NULL");
 
-        if (result != LAR_PARSE_RESULT_OK) {
-            log_error("Error parsing script", "");
-            return 1;
-        }
-        char* repr = lar_repr_script(script);
-        log_info("Shell output: \n%s", repr);
-        printf("%s\n", repr);
-        free(repr);
-        lar_free_script(&script);
-        return 0;
+    if (expression) {
+        LarScript* script;
+        return handle_parse_result(
+            lar_parse_script(expression, &script), &script);
+    }
+    if (optind < argc) {
+        log_info("script file argument: %s\n", argv[optind]);
+        LarScript* script;
+        return handle_parse_result(
+            lar_parse_file(argv[optind], &script), &script);
     }
 
     print_usage();
