@@ -21,7 +21,7 @@ log_fatal(const char *fmt, ...);
 Each function takes alog_trace format string followed by additional arguments:
 
 ```c
-ras_log_info("Hello %s", "world")
+log_trace("Hello %s", "world")
 ```
 
 Resulting in a line with the given format printed to stderr:
