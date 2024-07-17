@@ -16,7 +16,7 @@ char* io_read_file(const char* path)
     fseek(file, 0, SEEK_SET);
     char* file_buffer = malloc(file_size + 1);
     if (NULL == file_buffer) {
-        log_error(stderr, "Can't malloc()!", "");
+        log_error("Can't malloc()!", "");
         return NULL;
     }
 
