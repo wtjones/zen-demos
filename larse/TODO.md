@@ -13,8 +13,6 @@
 
 ### In Progress
 
-- [ ] Add log config to README
-
 ### Done
 
 - [x] Add repr expression to string
@@ -22,3 +20,4 @@
 - [x] Add shell app
 - [x] Add DOS build
 - [x] Shell debug output should be optional
+- [x] Add log config to README

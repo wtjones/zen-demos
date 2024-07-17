@@ -15,6 +15,7 @@ void print_usage()
            " When 'scriptfile' is given, it is loaded.\n"
            "Informative output:\n"
            " -h, --help    - print this help and exit\n"
+           " -v            - verbose output\n"
            "Actions:\n"
            " -x expressions - execute the expressions, then exit\n");
 }
