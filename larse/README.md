@@ -7,6 +7,7 @@ Lisp-like language for scripting and configuration
 - Parse s-expressions
   - Single s-expression
   - Script as an array of expressions
+  - Single-line comments ';'
 - Pretty-print expressions
 
 See [TODO](TODO.md) for roadmap.
@@ -68,7 +69,7 @@ int main(int argc, const char** argv)
 
 Output:
 
-```
+```text
 [List]
     this [Atom: symbol]
     :here [Atom: symbol]
