@@ -21,3 +21,4 @@
 - [x] Add DOS build
 - [x] Shell debug output should be optional
 - [x] Add log config to README
+- [x] Support single-line comments

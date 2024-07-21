@@ -6,6 +6,31 @@
 #include <stdint.h>
 #include <stdio.h>
 
+int test_parse_comment()
+{
+    // Arrange
+    const char* file_path = TEST_DATA_DIR "/comment1.lsp";
+    const size_t expected_expressions = 2;
+    const size_t expected_calcs = 2;
+    LarScript* script;
+    LarParseResult result;
+
+    // Act
+    result = lar_parse_file(file_path, &script);
+
+    // Assert
+    assert(result == LAR_PARSE_RESULT_OK);
+    bool pass = script->expressions->list.length == expected_expressions;
+
+    LarNode* last_exp = lar_get_list_by_symbol(script->expressions, "some-calc");
+
+    const size_t actual_length = last_exp->list.length;
+    pass = pass && actual_length - 1 == expected_calcs;
+
+    lar_free_script(&script);
+    return !pass;
+}
+
 int test_parse_file()
 {
     const char* file_path = TEST_DATA_DIR "/test1.lsp";
@@ -200,6 +225,7 @@ int test_get_list()
 }
 
 TestFn test_fns[] = {
+    { "TEST_PARSE_COMMENT", test_parse_comment },
     { "TEST_PARSE_FILE", test_parse_file },
     { "TEST_PARSE_SYMBOL", test_parse_symbol },
     { "TEST_PARSE_SINGLE", test_parse_single },

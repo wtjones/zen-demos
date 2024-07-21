@@ -37,31 +37,46 @@ LarParseResult seek_expression(
     int* buffer_pos,
     LarParseExpressionType* exp_type)
 {
-    // Find first non-whitespace
     char ch = file_buffer[(*buffer_pos)];
-    while ('\0' != ch && is_whitespace_char(ch)) {
-        (*buffer_pos)++;
-        ch = file_buffer[(*buffer_pos)];
-    }
 
-    if ('\0' == ch) {
-        *exp_type = LAR_PARSE_EXP_NONE;
+    do {
+        while ('\0' != ch && is_whitespace_char(ch)) {
+            (*buffer_pos)++;
+            ch = file_buffer[(*buffer_pos)];
+        }
+
+        if ('\0' == ch) {
+            *exp_type = LAR_PARSE_EXP_NONE;
+            return LAR_PARSE_RESULT_OK;
+        }
+
+        // If comment, seek to EOL and restart the search
+        if (';' == ch) {
+            while ('\0' != ch && ch != '\n') {
+                (*buffer_pos)++;
+                ch = file_buffer[(*buffer_pos)];
+            }
+            continue;
+        }
+
+        if ('(' == ch) {
+            *exp_type = LAR_PARSE_EXP_LIST_START;
+
+            return LAR_PARSE_RESULT_OK;
+        }
+
+        if (')' == ch) {
+            *exp_type = LAR_PARSE_EXP_LIST_END;
+            return LAR_PARSE_RESULT_OK;
+        }
+
+        *exp_type = LAR_PARSE_EXP_ATOM;
         return LAR_PARSE_RESULT_OK;
-    }
 
-    if ('(' == ch) {
-        *exp_type = LAR_PARSE_EXP_LIST_START;
+    } while (true);
 
-        return LAR_PARSE_RESULT_OK;
-    }
-
-    if (')' == ch) {
-        *exp_type = LAR_PARSE_EXP_LIST_END;
-        return LAR_PARSE_RESULT_OK;
-    }
-
-    *exp_type = LAR_PARSE_EXP_ATOM;
-    return LAR_PARSE_RESULT_OK;
+    assert(false);
+    return LAR_PARSE_RESULT_ERROR;
 }
 
 LarParseResult parse_list(
