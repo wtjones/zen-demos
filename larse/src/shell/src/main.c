@@ -3,10 +3,18 @@
 #include "larse/core/parse.h"
 #include "larse/core/repr.h"
 #include "log.c/src/log.h"
-#include <getopt.h>
+#ifndef __MSDOS__
+#    include <getopt.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+#ifdef __MSDOS__
+#    define LAR_DEFAULT_LOG_FILE "L:\\LARSE.LOG"
+#else
+#    define LAR_DEFAULT_LOG_FILE "/tmp/larse.log"
+#endif
 
 void print_usage()
 {
@@ -41,9 +49,8 @@ int main(int argc, char** argv)
     char* expression = NULL;
     int c;
 
-    FILE* log_file = fopen("/tmp/larse.log", "w");
+    FILE* log_file = fopen(LAR_DEFAULT_LOG_FILE, "w");
     lar_log_configure(log_file);
-
     while ((c = getopt(argc, argv, "vx:")) != -1) {
         switch (c) {
         case 'v':
