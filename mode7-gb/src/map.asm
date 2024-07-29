@@ -1,6 +1,6 @@
 include "map.inc"
 
-EMPTY_TILE              EQU 1
+DEF EMPTY_TILE              EQU 1
 
 SECTION "map vars", WRAM0
 

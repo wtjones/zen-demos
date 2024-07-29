@@ -1,4 +1,4 @@
-ROTATION_RECORD_SIZE    EQU 8
+DEF ROTATION_RECORD_SIZE    EQU 8
 
 SECTION "rotation lookup vars", WRAM0
 
@@ -42,11 +42,11 @@ set_rotation::
     add     hl, hl
     add     hl, hl
     add     hl, hl
-    
+
     ; add offset to start of lookup
     ld      de, rotation_data
     add     hl, de
-    
+
     ; cpu is little-endian
     ld      a, [hl+]
     ld      [rotated_x_frac], a
@@ -56,7 +56,7 @@ set_rotation::
     ld      [rotated_y_frac], a
     ld      a, [hl+]
     ld      [rotated_y_whole], a
-    
+
     ld      a, [hl+]
     ld      [delta_x_frac], a
     ld      a, [hl+]
@@ -65,5 +65,5 @@ set_rotation::
     ld      [delta_y_frac], a
     ld      a, [hl+]
     ld      [delta_y_whole], a
-     
+
     ret

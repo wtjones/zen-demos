@@ -8,8 +8,8 @@ INCLUDE "debug.inc"
 SECTION "renderer vars", WRAM0
 
 ; Sub-tiles are the 2x2 "pixels" of each BG tile
-SUB_TILE_X      EQU SCRN_X_B * 2
-SUB_TILE_Y      EQU SCRN_Y_B * 2
+DEF SUB_TILE_X      EQU SCRN_X_B * 2
+DEF SUB_TILE_Y      EQU SCRN_Y_B * 2
 
 screen_x:: DS 1
 screen_y:: DS 1
