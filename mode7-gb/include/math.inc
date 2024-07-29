@@ -1,5 +1,5 @@
 IF      !DEF(MATH_ASM)
-MATH_ASM = 1
+DEF MATH_ASM = 1
 
 
 ; Treat each pair of params as 16-bit hi/low and perform:
@@ -11,7 +11,7 @@ MATH_ASM = 1
 ;   \4 low byte of second variable
 ; Destroys
 ;   DE, HL
-ADD_N16_N16_DE: MACRO
+MACRO ADD_N16_N16_DE
     ld      a, [\3]
     ld      h, a
     ld      a, [\4]
@@ -38,7 +38,7 @@ ADD_N16_N16_DE: MACRO
 ;   \6 low byte of third variable
 ; Destroys
 ;   DE, HL
-ADD_N16_N16_N16: MACRO
+MACRO ADD_N16_N16_N16
     ld      a, [\3]
     ld      h, a
     ld      a, [\4]
@@ -70,7 +70,7 @@ ADD_N16_N16_N16: MACRO
 ;   \6 low byte of third variable
 ; Destroys
 ;   DE, HL
-SUB_N16_N16_N16: MACRO
+MACRO SUB_N16_N16_N16
     ld      a, [\5]
     cpl
     ld      h, a

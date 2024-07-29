@@ -1,11 +1,11 @@
 
 
 IF      !DEF(COMMAND_LIST_ASM)
-COMMAND_LIST_ASM = 1
+DEF COMMAND_LIST_ASM = 1
 
 ; Inline add of offset while retaining hl
 ; de += bc
-ADD_ROW_OFFSET: MACRO
+MACRO ADD_ROW_OFFSET
     push    hl
     ld      h, d
     ld      l, e

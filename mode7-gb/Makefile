@@ -43,7 +43,7 @@ $(OUTPUT): $(OBJECTS)
 	$(FIX) $(FIX_FLAGS) $@.gb
 
 build/%.obj: %.asm
-	$(ASM) -D MODE=$(MODE) -i$(INCDIR)/ -o$@ $<
+	$(ASM) -D MODE=$(MODE) -I$(INCDIR)/ -o$@ $<
 
 clean:
 	rm -rf $(BUILD_DIR)/*
