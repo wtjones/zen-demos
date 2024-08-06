@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
     sigset(SIGINT, sigint_handler);
 
     FILE* log_file = fopen(LOG_PATH, "w");
-    log_add_fp(log_file, 0);
+    log_add_fp(log_file, LOG_INFO);
     log_set_quiet(true);
 
     if (argc == 2) {

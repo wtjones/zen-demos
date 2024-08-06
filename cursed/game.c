@@ -7,6 +7,8 @@
 #include <stdlib.h>
 
 int game_keys[GAME_MAX_KEYS];
+int mouse_x = 0;
+int mouse_y = 0;
 Snake snakes[MAX_SNAKES];
 Wall walls[MAX_WALLS];
 Pellet pellets[MAX_PELLETS];

@@ -8,27 +8,37 @@ void input_update()
         game_keys[i] = 0;
     }
 
-    nodelay(stdscr, 1);
-    keypad(stdscr, 1);
-
     int ch = getch();
-    if (ch != ERR) {
-        switch (ch) {
-        case 'q':
-            game_keys[GAME_KEY_Q] = 1;
-            break;
-        case KEY_UP:
-            game_keys[GAME_KEY_UP] = 1;
-            break;
-        case KEY_DOWN:
-            game_keys[GAME_KEY_DOWN] = 1;
-            break;
-        case KEY_LEFT:
-            game_keys[GAME_KEY_LEFT] = 1;
-            break;
-        case KEY_RIGHT:
-            game_keys[GAME_KEY_RIGHT] = 1;
-            break;
+    if (ch == ERR) {
+        return;
+    }
+
+    switch (ch) {
+    case KEY_MOUSE:
+        MEVENT event;
+        if (getmouse(&event) == OK) {
+            if (event.bstate & BUTTON1_RELEASED) {
+                log_info("Mouse release at %d, %d", event.x, event.y);
+                game_keys[GAME_KEY_MOUSE1] = 1;
+                mouse_x = event.x / 2;
+                mouse_y = event.y;
+            }
         }
+        break;
+    case 'q':
+        game_keys[GAME_KEY_Q] = 1;
+        break;
+    case KEY_UP:
+        game_keys[GAME_KEY_UP] = 1;
+        break;
+    case KEY_DOWN:
+        game_keys[GAME_KEY_DOWN] = 1;
+        break;
+    case KEY_LEFT:
+        game_keys[GAME_KEY_LEFT] = 1;
+        break;
+    case KEY_RIGHT:
+        game_keys[GAME_KEY_RIGHT] = 1;
+        break;
     }
 }

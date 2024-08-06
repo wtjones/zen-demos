@@ -11,7 +11,8 @@
 #define GAME_KEY_LEFT 2
 #define GAME_KEY_RIGHT 3
 #define GAME_KEY_Q 4
-#define GAME_MAX_KEYS 5
+#define GAME_KEY_MOUSE1 5
+#define GAME_MAX_KEYS 6
 #define MAX_SNAKES 8
 #define MAX_WALLS 300 * 200 // redefined because clang-format issue
 #define MAX_PELLETS 50
@@ -19,6 +20,7 @@
 #define PELLET_DECAY 600
 
 extern int game_keys[GAME_MAX_KEYS];
+extern int mouse_x, mouse_y;
 extern Snake snakes[MAX_SNAKES];
 extern Wall walls[MAX_WALLS];
 extern Pellet pellets[MAX_PELLETS];

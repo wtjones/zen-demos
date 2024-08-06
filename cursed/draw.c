@@ -14,8 +14,16 @@ void draw_init()
 {
     setlocale(LC_ALL, "");
     mainwin = initscr();
+    raw();
+    keypad(stdscr, 1);
     noecho();
+    clear();
+    cbreak();
     curs_set(FALSE);
+    mouseinterval(0);
+    nodelay(stdscr, 1);
+
+    mousemask(ALL_MOUSE_EVENTS, NULL);
     getmaxyx(stdscr, g_max_y, g_max_x);
 
     start_color();
