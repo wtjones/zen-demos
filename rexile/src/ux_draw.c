@@ -1,5 +1,25 @@
 #include "ux_draw.h"
 
+void draw_board(Game* game)
+{
+    int x = 3, y = 3;
+
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            BoardCell* cell = &game->board.cells[i][j];
+            mvprintw(y, x, "%d", cell->type);
+            if (game->cursor.row == i && game->cursor.col == j) {
+                attron(A_REVERSE);
+                mvprintw(y, x, "%d", cell->type);
+                attroff(A_REVERSE);
+            }
+            x += 3;
+        }
+        x = 3;
+        y += 3;
+    }
+}
+
 void draw_grid(int start_y, int start_x, int rows, int cols, int cell_height, int cell_width)
 {
     // FIXME
@@ -36,12 +56,12 @@ void draw_grid(int start_y, int start_x, int rows, int cols, int cell_height, in
     refresh();
 }
 
-void ux_draw_start()
+void ux_draw_start(Game* game)
 {
     int rows = 4;
     int cols = 4;
     int cell_height = 3;
     int cell_width = 3;
 
-    draw_grid(0, 0, rows, cols, cell_height, cell_width);
+    draw_board(game);
 }

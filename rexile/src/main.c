@@ -23,9 +23,10 @@ int main()
 
     box(stdscr, 0, 0);
 
-    mvprintw(1, 1, "Hello, World!");
+    Game game;
+    game_init(&game);
 
-    ux_draw_start();
+    ux_draw_start(&game);
 
     refresh();
 

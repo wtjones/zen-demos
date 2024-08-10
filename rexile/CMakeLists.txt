@@ -9,6 +9,7 @@ pkg_check_modules(NCURSESW REQUIRED ncursesw)
 
 add_executable(${PROJECT_NAME}
     src/board.c
+    src/deck.c
     src/game.c
     src/main.c
     src/ux_draw.c)

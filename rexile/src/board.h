@@ -1,6 +1,8 @@
 #ifndef BOARD_H
 #define BOARD_H
 
+#include "deck.h"
+
 #define BOARD_COLS 4
 #define BOARD_ROWS 4
 #define CARD_COUNT 52
@@ -11,35 +13,6 @@ typedef enum {
     QUEEN_REQUIRED,
     KING_REQUIRED
 } CellType;
-
-typedef enum {
-    HEARTS,
-    DIAMONDS,
-    CLUBS,
-    SPADES
-} CardSuit;
-
-typedef enum {
-    JOCKER,
-    ACE,
-    TWO,
-    THREE,
-    FOUR,
-    FIVE,
-    SIX,
-    SEVEN,
-    EIGHT,
-    NINE,
-    TEN,
-    JACK,
-    QUEEN,
-    KING
-} CardRank;
-
-typedef struct {
-    CardSuit suit;
-    CardRank rank;
-} Card;
 
 typedef enum {
     NONE,
