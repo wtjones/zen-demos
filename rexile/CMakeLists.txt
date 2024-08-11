@@ -12,7 +12,8 @@ add_executable(${PROJECT_NAME}
     src/deck.c
     src/game.c
     src/main.c
-    src/ux_draw.c)
+    src/ux_draw.c
+    src/ux_input.c)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${NCURSESW_INCLUDE_DIRS})
 

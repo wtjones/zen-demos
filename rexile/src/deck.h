@@ -13,7 +13,7 @@ typedef enum {
 } CardSuit;
 
 typedef enum {
-    JOCKER,
+    JOKER,
     ACE,
     TWO,
     THREE,
@@ -41,5 +41,13 @@ typedef struct {
 
 void deck_init(CardDeck* deck);
 void deck_shuffle(CardDeck* deck);
+
+/**
+ * @brief Decrement the top index of the deck and return the card at that index
+ *
+ * @param deck
+ * @return Card* NULL if the deck is empty
+ */
+Card* deck_draw(CardDeck* deck);
 
 #endif

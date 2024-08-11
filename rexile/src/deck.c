@@ -27,3 +27,12 @@ void deck_init(CardDeck* deck)
     }
     deck->top_index = DECK_SIZE - 1;
 }
+
+Card* deck_draw(CardDeck* deck)
+{
+    if (deck->top_index < 0) {
+        return NULL;
+    }
+
+    return &deck->cards[deck->top_index--];
+}

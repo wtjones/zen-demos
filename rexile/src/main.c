@@ -1,6 +1,10 @@
+#include "game.h"
 #include "ux_draw.h"
+#include "ux_input.h"
 #include <locale.h>
 #include <ncurses.h>
+
+#define DELAY 16666 * 2 // 30 fps
 
 void ux_init()
 {
@@ -19,18 +23,30 @@ void ux_cleanup()
 
 int main()
 {
-    ux_init();
+    UXLayout layout;
 
-    box(stdscr, 0, 0);
+    ux_init(&layout);
+    ux_draw_init(&layout);
 
+    int input_keys[INPUT_KEY_MAX];
     Game game;
     game_init(&game);
 
-    ux_draw_start(&game);
+    bool should_exit = false;
+    while (!should_exit) {
 
-    refresh();
+        ux_draw_start(&layout, &game);
 
-    getch();
+        usleep(DELAY);
+
+        ux_input_update(input_keys);
+        if (input_keys[INPUT_KEY_Q]) {
+            should_exit = true;
+            break;
+        }
+        GameAction action = ux_input_to_action(input_keys);
+        game_update(&game, action);
+    }
 
     ux_cleanup();
 

@@ -19,7 +19,8 @@ typedef enum {
     ACTION_DOWN,
     ACTION_LEFT,
     ACTION_RIGHT,
-    ACTION_SELECT
+    ACTION_SELECT,
+    ACTION_NONE
 } GameAction;
 
 typedef struct {
@@ -30,6 +31,7 @@ typedef struct {
 typedef struct {
     Board board;
     CardDeck deck;
+    Card* up_card;
     int score;
     GameState state;
     GameCursor cursor;
@@ -40,6 +42,6 @@ typedef struct {
 
 void game_init(Game* game);
 
-void game_update(GameAction action);
+void game_update(Game* game, GameAction action);
 
 #endif
