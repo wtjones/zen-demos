@@ -9,13 +9,34 @@
 #define UX_CHAR_SQUARE "\u25A3"
 #define UX_WINDOW_BORDER_PADDING 1
 #define UX_WINDOW_PADDING 1
+#define UX_WINDOW_PADDING_HEIGHT 1
+#define UX_WINDOW_PADDING_WIDTH UX_WINDOW_PADDING_HEIGHT * 2
 #define UX_PARENT_WINDOW_HEIGHT 30
 #define UX_PARENT_WINDOW_WIDTH 80
-#define UX_BOARD_WINDOW_HEIGHT 16
+
+// #define UX_BOARD_WINDOW_HEIGHT \
+//     (UX_CELL_WINDOW_HEIGHT UX + UX_WINDOW_PADDING) * BOARD_ROWS
+#define UX_BOARD_WINDOW_HEIGHT 20
 #define UX_BOARD_WINDOW_WIDTH UX_PARENT_WINDOW_WIDTH - (2 * UX_WINDOW_PADDING)
-#define UX_GAME_STATE_WINDOW_HEIGHT 6
+
+#define UX_CELL_WINDOW_HEIGHT (UX_BOARD_WINDOW_HEIGHT / BOARD_ROWS) - UX_WINDOW_PADDING
+#define UX_CELL_WINDOW_WIDTH 12
+
+#define UX_GAME_STATE_WINDOW_HEIGHT 4
 #define UX_GAME_STATE_WINDOW_WIDTH UX_PARENT_WINDOW_WIDTH - (2 * UX_WINDOW_PADDING)
 #define UX_MESSAGE_WINDOW_HEIGHT 4
+
+static const char* g_ux_cell_type_desc[] = {
+    " ",
+    "[Jack]",
+    "[Queen]",
+    "[King]"
+};
+
+typedef struct {
+    WINDOW* cell_window_border;
+    WINDOW* cell_window;
+} UXCellLayout;
 
 typedef struct {
 
@@ -27,6 +48,7 @@ typedef struct {
     WINDOW* game_state_window;
     WINDOW* message_window_border;
     WINDOW* message_window;
+    UXCellLayout cells[BOARD_ROWS][BOARD_COLS];
 } UXLayout;
 
 void ux_draw_init(UXLayout* layout);
