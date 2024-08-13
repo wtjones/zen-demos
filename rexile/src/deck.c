@@ -18,14 +18,15 @@ void deck_shuffle(CardDeck* deck)
 
 void deck_init(CardDeck* deck)
 {
-    int card_index = 0;
+
+    deck->top_index = -1;
     for (CardSuit i = HEARTS; i < SPADES + 1; i++) {
         for (CardRank j = ACE; j < KING + 1; j++) {
-            deck->cards[card_index].rank = j;
-            deck->cards[card_index].suit = i;
+            deck->top_index++;
+            deck->cards[deck->top_index].rank = j;
+            deck->cards[deck->top_index].suit = i;
         }
     }
-    deck->top_index = DECK_SIZE - 1;
 }
 
 Card* deck_draw(CardDeck* deck)

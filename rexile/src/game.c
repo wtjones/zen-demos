@@ -18,9 +18,6 @@ void game_init(Game* game)
 void game_update(Game* game, GameAction action)
 {
     switch (game->state) {
-    case GAME_INIT:
-        game->state = GAME_PLACE;
-
     case GAME_PLACE:
         if (action == ACTION_SELECT) {
             // TODO
