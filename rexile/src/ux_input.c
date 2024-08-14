@@ -33,6 +33,9 @@ void ux_input_update(int* input_keys)
     case KEY_ENTER:
         input_keys[INPUT_KEY_ENTER] = 1;
         break;
+    case '\n':
+        input_keys[INPUT_KEY_ENTER] = 1;
+        break;
     case ' ':
         input_keys[INPUT_KEY_SPACE] = 1;
         break;

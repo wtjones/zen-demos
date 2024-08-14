@@ -8,7 +8,6 @@
 #define MAX_MESSAGE_LENGTH 1024
 
 typedef enum {
-    GAME_INIT,
     GAME_PLACE,
     GAME_COMBINE,
     GAME_LOSE

@@ -22,7 +22,6 @@ typedef enum {
 typedef struct {
     CellType type;
     Card* card;
-
 } BoardCell;
 
 typedef struct {
