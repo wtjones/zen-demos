@@ -15,13 +15,14 @@ typedef enum {
 } CellType;
 
 typedef enum {
-    NONE,
-    MARKER
+    TOKEN_NONE,
+    TOKEN_MARKER
 } CellToken;
 
 typedef struct {
     CellType type;
     Card* card;
+    CellToken token;
 } BoardCell;
 
 typedef struct {
@@ -29,5 +30,7 @@ typedef struct {
 } Board;
 
 void board_init(Board* board);
+
+CardRank cell_type_to_rank(CellType type);
 
 #endif

@@ -6,6 +6,7 @@ void board_init(Board* board)
     for (int i = 0; i < BOARD_ROWS; ++i) {
         for (int j = 0; j < BOARD_COLS; ++j) {
             board->cells[i][j].card = NULL;
+            board->cells[i][j].token = TOKEN_NONE;
         }
     }
 
@@ -32,4 +33,18 @@ void board_init(Board* board)
     board->cells[3][1].type = QUEEN_REQUIRED;
     board->cells[3][2].type = QUEEN_REQUIRED;
     board->cells[3][3].type = KING_REQUIRED;
+}
+
+CardRank cell_type_to_rank(CellType type)
+{
+    switch (type) {
+    case JACK_REQUIRED:
+        return JACK;
+    case QUEEN_REQUIRED:
+        return QUEEN;
+    case KING_REQUIRED:
+        return KING;
+    default:
+        return -1;
+    }
 }

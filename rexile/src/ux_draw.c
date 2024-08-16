@@ -8,6 +8,13 @@ static const char* g_ux_cell_type_desc[] = {
     "[King]"
 };
 
+static const char* g_ux_game_state_desc[] = {
+    "Place cards",
+    "Combine to discard",
+    "Game Over: Win",
+    "Game Over: Lose"
+};
+
 void card_to_string(Card* card, char* card_str)
 {
     card_str[0] = '\0';
@@ -103,6 +110,7 @@ void draw_board(UXLayout* layout, Game* game)
             bool is_selected = game->cursor.row == i && game->cursor.col == j;
             bool is_empty = cell->card == NULL;
 
+            werase(cell_layout->cell_window);
             if (!is_empty) {
                 draw_card(cell_layout, cell->card);
             }
@@ -118,6 +126,11 @@ void draw_board(UXLayout* layout, Game* game)
             if (is_selected) {
                 wattroff(cell_layout->cell_window, A_REVERSE);
             }
+
+            if (cell->token == TOKEN_MARKER) {
+                mvwprintw(cell_layout->cell_window, 0, UX_CELL_WINDOW_WIDTH - 4, "⦿");
+            }
+
             wrefresh(cell_layout->cell_window);
         }
     }
@@ -129,8 +142,10 @@ void draw_game_state(UXLayout* layout, Game* game)
     char card_repr[255];
     card_to_string(game->up_card, card_repr);
     werase(layout->game_state_window);
-    wprintw(layout->game_state_window, "Card: %s\t\t\t\tScore: %d\n", card_repr, game->score);
-
+    wprintw(layout->game_state_window, "Card: %s\t\t\t\tScore: %d\nPhase: %s",
+        card_repr,
+        game->score,
+        g_ux_game_state_desc[game->state]);
     wrefresh(layout->game_state_window);
 }
 

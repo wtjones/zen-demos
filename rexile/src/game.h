@@ -10,6 +10,7 @@
 typedef enum {
     GAME_PLACE,
     GAME_COMBINE,
+    GAME_WIN,
     GAME_LOSE
 } GameState;
 
