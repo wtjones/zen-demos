@@ -21,12 +21,12 @@ typedef enum {
     ACTION_RIGHT,
     ACTION_SELECT,
     ACTION_NONE
-} GameAction;
+} GameActionType;
 
 typedef struct {
-    int row;
-    int col;
-} GameCursor;
+    GameActionType type;
+    BoardCell* cell;
+} GameAction;
 
 typedef struct {
     Board board;
@@ -34,7 +34,6 @@ typedef struct {
     Card* up_card;
     int score;
     GameState state;
-    GameCursor cursor;
     GameAction actions[MAX_GAME_ACTIONS];
     size_t action_count;
     char message[MAX_MESSAGE_LENGTH];

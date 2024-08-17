@@ -9,10 +9,13 @@
 - [] Game over state
 - [] Combine mode marking
 - [] Support insta-combine
-- [] Move cursor to ux
+- [] New game on win/lose
+- [] New game during game
 
 ## In Progress
 
 - [] Switch to combine mode
 
 ## Done
+
+- [x] Move cursor to ux

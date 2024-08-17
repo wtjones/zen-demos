@@ -1,4 +1,5 @@
 #include "ux_input.h"
+#include "board.h"
 #include <stdio.h>
 
 void ux_input_update(int* input_keys)
@@ -45,22 +46,39 @@ void ux_input_update(int* input_keys)
     }
 }
 
-GameAction ux_input_to_action(int* keys)
+void ux_cursor_update(UXCursor* cursor, int* keys)
 {
     if (keys[INPUT_KEY_UP]) {
-        return ACTION_UP;
+        if (cursor->row > 0) {
+            cursor->row--;
+        }
     }
     if (keys[INPUT_KEY_DOWN]) {
-        return ACTION_DOWN;
+        if (cursor->row < BOARD_ROWS - 1) {
+            cursor->row++;
+        }
     }
     if (keys[INPUT_KEY_LEFT]) {
-        return ACTION_LEFT;
+        if (cursor->col > 0) {
+            cursor->col--;
+        }
     }
     if (keys[INPUT_KEY_RIGHT]) {
-        return ACTION_RIGHT;
+        if (cursor->col < BOARD_COLS - 1) {
+            cursor->col++;
+        }
     }
+}
+
+GameAction ux_input_to_action(int* keys, UXCursor* cursor, Board* board)
+{
+
+    GameAction result = { ACTION_NONE, NULL };
+
     if (keys[INPUT_KEY_ENTER]) {
-        return ACTION_SELECT;
+        result.type = ACTION_SELECT;
+        result.cell = &board->cells[cursor->row][cursor->col];
     }
-    return ACTION_NONE;
+
+    return result;
 }

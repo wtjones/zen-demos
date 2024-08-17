@@ -6,7 +6,7 @@
 
 #define DELAY 16666 * 2 // 30 fps
 
-void ux_init()
+void ux_init(UXLayout* layout)
 {
     setlocale(LC_ALL, "");
     initscr();
@@ -14,6 +14,8 @@ void ux_init()
     cbreak();
     keypad(stdscr, TRUE);
     curs_set(0);
+    layout->cursor.row = 0;
+    layout->cursor.col = 0;
 }
 
 void ux_cleanup()
@@ -40,12 +42,17 @@ int main()
         usleep(DELAY);
 
         ux_input_update(input_keys);
+
         if (input_keys[INPUT_KEY_Q]) {
             should_exit = true;
             break;
         }
-        GameAction action = ux_input_to_action(input_keys);
-        game_update(&game, action);
+        ux_cursor_update(&layout.cursor, input_keys);
+
+        GameAction action = ux_input_to_action(input_keys, &layout.cursor, &game.board);
+        if (action.type != ACTION_NONE) {
+            game_update(&game, action);
+        }
     }
 
     ux_cleanup();

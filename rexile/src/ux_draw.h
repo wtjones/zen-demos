@@ -3,6 +3,7 @@
 
 #include "board.h"
 #include "game.h"
+#include "ux_input.h"
 #include "ux_state.h"
 #include <ncurses.h>
 
@@ -40,6 +41,7 @@ typedef struct {
     WINDOW* message_window_border;
     WINDOW* message_window;
     UXCellLayout cells[BOARD_ROWS][BOARD_COLS];
+    UXCursor cursor;
 } UXLayout;
 
 void ux_draw_init(UXLayout* layout);

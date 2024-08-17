@@ -107,7 +107,7 @@ void draw_board(UXLayout* layout, Game* game)
             BoardCell* cell = &game->board.cells[i][j];
             UXCellLayout* cell_layout = &layout->cells[i][j];
 
-            bool is_selected = game->cursor.row == i && game->cursor.col == j;
+            bool is_selected = layout->cursor.row == i && layout->cursor.col == j;
             bool is_empty = cell->card == NULL;
 
             werase(cell_layout->cell_window);
