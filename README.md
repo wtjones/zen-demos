@@ -51,3 +51,6 @@ Performs rotation and 'sub-tile' translation in the same pass. Runs slightly slo
 * [xform](samples/xform/) Simple matrix transforms in C
 * [cmake_mono_export](samples/cmake_mono_export/) CMake monorepo dependency example
 
+## Games
+
+* [Rexile](rexile/) - Solitaire variant with a TUI
