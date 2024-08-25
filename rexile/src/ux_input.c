@@ -1,5 +1,6 @@
 #include "ux_input.h"
 #include "board.h"
+#include "external/log.c/src/log.h"
 #include <stdio.h>
 
 void ux_input_update(int* input_keys)
@@ -43,6 +44,12 @@ void ux_input_update(int* input_keys)
     case 'n':
         input_keys[INPUT_KEY_N] = 1;
         break;
+    case 'p':
+        input_keys[INPUT_KEY_P] = 1;
+        break;
+    case 'c':
+        input_keys[INPUT_KEY_C] = 1;
+        break;
     }
 }
 
@@ -75,10 +82,14 @@ GameAction ux_input_to_action(int* keys, UXCursor* cursor, Board* board)
 
     GameAction result = { ACTION_NONE, NULL };
 
-    if (keys[INPUT_KEY_ENTER]) {
+    if (keys[INPUT_KEY_ENTER] || keys[INPUT_KEY_SPACE]) {
         result.type = ACTION_SELECT;
         result.cell = &board->cells[cursor->row][cursor->col];
+    } else if (keys[INPUT_KEY_P] || keys[INPUT_KEY_C]) {
+        result.type = ACTION_CONTINUE;
+        result.cell = NULL;
     }
-
+    log_info("Action: %d, Cell %s", result.type,
+        result.cell == NULL ? "NULL" : "NOT NULL");
     return result;
 }

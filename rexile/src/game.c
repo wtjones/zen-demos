@@ -23,7 +23,7 @@ bool is_placement_valid(BoardCell* cell, Card* card)
         || (cell->type == JACK_REQUIRED && card->rank == JACK);
 }
 
-int count_selected_rank(Board* board)
+int count_marked_cell_rank(Board* board)
 {
     int count = 0;
     for (int i = 0; i < BOARD_ROWS; ++i) {
@@ -51,6 +51,19 @@ int count_available_face_cells(Board* board, CardRank rank)
             CellType type = board->cells[i][j].type;
             if (board->cells[i][j].card == NULL
                 && cell_type_to_rank(type) == rank) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
+int count_available_cells(Board* board)
+{
+    int count = 0;
+    for (int i = 0; i < BOARD_ROWS; ++i) {
+        for (int j = 0; j < BOARD_COLS; ++j) {
+            if (board->cells[i][j].card == NULL) {
                 count++;
             }
         }
@@ -89,19 +102,14 @@ void discard_selected(Board* board)
 void game_update(Game* game, GameAction action)
 {
     BoardCell* selected = action.cell;
-
+    log_info("GameAction: %d", action.type);
+    if (selected != NULL) {
+        log_info("Selected cell: %d, %d", selected->type, selected->token);
+    }
     switch (game->state) {
     case GAME_PLACE:
-
-        if (selected->token == TOKEN_MARKER) {
-            selected->token = TOKEN_NONE;
-            return;
-        }
-
-        if (selected->card != NULL && selected->card->rank < JACK) {
-
-            selected->token = TOKEN_MARKER;
-            game->state = GAME_COMBINE;
+        if (action.type == ACTION_CONTINUE) {
+            log_info("Action: Continue, ignoring.");
             return;
         }
 
@@ -109,6 +117,7 @@ void game_update(Game* game, GameAction action)
             return;
         }
 
+        // place the card
         selected->card = game->up_card;
         game->up_card = deck_draw(&game->deck);
         if (game->up_card == NULL) {
@@ -125,15 +134,22 @@ void game_update(Game* game, GameAction action)
             game->state = GAME_LOSE;
         }
 
+        if (count_available_cells(&game->board) == 0) {
+            game->state = GAME_COMBINE;
+        }
+
         break;
     case GAME_COMBINE:
+
+        // FIXME: detect unwinnable state
+        if (action.type == ACTION_CONTINUE) {
+            game->state = GAME_PLACE;
+            return;
+        }
+
         // Remove marker
         if (selected->token == TOKEN_MARKER) {
             selected->token = TOKEN_NONE;
-
-            if (count_selected_rank(&game->board) == 0) {
-                game->state = GAME_PLACE;
-            }
 
             return;
         }
@@ -141,10 +157,9 @@ void game_update(Game* game, GameAction action)
         if (selected->card != NULL && selected->card->rank < JACK) {
             selected->token = TOKEN_MARKER;
 
-            if (count_selected_rank(&game->board) == 10) {
+            if (count_marked_cell_rank(&game->board) == 10) {
                 discard_selected(&game->board);
                 game->score += 10;
-                game->state = GAME_PLACE;
             }
             return;
         }

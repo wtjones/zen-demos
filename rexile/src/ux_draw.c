@@ -10,7 +10,7 @@ static const char* g_ux_cell_type_desc[] = {
 
 static const char* g_ux_game_state_desc[] = {
     "Place cards",
-    "Combine to discard",
+    "Combine to discard. Press p to continue",
     "Game Over: Win",
     "Game Over: Lose"
 };

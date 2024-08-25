@@ -20,6 +20,7 @@ typedef enum {
     ACTION_LEFT,
     ACTION_RIGHT,
     ACTION_SELECT,
+    ACTION_CONTINUE,
     ACTION_NONE
 } GameActionType;
 

@@ -16,7 +16,9 @@
 #define INPUT_KEY_SPACE 6
 #define INPUT_KEY_N 7
 #define INPUT_KEY_ENTER 8
-#define INPUT_KEY_MAX 9
+#define INPUT_KEY_P 10
+#define INPUT_KEY_C 11
+#define INPUT_KEY_MAX 12
 
 typedef struct {
     int row;
