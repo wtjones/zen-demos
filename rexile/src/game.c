@@ -1,4 +1,5 @@
 #include "game.h"
+#include "external/log.c/src/log.h"
 #include <stdbool.h>
 
 void game_init(Game* game)

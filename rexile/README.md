@@ -65,6 +65,8 @@ Not implemented, just listing some that I have seen.
 ./build/rexile
 ```
 
+Logs are written to `/tmp/rexile.log`
+
 ## Design
 
 ### App states

@@ -1,3 +1,4 @@
+#include "external/log.c/src/log.h"
 #include "game.h"
 #include "ux_draw.h"
 #include "ux_input.h"
@@ -26,6 +27,13 @@ void ux_cleanup()
 int main()
 {
     UXLayout layout;
+
+    FILE* log_file = fopen("/tmp/rexile.log", "w");
+    log_add_fp(log_file, LOG_INFO);
+    log_set_quiet(1);
+    log_set_level(LOG_INFO);
+
+    log_info("Starting Rexile");
 
     ux_init(&layout);
     ux_draw_init(&layout);
@@ -56,6 +64,6 @@ int main()
     }
 
     ux_cleanup();
-
+    fclose(log_file);
     return 0;
 }
