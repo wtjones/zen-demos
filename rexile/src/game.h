@@ -32,6 +32,7 @@ typedef struct {
 typedef struct {
     Board board;
     CardDeck deck;
+    CardStack draw_deck;
     Card* up_card;
     int score;
     GameState state;
@@ -41,6 +42,7 @@ typedef struct {
 } Game;
 
 void game_init(Game* game);
+void game_init2(Game* game, CardStack* deck);
 
 void game_update(Game* game, GameAction action);
 

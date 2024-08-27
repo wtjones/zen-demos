@@ -37,3 +37,29 @@ Card* deck_draw(CardDeck* deck)
 
     return &deck->cards[deck->top_index--];
 }
+
+void card_stack_clear(CardStack* stack)
+{
+    stack->count = 0;
+}
+
+void card_stack_populate(CardStack* stack, Card source_cards[], size_t source_count)
+{
+    for (size_t i = 0; i < source_count; i++) {
+        stack->cards[stack->count++] = source_cards[i];
+    }
+}
+
+size_t card_stack_push(CardStack* stack, Card card)
+{
+    Card* new_card = &stack->cards[stack->count++];
+
+    new_card->rank = card.rank;
+    new_card->suit = card.suit;
+    return stack->count;
+}
+
+Card card_stack_pop(CardStack* stack)
+{
+    return stack->cards[--stack->count];
+}

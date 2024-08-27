@@ -82,3 +82,53 @@ Logs are written to `/tmp/rexile.log`
 * GAME_COMBINE           // Board full, combine matches
 * GAME_LOSE
 * GAME_WIN
+
+### Layout
+
+* A 3 x 3 grid of cells
+  * each cell has a card stack with a max of 1
+  * each cells specifies allowed ranks
+    * All cells allow non-face ranks
+    * Borders allow specific face ranks
+* A draw deck with the top card face up
+* A discard pile
+
+### Actions
+
+* Move the top card from N stacks to a destination stack
+  * Valid scenarios
+    * Draw deck to empty cell
+    * 1 or 2 cell stacks to discard
+      * Must be combine phase
+      * Must equal 10 non-face ranks
+
+### Phases
+
+#### Placement
+
+Actions
+
+* Move the top card from the draw deck to an empty cell.
+  * Must be a rank allowed by the cell.
+
+Rules
+
+* Phase begins when:
+  * Game starts
+  * Placement action is made during combine phase
+  * (optional) Combinations cannot be made during combine phase
+* Phase ends when board is full
+
+#### Combine
+
+Actions
+
+* Move 1 or 2 placed non-face cards that add up to 10 to the discard pile.
+* Placement action - ends combine phase
+
+Rules
+
+* Phase begins when:
+  * Board is full during placement phase
+* Phase ends when:
+  * Placement action is made

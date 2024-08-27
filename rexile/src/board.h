@@ -6,6 +6,13 @@
 #define BOARD_COLS 4
 #define BOARD_ROWS 4
 #define CARD_COUNT 52
+#define NONE_REQUIRED_RANKS 0x0000
+#define NON_FACE_REQUIRED_RANKS 0x03FF
+#define FACE_REQUIRED_RANKS 0x1C00
+#define WILD_REQUIRED_RANKS 0x1FFF
+#define KING_REQUIRED_RANK 1 << (KING - 1)
+#define QUEEN_REQUIRED_RANK 1 << (QUEEN - 1)
+#define JACK_REQUIRED_RANK 1 << (JACK - 1)
 
 typedef enum {
     WILD,
@@ -14,15 +21,22 @@ typedef enum {
     KING_REQUIRED
 } CellType;
 
+// deprecated
 typedef enum {
     TOKEN_NONE,
     TOKEN_MARKER
 } CellToken;
 
 typedef struct {
+    // deprecated
     CellType type;
+    // deprecated
     Card* card;
+    // deprecated
     CellToken token;
+    CardStack* card_stack;
+    u_int16_t allowed_ranks;
+    u_int16_t required_ranks;
 } BoardCell;
 
 typedef struct {

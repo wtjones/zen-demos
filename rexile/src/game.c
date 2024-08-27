@@ -15,6 +15,16 @@ void game_init(Game* game)
     game->state = GAME_PLACE;
 }
 
+void game_init2(Game* game, CardStack* deck)
+{
+    game->score = 0;
+    game->action_count = 0;
+    game->message[0] = '\0';
+
+    board_init(&game->board);
+    game->state = GAME_PLACE;
+}
+
 bool is_placement_valid(BoardCell* cell, Card* card)
 {
     return card->rank < JACK
