@@ -21,3 +21,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${NCURSESW_INCLUDE_DIRS})
 target_compile_options(${PROJECT_NAME} PRIVATE -g -Wall -O0 ${NCURSESW_CFLAGS_OTHER})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${NCURSESW_LIBRARIES})
+
+
+include(CTest)
+add_subdirectory(tests)
