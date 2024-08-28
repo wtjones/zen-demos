@@ -2,7 +2,7 @@
 #define UX_INPUT_H
 
 #define _X_OPEN_SOURCE_EXTENDED
-#include "game.h"
+#include "rexile/core/game.h"
 #include <locale.h>
 #include <ncurses.h>
 #include <unistd.h>

@@ -1,4 +1,5 @@
 #include "ux_draw.h"
+#include "log.c/src/log.h"
 #include <string.h>
 
 static const char* g_ux_cell_type_desc[] = {
@@ -151,6 +152,7 @@ void draw_game_state(UXLayout* layout, Game* game)
 
 void ux_draw_init(UXLayout* layout)
 {
+    log_info("Initializing UX Draw");
     layout->main_window_border = newwin(
         UX_PARENT_WINDOW_HEIGHT + UX_WINDOW_BORDER_PADDING,
         UX_PARENT_WINDOW_WIDTH + UX_WINDOW_BORDER_PADDING,

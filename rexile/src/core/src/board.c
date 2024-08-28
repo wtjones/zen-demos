@@ -1,4 +1,4 @@
-#include "board.h"
+#include "rexile/core/board.h"
 #include <stdlib.h>
 
 void board_init(Board* board)
@@ -8,9 +8,35 @@ void board_init(Board* board)
             board->cells[i][j].card = NULL;
             board->cells[i][j].token = TOKEN_NONE;
 
-            card_stack_clear(board->cells[i][j].card_stack);
+            // FIXME
+            // card_stack_clear(board->cells[i][j].card_stack);
         }
     }
+
+    // deprecated
+    // Row 0
+    board->cells[0][0].type = KING_REQUIRED;
+    board->cells[0][1].type = QUEEN_REQUIRED;
+    board->cells[0][2].type = QUEEN_REQUIRED;
+    board->cells[0][3].type = KING_REQUIRED;
+
+    // Row 1
+    board->cells[1][0].type = JACK_REQUIRED;
+    board->cells[1][1].type = WILD;
+    board->cells[1][2].type = WILD;
+    board->cells[1][3].type = JACK_REQUIRED;
+
+    // Row 2
+    board->cells[2][0].type = JACK_REQUIRED;
+    board->cells[2][1].type = WILD;
+    board->cells[2][2].type = WILD;
+    board->cells[2][3].type = JACK_REQUIRED;
+
+    // Row 3
+    board->cells[3][0].type = KING_REQUIRED;
+    board->cells[3][1].type = QUEEN_REQUIRED;
+    board->cells[3][2].type = QUEEN_REQUIRED;
+    board->cells[3][3].type = KING_REQUIRED;
 
     // Row 0
     board->cells[0][0].allowed_ranks = WILD_REQUIRED_RANKS;

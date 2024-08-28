@@ -1,8 +1,8 @@
 #ifndef UX_DRAW_H
 #define UX_DRAW_H
 
-#include "board.h"
-#include "game.h"
+#include "rexile/core/board.h"
+#include "rexile/core/game.h"
 #include "ux_input.h"
 #include "ux_state.h"
 #include <ncurses.h>

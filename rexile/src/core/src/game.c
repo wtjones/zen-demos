@@ -1,13 +1,13 @@
-#include "game.h"
-#include "external/log.c/src/log.h"
+#include "rexile/core/game.h"
+#include "log.c/src/log.h"
 #include <stdbool.h>
 
 void game_init(Game* game)
 {
+    log_info("Initializing game");
     game->score = 0;
     game->action_count = 0;
     game->message[0] = '\0';
-
     board_init(&game->board);
     deck_init(&game->deck);
     deck_shuffle(&game->deck);
@@ -17,6 +17,7 @@ void game_init(Game* game)
 
 void game_init2(Game* game, CardStack* deck)
 {
+    log_info("Initializing game");
     game->score = 0;
     game->action_count = 0;
     game->message[0] = '\0';

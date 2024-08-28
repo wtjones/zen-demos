@@ -1,6 +1,6 @@
 #include "ux_input.h"
-#include "board.h"
-#include "external/log.c/src/log.h"
+#include "log.c/src/log.h"
+#include "rexile/core/board.h"
 #include <stdio.h>
 
 void ux_input_update(int* input_keys)

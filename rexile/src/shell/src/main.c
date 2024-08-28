@@ -1,5 +1,5 @@
-#include "external/log.c/src/log.h"
-#include "game.h"
+#include "log.c/src/log.h"
+#include "rexile/core/game.h"
 #include "ux_draw.h"
 #include "ux_input.h"
 #include <locale.h>
@@ -9,6 +9,7 @@
 
 void ux_init(UXLayout* layout)
 {
+    log_info("Initializing UX");
     setlocale(LC_ALL, "");
     initscr();
     noecho();

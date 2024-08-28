@@ -6,21 +6,11 @@ set(CMAKE_C_STANDARD 17 CMAKE_C_STANDARD_REQUIRED ON)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(NCURSESW REQUIRED ncursesw)
 
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-add_executable(${PROJECT_NAME}
-    src/board.c
-    src/deck.c
-    src/game.c
-    src/main.c
-    src/ux_draw.c
-    src/ux_input.c
-    src/external/log.c/src/log.c)
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${NCURSESW_INCLUDE_DIRS})
+ add_subdirectory(src)
 
-target_compile_options(${PROJECT_NAME} PRIVATE -g -Wall -O0 ${NCURSESW_CFLAGS_OTHER})
-
-target_link_libraries(${PROJECT_NAME} PRIVATE ${NCURSESW_LIBRARIES})
 
 
 include(CTest)

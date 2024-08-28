@@ -1,5 +1,5 @@
 
-#include "deck.h"
+#include "rexile/core/deck.h"
 #include <time.h>
 
 void deck_shuffle(CardDeck* deck)
