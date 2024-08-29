@@ -1,6 +1,7 @@
 #ifndef TEST_SUPPORT_H
 #define TEST_SUPPORT_H
 
+#include "log.c/src/log.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>

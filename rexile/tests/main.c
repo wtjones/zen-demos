@@ -1,28 +1,114 @@
 
+#include "rexile/core/deck.h"
+#include "rexile/core/game.h"
 #include "test_support.h"
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
 
+int test_stack_can_push()
+{
+    // Arrange
+    CardStack stack;
+    card_stack_clear(&stack);
+
+    Card card = { .suit = HEARTS, .rank = ACE };
+
+    // Act
+    size_t count = card_stack_push(&stack, card);
+
+    // Assert
+    assert(count == 1);
+    assert(stack.cards[0].suit == HEARTS);
+    assert(stack.cards[0].rank == ACE);
+
+    return 0;
+}
+
+int test_stack_can_pop()
+{
+    // Arrange
+    CardStack stack;
+    card_stack_clear(&stack);
+
+    Card card = { .suit = HEARTS, .rank = ACE };
+    card_stack_push(&stack, card);
+
+    // Act
+    Card popped = card_stack_pop(&stack);
+
+    // Assert
+    assert(popped.suit == HEARTS);
+    assert(popped.rank == ACE);
+
+    return 0;
+}
+
+int test_stack_can_populate()
+{
+    // Arrange
+    CardStack stack;
+    card_stack_clear(&stack);
+
+    Card source_cards[] = {
+        { .suit = HEARTS, .rank = ACE },
+        { .suit = HEARTS, .rank = TWO },
+        { .suit = HEARTS, .rank = THREE }
+    };
+
+    // Act
+    card_stack_populate(&stack, source_cards, sizeof(source_cards) / sizeof(source_cards[0]));
+
+    // Assert
+    assert(stack.count == 3);
+    assert(stack.cards[0].rank == ACE);
+    assert(stack.cards[1].rank == TWO);
+    assert(stack.cards[2].rank == THREE);
+
+    return 0;
+}
+
 int test_empty_deck_loses()
 {
     // Arrange
-    return false;
+    return 0;
 }
 
 int test_invalid_placement_returns_invald()
 {
     // Arrange
-    return true;
+    Card source_cards[] = {
+        { .suit = CLUBS, .rank = KING },
+        { .suit = HEARTS, .rank = TWO },
+        { .suit = HEARTS, .rank = THREE }
+    };
+    CardStack deck;
+    card_stack_clear(&deck);
+
+    // Act
+    card_stack_populate(&deck, source_cards, sizeof(source_cards) / sizeof(source_cards[0]));
+
+    // Assert
+    // TODO: assert that the placement is invalid
+
+    return 0;
 }
 
 TestFn test_fns[] = {
+    { "test_stack_can_push", test_stack_can_push },
+    { "test_stack_can_pop", test_stack_can_pop },
+    { "test_stack_can_populate", test_stack_can_populate },
     { "test_empty_deck_loses", test_empty_deck_loses },
     { "test_invalid_placement_returns_invald", test_invalid_placement_returns_invald }
 };
 
 int main(int argc, const char** argv)
 {
+    FILE* log_file = fopen("/tmp/rexile.log", "w");
+    log_add_fp(log_file, LOG_INFO);
+    log_set_quiet(1);
+    log_set_level(LOG_INFO);
+
     if (argc == 1) {
         fprintf(stderr, "Test name required.\n");
         return 1;

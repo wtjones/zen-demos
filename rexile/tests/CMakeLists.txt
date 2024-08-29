@@ -3,12 +3,24 @@ add_executable(tests
     test_support.c)
 
 
-#target_link_libraries(tests PRIVATE rexile)
+target_link_libraries(tests PRIVATE rexile_core external)
 
 target_include_directories(tests PUBLIC include)
 
 
 enable_testing()
+
+add_test(
+    NAME test_stack_can_push
+    COMMAND $<TARGET_FILE:tests> test_stack_can_push)
+
+add_test(
+    NAME test_stack_can_pop
+    COMMAND $<TARGET_FILE:tests> test_stack_can_pop)
+
+add_test(
+    NAME test_stack_can_populate
+    COMMAND $<TARGET_FILE:tests> test_stack_can_populate)
 
 add_test(
     NAME test_empty_deck_loses
