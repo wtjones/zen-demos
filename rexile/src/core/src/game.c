@@ -19,11 +19,17 @@ void game_init2(Game* game, CardStack* deck)
 {
     log_info("Initializing game");
     game->score = 0;
-    game->action_count = 0;
+    game->move_count = 0;
     game->message[0] = '\0';
-
+    game->draw_deck = *deck;
     board_init(&game->board);
     game->state = GAME_PLACE;
+}
+
+bool is_position_valid(BoardCellPosition pos)
+{
+    return pos.row >= 0 && pos.row < BOARD_ROWS
+        && pos.col >= 0 && pos.col < BOARD_COLS;
 }
 
 bool is_placement_valid(BoardCell* cell, Card* card)
@@ -32,6 +38,11 @@ bool is_placement_valid(BoardCell* cell, Card* card)
         || (cell->type == KING_REQUIRED && card->rank == KING)
         || (cell->type == QUEEN_REQUIRED && card->rank == QUEEN)
         || (cell->type == JACK_REQUIRED && card->rank == JACK);
+}
+
+bool is_placement_valid2(BoardCell* cell, Card* card)
+{
+    return cell->allowed_ranks & (1 << (card->rank - 1));
 }
 
 int count_marked_cell_rank(Board* board)
@@ -181,4 +192,40 @@ void game_update(Game* game, GameAction action)
     case GAME_WIN:
         break;
     }
+}
+
+GameResult game_action_place(
+    Game* game, BoardCellPosition dest_cell_pos)
+{
+    log_info("Placing card at %d, %d", dest_cell_pos.row, dest_cell_pos.col);
+    if (!is_position_valid(dest_cell_pos)) {
+        return GAME_RESULT_INVALID;
+    }
+
+    if (game->draw_deck.count == 0) {
+        log_error("Draw deck is empty");
+        return GAME_RESULT_ERROR;
+    }
+
+    Card card = card_stack_peek(&game->draw_deck);
+    log_info("Draw card: %d, %d", card.suit, card.rank);
+    BoardCell* dest_cell = &game->board.cells[dest_cell_pos.row][dest_cell_pos.col];
+
+    if (!is_placement_valid2(dest_cell, &card)) {
+        return GAME_RESULT_INVALID;
+    }
+
+    return GAME_RESULT_OK;
+}
+
+GameResult game_action_combine(
+    Game* game,
+    BoardCellPosition source_cells[MAX_COMBINE_CELLS],
+    size_t source_count)
+{
+
+    if (source_count > MAX_COMBINE_CELLS) {
+        return GAME_RESULT_INVALID;
+    }
+    return GAME_RESULT_OK;
 }

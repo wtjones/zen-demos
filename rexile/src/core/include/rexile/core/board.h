@@ -35,9 +35,14 @@ typedef struct {
     // deprecated
     CellToken token;
     CardStack* card_stack;
-    u_int16_t allowed_ranks;
-    u_int16_t required_ranks;
+    int16_t allowed_ranks;
+    int16_t required_ranks;
 } BoardCell;
+
+typedef struct {
+    size_t row;
+    size_t col;
+} BoardCellPosition;
 
 typedef struct {
     BoardCell cells[BOARD_ROWS][BOARD_COLS];

@@ -71,6 +71,8 @@ size_t card_stack_push(CardStack* stack, Card card);
 
 Card card_stack_pop(CardStack* stack);
 
+Card card_stack_peek(CardStack* stack);
+
 /**
  * @brief Push source cards into the stack
  *

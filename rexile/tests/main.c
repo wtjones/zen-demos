@@ -80,18 +80,23 @@ int test_invalid_placement_returns_invald()
     Card source_cards[] = {
         { .suit = CLUBS, .rank = KING },
         { .suit = HEARTS, .rank = TWO },
-        { .suit = HEARTS, .rank = THREE }
+        { .suit = HEARTS, .rank = QUEEN }
     };
     CardStack deck;
     card_stack_clear(&deck);
-
-    // Act
     card_stack_populate(&deck, source_cards, sizeof(source_cards) / sizeof(source_cards[0]));
 
-    // Assert
-    // TODO: assert that the placement is invalid
+    Game game;
+    game_init2(&game, &deck);
 
-    return 0;
+    // Act
+    BoardCellPosition pos = { .row = 1, .col = 1 };
+    GameResult result = game_action_place(&game, pos);
+    log_info("Game action result: %d", result);
+
+    // Assert
+    bool pass = result == GAME_RESULT_INVALID;
+    return !pass;
 }
 
 TestFn test_fns[] = {

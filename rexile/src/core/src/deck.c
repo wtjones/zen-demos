@@ -63,3 +63,8 @@ Card card_stack_pop(CardStack* stack)
 {
     return stack->cards[--stack->count];
 }
+
+Card card_stack_peek(CardStack* stack)
+{
+    return stack->cards[stack->count - 1];
+}
