@@ -29,3 +29,7 @@ add_test(
 add_test(
     NAME test_invalid_placement_returns_invald
     COMMAND $<TARGET_FILE:tests> test_invalid_placement_returns_invald)
+
+add_test(
+    NAME test_combine_allows_valid_cards
+    COMMAND $<TARGET_FILE:tests> test_combine_allows_valid_cards)

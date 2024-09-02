@@ -114,12 +114,82 @@ int test_invalid_placement_returns_invald()
     return 0;
 }
 
+int test_combine_allows_valid_cards()
+{
+    // Arrange
+    Card source_cards[] = {
+        { .suit = CLUBS, .rank = KING },
+        { .suit = CLUBS, .rank = QUEEN },
+        { .suit = DIAMONDS, .rank = QUEEN },
+        { .suit = CLUBS, .rank = JACK },
+        { .suit = HEARTS, .rank = TWO },
+        { .suit = HEARTS, .rank = THREE },
+        { .suit = HEARTS, .rank = FOUR },
+        { .suit = HEARTS, .rank = FIVE },
+        { .suit = HEARTS, .rank = SIX },
+        { .suit = HEARTS, .rank = SEVEN },
+        { .suit = HEARTS, .rank = EIGHT },
+        { .suit = HEARTS, .rank = NINE },
+        { .suit = HEARTS, .rank = TEN },
+        { .suit = HEARTS, .rank = JACK },
+        { .suit = HEARTS, .rank = QUEEN },
+        { .suit = HEARTS, .rank = KING },
+        { .suit = SPADES, .rank = ACE },
+        { .suit = SPADES, .rank = TWO },
+        { .suit = SPADES, .rank = THREE },
+        { .suit = SPADES, .rank = FOUR },
+        { .suit = SPADES, .rank = FIVE },
+        { .suit = SPADES, .rank = SIX },
+        { .suit = SPADES, .rank = SEVEN },
+        { .suit = SPADES, .rank = EIGHT },
+        { .suit = SPADES, .rank = NINE },
+        { .suit = SPADES, .rank = TEN },
+        { .suit = SPADES, .rank = JACK },
+        { .suit = SPADES, .rank = QUEEN },
+        { .suit = SPADES, .rank = KING }
+    };
+    CardStack deck;
+    card_stack_clear(&deck);
+    card_stack_populate(&deck, source_cards, sizeof(source_cards) / sizeof(source_cards[0]));
+
+    Game game;
+    game_init2(&game, &deck);
+
+    // Fill board with face cards on the first row
+    for (int r = 0; r < 4; r++) {
+        for (int c = 0; c < 4; c++) {
+            BoardCellPosition pos = { .row = r, .col = c };
+            game_action_place(&game, pos);
+        }
+    }
+
+    assert(game.state == GAME_COMBINE);
+
+    // Act
+    // Single card < 10 is inadaquate
+    BoardCellPosition positions[] = {
+        { .row = 1, .col = 0 }
+    };
+
+    GameResult result1 = game_action_combine(
+        &game, positions, sizeof(positions) / sizeof(positions[0]));
+
+    log_info("Game action result: %d", result1);
+
+    // Assert
+
+    assert(result1 == GAME_RESULT_INVALID);
+
+    return 0;
+}
+
 TestFn test_fns[] = {
     { "test_stack_can_push", test_stack_can_push },
     { "test_stack_can_pop", test_stack_can_pop },
     { "test_stack_can_populate", test_stack_can_populate },
     { "test_empty_deck_loses", test_empty_deck_loses },
-    { "test_invalid_placement_returns_invald", test_invalid_placement_returns_invald }
+    { "test_invalid_placement_returns_invald", test_invalid_placement_returns_invald },
+    { "test_combine_allows_valid_cards", test_combine_allows_valid_cards }
 };
 
 int main(int argc, const char** argv)

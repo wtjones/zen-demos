@@ -1,5 +1,7 @@
 
 #include "rexile/core/deck.h"
+#include "log.c/src/log.h"
+#include "rexile/core/repr.h"
 #include <time.h>
 
 void deck_shuffle(CardDeck* deck)
@@ -52,6 +54,8 @@ void card_stack_populate(CardStack* stack, Card source_cards[], size_t source_co
 
 size_t card_stack_push(CardStack* stack, Card card)
 {
+    char buffer[255];
+    log_info("Pushing card to position %d: %s", stack->count, repr_card(buffer, sizeof(buffer), card));
     Card* new_card = &stack->cards[stack->count++];
 
     new_card->rank = card.rank;
@@ -61,6 +65,10 @@ size_t card_stack_push(CardStack* stack, Card card)
 
 Card card_stack_pop(CardStack* stack)
 {
+    char buffer[255];
+    Card card = card_stack_peek(stack);
+    log_info("Popping card from position %d: %s", stack->count - 1, repr_card(buffer, sizeof(buffer), card));
+
     return stack->cards[--stack->count];
 }
 

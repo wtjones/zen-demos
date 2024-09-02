@@ -62,6 +62,7 @@ typedef struct {
     Board board;
     CardDeck deck;
     CardStack draw_deck;
+    CardStack discard_deck;
     Card* up_card;
     int score;
     GameState state;

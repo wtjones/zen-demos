@@ -23,6 +23,7 @@ void game_init2(Game* game, CardStack* deck)
     game->move_count = 0;
     game->message[0] = '\0';
     game->draw_deck = *deck;
+    card_stack_clear(&game->discard_deck);
     board_init(&game->board);
     game->state = GAME_PLACE;
 }
@@ -46,6 +47,40 @@ bool is_placement_valid2(BoardCell* cell, Card* card)
     bool is_rank_allowed = cell->allowed_ranks & (1 << (card->rank - 1));
     return cell->card_stack.count == 0
         && is_rank_allowed;
+}
+
+bool is_combine_valid(
+    Game* game,
+    BoardCellPosition source_cells[MAX_COMBINE_CELLS],
+    size_t source_count)
+{
+
+    if (source_count > MAX_COMBINE_CELLS) {
+        return false;
+    }
+
+    int total = 0;
+    for (size_t i = 0; i < source_count; ++i) {
+
+        BoardCellPosition pos = source_cells[i];
+        if (!is_position_valid(pos)) {
+            return false;
+        }
+        BoardCell* cell = &game->board.cells[pos.row][pos.col];
+        Card card = card_stack_peek(&cell->card_stack);
+        if (card.rank >= JACK) {
+            log_warn("Invalid combine card rank: %d", card.rank);
+            return false;
+        }
+
+        total += card.rank;
+    }
+
+    if (total != 10) {
+        log_warn("Invalid combine total: %d", total);
+        return false;
+    }
+    return true;
 }
 
 int count_marked_cell_rank(Board* board)
@@ -83,6 +118,7 @@ int count_available_face_cells(Board* board, CardRank rank)
     return count;
 }
 
+// deprecated
 int count_available_cells(Board* board)
 {
     int count = 0;
@@ -91,6 +127,18 @@ int count_available_cells(Board* board)
             if (board->cells[i][j].card == NULL) {
                 count++;
             }
+        }
+    }
+    return count;
+}
+
+int count_available_cells2(Board* board)
+{
+    size_t count = 0;
+    for (int i = 0; i < BOARD_ROWS; ++i) {
+        for (int j = 0; j < BOARD_COLS; ++j) {
+            CardStack* stack = &board->cells[i][j].card_stack;
+            count += stack->count == 0 ? 1 : 0;
         }
     }
     return count;
@@ -239,7 +287,11 @@ GameResult game_action_place(
         return GAME_RESULT_OK;
     }
 
-    if (count_available_cells(&game->board) == 1) {
+    size_t available_cells = count_available_cells2(&game->board);
+    log_info("Available cells before placement: %d", available_cells);
+
+    if (available_cells == 1) {
+        log_info("Last cell placed, switching to combine state");
         move.state = GAME_COMBINE;
     }
     game_move_push(game, &move);
@@ -252,9 +304,24 @@ GameResult game_action_combine(
     size_t source_count)
 {
 
-    if (source_count > MAX_COMBINE_CELLS) {
+    log_info("Combining %d cards", source_count);
+    if (!is_combine_valid(game, source_cells, source_count)) {
+        log_warn("Invalid combine");
         return GAME_RESULT_INVALID;
     }
+
+    GameMove move = {
+        .type = MOVE_COMBINE,
+        .action_count = source_count,
+        .score_delta = 10 * source_count
+    };
+
+    for (size_t i = 0; i < source_count; i++) {
+        move.actions[i].pos = source_cells[i];
+    }
+
+    game_move_push(game, &move);
+
     return GAME_RESULT_OK;
 }
 
@@ -263,10 +330,25 @@ void game_move_push(Game* game, GameMove* move)
     game->moves[game->move_count++] = *move;
     assert(game->move_count < MAX_GAME_MOVES);
     assert(move->action_count == 1);
-    if (move->type == MOVE_PLACE) {
+    game->state = move->state;
+    switch (move->type) {
+
+    case MOVE_PLACE:
         Card draw_card = card_stack_pop(&game->draw_deck);
         BoardCell* dest_cell = &game->board.cells[move->actions[0].pos.row][move->actions[0].pos.col];
         card_stack_push(&dest_cell->card_stack, draw_card);
+        break;
+    case MOVE_COMBINE:
+
+        for (size_t i = 0; i < move->action_count; i++) {
+            BoardCell* source_cell = &game->board.cells[move->actions[i].pos.row][move->actions[i].pos.col];
+            Card card = card_stack_pop(&source_cell->card_stack);
+            card_stack_push(&game->discard_deck, card);
+        }
+        break;
+    default:
+        assert(false);
     }
+
     game->score += move->score_delta;
 }
