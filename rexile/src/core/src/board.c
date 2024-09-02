@@ -8,8 +8,7 @@ void board_init(Board* board)
             board->cells[i][j].card = NULL;
             board->cells[i][j].token = TOKEN_NONE;
 
-            // FIXME
-            // card_stack_clear(board->cells[i][j].card_stack);
+            card_stack_clear(&board->cells[i][j].card_stack);
         }
     }
 

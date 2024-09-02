@@ -1,6 +1,7 @@
 #ifndef DECK_H
 #define DECK_H
 
+#include <stdbool.h>
 #include <stdlib.h>
 
 #define DECK_SIZE 52
@@ -87,6 +88,8 @@ void card_stack_populate(CardStack* stack, Card source_cards[], size_t source_co
  * @param stack
  */
 void card_stack_shuffle(CardStack* stack);
+
+bool is_face_card(Card* card);
 
 // deprecated
 void deck_init(CardDeck* deck);

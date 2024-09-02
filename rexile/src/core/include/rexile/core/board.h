@@ -34,7 +34,7 @@ typedef struct {
     Card* card;
     // deprecated
     CellToken token;
-    CardStack* card_stack;
+    CardStack card_stack;
     int16_t allowed_ranks;
     int16_t required_ranks;
 } BoardCell;

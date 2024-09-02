@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include "board.h"
+#include <stdint.h>
 #include <stdlib.h>
 
 #define MAX_GAME_ACTIONS 1024
@@ -45,8 +46,14 @@ typedef struct {
 } GameAction;
 
 typedef struct {
+    BoardCellPosition pos;
+    Card card;
+} GameMoveAction;
+
+typedef struct {
     GameMoveType type;
-    BoardCellPosition actions[MAX_MOVE_ACTIONS];
+    GameMoveAction actions[MAX_MOVE_ACTIONS];
+    size_t action_count;
     int32_t score_delta;
     GameState state;
 } GameMove;
@@ -84,6 +91,15 @@ GameResult game_action_combine(
     BoardCellPosition source_cells[MAX_COMBINE_CELLS],
     size_t source_count);
 
+// deprecated
 void game_update(Game* game, GameAction action);
+
+/**
+ * @brief Apply game move to the game state and store it
+ *
+ * @param game
+ * @param move
+ */
+void game_move_push(Game* game, GameMove* move);
 
 #endif

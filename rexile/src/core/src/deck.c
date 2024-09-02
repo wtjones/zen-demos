@@ -68,3 +68,8 @@ Card card_stack_peek(CardStack* stack)
 {
     return stack->cards[stack->count - 1];
 }
+
+bool is_face_card(Card* card)
+{
+    return card->rank >= JACK;
+}

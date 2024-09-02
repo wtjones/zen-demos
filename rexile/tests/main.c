@@ -19,6 +19,7 @@ int test_stack_can_push()
 
     // Assert
     assert(count == 1);
+    assert(stack.count == 1);
     assert(stack.cards[0].suit == HEARTS);
     assert(stack.cards[0].rank == ACE);
 
@@ -90,13 +91,27 @@ int test_invalid_placement_returns_invald()
     game_init2(&game, &deck);
 
     // Act
-    BoardCellPosition pos = { .row = 1, .col = 1 };
-    GameResult result = game_action_place(&game, pos);
-    log_info("Game action result: %d", result);
+    // Try to place face card invalid
+    BoardCellPosition pos1 = { .row = 1, .col = 1 };
+    GameResult result1 = game_action_place(&game, pos1);
+    // Place a valid card
+    BoardCellPosition pos2 = { .row = 0, .col = 1 };
+    GameResult result2 = game_action_place(&game, pos2);
+
+    // Try to place card on occupied cell
+    BoardCellPosition pos3 = { .row = 0, .col = 1 };
+    GameResult result3 = game_action_place(&game, pos3);
+
+    log_info("Game action result: %d", result1);
 
     // Assert
-    bool pass = result == GAME_RESULT_INVALID;
-    return !pass;
+
+    assert(result1 == GAME_RESULT_INVALID);
+    assert(result2 == GAME_RESULT_OK);
+    assert(result3 == GAME_RESULT_INVALID);
+    assert(game.move_count == 1);
+
+    return 0;
 }
 
 TestFn test_fns[] = {

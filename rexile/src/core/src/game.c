@@ -1,5 +1,6 @@
 #include "rexile/core/game.h"
 #include "log.c/src/log.h"
+#include <assert.h>
 #include <stdbool.h>
 
 void game_init(Game* game)
@@ -42,7 +43,9 @@ bool is_placement_valid(BoardCell* cell, Card* card)
 
 bool is_placement_valid2(BoardCell* cell, Card* card)
 {
-    return cell->allowed_ranks & (1 << (card->rank - 1));
+    bool is_rank_allowed = cell->allowed_ranks & (1 << (card->rank - 1));
+    return cell->card_stack.count == 0
+        && is_rank_allowed;
 }
 
 int count_marked_cell_rank(Board* board)
@@ -215,6 +218,31 @@ GameResult game_action_place(
         return GAME_RESULT_INVALID;
     }
 
+    GameMove move = {
+        .type = MOVE_PLACE,
+        .actions = { { .card = card, .pos = dest_cell_pos } },
+        .action_count = 1,
+        .score_delta = 10
+    };
+
+    // Will the placement result in a win?
+    if (count_placed_face_cards(&game->board) == 9
+        && is_face_card(&card)) {
+        move.state = GAME_WIN;
+        game_move_push(game, &move);
+        return GAME_RESULT_OK;
+    }
+
+    if (game->draw_deck.count == 1) {
+        move.state = GAME_LOSE;
+        game_move_push(game, &move);
+        return GAME_RESULT_OK;
+    }
+
+    if (count_available_cells(&game->board) == 1) {
+        move.state = GAME_COMBINE;
+    }
+    game_move_push(game, &move);
     return GAME_RESULT_OK;
 }
 
@@ -228,4 +256,17 @@ GameResult game_action_combine(
         return GAME_RESULT_INVALID;
     }
     return GAME_RESULT_OK;
+}
+
+void game_move_push(Game* game, GameMove* move)
+{
+    game->moves[game->move_count++] = *move;
+    assert(game->move_count < MAX_GAME_MOVES);
+    assert(move->action_count == 1);
+    if (move->type == MOVE_PLACE) {
+        Card draw_card = card_stack_pop(&game->draw_deck);
+        BoardCell* dest_cell = &game->board.cells[move->actions[0].pos.row][move->actions[0].pos.col];
+        card_stack_push(&dest_cell->card_stack, draw_card);
+    }
+    game->score += move->score_delta;
 }
