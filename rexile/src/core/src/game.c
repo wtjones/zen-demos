@@ -1,5 +1,6 @@
 #include "rexile/core/game.h"
 #include "log.c/src/log.h"
+#include "rexile/core/repr.h"
 #include <assert.h>
 #include <stdbool.h>
 
@@ -248,6 +249,8 @@ void game_update(Game* game, GameAction action)
 GameResult game_action_place(
     Game* game, BoardCellPosition dest_cell_pos)
 {
+    char buffer[255];
+
     log_info("Placing card at %d, %d", dest_cell_pos.row, dest_cell_pos.col);
     if (!is_position_valid(dest_cell_pos)) {
         return GAME_RESULT_INVALID;
@@ -259,7 +262,7 @@ GameResult game_action_place(
     }
 
     Card card = card_stack_peek(&game->draw_deck);
-    log_info("Draw card: %d, %d", card.suit, card.rank);
+    log_info("Draw card: %s", repr_card(buffer, sizeof(buffer), card));
     BoardCell* dest_cell = &game->board.cells[dest_cell_pos.row][dest_cell_pos.col];
 
     if (!is_placement_valid2(dest_cell, &card)) {
