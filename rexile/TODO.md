@@ -7,6 +7,8 @@
 - [] Detect unwinnable state on full board
 - [] New game on win/lose
 - [] New game during game
+- [] Add repr function for cards
+- [] Render move ledger in UX
 
 ## In Progress
 
