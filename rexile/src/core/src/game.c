@@ -274,19 +274,20 @@ GameResult game_action_place(
         .type = MOVE_PLACE,
         .actions = { { .card = card, .pos = dest_cell_pos } },
         .action_count = 1,
-        .score_delta = 10
+        .score_delta = 10,
+        .prior_state = game->state
     };
 
     // Will the placement result in a win?
     if (count_placed_face_cards(&game->board) == 9
         && is_face_card(&card)) {
-        move.state = GAME_WIN;
+        move.new_state = GAME_WIN;
         game_move_push(game, &move);
         return GAME_RESULT_OK;
     }
 
     if (game->draw_deck.count == 1) {
-        move.state = GAME_LOSE;
+        move.new_state = GAME_LOSE;
         game_move_push(game, &move);
         return GAME_RESULT_OK;
     }
@@ -296,7 +297,7 @@ GameResult game_action_place(
 
     if (available_cells == 1) {
         log_info("Last cell placed, switching to combine state");
-        move.state = GAME_COMBINE;
+        move.new_state = GAME_COMBINE;
     }
     game_move_push(game, &move);
     return GAME_RESULT_OK;
@@ -335,7 +336,7 @@ void game_move_push(Game* game, GameMove* move)
     game->moves[game->move_count++] = *move;
     assert(game->move_count < MAX_GAME_MOVES);
     assert(move->action_count > 0);
-    game->state = move->state;
+    game->state = move->new_state;
     switch (move->type) {
 
     case MOVE_PLACE:

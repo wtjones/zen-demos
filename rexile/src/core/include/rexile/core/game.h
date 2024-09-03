@@ -55,7 +55,8 @@ typedef struct {
     GameMoveAction actions[MAX_MOVE_ACTIONS];
     size_t action_count;
     int32_t score_delta;
-    GameState state;
+    GameState new_state;
+    GameState prior_state;
 } GameMove;
 
 typedef struct {
