@@ -4,6 +4,11 @@
 #include "rexile/core/repr.h"
 #include <time.h>
 
+int card_value(Card* card)
+{
+    return is_face_card(card) ? 10 : card->rank;
+}
+
 void deck_shuffle(CardDeck* deck)
 {
     srand(time(NULL));

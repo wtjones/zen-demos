@@ -47,6 +47,8 @@ typedef struct {
     size_t top_index;
 } CardDeck;
 
+int card_value(Card* card);
+
 /**
  * @brief Init to zero cards in the stack
  *

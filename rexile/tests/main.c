@@ -176,9 +176,18 @@ int test_combine_allows_valid_cards()
 
     log_info("Game action result: %d", result1);
 
+    // Cannot discard face cards
+    BoardCellPosition positions2[] = {
+        { .row = 0, .col = 0 }
+    };
+
+    GameResult result2 = game_action_combine(
+        &game, positions2, sizeof(positions2) / sizeof(positions2[0]));
+
     // Assert
 
     assert(result1 == GAME_RESULT_INVALID);
+    assert(result2 == GAME_RESULT_INVALID);
 
     return 0;
 }

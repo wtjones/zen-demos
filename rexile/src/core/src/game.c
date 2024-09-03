@@ -56,6 +56,7 @@ bool is_combine_valid(
     size_t source_count)
 {
 
+    char buffer[255];
     if (source_count > MAX_COMBINE_CELLS) {
         return false;
     }
@@ -69,12 +70,12 @@ bool is_combine_valid(
         }
         BoardCell* cell = &game->board.cells[pos.row][pos.col];
         Card card = card_stack_peek(&cell->card_stack);
-        if (card.rank >= JACK) {
-            log_warn("Invalid combine card rank: %d", card.rank);
+        if (is_face_card(&card)) {
+            log_warn("Invalid combine card: %s", repr_card(buffer, sizeof(buffer), card));
             return false;
         }
 
-        total += card.rank;
+        total += card_value(&card);
     }
 
     if (total != 10) {
