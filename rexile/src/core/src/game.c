@@ -304,10 +304,9 @@ GameResult game_action_place(
 
 GameResult game_action_combine(
     Game* game,
-    BoardCellPosition source_cells[MAX_COMBINE_CELLS],
+    BoardCellPosition source_cells[],
     size_t source_count)
 {
-
     log_info("Combining %d cards", source_count);
     if (!is_combine_valid(game, source_cells, source_count)) {
         log_warn("Invalid combine");

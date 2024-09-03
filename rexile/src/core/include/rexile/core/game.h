@@ -89,7 +89,7 @@ GameResult game_action_place(
 
 GameResult game_action_combine(
     Game* game,
-    BoardCellPosition source_cells[MAX_COMBINE_CELLS],
+    BoardCellPosition source_cells[],
     size_t source_count);
 
 // deprecated

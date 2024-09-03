@@ -6,7 +6,7 @@ add_executable(tests
 target_link_libraries(tests PRIVATE rexile_core external)
 
 target_include_directories(tests PUBLIC include)
-
+target_compile_options(tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
 enable_testing()
 
