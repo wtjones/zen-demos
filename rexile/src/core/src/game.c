@@ -331,14 +331,17 @@ GameResult game_action_combine(
 
 void game_move_push(Game* game, GameMove* move)
 {
+    char buffer[255];
+
     game->moves[game->move_count++] = *move;
     assert(game->move_count < MAX_GAME_MOVES);
-    assert(move->action_count == 1);
+    assert(move->action_count > 0);
     game->state = move->state;
     switch (move->type) {
 
     case MOVE_PLACE:
         Card draw_card = card_stack_pop(&game->draw_deck);
+        log_info("Drawing card: %s", repr_card(buffer, sizeof(buffer), draw_card));
         BoardCell* dest_cell = &game->board.cells[move->actions[0].pos.row][move->actions[0].pos.col];
         card_stack_push(&dest_cell->card_stack, draw_card);
         break;
@@ -347,6 +350,7 @@ void game_move_push(Game* game, GameMove* move)
         for (size_t i = 0; i < move->action_count; i++) {
             BoardCell* source_cell = &game->board.cells[move->actions[i].pos.row][move->actions[i].pos.col];
             Card card = card_stack_pop(&source_cell->card_stack);
+            log_info("Discarding card: %s", repr_card(buffer, sizeof(buffer), card));
             card_stack_push(&game->discard_deck, card);
         }
         break;

@@ -184,10 +184,19 @@ int test_combine_allows_valid_cards()
     GameResult result2 = game_action_combine(
         &game, positions2, sizeof(positions2) / sizeof(positions2[0]));
 
-    // Assert
+    // Should be able to combine with value 10
+    BoardCellPosition positions3[] = {
+        { .row = 1, .col = 3 },
+        { .row = 2, .col = 1 }
+    };
 
+    GameResult result3 = game_action_combine(
+        &game, positions3, sizeof(positions3) / sizeof(positions3[0]));
+
+    // Assert
     assert(result1 == GAME_RESULT_INVALID);
     assert(result2 == GAME_RESULT_INVALID);
+    assert(result3 == GAME_RESULT_OK);
 
     return 0;
 }
