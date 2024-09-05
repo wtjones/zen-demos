@@ -79,8 +79,10 @@ int test_invalid_placement_returns_invald()
 {
     // Arrange
     Card source_cards[] = {
+        { .suit = HEARTS, .rank = KING },
+        { .suit = CLUBS, .rank = JACK },
         { .suit = CLUBS, .rank = KING },
-        { .suit = HEARTS, .rank = TWO },
+        { .suit = HEARTS, .rank = JACK },
         { .suit = HEARTS, .rank = QUEEN }
     };
     CardStack deck;
@@ -91,16 +93,32 @@ int test_invalid_placement_returns_invald()
     game_init2(&game, &deck);
 
     // Act
-    // Try to place face card invalid
+    // Invalid - Try to place face card on non-face cell
     BoardCellPosition pos1 = { .row = 1, .col = 1 };
     GameResult result1 = game_action_place(&game, pos1);
-    // Place a valid card
+
+    // Valid - Place queen card on queen
     BoardCellPosition pos2 = { .row = 0, .col = 1 };
     GameResult result2 = game_action_place(&game, pos2);
 
-    // Try to place card on occupied cell
+    // Invalid - Try to place jack on occupied cell
     BoardCellPosition pos3 = { .row = 0, .col = 1 };
     GameResult result3 = game_action_place(&game, pos3);
+
+    // Valid - place
+    // BoardCellPosition pos3a = { .row = 1, .col = 1 };
+
+    // Invalid - Try to place jack on king cell
+    BoardCellPosition pos4 = { .row = 0, .col = 3 };
+    GameResult result4 = game_action_place(&game, pos4);
+
+    // Valid - place jack on jack
+    BoardCellPosition pos4a = { .row = 1, .col = 0 };
+    GameResult result4a = game_action_place(&game, pos4a);
+
+    // Valid - place king on king cell
+    BoardCellPosition pos5 = { .row = 0, .col = 3 };
+    GameResult result5 = game_action_place(&game, pos5);
 
     log_info("Game action result: %d", result1);
 
@@ -109,7 +127,10 @@ int test_invalid_placement_returns_invald()
     assert(result1 == GAME_RESULT_INVALID);
     assert(result2 == GAME_RESULT_OK);
     assert(result3 == GAME_RESULT_INVALID);
-    assert(game.move_count == 1);
+    assert(result4 == GAME_RESULT_INVALID);
+    assert(result4a == GAME_RESULT_OK);
+    assert(result5 == GAME_RESULT_OK);
+    assert(game.move_count == 3);
 
     return 0;
 }
@@ -131,9 +152,9 @@ int test_combine_allows_valid_cards()
         { .suit = HEARTS, .rank = EIGHT },
         { .suit = HEARTS, .rank = NINE },
         { .suit = HEARTS, .rank = TEN },
-        { .suit = HEARTS, .rank = JACK },
-        { .suit = HEARTS, .rank = QUEEN },
-        { .suit = HEARTS, .rank = KING },
+        { .suit = HEARTS, .rank = FOUR },
+        { .suit = HEARTS, .rank = THREE },
+        { .suit = HEARTS, .rank = TWO },
         { .suit = SPADES, .rank = ACE },
         { .suit = SPADES, .rank = TWO },
         { .suit = SPADES, .rank = THREE },
@@ -143,8 +164,8 @@ int test_combine_allows_valid_cards()
         { .suit = SPADES, .rank = SEVEN },
         { .suit = SPADES, .rank = EIGHT },
         { .suit = SPADES, .rank = NINE },
-        { .suit = SPADES, .rank = TEN },
-        { .suit = SPADES, .rank = JACK },
+        { .suit = SPADES, .rank = KING },
+        { .suit = SPADES, .rank = QUEEN },
         { .suit = SPADES, .rank = QUEEN },
         { .suit = SPADES, .rank = KING }
     };
