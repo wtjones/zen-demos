@@ -28,6 +28,7 @@
 typedef struct {
     WINDOW* cell_window_border;
     WINDOW* cell_window;
+    bool has_marker;
 } UXCellLayout;
 
 typedef struct {

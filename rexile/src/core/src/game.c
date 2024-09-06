@@ -23,6 +23,8 @@ void game_init2(Game* game, CardStack* deck)
     game->score = 0;
     game->move_count = 0;
     game->message[0] = '\0';
+    card_stack_clear(&game->draw_deck);
+    card_stack_populate(&game->draw_deck, deck->cards, deck->count);
     game->draw_deck = *deck;
     card_stack_clear(&game->discard_deck);
     board_init(&game->board);
@@ -263,10 +265,11 @@ GameResult game_action_place(
     }
 
     Card card = card_stack_peek(&game->draw_deck);
-    log_info("Draw card: %s", repr_card(buffer, sizeof(buffer), card));
+    log_info("Peek draw card: %s", repr_card(buffer, sizeof(buffer), card));
     BoardCell* dest_cell = &game->board.cells[dest_cell_pos.row][dest_cell_pos.col];
 
     if (!is_placement_valid2(dest_cell, &card)) {
+        log_warn("Invalid placement");
         return GAME_RESULT_INVALID;
     }
 

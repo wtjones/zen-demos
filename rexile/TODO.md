@@ -5,6 +5,7 @@
 - [] Suite colors
 - [] Scores
 - [] Detect unwinnable state on full board
+- [] Detect unplaceable card scenario
 - [] New game on win/lose
 - [] New game during game
 - [] Add repr function for cards

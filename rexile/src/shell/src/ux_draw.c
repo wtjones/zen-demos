@@ -65,6 +65,7 @@ void draw_board_init(UXLayout* layout)
 
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
+            layout->cells[i][j].has_marker = false;
             layout->cells[i][j].cell_window_border = derwin(
                 layout->board_window,
                 UX_CELL_WINDOW_HEIGHT + UX_WINDOW_BORDER_PADDING + 1,
@@ -109,11 +110,12 @@ void draw_board(UXLayout* layout, Game* game)
             UXCellLayout* cell_layout = &layout->cells[i][j];
 
             bool is_selected = layout->cursor.row == i && layout->cursor.col == j;
-            bool is_empty = cell->card == NULL;
+            bool is_empty = cell->card_stack.count == 0;
 
             werase(cell_layout->cell_window);
             if (!is_empty) {
-                draw_card(cell_layout, cell->card);
+                Card cell_card = card_stack_peek(&cell->card_stack);
+                draw_card(cell_layout, &cell_card);
             }
             if (is_selected) {
                 wattron(cell_layout->cell_window, A_REVERSE);
@@ -128,7 +130,7 @@ void draw_board(UXLayout* layout, Game* game)
                 wattroff(cell_layout->cell_window, A_REVERSE);
             }
 
-            if (cell->token == TOKEN_MARKER) {
+            if (cell_layout->has_marker) {
                 mvwprintw(cell_layout->cell_window, 0, UX_CELL_WINDOW_WIDTH - 4, "⦿");
             }
 
@@ -141,7 +143,8 @@ void draw_board(UXLayout* layout, Game* game)
 void draw_game_state(UXLayout* layout, Game* game)
 {
     char card_repr[255];
-    card_to_string(game->up_card, card_repr);
+    Card up_card = card_stack_peek(&game->draw_deck);
+    card_to_string(&up_card, card_repr);
     werase(layout->game_state_window);
     wprintw(layout->game_state_window, "Card: %s\t\t\t\tScore: %d\nPhase: %s",
         card_repr,

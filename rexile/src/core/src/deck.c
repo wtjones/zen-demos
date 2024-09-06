@@ -82,6 +82,30 @@ Card card_stack_peek(CardStack* stack)
     return stack->cards[stack->count - 1];
 }
 
+void card_stack_fill(CardStack* stack)
+{
+    for (CardSuit i = HEARTS; i < SPADES + 1; i++) {
+        for (CardRank j = ACE; j < KING + 1; j++) {
+            Card card = { .rank = j, .suit = i };
+            card_stack_push(stack, card);
+        }
+    }
+}
+
+void card_stack_shuffle(CardStack* stack)
+{
+    srand(time(NULL));
+
+    for (size_t i = stack->count - 1; i > 0; i--) {
+        // Generate a random index from 0 to i
+        size_t j = rand() % (i + 1);
+
+        Card temp = stack->cards[i];
+        stack->cards[i] = stack->cards[j];
+        stack->cards[j] = temp;
+    }
+}
+
 bool is_face_card(Card* card)
 {
     return card->rank >= JACK;
