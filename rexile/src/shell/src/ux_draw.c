@@ -1,5 +1,6 @@
 #include "ux_draw.h"
 #include "log.c/src/log.h"
+#include "rexile/core/board.h"
 #include <string.h>
 
 static const char* g_ux_cell_type_desc[] = {
@@ -11,7 +12,8 @@ static const char* g_ux_cell_type_desc[] = {
 
 static const char* g_ux_game_state_desc[] = {
     "Place cards",
-    "Combine to discard. Press p to continue",
+    "Combine to discard",
+    "Combine or place",
     "Game Over: Win",
     "Game Over: Lose"
 };
@@ -151,6 +153,15 @@ void draw_game_state(UXLayout* layout, Game* game)
         game->score,
         g_ux_game_state_desc[game->state]);
     wrefresh(layout->game_state_window);
+}
+
+void ux_clear_markers(UXLayout* layout)
+{
+    for (int i = 0; i < BOARD_ROWS; i++) {
+        for (int j = 0; j < BOARD_COLS; j++) {
+            layout->cells[i][j].has_marker = false;
+        }
+    }
 }
 
 void ux_draw_init(UXLayout* layout)

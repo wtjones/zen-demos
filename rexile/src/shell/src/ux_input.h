@@ -29,6 +29,4 @@ void ux_cursor_update(UXCursor* cursor, int* keys);
 
 void ux_input_update(int* keys);
 
-GameAction ux_input_to_action(int* keys, UXCursor* cursor, Board* board);
-
 #endif

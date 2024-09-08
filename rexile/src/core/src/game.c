@@ -254,6 +254,8 @@ GameResult game_action_place(
 {
     char buffer[255];
 
+    int prior_score = game->score;
+
     log_info("Placing card at %d, %d", dest_cell_pos.row, dest_cell_pos.col);
     if (!is_position_valid(dest_cell_pos)) {
         return GAME_RESULT_INVALID;
@@ -273,35 +275,45 @@ GameResult game_action_place(
         return GAME_RESULT_INVALID;
     }
 
+    Card draw_card = card_stack_pop(&game->draw_deck);
+    log_info("Drawing card: %s", repr_card(buffer, sizeof(buffer), draw_card));
+    card_stack_push(&dest_cell->card_stack, draw_card);
+    game->score += 10;
+
     GameMove move = {
         .type = MOVE_PLACE,
         .actions = { { .card = card, .pos = dest_cell_pos } },
         .action_count = 1,
-        .score_delta = 10,
         .prior_state = game->state
     };
 
-    // Will the placement result in a win?
-    if (count_placed_face_cards(&game->board) == 9
-        && is_face_card(&card)) {
-        move.new_state = GAME_WIN;
+    // Win?
+    if (count_placed_face_cards(&game->board) == 10) {
+        game->state = move.new_state = GAME_WIN;
+        move.score_delta = game->score - prior_score;
         game_move_push(game, &move);
         return GAME_RESULT_OK;
     }
 
-    if (game->draw_deck.count == 1) {
-        move.new_state = GAME_LOSE;
+    // Out of cards?
+    if (game->draw_deck.count == 0) {
+        game->state = move.new_state = GAME_LOSE;
+        move.score_delta = game->score - prior_score;
         game_move_push(game, &move);
         return GAME_RESULT_OK;
     }
 
-    size_t available_cells = count_available_cells2(&game->board);
-    log_info("Available cells before placement: %d", available_cells);
-
-    if (available_cells == 1) {
+    if (count_available_cells2(&game->board) == 0) {
+        // TODO: ensure we can combine
         log_info("Last cell placed, switching to combine state");
-        move.new_state = GAME_COMBINE;
+        game->state = move.new_state = GAME_COMBINE;
+        move.score_delta = game->score - prior_score;
+        game_move_push(game, &move);
+        return GAME_RESULT_OK;
     }
+
+    game->state = move.new_state = GAME_PLACE;
+    move.score_delta = game->score - prior_score;
     game_move_push(game, &move);
     return GAME_RESULT_OK;
 }
@@ -311,6 +323,9 @@ GameResult game_action_combine(
     BoardCellPosition source_cells[],
     size_t source_count)
 {
+    char buffer[255];
+    int prior_score = game->score;
+
     log_info("Combining %d cards", source_count);
     if (!is_combine_valid(game, source_cells, source_count)) {
         log_warn("Invalid combine");
@@ -320,13 +335,21 @@ GameResult game_action_combine(
     GameMove move = {
         .type = MOVE_COMBINE,
         .action_count = source_count,
-        .score_delta = 10 * source_count
+        .prior_state = game->state
     };
 
     for (size_t i = 0; i < source_count; i++) {
+        BoardCell* source_cell = &game->board.cells[source_cells[i].row][source_cells[i].col];
+        Card card = card_stack_pop(&source_cell->card_stack);
+        log_info("Discarding card: %s", repr_card(buffer, sizeof(buffer), card));
+        card_stack_push(&game->discard_deck, card);
+        game->score += card_value(&card);
         move.actions[i].pos = source_cells[i];
     }
-
+    move.score_delta = game->score - prior_score;
+    // TODO: If no more combines: place
+    // TODO: If switching to place, ensure possible move
+    game->state = move.new_state = GAME_COMBINE_OR_PLACE;
     game_move_push(game, &move);
 
     return GAME_RESULT_OK;
@@ -339,27 +362,4 @@ void game_move_push(Game* game, GameMove* move)
     game->moves[game->move_count++] = *move;
     assert(game->move_count < MAX_GAME_MOVES);
     assert(move->action_count > 0);
-    game->state = move->new_state;
-    switch (move->type) {
-
-    case MOVE_PLACE:
-        Card draw_card = card_stack_pop(&game->draw_deck);
-        log_info("Drawing card: %s", repr_card(buffer, sizeof(buffer), draw_card));
-        BoardCell* dest_cell = &game->board.cells[move->actions[0].pos.row][move->actions[0].pos.col];
-        card_stack_push(&dest_cell->card_stack, draw_card);
-        break;
-    case MOVE_COMBINE:
-
-        for (size_t i = 0; i < move->action_count; i++) {
-            BoardCell* source_cell = &game->board.cells[move->actions[i].pos.row][move->actions[i].pos.col];
-            Card card = card_stack_pop(&source_cell->card_stack);
-            log_info("Discarding card: %s", repr_card(buffer, sizeof(buffer), card));
-            card_stack_push(&game->discard_deck, card);
-        }
-        break;
-    default:
-        assert(false);
-    }
-
-    game->score += move->score_delta;
 }

@@ -35,18 +35,21 @@ void ux_new_game(Game* game)
     game_init2(game, &deck);
 }
 
-GameResult ux_input_to_action2(int* keys, UXLayout* layout, Game* game)
+GameResult ux_input_to_action(int* keys, UXLayout* layout, Game* game)
 {
     UXCursor* cursor = &layout->cursor;
 
     if (keys[INPUT_KEY_ENTER] || keys[INPUT_KEY_SPACE]) {
-        switch (game->state) {
-        case GAME_PLACE:
+
+        bool is_cursor_cell_empty = game->board.cells[cursor->row][cursor->col].card_stack.count == 0;
+        bool intent_to_place = game->state == GAME_PLACE
+            || (game->state == GAME_COMBINE_OR_PLACE && is_cursor_cell_empty);
+
+        if (intent_to_place) {
+            ux_clear_markers(layout);
             return game_action_place(
                 game, (BoardCellPosition) { cursor->row, cursor->col });
-            break;
-        case GAME_COMBINE:
-            // BoardCell* selected = &game->board.cells[cursor->row][cursor->col];
+        } else {
             UXCellLayout* cell_layout = &layout->cells[cursor->row][cursor->col];
             cell_layout->has_marker = !cell_layout->has_marker;
 
@@ -61,12 +64,12 @@ GameResult ux_input_to_action2(int* keys, UXLayout* layout, Game* game)
                 }
             }
 
-            return game_action_combine(game, marked, marked_count);
+            GameResult result = game_action_combine(game, marked, marked_count);
 
-            break;
-        default:
-            assert(false);
-            break;
+            if (result == GAME_RESULT_OK) {
+                ux_clear_markers(layout);
+            }
+            return result;
         }
     }
     return GAME_RESULT_NONE;
@@ -105,7 +108,7 @@ int main()
         }
         ux_cursor_update(&layout.cursor, input_keys);
 
-        GameResult result = ux_input_to_action2(input_keys, &layout, &game);
+        GameResult result = ux_input_to_action(input_keys, &layout, &game);
         log_info("Game result: %d", result);
         if (result == GAME_RESULT_OK) {
             // TODO: handle win/lose

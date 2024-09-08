@@ -76,20 +76,3 @@ void ux_cursor_update(UXCursor* cursor, int* keys)
         }
     }
 }
-
-GameAction ux_input_to_action(int* keys, UXCursor* cursor, Board* board)
-{
-
-    GameAction result = { ACTION_NONE, NULL };
-
-    if (keys[INPUT_KEY_ENTER] || keys[INPUT_KEY_SPACE]) {
-        result.type = ACTION_SELECT;
-        result.cell = &board->cells[cursor->row][cursor->col];
-    } else if (keys[INPUT_KEY_P] || keys[INPUT_KEY_C]) {
-        result.type = ACTION_CONTINUE;
-        result.cell = NULL;
-    }
-    log_info("Action: %d, Cell %s", result.type,
-        result.cell == NULL ? "NULL" : "NOT NULL");
-    return result;
-}

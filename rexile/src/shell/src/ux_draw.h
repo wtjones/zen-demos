@@ -47,5 +47,5 @@ typedef struct {
 
 void ux_draw_init(UXLayout* layout);
 void ux_draw_start(UXLayout* layout, Game* game);
-
+void ux_clear_markers(UXLayout* layout);
 #endif

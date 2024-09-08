@@ -60,7 +60,7 @@ Not implemented, just listing some that I have seen.
 
 ## Run
 
-```
+```bash
 ./run_build.sh
 ./build/rexile
 ```
@@ -132,3 +132,56 @@ Rules
   * Board is full during placement phase
 * Phase ends when:
   * Placement action is made
+
+## Design 2
+
+### init
+
+state = place
+
+### init move
+
+draw card
+
+* Assumes at least one card.
+
+### move
+
+place/combine card
+
+* Relies on post move validation to ensure game isn't lost.
+
+### post move
+
+switch type
+  place:
+    if complete:
+      state = win
+    if full:
+      if combine possible:
+        state = combine
+      else:
+        state = lose
+    if empty deck:
+      stat = lose
+    if no moves:
+      state = lose
+    else:
+      state = place
+  combine:
+    if_no_moves:
+      state = lose
+    state = combine_place
+
+## ledger example
+
+| type   | move | old_state       | new_state       |
+| ------ | ---- | --------------- | --------------- |
+| place  | KH   | place           | place           |
+| place  | 5S   | place           | place           |
+| ...    |      |                 |                 |
+| place  | JC   | place           | combine         |
+| combine| x    | combine         | combine_place   |
+| combine| x    | combine_place   | combine_place   |
+| place  | 3C   | combine_place   | place           |
+| place  | QH   | place           | win             |

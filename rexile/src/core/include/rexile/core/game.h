@@ -14,6 +14,7 @@
 typedef enum {
     GAME_PLACE,
     GAME_COMBINE,
+    GAME_COMBINE_OR_PLACE,
     GAME_WIN,
     GAME_LOSE
 } GameState;
