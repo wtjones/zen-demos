@@ -14,8 +14,6 @@
 
 ## In Progress
 
-- [] Should lose when can't place face card (regression)
-
 ## Done
 
 - [x] Move cursor to ux
@@ -26,3 +24,4 @@
 - [x] Should un-mark on combine of single/pair (regression)
 - [x] Should not select empty cells
 - [x] Add repr function for cards
+- [x] Should lose when can't place face card (regression)

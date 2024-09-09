@@ -31,5 +31,9 @@ add_test(
     COMMAND $<TARGET_FILE:tests> test_invalid_placement_returns_invald)
 
 add_test(
+    NAME test_unable_to_place_face_card_loses
+    COMMAND $<TARGET_FILE:tests> test_unable_to_place_face_card_loses)
+
+add_test(
     NAME test_combine_allows_valid_cards
     COMMAND $<TARGET_FILE:tests> test_combine_allows_valid_cards)

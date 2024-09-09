@@ -38,7 +38,7 @@ void board_init(Board* board)
     board->cells[3][3].type = KING_REQUIRED;
 
     // Row 0
-    board->cells[0][0].allowed_ranks = WILD_REQUIRED_RANKS;
+    board->cells[0][0].allowed_ranks = KING_ALLOWED_RANKS;
     board->cells[0][0].required_ranks = KING_REQUIRED_RANK;
 
     board->cells[0][1].allowed_ranks = QUEEN_ALLOWED_RANKS;

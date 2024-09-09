@@ -101,7 +101,7 @@ int count_marked_cell_rank(Board* board)
 }
 
 /**
- * @brief Determine if empty cells remain for the given rank.
+ * @brief deprecated - Determine if empty cells remain for the given rank.
  *
  * @param board
  * @param rank
@@ -117,6 +117,20 @@ int count_available_face_cells(Board* board, CardRank rank)
                 && cell_type_to_rank(type) == rank) {
                 count++;
             }
+        }
+    }
+    return count;
+}
+
+int count_available_cells_by_rank(Board* board, CardRank rank)
+{
+    int count = 0;
+    for (int i = 0; i < BOARD_ROWS; ++i) {
+        for (int j = 0; j < BOARD_COLS; ++j) {
+            BoardCell* cell = &board->cells[i][j];
+            int rank_mask = 1 << (rank - 1);
+            bool is_empty = cell->card_stack.count == 0;
+            count += is_empty && cell->allowed_ranks & rank_mask ? 1 : 0;
         }
     }
     return count;
@@ -307,6 +321,19 @@ GameResult game_action_place(
         // TODO: ensure we can combine
         log_info("Last cell placed, switching to combine state");
         game->state = move.new_state = GAME_COMBINE;
+        move.score_delta = game->score - prior_score;
+        game_move_push(game, &move);
+        return GAME_RESULT_OK;
+    }
+
+    // Can't place face card?
+    Card next_card = card_stack_peek(&game->draw_deck);
+    int available_cells = count_available_cells_by_rank(&game->board, next_card.rank);
+
+    if (is_face_card(&next_card)
+        && available_cells == 0) {
+        log_info("Next card is a royal that cannot be placed.");
+        game->state = move.new_state = GAME_LOSE;
         move.score_delta = game->score - prior_score;
         game_move_push(game, &move);
         return GAME_RESULT_OK;

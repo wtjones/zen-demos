@@ -135,6 +135,56 @@ int test_invalid_placement_returns_invald()
     return 0;
 }
 
+int test_unable_to_place_face_card_loses()
+{
+    // Arrange
+    Card source_cards[] = {
+        { .suit = HEARTS, .rank = SEVEN },
+        { .suit = HEARTS, .rank = KING },
+        { .suit = CLUBS, .rank = KING },
+        { .suit = CLUBS, .rank = FOUR },
+        { .suit = HEARTS, .rank = THREE },
+        { .suit = HEARTS, .rank = TWO }
+    };
+    CardStack deck;
+    card_stack_clear(&deck);
+    card_stack_populate(&deck, source_cards, sizeof(source_cards) / sizeof(source_cards[0]));
+
+    Game game;
+    game_init2(&game, &deck);
+
+    // Act
+    BoardCellPosition pos;
+    GameResult result;
+
+    pos.row = 0;
+    pos.col = 0;
+    result = game_action_place(&game, pos);
+
+    pos.row = 0;
+    pos.col = 3;
+    result = game_action_place(&game, pos);
+
+    pos.row = 3;
+    pos.col = 0;
+    result = game_action_place(&game, pos);
+
+    pos.row = 3;
+    pos.col = 3;
+    result = game_action_place(&game, pos);
+
+    // King cells are filled and the next card is a king.
+    // The game should be lost.
+
+    log_info("Game action result: %d", result);
+
+    // Assert
+
+    assert(game.state == GAME_LOSE);
+
+    return 0;
+}
+
 int test_combine_allows_valid_cards()
 {
     // Arrange
@@ -228,6 +278,7 @@ TestFn test_fns[] = {
     { "test_stack_can_populate", test_stack_can_populate },
     { "test_empty_deck_loses", test_empty_deck_loses },
     { "test_invalid_placement_returns_invald", test_invalid_placement_returns_invald },
+    { "test_unable_to_place_face_card_loses", test_unable_to_place_face_card_loses },
     { "test_combine_allows_valid_cards", test_combine_allows_valid_cards }
 };
 
