@@ -3,7 +3,7 @@
 ## Todo
 
 - [] Suite colors
-- [] Scores
+- [] Track scores
 - [] Detect unwinnable state on full board
 - [] Detect unplaceable card scenario
 - [] When switching from combine to place, detect if move is possible
@@ -11,6 +11,7 @@
 - [] New game during game
 - [] Render move ledger in UX
 - [] Should not be able to select a face card
+- [] Should not be able to select cells when in lose state
 
 ## In Progress
 
