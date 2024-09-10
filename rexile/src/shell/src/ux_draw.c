@@ -18,6 +18,21 @@ static const char* g_ux_game_state_desc[] = {
     "Game Over: Lose"
 };
 
+const char* repr_required_ranks(BoardCell* cell)
+{
+
+    switch (cell->required_ranks) {
+    case KING_REQUIRED_RANK:
+        return g_ux_cell_type_desc[3];
+    case QUEEN_REQUIRED_RANK:
+        return g_ux_cell_type_desc[2];
+    case JACK_REQUIRED_RANK:
+        return g_ux_cell_type_desc[1];
+    default:
+        return g_ux_cell_type_desc[0];
+    }
+}
+
 void card_to_string(Card* card, char* card_str)
 {
     card_str[0] = '\0';
@@ -104,8 +119,6 @@ void draw_card(UXCellLayout* cell_layout, Card* card)
 
 void draw_board(UXLayout* layout, Game* game)
 {
-    char buffer[1024];
-
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
             BoardCell* cell = &game->board.cells[i][j];
@@ -123,10 +136,8 @@ void draw_board(UXLayout* layout, Game* game)
                 wattron(cell_layout->cell_window, A_REVERSE);
             }
 
-            sprintf(buffer, "%d", cell->type);
-
             mvwprintw(
-                cell_layout->cell_window, 1, 1, "%s", g_ux_cell_type_desc[cell->type]);
+                cell_layout->cell_window, 1, 1, "%s", repr_required_ranks(cell));
 
             if (is_selected) {
                 wattroff(cell_layout->cell_window, A_REVERSE);

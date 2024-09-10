@@ -62,10 +62,8 @@ typedef struct {
 
 typedef struct {
     Board board;
-    CardDeck deck;
     CardStack draw_deck;
     CardStack discard_deck;
-    Card* up_card;
     int score;
     GameState state;
     GameAction actions[MAX_GAME_ACTIONS];
@@ -75,8 +73,7 @@ typedef struct {
     char message[MAX_MESSAGE_LENGTH];
 } Game;
 
-void game_init(Game* game);
-void game_init2(Game* game, CardStack* deck);
+void game_init(Game* game, CardStack* deck);
 
 /**
  * @brief Draw and place on the board

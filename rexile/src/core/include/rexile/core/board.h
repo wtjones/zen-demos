@@ -2,6 +2,7 @@
 #define BOARD_H
 
 #include "deck.h"
+#include <stdint.h>
 
 #define BOARD_COLS 4
 #define BOARD_ROWS 4
@@ -24,19 +25,7 @@ typedef enum {
     KING_REQUIRED
 } CellType;
 
-// deprecated
-typedef enum {
-    TOKEN_NONE,
-    TOKEN_MARKER
-} CellToken;
-
 typedef struct {
-    // deprecated
-    CellType type;
-    // deprecated
-    Card* card;
-    // deprecated
-    CellToken token;
     CardStack card_stack;
     int16_t allowed_ranks;
     int16_t required_ranks;
@@ -52,7 +41,5 @@ typedef struct {
 } Board;
 
 void board_init(Board* board);
-
-CardRank cell_type_to_rank(CellType type);
 
 #endif

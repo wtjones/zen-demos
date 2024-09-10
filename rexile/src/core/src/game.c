@@ -4,20 +4,7 @@
 #include <assert.h>
 #include <stdbool.h>
 
-void game_init(Game* game)
-{
-    log_info("Initializing game");
-    game->score = 0;
-    game->action_count = 0;
-    game->message[0] = '\0';
-    board_init(&game->board);
-    deck_init(&game->deck);
-    deck_shuffle(&game->deck);
-    game->up_card = deck_draw(&game->deck);
-    game->state = GAME_PLACE;
-}
-
-void game_init2(Game* game, CardStack* deck)
+void game_init(Game* game, CardStack* deck)
 {
     log_info("Initializing game");
     game->score = 0;
@@ -38,14 +25,6 @@ bool is_position_valid(BoardCellPosition pos)
 }
 
 bool is_placement_valid(BoardCell* cell, Card* card)
-{
-    return card->rank < JACK
-        || (cell->type == KING_REQUIRED && card->rank == KING)
-        || (cell->type == QUEEN_REQUIRED && card->rank == QUEEN)
-        || (cell->type == JACK_REQUIRED && card->rank == JACK);
-}
-
-bool is_placement_valid2(BoardCell* cell, Card* card)
 {
     bool is_rank_allowed = cell->allowed_ranks & (1 << (card->rank - 1));
     return cell->card_stack.count == 0
@@ -87,48 +66,13 @@ bool is_combine_valid(
     return true;
 }
 
-int count_marked_cell_rank(Board* board)
-{
-    int count = 0;
-    for (int i = 0; i < BOARD_ROWS; ++i) {
-        for (int j = 0; j < BOARD_COLS; ++j) {
-            if (board->cells[i][j].token == TOKEN_MARKER) {
-                count += board->cells[i][j].card->rank;
-            }
-        }
-    }
-    return count;
-}
-
-/**
- * @brief deprecated - Determine if empty cells remain for the given rank.
- *
- * @param board
- * @param rank
- * @return int
- */
-int count_available_face_cells(Board* board, CardRank rank)
-{
-    int count = 0;
-    for (int i = 0; i < BOARD_ROWS; ++i) {
-        for (int j = 0; j < BOARD_COLS; ++j) {
-            CellType type = board->cells[i][j].type;
-            if (board->cells[i][j].card == NULL
-                && cell_type_to_rank(type) == rank) {
-                count++;
-            }
-        }
-    }
-    return count;
-}
-
 int count_available_cells_by_rank(Board* board, CardRank rank)
 {
     int count = 0;
     for (int i = 0; i < BOARD_ROWS; ++i) {
         for (int j = 0; j < BOARD_COLS; ++j) {
             BoardCell* cell = &board->cells[i][j];
-            int rank_mask = 1 << (rank - 1);
+            int16_t rank_mask = 1 << (rank - 1);
             bool is_empty = cell->card_stack.count == 0;
             count += is_empty && cell->allowed_ranks & rank_mask ? 1 : 0;
         }
@@ -136,21 +80,7 @@ int count_available_cells_by_rank(Board* board, CardRank rank)
     return count;
 }
 
-// deprecated
 int count_available_cells(Board* board)
-{
-    int count = 0;
-    for (int i = 0; i < BOARD_ROWS; ++i) {
-        for (int j = 0; j < BOARD_COLS; ++j) {
-            if (board->cells[i][j].card == NULL) {
-                count++;
-            }
-        }
-    }
-    return count;
-}
-
-int count_available_cells2(Board* board)
 {
     size_t count = 0;
     for (int i = 0; i < BOARD_ROWS; ++i) {
@@ -162,105 +92,33 @@ int count_available_cells2(Board* board)
     return count;
 }
 
+/**
+ * @brief Count placed royals in goal cells
+ *
+ * @param board
+ * @return int
+ */
 int count_placed_face_cards(Board* board)
 {
     int count = 0;
     for (int i = 0; i < BOARD_ROWS; ++i) {
         for (int j = 0; j < BOARD_COLS; ++j) {
 
-            if (board->cells[i][j].card != NULL
-                && board->cells[i][j].card->rank >= JACK
-                && board->cells[i][j].type != WILD) {
-                count++;
+            BoardCell* cell = &board->cells[i][j];
+            if (cell->card_stack.count == 0) {
+                continue;
             }
+
+            Card card = card_stack_peek(&cell->card_stack);
+            if (!is_face_card(&card)) {
+                continue;
+            }
+
+            int16_t rank_mask = 1 << (card.rank - 1);
+            count += cell->required_ranks & rank_mask ? 1 : 0;
         }
     }
     return count;
-}
-
-void discard_selected(Board* board)
-{
-    for (int i = 0; i < BOARD_ROWS; ++i) {
-        for (int j = 0; j < BOARD_COLS; ++j) {
-            if (board->cells[i][j].token == TOKEN_MARKER) {
-                board->cells[i][j].token = TOKEN_NONE;
-                board->cells[i][j].card = NULL;
-            }
-        }
-    }
-}
-
-void game_update(Game* game, GameAction action)
-{
-    BoardCell* selected = action.cell;
-    log_info("GameAction: %d", action.type);
-    if (selected != NULL) {
-        log_info("Selected cell: %d, %d", selected->type, selected->token);
-    }
-    switch (game->state) {
-    case GAME_PLACE:
-        if (action.type == ACTION_CONTINUE) {
-            log_info("Action: Continue, ignoring.");
-            return;
-        }
-
-        if (!is_placement_valid(selected, game->up_card)) {
-            return;
-        }
-
-        // place the card
-        selected->card = game->up_card;
-        game->up_card = deck_draw(&game->deck);
-        if (game->up_card == NULL) {
-            game->state = GAME_LOSE;
-        }
-
-        if (count_placed_face_cards(&game->board) == 10) {
-            game->state = GAME_WIN;
-            return;
-        }
-
-        if (game->up_card->rank >= JACK
-            && count_available_face_cells(&game->board, game->up_card->rank) == 0) {
-            game->state = GAME_LOSE;
-        }
-
-        if (count_available_cells(&game->board) == 0) {
-            game->state = GAME_COMBINE;
-        }
-
-        break;
-    case GAME_COMBINE:
-
-        // FIXME: detect unwinnable state
-        if (action.type == ACTION_CONTINUE) {
-            game->state = GAME_PLACE;
-            return;
-        }
-
-        // Remove marker
-        if (selected->token == TOKEN_MARKER) {
-            selected->token = TOKEN_NONE;
-
-            return;
-        }
-
-        if (selected->card != NULL && selected->card->rank < JACK) {
-            selected->token = TOKEN_MARKER;
-
-            if (count_marked_cell_rank(&game->board) == 10) {
-                discard_selected(&game->board);
-                game->score += 10;
-            }
-            return;
-        }
-
-        break;
-    case GAME_LOSE:
-        break;
-    case GAME_WIN:
-        break;
-    }
 }
 
 GameResult game_action_place(
@@ -284,7 +142,7 @@ GameResult game_action_place(
     log_info("Peek draw card: %s", repr_card(buffer, sizeof(buffer), card));
     BoardCell* dest_cell = &game->board.cells[dest_cell_pos.row][dest_cell_pos.col];
 
-    if (!is_placement_valid2(dest_cell, &card)) {
+    if (!is_placement_valid(dest_cell, &card)) {
         log_warn("Invalid placement");
         return GAME_RESULT_INVALID;
     }
@@ -317,7 +175,7 @@ GameResult game_action_place(
         return GAME_RESULT_OK;
     }
 
-    if (count_available_cells2(&game->board) == 0) {
+    if (count_available_cells(&game->board) == 0) {
         // TODO: ensure we can combine
         log_info("Last cell placed, switching to combine state");
         game->state = move.new_state = GAME_COMBINE;

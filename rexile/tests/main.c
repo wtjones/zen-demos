@@ -90,7 +90,7 @@ int test_invalid_placement_returns_invald()
     card_stack_populate(&deck, source_cards, sizeof(source_cards) / sizeof(source_cards[0]));
 
     Game game;
-    game_init2(&game, &deck);
+    game_init(&game, &deck);
 
     // Act
     // Invalid - Try to place face card on non-face cell
@@ -151,7 +151,7 @@ int test_unable_to_place_face_card_loses()
     card_stack_populate(&deck, source_cards, sizeof(source_cards) / sizeof(source_cards[0]));
 
     Game game;
-    game_init2(&game, &deck);
+    game_init(&game, &deck);
 
     // Act
     BoardCellPosition pos;
@@ -224,7 +224,7 @@ int test_combine_allows_valid_cards()
     card_stack_populate(&deck, source_cards, sizeof(source_cards) / sizeof(source_cards[0]));
 
     Game game;
-    game_init2(&game, &deck);
+    game_init(&game, &deck);
 
     // Fill board with face cards on the first row
     for (int r = 0; r < 4; r++) {

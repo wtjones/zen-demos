@@ -32,7 +32,7 @@ void ux_new_game(Game* game)
     card_stack_clear(&deck);
     card_stack_fill(&deck);
     card_stack_shuffle(&deck);
-    game_init2(game, &deck);
+    game_init(game, &deck);
 }
 
 GameResult ux_input_to_action(int* keys, UXLayout* layout, Game* game)

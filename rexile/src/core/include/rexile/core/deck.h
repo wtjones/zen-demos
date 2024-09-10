@@ -41,12 +41,6 @@ typedef struct {
     size_t count;
 } CardStack;
 
-// deprecated
-typedef struct {
-    Card cards[52];
-    size_t top_index;
-} CardDeck;
-
 int card_value(Card* card);
 
 /**
@@ -92,18 +86,5 @@ void card_stack_populate(CardStack* stack, Card source_cards[], size_t source_co
 void card_stack_shuffle(CardStack* stack);
 
 bool is_face_card(Card* card);
-
-// deprecated
-void deck_init(CardDeck* deck);
-
-void deck_shuffle(CardDeck* deck);
-
-/**
- * @brief Decrement the top index of the deck and return the card at that index
- *
- * @param deck
- * @return Card* NULL if the deck is empty
- */
-Card* deck_draw(CardDeck* deck);
 
 #endif
