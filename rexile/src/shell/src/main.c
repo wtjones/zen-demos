@@ -1,5 +1,7 @@
 #include "log.c/src/log.h"
 #include "rexile/core/game.h"
+#include "rexile/core/io.h"
+#include "ux_args.h"
 #include "ux_draw.h"
 #include "ux_input.h"
 #include <assert.h>
@@ -26,13 +28,25 @@ void ux_cleanup()
     endwin();
 }
 
-void ux_new_game(Game* game)
+bool ux_new_game(Game* game, UXOptions* options)
 {
     CardStack deck;
     card_stack_clear(&deck);
-    card_stack_fill(&deck);
-    card_stack_shuffle(&deck);
+
+    if (options->initial_deck_file) {
+        log_info("Loading deck from file: %s", options->initial_deck_file);
+
+        if (!card_stack_load(options->initial_deck_file, &deck)) {
+            log_error("Failed to load deck from file: %s", options->initial_deck_file);
+            return false;
+        }
+    } else {
+
+        card_stack_fill(&deck);
+        card_stack_shuffle(&deck);
+    }
     game_init(game, &deck);
+    return true;
 }
 
 GameResult ux_input_to_action(int* keys, UXLayout* layout, Game* game)
@@ -75,27 +89,37 @@ GameResult ux_input_to_action(int* keys, UXLayout* layout, Game* game)
     return GAME_RESULT_NONE;
 }
 
-int main()
+int main(int argc, char** argv)
+
 {
     UXLayout layout;
 
     FILE* log_file = fopen("/tmp/rexile.log", "w");
     log_add_fp(log_file, LOG_INFO);
-    log_set_quiet(1);
-    log_set_level(LOG_INFO);
+    log_set_quiet(0);
+    log_set_level(LOG_ERROR);
 
     log_info("Starting Rexile");
+
+    UXOptions options;
+    if (!ux_parse_options(argc, argv, &options)) {
+        log_error("Failed to parse options");
+        return 1;
+    }
+
+    Game game;
+
+    if (!ux_new_game(&game, &options)) {
+        log_error("Failed to start new game");
+        return 1;
+    }
 
     ux_init(&layout);
     ux_draw_init(&layout);
 
     int input_keys[INPUT_KEY_MAX];
-    Game game;
-    ux_new_game(&game);
-
     bool should_exit = false;
     while (!should_exit) {
-
         ux_draw_start(&layout, &game);
 
         usleep(DELAY);

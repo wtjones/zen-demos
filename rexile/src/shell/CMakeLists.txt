@@ -1,5 +1,6 @@
 add_executable(${PROJECT_NAME}
     src/main.c
+    src/ux_args.c
     src/ux_draw.c
     src/ux_input.c)
 

@@ -85,6 +85,8 @@ void card_stack_populate(CardStack* stack, Card source_cards[], size_t source_co
  */
 void card_stack_shuffle(CardStack* stack);
 
+void card_stack_reverse(CardStack* stack);
+
 bool is_face_card(Card* card);
 
 #endif

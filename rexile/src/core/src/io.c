@@ -64,6 +64,7 @@ bool card_stack_load(const char* path, CardStack* stack)
         }
         card_stack_push(stack, card);
     }
+    card_stack_reverse(stack);
     fclose(file);
 
     return true;

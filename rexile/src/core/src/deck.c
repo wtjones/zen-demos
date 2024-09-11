@@ -70,6 +70,15 @@ void card_stack_shuffle(CardStack* stack)
     }
 }
 
+void card_stack_reverse(CardStack* stack)
+{
+    for (size_t i = 0; i < stack->count / 2; i++) {
+        Card temp = stack->cards[i];
+        stack->cards[i] = stack->cards[stack->count - i - 1];
+        stack->cards[stack->count - i - 1] = temp;
+    }
+}
+
 bool is_face_card(Card* card)
 {
     return card->rank >= JACK;
