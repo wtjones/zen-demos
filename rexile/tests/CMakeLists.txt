@@ -37,3 +37,9 @@ add_test(
 add_test(
     NAME test_combine_allows_valid_cards
     COMMAND $<TARGET_FILE:tests> test_combine_allows_valid_cards)
+
+add_test(
+    NAME test_can_load_card_stack
+    COMMAND $<TARGET_FILE:tests> test_can_load_card_stack)
+
+set_tests_properties(test_can_load_card_stack PROPERTIES WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

@@ -1,6 +1,7 @@
 
 #include "rexile/core/deck.h"
 #include "rexile/core/game.h"
+#include "rexile/core/io.h"
 #include "test_support.h"
 #include <assert.h>
 #include <stdint.h>
@@ -272,6 +273,22 @@ int test_combine_allows_valid_cards()
     return 0;
 }
 
+int test_can_load_card_stack()
+{
+    // Arrange
+    CardStack stack;
+
+    // Act
+    log_info("Loading card stack from file");
+    bool result = card_stack_load("./tests/data/small_deck.txt", &stack);
+
+    // Assert
+    assert(result == true);
+    assert(stack.count == 4);
+
+    return 0;
+}
+
 TestFn test_fns[] = {
     { "test_stack_can_push", test_stack_can_push },
     { "test_stack_can_pop", test_stack_can_pop },
@@ -279,7 +296,9 @@ TestFn test_fns[] = {
     { "test_empty_deck_loses", test_empty_deck_loses },
     { "test_invalid_placement_returns_invald", test_invalid_placement_returns_invald },
     { "test_unable_to_place_face_card_loses", test_unable_to_place_face_card_loses },
-    { "test_combine_allows_valid_cards", test_combine_allows_valid_cards }
+    { "test_combine_allows_valid_cards", test_combine_allows_valid_cards },
+    { "test_can_load_card_stack", test_can_load_card_stack }
+
 };
 
 int main(int argc, const char** argv)
