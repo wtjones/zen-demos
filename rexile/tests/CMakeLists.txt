@@ -43,3 +43,7 @@ add_test(
     COMMAND $<TARGET_FILE:tests> test_can_load_card_stack)
 
 set_tests_properties(test_can_load_card_stack PROPERTIES WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+add_test(
+    NAME test_unable_to_combine_loses
+    COMMAND $<TARGET_FILE:tests> test_unable_to_combine_loses)

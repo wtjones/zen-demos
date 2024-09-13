@@ -176,7 +176,13 @@ GameResult game_action_place(
     }
 
     if (count_available_cells(&game->board) == 0) {
-        // TODO: ensure we can combine
+        if (!board_has_pair(&game->board)) {
+            log_info("No combinations possible.");
+            game->state = move.new_state = GAME_LOSE;
+            move.score_delta = game->score - prior_score;
+            game_move_push(game, &move);
+            return GAME_RESULT_OK;
+        }
         log_info("Last cell placed, switching to combine state");
         game->state = move.new_state = GAME_COMBINE;
         move.score_delta = game->score - prior_score;

@@ -61,3 +61,32 @@ void board_init(Board* board)
     board->cells[3][3].allowed_ranks = KING_ALLOWED_RANKS;
     board->cells[3][3].required_ranks = KING_REQUIRED_RANK;
 }
+
+bool board_has_pair(Board* board)
+{
+    bool seen[10] = { false };
+
+    for (int i = 0; i < BOARD_ROWS; ++i) {
+        for (int j = 0; j < BOARD_COLS; ++j) {
+            CardStack* stack = &board->cells[i][j].card_stack;
+            if (stack->count == 0) {
+                continue;
+            }
+            Card card = card_stack_peek(stack);
+            if (card.rank == TEN) {
+                return true;
+            }
+
+            int current = card.rank;
+            int complement = 10 - current;
+            if (complement > 0 && complement < 10 && seen[complement]) {
+                return true;
+            }
+            if (current > 0 && current < 10) {
+                seen[current] = true;
+            }
+        }
+    }
+
+    return false;
+}

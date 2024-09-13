@@ -186,6 +186,58 @@ int test_unable_to_place_face_card_loses()
     return 0;
 }
 
+int test_unable_to_combine_loses()
+{
+    // Arrange
+
+    // Prep deck with only face and 2 cards
+    Card source_cards[] = {
+        { .suit = HEARTS, .rank = KING },
+        { .suit = HEARTS, .rank = QUEEN },
+        { .suit = CLUBS, .rank = QUEEN },
+        { .suit = CLUBS, .rank = KING },
+        { .suit = HEARTS, .rank = JACK },
+        { .suit = HEARTS, .rank = TWO },
+        { .suit = CLUBS, .rank = TWO },
+        { .suit = CLUBS, .rank = JACK },
+        { .suit = SPADES, .rank = JACK },
+        { .suit = SPADES, .rank = TWO },
+        { .suit = DIAMONDS, .rank = TWO },
+        { .suit = DIAMONDS, .rank = JACK },
+        { .suit = SPADES, .rank = KING },
+        { .suit = SPADES, .rank = QUEEN },
+        { .suit = DIAMONDS, .rank = QUEEN },
+        { .suit = DIAMONDS, .rank = KING },
+        { .suit = HEARTS, .rank = ACE }
+    };
+    CardStack deck;
+    card_stack_clear(&deck);
+    card_stack_populate(&deck, source_cards, sizeof(source_cards) / sizeof(source_cards[0]));
+    card_stack_reverse(&deck);
+
+    Game game;
+    game_init(&game, &deck);
+
+    // Act
+    BoardCellPosition pos;
+
+    for (int r = 0; r < 4; r++) {
+        for (int c = 0; c < 4; c++) {
+            pos.row = r;
+            pos.col = c;
+            assert(game_action_place(&game, pos) == GAME_RESULT_OK);
+        }
+    }
+
+    //    log_info("Game action result: %d", result);
+
+    // Assert
+
+    assert(game.state == GAME_LOSE);
+
+    return 0;
+}
+
 int test_combine_allows_valid_cards()
 {
     // Arrange
@@ -297,7 +349,8 @@ TestFn test_fns[] = {
     { "test_invalid_placement_returns_invald", test_invalid_placement_returns_invald },
     { "test_unable_to_place_face_card_loses", test_unable_to_place_face_card_loses },
     { "test_combine_allows_valid_cards", test_combine_allows_valid_cards },
-    { "test_can_load_card_stack", test_can_load_card_stack }
+    { "test_can_load_card_stack", test_can_load_card_stack },
+    { "test_unable_to_combine_loses", test_unable_to_combine_loses }
 
 };
 

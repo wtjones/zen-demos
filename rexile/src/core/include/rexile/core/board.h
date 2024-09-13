@@ -42,4 +42,6 @@ typedef struct {
 
 void board_init(Board* board);
 
+bool board_has_pair(Board* board);
+
 #endif
