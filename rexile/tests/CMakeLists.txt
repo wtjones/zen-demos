@@ -47,3 +47,7 @@ set_tests_properties(test_can_load_card_stack PROPERTIES WORKING_DIRECTORY ${CMA
 add_test(
     NAME test_unable_to_combine_loses
     COMMAND $<TARGET_FILE:tests> test_unable_to_combine_loses)
+
+add_test(
+    NAME test_can_repr_move_ledger
+    COMMAND $<TARGET_FILE:tests> test_can_repr_move_ledger)

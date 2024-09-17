@@ -269,7 +269,7 @@ GameResult game_action_combine(
 void game_move_push(Game* game, GameMove* move)
 {
     char buffer[255];
-
+    log_info("%s", repr_game_move(buffer, sizeof(buffer), move));
     game->moves[game->move_count++] = *move;
     assert(game->move_count < MAX_GAME_MOVES);
     assert(move->action_count > 0);

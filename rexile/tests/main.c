@@ -2,6 +2,7 @@
 #include "rexile/core/deck.h"
 #include "rexile/core/game.h"
 #include "rexile/core/io.h"
+#include "rexile/core/repr.h"
 #include "test_support.h"
 #include <assert.h>
 #include <stdint.h>
@@ -341,6 +342,91 @@ int test_can_load_card_stack()
     return 0;
 }
 
+int test_can_repr_move_ledger()
+{
+    // Arrange
+    Card source_cards[] = {
+        { .suit = CLUBS, .rank = KING },
+        { .suit = CLUBS, .rank = QUEEN },
+        { .suit = DIAMONDS, .rank = QUEEN },
+        { .suit = CLUBS, .rank = KING },
+        { .suit = HEARTS, .rank = TEN },
+        { .suit = HEARTS, .rank = TWO },
+        { .suit = HEARTS, .rank = EIGHT },
+        { .suit = HEARTS, .rank = FIVE },
+        { .suit = HEARTS, .rank = SIX },
+        { .suit = HEARTS, .rank = SEVEN },
+        { .suit = HEARTS, .rank = NINE },
+        { .suit = HEARTS, .rank = FOUR },
+        { .suit = HEARTS, .rank = THREE },
+        { .suit = HEARTS, .rank = TWO },
+        { .suit = SPADES, .rank = ACE },
+        { .suit = SPADES, .rank = TWO },
+        { .suit = SPADES, .rank = THREE },
+        { .suit = SPADES, .rank = FOUR },
+        { .suit = SPADES, .rank = FIVE },
+        { .suit = SPADES, .rank = SIX },
+        { .suit = SPADES, .rank = SEVEN },
+        { .suit = SPADES, .rank = EIGHT },
+        { .suit = SPADES, .rank = NINE },
+        { .suit = SPADES, .rank = KING },
+        { .suit = SPADES, .rank = QUEEN },
+        { .suit = SPADES, .rank = QUEEN },
+        { .suit = SPADES, .rank = KING }
+
+    };
+    CardStack deck;
+    card_stack_clear(&deck);
+    card_stack_populate(&deck, source_cards, sizeof(source_cards) / sizeof(source_cards[0]));
+    card_stack_reverse(&deck);
+    Game game;
+    game_init(&game, &deck);
+
+    // Act
+
+    // for (int r = 0; r < 1; r++) {
+    //     for (int c = 0; c < 4; c++) {
+    //         BoardCellPosition pos = { .row = r, .col = c };
+    //         game_action_place(&game, pos);
+    //     }
+    // }
+
+    for (int r = 0; r < 4; r++) {
+        for (int c = 0; c < 4; c++) {
+            BoardCellPosition pos = { .row = r, .col = c };
+            GameResult result = game_action_place(&game, pos);
+            assert(result == GAME_RESULT_OK);
+        }
+    }
+
+    BoardCellPosition positions2[] = {
+        { .row = 1, .col = 0 }
+    };
+
+    GameResult result2 = game_action_combine(
+        &game, positions2, sizeof(positions2) / sizeof(positions2[0]));
+
+    assert(result2 == GAME_RESULT_OK);
+
+    BoardCellPosition positions3[] = {
+        { .row = 1, .col = 1 },
+        { .row = 1, .col = 2 }
+    };
+
+    GameResult result3 = game_action_combine(
+        &game, positions3, sizeof(positions3) / sizeof(positions3[0]));
+
+    assert(result3 == GAME_RESULT_OK);
+
+    char buffer[50000];
+    repr_move_ledger(buffer, sizeof(buffer), &game);
+    log_info("Move ledger:\n %s", buffer);
+
+    // Assert
+
+    return 0;
+}
+
 TestFn test_fns[] = {
     { "test_stack_can_push", test_stack_can_push },
     { "test_stack_can_pop", test_stack_can_pop },
@@ -350,7 +436,8 @@ TestFn test_fns[] = {
     { "test_unable_to_place_face_card_loses", test_unable_to_place_face_card_loses },
     { "test_combine_allows_valid_cards", test_combine_allows_valid_cards },
     { "test_can_load_card_stack", test_can_load_card_stack },
-    { "test_unable_to_combine_loses", test_unable_to_combine_loses }
+    { "test_unable_to_combine_loses", test_unable_to_combine_loses },
+    { "test_can_repr_move_ledger", test_can_repr_move_ledger }
 
 };
 
