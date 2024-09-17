@@ -4,13 +4,12 @@
 
 - [] Suite colors
 - [] Track scores
-- [] Detect unplaceable card scenario
-- [] When switching from combine to place, detect if move is possible
 - [] New game on win/lose
 - [] New game during game
 - [] Render move ledger in UX
 - [] Should not be able to select a face card
 - [] Should not be able to select cells when in lose state
+- [] Dump ledger
 
 ## In Progress
 
@@ -26,3 +25,5 @@
 - [x] Add repr function for cards
 - [x] Should lose when can't place face card (regression)
 - [x] Detect unwinnable state on full board
+- [x] When switching from combine to place, detect if move is possible
+- [x] Detect unplaceable card scenario

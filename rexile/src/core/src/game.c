@@ -236,10 +236,30 @@ GameResult game_action_combine(
         card_stack_push(&game->discard_deck, card);
         game->score += card_value(&card);
         move.actions[i].pos = source_cells[i];
+        move.actions[i].card = card;
+    }
+
+    if (!board_has_pair(&game->board)) {
+        log_info("No more combinations possible.");
+
+        // Can we switch to place?
+        Card next_card = card_stack_peek(&game->draw_deck);
+        int available_cells = count_available_cells_by_rank(&game->board, next_card.rank);
+
+        if (is_face_card(&next_card)
+            && available_cells == 0) {
+            log_info("Next card is a royal that cannot be placed.");
+            game->state = move.new_state = GAME_LOSE;
+            move.score_delta = game->score - prior_score;
+            game_move_push(game, &move);
+            return GAME_RESULT_OK;
+        }
+        move.score_delta = game->score - prior_score;
+        game->state = move.new_state = GAME_PLACE;
+        game_move_push(game, &move);
+        return GAME_RESULT_OK;
     }
     move.score_delta = game->score - prior_score;
-    // TODO: If no more combines: place
-    // TODO: If switching to place, ensure possible move
     game->state = move.new_state = GAME_COMBINE_OR_PLACE;
     game_move_push(game, &move);
 
