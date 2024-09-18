@@ -9,7 +9,6 @@
 - [] Render move ledger in UX
 - [] Should not be able to select a face card
 - [] Should not be able to select cells when in lose state
-- [] Dump ledger
 
 ## In Progress
 
@@ -27,3 +26,4 @@
 - [x] Detect unwinnable state on full board
 - [x] When switching from combine to place, detect if move is possible
 - [x] Detect unplaceable card scenario
+- [x] Dump ledger

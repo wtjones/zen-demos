@@ -67,6 +67,13 @@ Not implemented, just listing some that I have seen.
 
 Logs are written to `/tmp/rexile.log`
 
+## Controls
+
+Cursor: arrow keys
+Place/select: enter/space
+Quit: q
+Dump ledger: l
+
 ## Design
 
 ### App states

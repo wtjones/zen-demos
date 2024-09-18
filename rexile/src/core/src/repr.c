@@ -204,3 +204,13 @@ char* repr_move_ledger(char* buffer, size_t count, Game* game)
     strcat(buffer, "]");
     return buffer;
 }
+
+char* repr_game_ledger(char* buffer, size_t count, Game* game)
+{
+    char move_buffer[GAME_LEDGER_BUFFER_SIZE];
+    buffer[0] = '\0';
+
+    repr_move_ledger(move_buffer, GAME_LEDGER_BUFFER_SIZE, game);
+    snprintf(buffer, count, "Game Ledger:\n%s", move_buffer);
+    return buffer;
+}

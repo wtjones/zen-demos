@@ -1,6 +1,7 @@
 #include "log.c/src/log.h"
 #include "rexile/core/game.h"
 #include "rexile/core/io.h"
+#include "rexile/core/repr.h"
 #include "ux_args.h"
 #include "ux_draw.h"
 #include "ux_input.h"
@@ -128,8 +129,16 @@ int main(int argc, char** argv)
 
         if (input_keys[INPUT_KEY_Q]) {
             should_exit = true;
+            io_save_game_ledger(&game);
             break;
         }
+        if (input_keys[INPUT_KEY_L]) {
+            char buffer[GAME_LEDGER_BUFFER_SIZE];
+            repr_move_ledger(buffer, sizeof(buffer), &game);
+            log_info("Move ledger:\n%s", buffer);
+            io_save_game_ledger(&game);
+        }
+
         ux_cursor_update(&layout.cursor, input_keys);
 
         GameResult result = ux_input_to_action(input_keys, &layout, &game);

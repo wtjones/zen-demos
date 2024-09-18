@@ -50,6 +50,9 @@ void ux_input_update(int* input_keys)
     case 'c':
         input_keys[INPUT_KEY_C] = 1;
         break;
+    case 'l':
+        input_keys[INPUT_KEY_L] = 1;
+        break;
     }
 }
 

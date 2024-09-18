@@ -1,5 +1,7 @@
 #include "rexile/core/io.h"
 #include "log.c/src/log.h"
+#include "rexile/core/game.h"
+#include "rexile/core/repr.h"
 #include <string.h>
 
 bool card_from_string(const char* in_rank, const char* in_suit, Card* card)
@@ -68,4 +70,51 @@ bool card_stack_load(const char* path, CardStack* stack)
     fclose(file);
 
     return true;
+}
+
+const char* io_get_temp_folder()
+{
+    const char* temp_folder = getenv("TMPDIR");
+    if (temp_folder == NULL) {
+        temp_folder = getenv("TMP");
+    }
+    if (temp_folder == NULL) {
+        temp_folder = getenv("TEMP");
+    }
+    if (temp_folder == NULL) {
+        temp_folder = getenv("TEMPDIR");
+    }
+    if (temp_folder == NULL) {
+        temp_folder = "/tmp";
+    }
+    return temp_folder;
+}
+
+void io_get_temp_file(char* result, size_t count, const char* file_name)
+{
+    const char* temp_folder = io_get_temp_folder();
+    snprintf(result, count, "%s/%s", temp_folder, file_name);
+}
+
+void io_get_game_ledger_file(char* result, size_t count)
+{
+    const char* temp_folder = io_get_temp_folder();
+    snprintf(result, count, "%s/%s", temp_folder, "rexile_last_game.txt");
+}
+
+void io_save_game_ledger(Game* game)
+{
+    char file_path[255];
+    io_get_game_ledger_file(file_path, 255);
+    FILE* file = fopen(file_path, "w");
+    if (file == NULL) {
+        log_error("Failed to open file: %s", file_path);
+        return;
+    }
+
+    char ledger_buffer[GAME_LEDGER_BUFFER_SIZE];
+    repr_game_ledger(ledger_buffer, GAME_LEDGER_BUFFER_SIZE, game);
+    fprintf(file, "%s\n", ledger_buffer);
+
+    fclose(file);
 }

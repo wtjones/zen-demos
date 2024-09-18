@@ -2,6 +2,7 @@
 #define CORE_IO_H
 
 #include "rexile/core/deck.h"
+#include "rexile/core/game.h"
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -20,5 +21,7 @@
  * @return false
  */
 bool card_stack_load(const char* path, CardStack* stack);
+
+void io_save_game_ledger(Game* game);
 
 #endif
