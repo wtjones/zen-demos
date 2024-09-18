@@ -230,10 +230,7 @@ int test_unable_to_combine_loses()
         }
     }
 
-    //    log_info("Game action result: %d", result);
-
     // Assert
-
     assert(game.state == GAME_LOSE);
 
     return 0;
@@ -383,14 +380,6 @@ int test_can_repr_move_ledger()
     game_init(&game, &deck);
 
     // Act
-
-    // for (int r = 0; r < 1; r++) {
-    //     for (int c = 0; c < 4; c++) {
-    //         BoardCellPosition pos = { .row = r, .col = c };
-    //         game_action_place(&game, pos);
-    //     }
-    // }
-
     for (int r = 0; r < 4; r++) {
         for (int c = 0; c < 4; c++) {
             BoardCellPosition pos = { .row = r, .col = c };
@@ -423,6 +412,7 @@ int test_can_repr_move_ledger()
     log_info("Move ledger:\n %s", buffer);
 
     // Assert
+    assert(strlen(buffer) > 0);
 
     return 0;
 }

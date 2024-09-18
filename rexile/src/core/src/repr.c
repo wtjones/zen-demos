@@ -202,6 +202,5 @@ char* repr_move_ledger(char* buffer, size_t count, Game* game)
         line_buffer[0] = '\0';
     }
     strcat(buffer, "]");
-    log_info("crash here885");
     return buffer;
 }
