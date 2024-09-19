@@ -138,6 +138,13 @@ int main(int argc, char** argv)
             log_info("Move ledger:\n%s", buffer);
             io_save_game_ledger(&game);
         }
+        if (input_keys[INPUT_KEY_N]) {
+            ux_cleanup();
+            ux_init(&layout);
+            ux_new_game(&game, &options);
+            ux_draw_init(&layout);
+            continue;
+        }
 
         ux_cursor_update(&layout.cursor, input_keys);
 
