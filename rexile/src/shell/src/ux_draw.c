@@ -153,6 +153,29 @@ void draw_board(UXLayout* layout, Game* game)
     wrefresh(layout->board_window);
 }
 
+void draw_legend(UXLayout* layout)
+{
+    int y = 1;
+    werase(layout->legend_window);
+    mvwprintw(layout->legend_window, y++, 1, "Legend");
+    mvwprintw(layout->legend_window, y++, 1, "♠: Spades");
+    mvwprintw(layout->legend_window, y++, 1, "♦: Diamonds");
+    mvwprintw(layout->legend_window, y++, 1, "♣: Clubs");
+    mvwprintw(layout->legend_window, y++, 1, "♥: Hearts");
+    mvwprintw(layout->legend_window, y++, 1, "A: Ace");
+    mvwprintw(layout->legend_window, y++, 1, "J: Jack");
+    mvwprintw(layout->legend_window, y++, 1, "Q: Queen");
+    mvwprintw(layout->legend_window, y++, 1, "K: King");
+    mvwprintw(layout->legend_window, y++, 1, "⦿: Marker");
+    y++;
+    mvwprintw(layout->legend_window, y++, 1, "Controls:");
+    mvwprintw(layout->legend_window, y++, 1, "Arrow keys: cursor");
+    mvwprintw(layout->legend_window, y++, 1, "Space: place/combine");
+    mvwprintw(layout->legend_window, y++, 1, "n: new game");
+    mvwprintw(layout->legend_window, y++, 1, "q: quit");
+    wrefresh(layout->legend_window);
+}
+
 void draw_game_state(UXLayout* layout, Game* game)
 {
     char card_repr[255];
@@ -210,6 +233,18 @@ void ux_draw_init(UXLayout* layout)
 
     wrefresh(layout->board_window);
 
+    int legend_window_offset_x = UX_PARENT_WINDOW_WIDTH - UX_LEGEND_WINDOW_WIDTH - 6;
+    log_info("Legend window offset: %d", legend_window_offset_x);
+    int legend_window_offset_y = 0;
+    layout->legend_window = derwin(
+        layout->main_window,
+        UX_LEGEND_WINDOW_WIDTH,
+        UX_LEGEND_WINDOW_HEIGHT,
+        legend_window_offset_y,
+        legend_window_offset_x);
+
+    wrefresh(layout->legend_window);
+
     layout->game_state_window_border = derwin(
         layout->main_window,
         UX_GAME_STATE_WINDOW_HEIGHT + UX_WINDOW_BORDER_PADDING * 2,
@@ -245,5 +280,6 @@ void ux_draw_init(UXLayout* layout)
 void ux_draw_start(UXLayout* layout, Game* game)
 {
     draw_board(layout, game);
+    draw_legend(layout);
     draw_game_state(layout, game);
 }

@@ -21,6 +21,9 @@
 #define UX_CELL_WINDOW_HEIGHT (UX_BOARD_WINDOW_HEIGHT / BOARD_ROWS) - (UX_WINDOW_PADDING * 1)
 #define UX_CELL_WINDOW_WIDTH 12
 
+#define UX_LEGEND_WINDOW_HEIGHT 22 + UX_WINDOW_BORDER_PADDING
+#define UX_LEGEND_WINDOW_WIDTH (18 + (UX_WINDOW_BORDER_PADDING * 2))
+
 #define UX_GAME_STATE_WINDOW_HEIGHT 2
 #define UX_GAME_STATE_WINDOW_WIDTH UX_PARENT_WINDOW_WIDTH - (2 * UX_WINDOW_PADDING)
 #define UX_MESSAGE_WINDOW_HEIGHT 4
@@ -37,6 +40,7 @@ typedef struct {
     WINDOW* main_window;
     WINDOW* board_window_border;
     WINDOW* board_window;
+    WINDOW* legend_window;
     WINDOW* game_state_window_border;
     WINDOW* game_state_window;
     WINDOW* message_window_border;
