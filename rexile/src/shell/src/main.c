@@ -60,6 +60,10 @@ GameResult ux_input_to_action(int* keys, UXLayout* layout, Game* game)
 {
     UXCursor* cursor = &layout->cursor;
 
+    if (game->state == GAME_WIN || game->state == GAME_LOSE) {
+        return GAME_RESULT_NONE;
+    }
+
     if (keys[INPUT_KEY_ENTER] || keys[INPUT_KEY_SPACE]) {
 
         bool is_cursor_cell_empty = game->board.cells[cursor->row][cursor->col].card_stack.count == 0;

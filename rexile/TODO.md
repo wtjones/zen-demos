@@ -4,10 +4,7 @@
 
 - [] Suite colors
 - [] Track scores
-- [] New game on win/lose
-- [] New game during game
 - [] Render move ledger in UX
-- [] Should not be able to select cells when in lose state
 
 ## In Progress
 
@@ -27,3 +24,6 @@
 - [x] Detect unplaceable card scenario
 - [x] Dump ledger
 - [x] Should not be able to select a face card
+- [x] Should not be able to select cells when in lose state
+- [x] New game on win/lose
+- [x] New game during game
