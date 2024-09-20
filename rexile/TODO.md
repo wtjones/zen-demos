@@ -7,7 +7,6 @@
 - [] New game on win/lose
 - [] New game during game
 - [] Render move ledger in UX
-- [] Should not be able to select a face card
 - [] Should not be able to select cells when in lose state
 
 ## In Progress
@@ -27,3 +26,4 @@
 - [x] When switching from combine to place, detect if move is possible
 - [x] Detect unplaceable card scenario
 - [x] Dump ledger
+- [x] Should not be able to select a face card

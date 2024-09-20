@@ -50,6 +50,12 @@ bool ux_new_game(Game* game, UXOptions* options)
     return true;
 }
 
+bool is_cell_face_card(BoardCell* cell)
+{
+    Card card = card_stack_peek(&cell->card_stack);
+    return cell->card_stack.count > 0 && is_face_card(&card);
+}
+
 GameResult ux_input_to_action(int* keys, UXLayout* layout, Game* game)
 {
     UXCursor* cursor = &layout->cursor;
@@ -65,8 +71,10 @@ GameResult ux_input_to_action(int* keys, UXLayout* layout, Game* game)
             return game_action_place(
                 game, (BoardCellPosition) { cursor->row, cursor->col });
         } else {
+            BoardCell* cell = &game->board.cells[cursor->row][cursor->col];
             UXCellLayout* cell_layout = &layout->cells[cursor->row][cursor->col];
-            cell_layout->has_marker = !cell_layout->has_marker;
+
+            cell_layout->has_marker = !cell_layout->has_marker && !is_cell_face_card(cell);
 
             BoardCellPosition marked[BOARD_COLS * BOARD_ROWS];
             size_t marked_count = 0;
