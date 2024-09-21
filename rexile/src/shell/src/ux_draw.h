@@ -8,6 +8,8 @@
 #include <ncurses.h>
 
 #define UX_CHAR_SQUARE "\u25A3"
+#define UX_CHAR_HEAVY_BALLOT_CHECK "\u2714"
+#define UX_CHAR_HEAVY_BALLOT_X "\u2718"
 #define UX_WINDOW_BORDER_PADDING 1
 #define UX_WINDOW_PADDING 1
 #define UX_WINDOW_PADDING_HEIGHT 1

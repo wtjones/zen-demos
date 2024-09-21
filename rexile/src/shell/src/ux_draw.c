@@ -144,7 +144,7 @@ void draw_board(UXLayout* layout, Game* game)
             }
 
             if (cell_layout->has_marker) {
-                mvwprintw(cell_layout->cell_window, 0, UX_CELL_WINDOW_WIDTH - 4, "⦿");
+                mvwprintw(cell_layout->cell_window, 0, UX_CELL_WINDOW_WIDTH - 4, UX_CHAR_HEAVY_BALLOT_X);
             }
 
             wrefresh(cell_layout->cell_window);
@@ -166,7 +166,7 @@ void draw_legend(UXLayout* layout)
     mvwprintw(layout->legend_window, y++, 1, "J: Jack");
     mvwprintw(layout->legend_window, y++, 1, "Q: Queen");
     mvwprintw(layout->legend_window, y++, 1, "K: King");
-    mvwprintw(layout->legend_window, y++, 1, "⦿: Marker");
+    mvwprintw(layout->legend_window, y++, 1, "%s: Marker", UX_CHAR_HEAVY_BALLOT_X);
     y++;
     mvwprintw(layout->legend_window, y++, 1, "Controls:");
     mvwprintw(layout->legend_window, y++, 1, "Arrow keys: cursor");
