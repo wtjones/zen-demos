@@ -18,6 +18,23 @@ static const char* g_ux_game_state_desc[] = {
     "Game Over: Lose"
 };
 
+static const char* g_ux_card_rank_desc[] = {
+    "O",
+    "A",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "T",
+    "J",
+    "Q",
+    "K"
+};
+
 const char* repr_required_ranks(BoardCell* cell)
 {
 
@@ -36,29 +53,7 @@ const char* repr_required_ranks(BoardCell* cell)
 void card_to_string(Card* card, char* card_str)
 {
     card_str[0] = '\0';
-
-    switch (card->rank) {
-    case ACE:
-        strcat(card_str, "A");
-        break;
-    case JACK:
-        strcat(card_str, "J");
-
-        break;
-    case QUEEN:
-        strcat(card_str, "Q");
-
-        break;
-    case KING:
-        strcat(card_str, "K");
-
-        break;
-    default:
-        char temp[3];
-        sprintf(temp, "%d", card->rank);
-        strcat(card_str, temp);
-        break;
-    }
+    strcat(card_str, g_ux_card_rank_desc[card->rank]);
 
     switch (card->suit) {
     case HEARTS:
@@ -85,7 +80,7 @@ void draw_board_init(UXLayout* layout)
             layout->cells[i][j].has_marker = false;
             layout->cells[i][j].cell_window_border = derwin(
                 layout->board_window,
-                UX_CELL_WINDOW_HEIGHT + UX_WINDOW_BORDER_PADDING + 1,
+                UX_CELL_WINDOW_HEIGHT + (UX_WINDOW_BORDER_PADDING * 2),
                 UX_CELL_WINDOW_WIDTH + UX_WINDOW_BORDER_PADDING + 1,
                 cell_offset_y,
                 cell_offset_x);
@@ -94,13 +89,21 @@ void draw_board_init(UXLayout* layout)
 
             layout->cells[i][j].cell_window = derwin(
                 layout->cells[i][j].cell_window_border,
-                UX_CELL_WINDOW_HEIGHT - 2,
+                UX_CELL_WINDOW_HEIGHT,
                 UX_CELL_WINDOW_WIDTH - 2,
                 UX_WINDOW_BORDER_PADDING * 1,
                 UX_WINDOW_BORDER_PADDING * 1);
 
+            layout->cells[i][j].card_window = derwin(
+                layout->cells[i][j].cell_window,
+                UX_CARD_WINDOW_HEIGHT,
+                UX_CARD_WINDOW_WIDTH,
+                UX_WINDOW_BORDER_PADDING * 1,
+                UX_WINDOW_BORDER_PADDING + 3);
+
             wrefresh(layout->cells[i][j].cell_window_border);
             wrefresh(layout->cells[i][j].cell_window);
+            wrefresh(layout->cells[i][j].card_window);
 
             cell_offset_x += UX_CELL_WINDOW_WIDTH + UX_WINDOW_BORDER_PADDING;
         }
@@ -113,8 +116,8 @@ void draw_card(UXCellLayout* cell_layout, Card* card)
 {
     char card_repr[255];
     card_to_string(card, card_repr);
-    mvwprintw(cell_layout->cell_window, 0, 0, "%s", card_repr);
-    wrefresh(cell_layout->cell_window);
+    mvwprintw(cell_layout->card_window, 1, 1, "%s", card_repr);
+    box(cell_layout->card_window, 0, 0);
 }
 
 void draw_board(UXLayout* layout, Game* game)
@@ -127,27 +130,31 @@ void draw_board(UXLayout* layout, Game* game)
             bool is_selected = layout->cursor.row == i && layout->cursor.col == j;
             bool is_empty = cell->card_stack.count == 0;
 
-            werase(cell_layout->cell_window);
-            if (!is_empty) {
-                Card cell_card = card_stack_peek(&cell->card_stack);
-                draw_card(cell_layout, &cell_card);
-            }
             if (is_selected) {
                 wattron(cell_layout->cell_window, A_REVERSE);
             }
 
             mvwprintw(
-                cell_layout->cell_window, 1, 1, "%s", repr_required_ranks(cell));
+                cell_layout->cell_window, 0, 0, "%s", repr_required_ranks(cell));
 
             if (is_selected) {
                 wattroff(cell_layout->cell_window, A_REVERSE);
             }
 
-            if (cell_layout->has_marker) {
-                mvwprintw(cell_layout->cell_window, 0, UX_CELL_WINDOW_WIDTH - 4, UX_CHAR_HEAVY_BALLOT_X);
-            }
+            mvwprintw(
+                cell_layout->cell_window,
+                0,
+                UX_CELL_WINDOW_WIDTH - 3,
+                cell_layout->has_marker ? UX_CHAR_HEAVY_BALLOT_X : " ");
 
             wrefresh(cell_layout->cell_window);
+            werase(cell_layout->card_window);
+
+            if (!is_empty) {
+                Card cell_card = card_stack_peek(&cell->card_stack);
+                draw_card(cell_layout, &cell_card);
+            }
+            wrefresh(cell_layout->card_window);
         }
     }
     wrefresh(layout->board_window);

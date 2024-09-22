@@ -23,6 +23,9 @@
 #define UX_CELL_WINDOW_HEIGHT (UX_BOARD_WINDOW_HEIGHT / BOARD_ROWS) - (UX_WINDOW_PADDING * 1)
 #define UX_CELL_WINDOW_WIDTH 12
 
+#define UX_CARD_WINDOW_HEIGHT 3
+#define UX_CARD_WINDOW_WIDTH 4
+
 #define UX_LEGEND_WINDOW_HEIGHT 22 + UX_WINDOW_BORDER_PADDING
 #define UX_LEGEND_WINDOW_WIDTH (18 + (UX_WINDOW_BORDER_PADDING * 2))
 
@@ -33,6 +36,7 @@
 typedef struct {
     WINDOW* cell_window_border;
     WINDOW* cell_window;
+    WINDOW* card_window;
     bool has_marker;
 } UXCellLayout;
 
