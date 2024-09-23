@@ -1,6 +1,8 @@
 #include "ux_draw.h"
 #include "log.c/src/log.h"
 #include "rexile/core/board.h"
+#include "rexile/core/repr.h"
+#include <assert.h>
 #include <string.h>
 
 static const char* g_ux_cell_type_desc[] = {
@@ -50,27 +52,6 @@ const char* repr_required_ranks(BoardCell* cell)
     }
 }
 
-void card_to_string(Card* card, char* card_str)
-{
-    card_str[0] = '\0';
-    strcat(card_str, g_ux_card_rank_desc[card->rank]);
-
-    switch (card->suit) {
-    case HEARTS:
-        strcat(card_str, "♠");
-        break;
-    case DIAMONDS:
-        strcat(card_str, "♦");
-        break;
-    case CLUBS:
-        strcat(card_str, "♣");
-        break;
-    case SPADES:
-        strcat(card_str, "♠");
-        break;
-    };
-}
-
 void draw_board_init(UXLayout* layout)
 {
     int cell_offset_x = 0, cell_offset_y = 0;
@@ -114,9 +95,10 @@ void draw_board_init(UXLayout* layout)
 
 void draw_card(UXCellLayout* cell_layout, Card* card)
 {
-    char card_repr[255];
-    card_to_string(card, card_repr);
+    char card_repr[5];
+    repr_card_simple(card_repr, 5, *card);
     mvwprintw(cell_layout->card_window, 1, 1, "%s", card_repr);
+
     box(cell_layout->card_window, 0, 0);
 }
 
@@ -185,9 +167,10 @@ void draw_legend(UXLayout* layout)
 
 void draw_game_state(UXLayout* layout, Game* game)
 {
-    char card_repr[255];
+    char card_repr[5];
     Card up_card = card_stack_peek(&game->draw_deck);
-    card_to_string(&up_card, card_repr);
+    repr_card_simple(card_repr, 5, up_card);
+
     werase(layout->game_state_window);
     wprintw(layout->game_state_window, "Card: %s\t\t\t\tScore: %d\nPhase: %s",
         card_repr,
