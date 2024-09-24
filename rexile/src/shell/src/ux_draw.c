@@ -20,23 +20,6 @@ static const char* g_ux_game_state_desc[] = {
     "Game Over: Lose"
 };
 
-static const char* g_ux_card_rank_desc[] = {
-    "O",
-    "A",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "T",
-    "J",
-    "Q",
-    "K"
-};
-
 const char* repr_required_ranks(BoardCell* cell)
 {
 
@@ -95,9 +78,7 @@ void draw_board_init(UXLayout* layout)
 
 void draw_card(UXCellLayout* cell_layout, Card* card)
 {
-    char card_repr[5];
-    repr_card_simple(card_repr, 5, *card);
-    mvwprintw(cell_layout->card_window, 1, 1, "%s", card_repr);
+    mvwprintw(cell_layout->card_window, 1, 1, "%s", repr_card_simple(*card));
 
     box(cell_layout->card_window, 0, 0);
 }
@@ -167,13 +148,10 @@ void draw_legend(UXLayout* layout)
 
 void draw_game_state(UXLayout* layout, Game* game)
 {
-    char card_repr[5];
     Card up_card = card_stack_peek(&game->draw_deck);
-    repr_card_simple(card_repr, 5, up_card);
-
     werase(layout->game_state_window);
     wprintw(layout->game_state_window, "Card: %s\t\t\t\tScore: %d\nPhase: %s",
-        card_repr,
+        repr_card_simple(up_card),
         game->score,
         g_ux_game_state_desc[game->state]);
     wrefresh(layout->game_state_window);

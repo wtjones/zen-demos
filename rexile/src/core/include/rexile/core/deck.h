@@ -6,6 +6,8 @@
 
 #define DECK_SIZE 52
 #define CARD_STACK_MAX 52
+#define NUM_SUITS 4
+#define NUM_RANKS 14
 
 typedef enum {
     HEARTS,

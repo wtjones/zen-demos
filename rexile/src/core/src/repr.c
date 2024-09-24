@@ -97,16 +97,26 @@ char* repr_card(char* buffer, size_t count, Card card)
     return buffer;
 }
 
-char* repr_card_simple(char* buffer, size_t count, Card card)
+static const char* g_card_combinations[NUM_RANKS][NUM_SUITS] = {
+    { "\U0001F0CF♥", "\U0001F0CF♦", "\U0001F0CF♣", "\U0001F0CF♠" },
+    { "A♥", "A♦", "A♣", "A♠" },
+    { "2♥", "2♦", "2♣", "2♠" },
+    { "3♥", "3♦", "3♣", "3♠" },
+    { "4♥", "4♦", "4♣", "4♠" },
+    { "5♥", "5♦", "5♣", "5♠" },
+    { "6♥", "6♦", "6♣", "6♠" },
+    { "7♥", "7♦", "7♣", "7♠" },
+    { "8♥", "8♦", "8♣", "8♠" },
+    { "9♥", "9♦", "9♣", "9♠" },
+    { "T♥", "T♦", "T♣", "T♠" },
+    { "J♥", "J♦", "J♣", "J♠" },
+    { "Q♥", "Q♦", "Q♣", "Q♠" },
+    { "K♥", "K♦", "K♣", "K♠" },
+};
+
+const char* repr_card_simple(Card card)
 {
-    buffer[0] = '\0';
-    snprintf(
-        buffer,
-        count,
-        "%s%s",
-        repr_rank_simple(card.rank),
-        repr_suit_simple(card.suit));
-    return buffer;
+    return g_card_combinations[card.rank][card.suit];
 }
 
 static const char* g_repr_game_move_type[] = {
@@ -135,9 +145,7 @@ const char* repr_game_state(GameState state)
 char* repr_game_move(char* buffer, size_t count, GameMove* move)
 {
     size_t pos = 0;
-    char card_buffer[255];
     buffer[0] = '\0';
-    card_buffer[0] = '\0';
 
     pos += snprintf(
         buffer + pos,
@@ -148,14 +156,12 @@ char* repr_game_move(char* buffer, size_t count, GameMove* move)
     for (int i = 0; i < move->action_count; i++) {
         GameMoveAction* action = &move->actions[i];
 
-        repr_card_simple(card_buffer, 255, action->card);
-
         if (move->type == MOVE_COMBINE) {
             pos += snprintf(
                 buffer + pos,
                 count - pos,
                 "%s at (%zu, %zu)%s",
-                card_buffer,
+                repr_card_simple(action->card),
                 action->pos.row,
                 action->pos.col,
                 i < move->action_count - 1 ? ", " : "");
@@ -164,7 +170,7 @@ char* repr_game_move(char* buffer, size_t count, GameMove* move)
                 buffer + pos,
                 count - pos,
                 "%s to (%zu, %zu)",
-                card_buffer,
+                repr_card_simple(action->card),
                 action->pos.row,
                 action->pos.col);
         }
