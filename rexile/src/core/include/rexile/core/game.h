@@ -9,7 +9,11 @@
 #define MAX_GAME_MOVES 64
 #define MAX_MOVE_ACTIONS 2
 #define MAX_MESSAGE_LENGTH 1024
+#define MIN_COMBINE_CELLS 1
 #define MAX_COMBINE_CELLS 2
+#define MOVE_SCORE_PLACE_FACE 100
+#define MOVE_SCORE_PLACE_PIP 0
+#define MOVE_SCORE_COMBINE_PIP 10
 
 typedef enum {
     GAME_PLACE,
@@ -55,7 +59,7 @@ typedef struct {
     GameMoveType type;
     GameMoveAction actions[MAX_MOVE_ACTIONS];
     size_t action_count;
-    int32_t score_delta;
+    int32_t score;
     GameState new_state;
     GameState prior_state;
 } GameMove;

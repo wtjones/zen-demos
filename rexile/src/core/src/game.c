@@ -38,7 +38,7 @@ bool is_combine_valid(
 {
 
     char buffer[255];
-    if (source_count > MAX_COMBINE_CELLS) {
+    if (source_count < MIN_COMBINE_CELLS || source_count > MAX_COMBINE_CELLS) {
         return false;
     }
 
@@ -126,8 +126,6 @@ GameResult game_action_place(
 {
     char buffer[255];
 
-    int prior_score = game->score;
-
     log_info("Placing card at %d, %d", dest_cell_pos.row, dest_cell_pos.col);
     if (!is_position_valid(dest_cell_pos)) {
         return GAME_RESULT_INVALID;
@@ -150,19 +148,19 @@ GameResult game_action_place(
     Card draw_card = card_stack_pop(&game->draw_deck);
     log_info("Drawing card: %s", repr_card(buffer, sizeof(buffer), draw_card));
     card_stack_push(&dest_cell->card_stack, draw_card);
-    game->score += 10;
+    game->score += is_face_card(&card) ? MOVE_SCORE_PLACE_FACE : MOVE_SCORE_PLACE_PIP;
 
     GameMove move = {
         .type = MOVE_PLACE,
         .actions = { { .card = card, .pos = dest_cell_pos } },
         .action_count = 1,
-        .prior_state = game->state
+        .prior_state = game->state,
+        .score = game->score
     };
 
     // Win?
     if (count_placed_face_cards(&game->board) == 10) {
         game->state = move.new_state = GAME_WIN;
-        move.score_delta = game->score - prior_score;
         game_move_push(game, &move);
         return GAME_RESULT_OK;
     }
@@ -170,7 +168,6 @@ GameResult game_action_place(
     // Out of cards?
     if (game->draw_deck.count == 0) {
         game->state = move.new_state = GAME_LOSE;
-        move.score_delta = game->score - prior_score;
         game_move_push(game, &move);
         return GAME_RESULT_OK;
     }
@@ -179,13 +176,11 @@ GameResult game_action_place(
         if (!board_has_pair(&game->board)) {
             log_info("No combinations possible.");
             game->state = move.new_state = GAME_LOSE;
-            move.score_delta = game->score - prior_score;
             game_move_push(game, &move);
             return GAME_RESULT_OK;
         }
         log_info("Last cell placed, switching to combine state");
         game->state = move.new_state = GAME_COMBINE;
-        move.score_delta = game->score - prior_score;
         game_move_push(game, &move);
         return GAME_RESULT_OK;
     }
@@ -198,13 +193,11 @@ GameResult game_action_place(
         && available_cells == 0) {
         log_info("Next card is a royal that cannot be placed.");
         game->state = move.new_state = GAME_LOSE;
-        move.score_delta = game->score - prior_score;
         game_move_push(game, &move);
         return GAME_RESULT_OK;
     }
 
     game->state = move.new_state = GAME_PLACE;
-    move.score_delta = game->score - prior_score;
     game_move_push(game, &move);
     return GAME_RESULT_OK;
 }
@@ -223,10 +216,13 @@ GameResult game_action_combine(
         return GAME_RESULT_INVALID;
     }
 
+    game->score += MOVE_SCORE_COMBINE_PIP;
+
     GameMove move = {
         .type = MOVE_COMBINE,
         .action_count = source_count,
-        .prior_state = game->state
+        .prior_state = game->state,
+        .score = game->score
     };
 
     for (size_t i = 0; i < source_count; i++) {
@@ -250,16 +246,13 @@ GameResult game_action_combine(
             && available_cells == 0) {
             log_info("Next card is a royal that cannot be placed.");
             game->state = move.new_state = GAME_LOSE;
-            move.score_delta = game->score - prior_score;
             game_move_push(game, &move);
             return GAME_RESULT_OK;
         }
-        move.score_delta = game->score - prior_score;
         game->state = move.new_state = GAME_PLACE;
         game_move_push(game, &move);
         return GAME_RESULT_OK;
     }
-    move.score_delta = game->score - prior_score;
     game->state = move.new_state = GAME_COMBINE_OR_PLACE;
     game_move_push(game, &move);
 

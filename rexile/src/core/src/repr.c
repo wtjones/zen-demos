@@ -181,7 +181,7 @@ char* repr_game_move(char* buffer, size_t count, GameMove* move)
         count - pos,
         ", State: %s, Score: %d] }",
         repr_game_state(move->new_state),
-        move->score_delta);
+        move->score);
 
     return buffer;
 }

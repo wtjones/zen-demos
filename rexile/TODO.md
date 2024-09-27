@@ -3,8 +3,10 @@
 ## Todo
 
 - [] Suite colors
-- [] Track scores
+- [x] Track scores
 - [] Render move ledger in UX
+- [] Keep hi score list
+- [] Show hi score list
 
 ## In Progress
 

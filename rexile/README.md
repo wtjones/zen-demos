@@ -27,7 +27,7 @@ Draw and place cards with rules:
 * Place Kings in the corners
 * Queens on the top and bottom edges
 * Jacks on the left and right edges
-* Non-face cards (2-10, Aces) go in any empty cell.
+* Pip cards (2-10, Aces) go in any empty cell.
 
 If unable to place a face card, you lose.
 If all face cards are placed, you win.
@@ -49,6 +49,11 @@ When either:
 
 * Unable to place a face card
 * Deck is exhausted
+
+## Scoring
+
+* Place a royal: 100 points
+* Combine one or more cards to equal 10: 10 points
 
 ## Variants
 
