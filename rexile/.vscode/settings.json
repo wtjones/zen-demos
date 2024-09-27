@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.h": "c"
+    },
+    "cmake.generator": "Unix Makefiles",
+}
