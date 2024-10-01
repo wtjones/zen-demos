@@ -51,3 +51,7 @@ add_test(
 add_test(
     NAME test_can_repr_move_ledger
     COMMAND $<TARGET_FILE:tests> test_can_repr_move_ledger)
+
+add_test(
+    NAME test_can_save_scores
+    COMMAND $<TARGET_FILE:tests> test_can_save_scores)

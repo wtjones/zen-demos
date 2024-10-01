@@ -2,7 +2,10 @@
 #include "log.c/src/log.h"
 #include "rexile/core/game.h"
 #include "rexile/core/repr.h"
+#include <pwd.h>
 #include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 bool card_from_string(const char* in_rank, const char* in_suit, Card* card)
 {
@@ -94,6 +97,15 @@ void io_get_temp_file(char* result, size_t count, const char* file_name)
 {
     const char* temp_folder = io_get_temp_folder();
     snprintf(result, count, "%s/%s", temp_folder, file_name);
+}
+
+const char* io_get_home_directory()
+{
+    const char* home = getenv("HOME");
+    if (!home) {
+        home = getpwuid(getuid())->pw_dir;
+    }
+    return home;
 }
 
 void io_get_game_ledger_file(char* result, size_t count)

@@ -24,4 +24,6 @@ bool card_stack_load(const char* path, CardStack* stack);
 
 void io_save_game_ledger(Game* game);
 
+const char* io_get_home_directory();
+
 #endif
