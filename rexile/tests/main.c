@@ -3,6 +3,7 @@
 #include "rexile/core/game.h"
 #include "rexile/core/io.h"
 #include "rexile/core/repr.h"
+#include "rexile/core/score.h"
 #include "test_support.h"
 #include <assert.h>
 #include <stdint.h>
@@ -417,6 +418,40 @@ int test_can_repr_move_ledger()
     return 0;
 }
 
+int test_can_save_scores()
+{
+    // Arrange
+    const char* path = "/tmp/rexile_scores_test";
+
+    ScoreBoard scores;
+    ScoreBoard scores_in;
+    remove(path);
+    scores_load(path, &scores);
+
+    GameScore score = { .score = 100, .moves = 6, .final_state = GAME_LOSE, .name = "ttt" };
+    GameScore score2 = { .score = 200, .moves = 4, .final_state = GAME_WIN, .name = "abc" };
+
+    scores_add(&scores, &score);
+    scores_add(&scores, &score2);
+
+    // Act
+    bool result = scores_save(path, &scores);
+    assert(result);
+
+    bool r2 = scores_load(path, &scores_in);
+    assert(r2);
+
+    // Assert
+    for (size_t i = 0; i < scores.count; i++) {
+        assert(scores_in.scores[i].score == scores.scores[i].score);
+        assert(scores_in.scores[i].moves == scores.scores[i].moves);
+        assert(scores_in.scores[i].final_state == scores.scores[i].final_state);
+        assert(strcmp(scores_in.scores[i].name, scores.scores[i].name) == 0);
+    }
+
+    return 0;
+}
+
 TestFn test_fns[] = {
     { "test_stack_can_push", test_stack_can_push },
     { "test_stack_can_pop", test_stack_can_pop },
@@ -427,7 +462,8 @@ TestFn test_fns[] = {
     { "test_combine_allows_valid_cards", test_combine_allows_valid_cards },
     { "test_can_load_card_stack", test_can_load_card_stack },
     { "test_unable_to_combine_loses", test_unable_to_combine_loses },
-    { "test_can_repr_move_ledger", test_can_repr_move_ledger }
+    { "test_can_repr_move_ledger", test_can_repr_move_ledger },
+    { "test_can_save_scores", test_can_save_scores }
 
 };
 

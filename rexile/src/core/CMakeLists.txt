@@ -3,7 +3,8 @@ add_library(rexile_core STATIC
     src/deck.c
     src/game.c
     src/io.c
-    src/repr.c)
+    src/repr.c
+    src/score.c)
 
 target_include_directories(rexile_core PUBLIC include)
 
