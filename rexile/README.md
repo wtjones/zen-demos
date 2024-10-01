@@ -4,6 +4,36 @@ A solitaire sometimes known as *Kings in the Corners Solitaire*. Inspired by the
 
 > "Rexile" is a portmanteau of "rex," the Latin word for king, and "exile." It plays on the idea of kings being on the edge or out of their usual domain, fitting the theme of your game.
 
+Rexile uses a TUI:
+
+```text
+┌───────────────────────────────────────────────────────────────────────────────┐
+│┌────────────┌────────────┌────────────┌────────────┐                          │
+││[King]      │[Queen]     │[Queen]     │[King]      │  Legend                  │
+││            │            │            │            │  ♠: Spades               │
+││            │            │            │            │  ♦: Diamonds             │
+││            │            │            │            │  ♣: Clubs                │
+│┌────────────┌────────────┌────────────┌────────────┐  ♥: Hearts               │
+││[Jack]      │            │            │[Jack]      │  A: Ace                  │
+││            │    ┌──┐    │            │            │  J: Jack                 │
+││            │    │T♣│    │            │            │  Q: Queen                │
+││            │    └──┘    │            │            │  K: King                 │
+│┌────────────┌────────────┌────────────┌────────────┐  ✘: Marker               │
+││[Jack]      │            │            │[Jack]      │                          │
+││            │    ┌──┐    │            │            │  Controls:               │
+││            │    │2♦│    │            │            │  Arrow keys: cursor      │
+││            │    └──┘    │            │            │  Space: place/combine    │
+│┌────────────┌────────────┌────────────┌────────────┐  n: new game             │
+││[King]      │[Queen]     │[Queen]     │[King]      │  q: quit                 │
+││            │    ┌──┐    │    ┌──┐    │            │                          │
+││            │    │5♠│    │    │Q♥│    │            │                          │
+││            │    └──┘    │    └──┘    │            │                          │
+│┌─────────────────────────────────────────────────────────────────────────────┐│
+││Card: 7♥                                Score: 100                           ││
+││Phase: Place cards                                                           ││
+│└─────────────────────────────────────────────────────────────────────────────┘│
+```
+
 See [TODO](TODO.md)
 
 ## Rules
