@@ -38,7 +38,7 @@ bool scores_load(const char* path, ScoreBoard* scores)
             "%d %zu %d %3s\n",
             &score.score,
             &score.moves,
-            &score.final_state,
+            (int*)&score.final_state,
             score.name);
         log_info("Read score: %d %zu %d %s", score.score, score.moves, (int)score.final_state, score.name);
         scores_add(scores, &score);
