@@ -12,10 +12,10 @@ void get_score_file_path(char* result, size_t count)
 
 void get_score_default_name(char* result, size_t count)
 {
-    assert(count >= SCORE_NAME_LENGTH_MAX + 1);
+    assert(count >= SCORE_NAME_SIZE);
     const char* user = io_get_user_name();
-    strncpy(result, user, SCORE_NAME_LENGTH_MAX);
-    result[SCORE_NAME_LENGTH_MAX] = '\0';
+    strncpy(result, user, SCORE_NAME_SIZE - 1);
+    result[SCORE_NAME_SIZE - 1] = '\0';
 }
 
 void scores_init(ScoreBoard* scores)
