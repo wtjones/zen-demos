@@ -18,6 +18,13 @@ void get_score_default_name(char* result, size_t count)
     result[SCORE_NAME_SIZE - 1] = '\0';
 }
 
+void get_score_default_date(char* result, size_t count)
+{
+    time_t now = time(NULL);
+    struct tm* t = localtime(&now);
+    strftime(result, count, "%Y-%m-%d", t);
+}
+
 void scores_init(ScoreBoard* scores)
 {
     scores->count = 0;
@@ -44,12 +51,14 @@ bool scores_load(const char* path, ScoreBoard* scores)
     while (fgets(line, sizeof(line), file) != NULL) {
         GameScore score;
         sscanf(line,
-            "%d %zu %d %3s\n",
+            "%10s %d %zu %d %3s\n",
+            score.date,
             &score.score,
             &score.moves,
             (int*)&score.final_state,
             score.name);
-        log_info("Read score: %d %zu %d %s", score.score, score.moves, (int)score.final_state, score.name);
+        log_info("Read score: %s %d %zu %d %s",
+            score.date, score.score, score.moves, (int)score.final_state, score.name);
         scores_add(scores, &score);
     }
 
@@ -68,7 +77,8 @@ bool scores_save(const char* path, ScoreBoard* scores)
         GameScore* score = &scores->scores[i];
         fprintf(
             file,
-            "%d %zu %d %3s\n",
+            "%10s %d %zu %d %3s\n",
+            score->date,
             score->score,
             score->moves,
             (int)score->final_state,

@@ -430,7 +430,10 @@ int test_can_save_scores()
 
     GameScore score = { .score = 100, .moves = 6, .final_state = GAME_LOSE };
     get_score_default_name(score.name, SCORE_NAME_SIZE);
+    get_score_default_date(score.date, SCORE_DATE_SIZE);
+
     GameScore score2 = { .score = 200, .moves = 4, .final_state = GAME_WIN, .name = "abc" };
+    get_score_default_date(score2.date, SCORE_DATE_SIZE);
 
     scores_add(&scores, &score);
     scores_add(&scores, &score2);
@@ -448,6 +451,7 @@ int test_can_save_scores()
         assert(scores_in.scores[i].moves == scores.scores[i].moves);
         assert(scores_in.scores[i].final_state == scores.scores[i].final_state);
         assert(strcmp(scores_in.scores[i].name, scores.scores[i].name) == 0);
+        assert(strcmp(scores_in.scores[i].date, scores.scores[i].date) == 0);
     }
 
     return 0;

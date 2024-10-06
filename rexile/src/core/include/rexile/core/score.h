@@ -7,9 +7,11 @@
 #define SCORES_MAX 100
 #define SCORE_FILE_NAME ".rexile_scores"
 #define SCORE_NAME_SIZE 4
+#define SCORE_DATE_SIZE 11 // YYYY-MM-DD
 
 typedef struct {
     char name[SCORE_NAME_SIZE];
+    char date[SCORE_DATE_SIZE];
     int score;
     size_t moves;
     GameState final_state;
@@ -42,5 +44,7 @@ void get_score_file_path(char* result, size_t count);
  * @param count SCORE_NAME_LENGTH_MAX + 1
  */
 void get_score_default_name(char* result, size_t count);
+
+void get_score_default_date(char* result, size_t count);
 
 #endif
