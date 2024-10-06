@@ -108,6 +108,15 @@ const char* io_get_home_directory()
     return home;
 }
 
+const char* io_get_user_name()
+{
+    const char* user = getenv("USER");
+    if (!user) {
+        user = getpwuid(getuid())->pw_name;
+    }
+    return user;
+}
+
 void io_get_game_ledger_file(char* result, size_t count)
 {
     const char* temp_folder = io_get_temp_folder();

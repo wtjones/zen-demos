@@ -1,12 +1,21 @@
 #include "rexile/core/score.h"
 #include "log.c/src/log.h"
 #include "rexile/core/io.h"
+#include <assert.h>
 #include <stdio.h>
 
 void get_score_file_path(char* result, size_t count)
 {
     const char* home_folder = io_get_home_directory();
     snprintf(result, count, "%s/%s", home_folder, SCORE_FILE_NAME);
+}
+
+void get_score_default_name(char* result, size_t count)
+{
+    assert(count >= SCORE_NAME_LENGTH_MAX + 1);
+    const char* user = io_get_user_name();
+    strncpy(result, user, SCORE_NAME_LENGTH_MAX);
+    result[SCORE_NAME_LENGTH_MAX] = '\0';
 }
 
 void scores_init(ScoreBoard* scores)
