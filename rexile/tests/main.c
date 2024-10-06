@@ -429,7 +429,7 @@ int test_can_save_scores()
     scores_load(path, &scores);
 
     GameScore score = { .score = 100, .moves = 6, .final_state = GAME_LOSE };
-    get_score_default_name(score.name, SCORE_NAME_LENGTH_MAX + 1);
+    get_score_default_name(score.name, SCORE_NAME_SIZE);
     GameScore score2 = { .score = 200, .moves = 4, .final_state = GAME_WIN, .name = "abc" };
 
     scores_add(&scores, &score);

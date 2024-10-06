@@ -6,10 +6,10 @@
 
 #define SCORES_MAX 100
 #define SCORE_FILE_NAME ".rexile_scores"
-#define SCORE_NAME_LENGTH_MAX 3
+#define SCORE_NAME_SIZE 4
 
 typedef struct {
-    char name[SCORE_NAME_LENGTH_MAX + 1];
+    char name[SCORE_NAME_SIZE];
     int score;
     size_t moves;
     GameState final_state;
