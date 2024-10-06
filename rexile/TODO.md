@@ -3,7 +3,6 @@
 ## Todo
 
 - [] Suite colors
-- [x] Track scores
 - [] Render move ledger in UX
 - [] Keep hi score list
 - [] Show hi score list
@@ -29,3 +28,4 @@
 - [x] Should not be able to select cells when in lose state
 - [x] New game on win/lose
 - [x] New game during game
+- [x] Track scores
