@@ -26,4 +26,6 @@ void io_save_game_ledger(Game* game);
 
 const char* io_get_home_directory();
 
+const char* io_get_user_name();
+
 #endif
