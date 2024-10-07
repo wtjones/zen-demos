@@ -3,6 +3,7 @@
 #include "rexile/core/io.h"
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
 void get_score_file_path(char* result, size_t count)
 {
