@@ -55,5 +55,6 @@ void get_score_file_path(char* result, size_t count);
 void get_score_default_name(char* result, size_t count);
 
 void get_score_default_date(char* result, size_t count);
+GameScore get_score_from_game(Game* game, const char* name, size_t name_count);
 
 #endif

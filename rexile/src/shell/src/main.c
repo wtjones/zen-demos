@@ -2,10 +2,12 @@
 #include "rexile/core/game.h"
 #include "rexile/core/io.h"
 #include "rexile/core/repr.h"
+#include "rexile/core/score.h"
 #include "ux_args.h"
 #include "ux_draw.h"
 #include "ux_input.h"
 #include <assert.h>
+#include <limits.h>
 #include <locale.h>
 #include <ncurses.h>
 
@@ -121,6 +123,15 @@ int main(int argc, char** argv)
     }
 
     Game game;
+    ScoreBoard score_board;
+    char score_path[PATH_MAX];
+
+    get_score_file_path(score_path, sizeof(score_path));
+
+    if (!scores_load(score_path, &score_board)) {
+        log_error("Failed to load scores");
+        return 1;
+    }
 
     if (!ux_new_game(&game, &options)) {
         log_error("Failed to start new game");
@@ -162,8 +173,13 @@ int main(int argc, char** argv)
 
         GameResult result = ux_input_to_action(input_keys, &layout, &game);
         log_info("Game result: %d", result);
-        if (result == GAME_RESULT_OK) {
-            // TODO: handle win/lose
+        if (result == GAME_RESULT_OK
+            && (game.state == GAME_WIN || game.state == GAME_LOSE)) {
+            char score_name[SCORE_NAME_SIZE];
+            get_score_default_name(score_name, sizeof(score_name));
+            GameScore score = get_score_from_game(&game, score_name, sizeof(score_name));
+            scores_add(&score_board, &score);
+            scores_save(score_path, &score_board);
         }
     }
 

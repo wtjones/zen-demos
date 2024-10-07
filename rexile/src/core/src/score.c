@@ -87,8 +87,10 @@ bool scores_save(const char* path, ScoreBoard* scores)
 {
     FILE* file = fopen(path, "w");
     if (!file) {
+        log_error("Failed to open file for writing: %s", path);
         return false;
     }
+    log_info("Saving scores to %s", path);
 
     for (size_t i = 0; i < scores->count; ++i) {
         GameScore* score = &scores->scores[i];
@@ -104,4 +106,16 @@ bool scores_save(const char* path, ScoreBoard* scores)
 
     fclose(file);
     return true;
+}
+
+GameScore get_score_from_game(Game* game, const char* name, size_t name_count)
+{
+    GameScore score;
+    get_score_default_date(score.date, sizeof(score.date));
+    score.score = game->score;
+    score.moves = game->move_count;
+    score.final_state = game->state;
+    strncpy(score.name, name, SCORE_NAME_SIZE - 1);
+    score.name[SCORE_NAME_SIZE - 1] = '\0';
+    return score;
 }
