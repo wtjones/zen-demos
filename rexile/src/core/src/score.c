@@ -30,9 +30,25 @@ void scores_init(ScoreBoard* scores)
     scores->count = 0;
 }
 
+void scores_sort(ScoreBoard* scores)
+{
+    for (size_t i = 0; i < scores->count; i++) {
+        for (size_t j = i + 1; j < scores->count; j++) {
+            if (scores->scores[i].score < scores->scores[j].score) {
+                GameScore temp = scores->scores[i];
+                scores->scores[i] = scores->scores[j];
+                scores->scores[j] = temp;
+            }
+        }
+    }
+}
+
 void scores_add(ScoreBoard* scores, GameScore* score)
 {
-    scores->scores[scores->count++] = *score;
+    size_t i = scores->count == SCORES_MAX ? SCORES_MAX - 1 : scores->count;
+    scores->scores[i] = *score;
+    scores->count = i + 1;
+    scores_sort(scores);
 }
 
 bool scores_load(const char* path, ScoreBoard* scores)

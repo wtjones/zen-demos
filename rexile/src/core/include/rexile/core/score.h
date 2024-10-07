@@ -23,7 +23,16 @@ typedef struct {
 } ScoreBoard;
 
 void scores_init(ScoreBoard* scores);
+
+/**
+ * @brief Adds a score, then sorts and truncates the list
+ * to the top SCORES_MAX scores.
+ *
+ * @param scores
+ * @param score
+ */
 void scores_add(ScoreBoard* scores, GameScore* score);
+
 /**
  * @brief Attempts to load scores from the default path.
  * If unsuccessful, initializes an empty scoreboard.
