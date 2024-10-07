@@ -4,7 +4,6 @@
 
 - [] Suite colors
 - [] Render move ledger in UX
-- [] Keep hi score list
 - [] Show hi score list
 
 ## In Progress
@@ -29,3 +28,4 @@
 - [x] New game on win/lose
 - [x] New game during game
 - [x] Track scores
+- [x] Keep hi score list
