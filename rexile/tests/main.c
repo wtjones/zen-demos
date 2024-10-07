@@ -457,6 +457,50 @@ int test_can_save_scores()
     return 0;
 }
 
+int test_add_score_is_sorted()
+{
+    // Arrange
+    ScoreBoard scores;
+    GameScore score1 = { .score = 100, .moves = 4, .final_state = GAME_WIN, .name = "abc" };
+    GameScore score2 = { .score = 200, .moves = 4, .final_state = GAME_WIN, .name = "abc" };
+    GameScore score3 = { .score = 150, .moves = 4, .final_state = GAME_WIN, .name = "abc" };
+    GameScore score4 = { .score = 80, .moves = 4, .final_state = GAME_WIN, .name = "abc" };
+
+    // Act
+    scores_init(&scores);
+    scores_add(&scores, &score1);
+    scores_add(&scores, &score2);
+    scores_add(&scores, &score3);
+    scores_add(&scores, &score4);
+
+    // Assert
+    assert(scores.scores[0].score == 200);
+    assert(scores.scores[1].score == 150);
+    assert(scores.scores[2].score == 100);
+    assert(scores.scores[3].score == 80);
+
+    return 0;
+}
+
+int test_add_score_keeps_max()
+{
+    // Arrange
+    ScoreBoard scores;
+
+    // Act
+    scores_init(&scores);
+    for (int i = 0; i < SCORES_MAX + 5; i++) {
+        GameScore score = { .score = i, .moves = 4, .final_state = GAME_WIN, .name = "abc" };
+        scores_add(&scores, &score);
+    }
+
+    // Assert
+    assert(scores.count == SCORES_MAX);
+    assert(scores.scores[0].score == 104);
+
+    return 0;
+}
+
 TestFn test_fns[] = {
     { "test_stack_can_push", test_stack_can_push },
     { "test_stack_can_pop", test_stack_can_pop },
@@ -468,7 +512,9 @@ TestFn test_fns[] = {
     { "test_can_load_card_stack", test_can_load_card_stack },
     { "test_unable_to_combine_loses", test_unable_to_combine_loses },
     { "test_can_repr_move_ledger", test_can_repr_move_ledger },
-    { "test_can_save_scores", test_can_save_scores }
+    { "test_can_save_scores", test_can_save_scores },
+    { "test_add_score_is_sorted", test_add_score_is_sorted },
+    { "test_add_score_keeps_max", test_add_score_keeps_max }
 
 };
 

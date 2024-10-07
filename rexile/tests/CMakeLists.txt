@@ -55,3 +55,11 @@ add_test(
 add_test(
     NAME test_can_save_scores
     COMMAND $<TARGET_FILE:tests> test_can_save_scores)
+
+add_test(
+    NAME test_add_score_is_sorted
+    COMMAND $<TARGET_FILE:tests> test_add_score_is_sorted)
+
+add_test(
+    NAME test_add_score_keeps_max
+    COMMAND $<TARGET_FILE:tests> test_add_score_keeps_max)
