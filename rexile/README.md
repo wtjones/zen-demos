@@ -106,6 +106,8 @@ Logs are written to `/tmp/rexile.log`
 
 Cursor: arrow keys
 Place/select: enter/space
+Scores: s
+New game: n
 Quit: q
 Dump ledger: l
 

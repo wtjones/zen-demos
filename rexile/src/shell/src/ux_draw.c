@@ -142,6 +142,7 @@ void draw_legend(UXLayout* layout)
     mvwprintw(layout->legend_window, y++, 1, "Arrow keys: cursor");
     mvwprintw(layout->legend_window, y++, 1, "Space: place/combine");
     mvwprintw(layout->legend_window, y++, 1, "n: new game");
+    mvwprintw(layout->legend_window, y++, 1, "s: show scores");
     mvwprintw(layout->legend_window, y++, 1, "q: quit");
     wrefresh(layout->legend_window);
 }
@@ -250,4 +251,32 @@ void ux_draw_start(UXLayout* layout, Game* game)
     draw_board(layout, game);
     draw_legend(layout);
     draw_game_state(layout, game);
+}
+
+void ux_draw_scores(UXLayout* layout, ScoreBoard* scores)
+{
+    WINDOW* win = newwin(UX_SCORE_WINDOW_HEIGHT, UX_SCORE_WINDOW_WIDTH, 4, 6);
+    WINDOW* win_der = derwin(win, UX_SCORE_WINDOW_HEIGHT - 1, UX_SCORE_WINDOW_WIDTH - 2, 1, 1);
+
+    box(win, 0, 0);
+
+    wprintw(win_der, "Scores\n");
+    wprintw(win_der, "======\n");
+    wprintw(win_der, "Date       Score Moves Name\n");
+    wprintw(win_der, "---------- ----- ----- ----\n");
+    for (size_t i = 0; i < scores->count; ++i) {
+        GameScore* score = &scores->scores[i];
+        wprintw(win_der, "%10s %5d   %3zu %3s\n",
+            score->date, score->score, score->moves, score->name);
+    }
+
+    werase(layout->main_window_border);
+    wrefresh(layout->main_window_border);
+
+    wrefresh(win);
+
+    wrefresh(win_der);
+
+    delwin(win_der);
+    delwin(win);
 }

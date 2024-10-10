@@ -161,6 +161,15 @@ int main(int argc, char** argv)
             log_info("Move ledger:\n%s", buffer);
             io_save_game_ledger(&game);
         }
+        if (input_keys[INPUT_KEY_S]) {
+            // Show scores in a modal fashion
+            ux_draw_scores(&layout, &score_board);
+
+            while (!getch()) {
+                usleep(DELAY);
+            }
+            ux_draw_init(&layout);
+        }
         if (input_keys[INPUT_KEY_N]) {
             ux_cleanup();
             ux_init(&layout);

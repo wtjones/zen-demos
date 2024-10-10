@@ -3,6 +3,7 @@
 
 #include "rexile/core/board.h"
 #include "rexile/core/game.h"
+#include "rexile/core/score.h"
 #include "ux_input.h"
 #include "ux_state.h"
 #include <ncurses.h>
@@ -33,6 +34,9 @@
 #define UX_GAME_STATE_WINDOW_WIDTH UX_PARENT_WINDOW_WIDTH - (2 * UX_WINDOW_PADDING)
 #define UX_MESSAGE_WINDOW_HEIGHT 4
 
+#define UX_SCORE_WINDOW_HEIGHT 15
+#define UX_SCORE_WINDOW_WIDTH 40
+
 typedef struct {
     WINDOW* cell_window_border;
     WINDOW* cell_window;
@@ -58,4 +62,5 @@ typedef struct {
 void ux_draw_init(UXLayout* layout);
 void ux_draw_start(UXLayout* layout, Game* game);
 void ux_clear_markers(UXLayout* layout);
+void ux_draw_scores(UXLayout* layout, ScoreBoard* scores);
 #endif
