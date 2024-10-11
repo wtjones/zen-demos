@@ -31,7 +31,7 @@ void ux_cleanup()
     endwin();
 }
 
-bool ux_new_game(Game* game, UXOptions* options)
+bool ux_new_game(Game* game, UXOptions* options, ScoreBoard* score_board)
 {
     CardStack deck;
     card_stack_clear(&deck);
@@ -48,7 +48,7 @@ bool ux_new_game(Game* game, UXOptions* options)
         card_stack_fill(&deck);
         card_stack_shuffle(&deck);
     }
-    game_init(game, &deck);
+    game_init(game, &deck, score_board->last_game_id + 1);
     return true;
 }
 
@@ -133,7 +133,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    if (!ux_new_game(&game, &options)) {
+    if (!ux_new_game(&game, &options, &score_board)) {
         log_error("Failed to start new game");
         return 1;
     }
@@ -173,7 +173,7 @@ int main(int argc, char** argv)
         if (input_keys[INPUT_KEY_N]) {
             ux_cleanup();
             ux_init(&layout);
-            ux_new_game(&game, &options);
+            ux_new_game(&game, &options, &score_board);
             ux_draw_init(&layout);
             continue;
         }
@@ -188,6 +188,7 @@ int main(int argc, char** argv)
             get_score_default_name(score_name, sizeof(score_name));
             GameScore score = get_score_from_game(&game, score_name, sizeof(score_name));
             scores_add(&score_board, &score);
+            score_board.last_game_id = game.game_id;
             scores_save(score_path, &score_board);
         }
     }

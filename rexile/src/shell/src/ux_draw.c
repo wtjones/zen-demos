@@ -260,14 +260,14 @@ void ux_draw_scores(UXLayout* layout, ScoreBoard* scores)
 
     box(win, 0, 0);
 
-    wprintw(win_der, "Scores\n");
-    wprintw(win_der, "======\n");
-    wprintw(win_der, "Date       Score Moves Name\n");
-    wprintw(win_der, "---------- ----- ----- ----\n");
+    wprintw(win_der, "Total games: %4d\n", scores->last_game_id);
+    wprintw(win_der, "============ ====\n");
+    wprintw(win_der, "Id   Date       Score Moves Name\n");
+    wprintw(win_der, "---- ---------- ----- ----- ----\n");
     for (size_t i = 0; i < scores->count; ++i) {
         GameScore* score = &scores->scores[i];
-        wprintw(win_der, "%10s %5d   %3zu %3s\n",
-            score->date, score->score, score->moves, score->name);
+        wprintw(win_der, "%4d %10s %5d   %3zu %3s\n",
+            score->game_id, score->date, score->score, score->moves, score->name);
     }
 
     werase(layout->main_window_border);

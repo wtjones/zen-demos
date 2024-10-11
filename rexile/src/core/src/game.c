@@ -4,9 +4,10 @@
 #include <assert.h>
 #include <stdbool.h>
 
-void game_init(Game* game, CardStack* deck)
+void game_init(Game* game, CardStack* deck, uint32_t game_id)
 {
-    log_info("Initializing game");
+    log_info("Initializing game id: %d", game_id);
+    game->game_id = game_id;
     game->score = 0;
     game->move_count = 0;
     game->message[0] = '\0';

@@ -93,7 +93,7 @@ int test_invalid_placement_returns_invald()
     card_stack_populate(&deck, source_cards, sizeof(source_cards) / sizeof(source_cards[0]));
 
     Game game;
-    game_init(&game, &deck);
+    game_init(&game, &deck, 1);
 
     // Act
     // Invalid - Try to place face card on non-face cell
@@ -154,7 +154,7 @@ int test_unable_to_place_face_card_loses()
     card_stack_populate(&deck, source_cards, sizeof(source_cards) / sizeof(source_cards[0]));
 
     Game game;
-    game_init(&game, &deck);
+    game_init(&game, &deck, 1);
 
     // Act
     BoardCellPosition pos;
@@ -218,7 +218,7 @@ int test_unable_to_combine_loses()
     card_stack_reverse(&deck);
 
     Game game;
-    game_init(&game, &deck);
+    game_init(&game, &deck, 1);
 
     // Act
     BoardCellPosition pos;
@@ -276,7 +276,7 @@ int test_combine_allows_valid_cards()
     card_stack_populate(&deck, source_cards, sizeof(source_cards) / sizeof(source_cards[0]));
 
     Game game;
-    game_init(&game, &deck);
+    game_init(&game, &deck, 1);
 
     // Fill board with face cards on the first row
     for (int r = 0; r < 4; r++) {
@@ -378,7 +378,7 @@ int test_can_repr_move_ledger()
     card_stack_populate(&deck, source_cards, sizeof(source_cards) / sizeof(source_cards[0]));
     card_stack_reverse(&deck);
     Game game;
-    game_init(&game, &deck);
+    game_init(&game, &deck, 1);
 
     // Act
     for (int r = 0; r < 4; r++) {
@@ -428,15 +428,16 @@ int test_can_save_scores()
     remove(path);
     scores_load(path, &scores);
 
-    GameScore score = { .score = 100, .moves = 6, .final_state = GAME_LOSE };
+    GameScore score = { .game_id = 1, .score = 100, .moves = 6, .final_state = GAME_LOSE };
     get_score_default_name(score.name, SCORE_NAME_SIZE);
     get_score_default_date(score.date, SCORE_DATE_SIZE);
 
-    GameScore score2 = { .score = 200, .moves = 4, .final_state = GAME_WIN, .name = "abc" };
+    GameScore score2 = { .game_id = 2, .score = 200, .moves = 4, .final_state = GAME_WIN, .name = "abc" };
     get_score_default_date(score2.date, SCORE_DATE_SIZE);
 
     scores_add(&scores, &score);
     scores_add(&scores, &score2);
+    scores.last_game_id++;
 
     // Act
     bool result = scores_save(path, &scores);
@@ -461,10 +462,10 @@ int test_add_score_is_sorted()
 {
     // Arrange
     ScoreBoard scores;
-    GameScore score1 = { .score = 100, .moves = 4, .final_state = GAME_WIN, .name = "abc" };
-    GameScore score2 = { .score = 200, .moves = 4, .final_state = GAME_WIN, .name = "abc" };
-    GameScore score3 = { .score = 150, .moves = 4, .final_state = GAME_WIN, .name = "abc" };
-    GameScore score4 = { .score = 80, .moves = 4, .final_state = GAME_WIN, .name = "abc" };
+    GameScore score1 = { .game_id = 1, .score = 100, .moves = 4, .final_state = GAME_WIN, .name = "abc" };
+    GameScore score2 = { .game_id = 2, .score = 200, .moves = 4, .final_state = GAME_WIN, .name = "abc" };
+    GameScore score3 = { .game_id = 3, .score = 150, .moves = 4, .final_state = GAME_WIN, .name = "abc" };
+    GameScore score4 = { .game_id = 4, .score = 80, .moves = 4, .final_state = GAME_WIN, .name = "abc" };
 
     // Act
     scores_init(&scores);
@@ -490,7 +491,7 @@ int test_add_score_keeps_max()
     // Act
     scores_init(&scores);
     for (int i = 0; i < SCORES_MAX + 5; i++) {
-        GameScore score = { .score = i, .moves = 4, .final_state = GAME_WIN, .name = "abc" };
+        GameScore score = { .game_id = i + 1, .score = i, .moves = 4, .final_state = GAME_WIN, .name = "abc" };
         scores_add(&scores, &score);
     }
 

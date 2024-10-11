@@ -28,6 +28,7 @@ void get_score_default_date(char* result, size_t count)
 
 void scores_init(ScoreBoard* scores)
 {
+    scores->last_game_id = 0;
     scores->count = 0;
 }
 
@@ -46,6 +47,7 @@ void scores_sort(ScoreBoard* scores)
 
 void scores_add(ScoreBoard* scores, GameScore* score)
 {
+    assert(score->game_id > 0);
     size_t i = scores->count == SCORES_MAX ? SCORES_MAX - 1 : scores->count;
     scores->scores[i] = *score;
     scores->count = i + 1;
@@ -65,10 +67,19 @@ bool scores_load(const char* path, ScoreBoard* scores)
     }
 
     char line[50];
+
+    if (fgets(line, sizeof(line), file) == NULL) {
+        log_warn("No scores found in file %s", path);
+        scores->last_game_id = 0;
+    } else {
+        sscanf(line, "Game Count: %u", &scores->last_game_id);
+    }
+
     while (fgets(line, sizeof(line), file) != NULL) {
         GameScore score;
         sscanf(line,
-            "%10s %d %zu %d %3s\n",
+            "%zu %10s %d %zu %d %3s\n",
+            &score.game_id,
             score.date,
             &score.score,
             &score.moves,
@@ -90,13 +101,17 @@ bool scores_save(const char* path, ScoreBoard* scores)
         log_error("Failed to open file for writing: %s", path);
         return false;
     }
+
+    fprintf(file, "Game Count: %u\n", scores->last_game_id);
+
     log_info("Saving scores to %s", path);
 
     for (size_t i = 0; i < scores->count; ++i) {
         GameScore* score = &scores->scores[i];
         fprintf(
             file,
-            "%10s %d %zu %d %3s\n",
+            "%zu %10s %d %zu %d %3s\n",
+            score->game_id,
             score->date,
             score->score,
             score->moves,
@@ -113,6 +128,7 @@ GameScore get_score_from_game(Game* game, const char* name, size_t name_count)
     GameScore score;
     get_score_default_date(score.date, sizeof(score.date));
     score.score = game->score;
+    score.game_id = game->game_id;
     score.moves = game->move_count;
     score.final_state = game->state;
     strncpy(score.name, name, SCORE_NAME_SIZE - 1);

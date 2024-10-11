@@ -65,6 +65,7 @@ typedef struct {
 } GameMove;
 
 typedef struct {
+    uint32_t game_id;
     Board board;
     CardStack draw_deck;
     CardStack discard_deck;
@@ -77,7 +78,7 @@ typedef struct {
     char message[MAX_MESSAGE_LENGTH];
 } Game;
 
-void game_init(Game* game, CardStack* deck);
+void game_init(Game* game, CardStack* deck, uint32_t game_id);
 
 /**
  * @brief Draw and place on the board
