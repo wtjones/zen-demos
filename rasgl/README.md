@@ -218,10 +218,12 @@ example: `./run_dos.sh poly 0 assets/secenes/tri.lsp`
 
 ### Common Controls
 
-Toggle projection mode: p
-Toggle backface culling mode: b
-Cycle polygon render modes: o
-Flush per-frame logs: f
+
+* Toggle projection mode: p
+* Toggle backface culling mode: b
+* Cycle polygon render modes: o
+* Flush per-frame logs: f
+
 
 ### Demo: world
 
@@ -229,10 +231,10 @@ Demonstrates movement controls over world geometry.
 
 #### Controls
 
-Move camera: WASD
-Rotate camera: Q/E
-Toggle view mode: TAB
-Adjust FOV: left/right bracket
+* Move camera: WASD
+* Rotate camera: Q/E
+* Toggle view mode: TAB
+* Adjust FOV: left/right bracket
 
 ### Demo: poly
 
@@ -250,17 +252,18 @@ Provide a model obj file as an optional param.
 
 #### Controls
 
-Move camera: WASD
-Rotate camera: Q/E
-Toggle view mode: TAB
-Adjust FOV: left/right bracket
+* Move camera: WASD
+* Rotate camera: Q/E
+* Toggle view mode: TAB
+* Adjust FOV: left/right bracket
 
-Move model left/right along X: key left/right
-Move model up/down along Y: key up/down
-Move model in/out along Z: key up/down + shift
-Tilt model fwd/back around X: up/down + ctrl + shift
-Rotate model left/right around Y: left/right + ctrl
-Tilt model left/right around Z: up/down + ctrl
+* Move model left/right along X: key left/right
+* Move model up/down along Y: key up/down
+* Move model in/out along Z: key up/down + shift
+* Tilt model forward/backward around X: up/down + ctrl + shift
+* Rotate model left/right around Y: left/right + ctrl
+* Tilt model left/right around Z: up/down + ctrl
+
 
 ## Debug output
 
