@@ -41,6 +41,23 @@ RasGL ideas
 )
 ```
 
+## Modeling
+
+### Vertex colors
+
+> Assigning Colors to Vertices Using Vertex Paint
+>
+> Vertex colors allow you to paint colors directly onto the vertices of your model, and Blender interpolates the color across the faces. This method is common in game development and low-poly art where simple vertex coloring is used.
+>
+> Technically, the .obj format does not natively support vertex colors according to its official specification, but Blender extends the format to include this data.
+>
+> So, in this case, Blender is exporting vertex positions with vertex colors.
+> Example Breakdown:
+
+```plaintext
+v 1.152022 0.647829 -0.910811 1.0000 0.2000 0.4392
+```
+
 ## Platform
 
 ### Classic Mac
@@ -65,7 +82,7 @@ Using built-in specs.
 COLLECT_GCC=mips64r5900el-ps2-elf-gcc
 COLLECT_LTO_WRAPPER=/usr/local/ps2dev/ee/libexec/gcc/mips64r5900el-ps2-elf/14.1.0/lto-wrapper
 Target: mips64r5900el-ps2-elf
-Configured with: ../configure --quiet --prefix=/usr/local/ps2dev/ee --target=mips64r5900el-ps2-elf --enable-languages=c,c++ --with-float=hard --with- 
+Configured with: ../configure --quiet --prefix=/usr/local/ps2dev/ee --target=mips64r5900el-ps2-elf --enable-languages=c,c++ --with-float=hard --with-
 sysroot=/usr/local/ps2dev/ee/mips64r5900el-ps2-elf --with-native-system-header-dir=/include --with-newlib --disable-libssp --disable-multilib --disable-nls --disable-tls --enable-cxx-flags=-G0 --enable-threads=posix --silent
 Thread model: posix
 Supported LTO compression algorithms: zlib

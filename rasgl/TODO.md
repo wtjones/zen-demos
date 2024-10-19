@@ -13,12 +13,15 @@
 - [ ] Validate screen points are in screen bounds
 - [ ] Fix poly fill gaps
 - [ ] Support DOS poly fill
+- [ ] Vertex colors in wireframe
+- [ ] Vertex colors in filled polygons
 - [ ] Shaded polygon mode
 
 ### Clipping - Polygon
 
 - [ ] Fix assert on certain far plane clip scenarios
 - [ ] Fix assert when a triangle is rotating and clipping on the left side
+- [ ] AABB should remain correct when model rotates
 
 ### Math
 
@@ -33,6 +36,7 @@
 
 - [ ] Reference larse as a target or package
 - [ ] Add scene explanation to README
+- [ ] Support parameterized scene loading
 
 ## In Progress
 
