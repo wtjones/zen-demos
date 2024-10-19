@@ -24,6 +24,7 @@
 #define RAS_KEY_F 18
 #define RAS_KEY_LSHIFT 19
 #define RAS_KEY_LCTRL 20
+#define RAS_KEY_O 21
 
 #define RAS_MAX_KEYS 255
 

@@ -16,7 +16,12 @@ void ras_core_update(InputState* input_state, RenderState* render_state)
             ? RAS_BACKFACE_CULLING_OFF
             : RAS_BACKFACE_CULLING_ON;
 
-        ras_log_info("backface_culling_mode: %s\n", render_state->backface_culling_mode == RAS_BACKFACE_CULLING_ON ? "ON" : "OFF");
+        ras_log_info("backface_culling_mode: %s", render_state->backface_culling_mode == RAS_BACKFACE_CULLING_ON ? "ON" : "OFF");
+    }
+    if (input_state->keys[RAS_KEY_O] == RAS_KEY_EVENT_UP) {
+        render_state->polygon_mode = (render_state->polygon_mode + 1) % 2;
+
+        ras_log_info("polygon_mode: %s", render_state->polygon_mode == RAS_POLYGON_WIREFRAME ? "wireframe" : "solid");
     }
     if (input_state->keys[RAS_KEY_F] == RAS_KEY_EVENT_UP) {
         ras_log_flush();

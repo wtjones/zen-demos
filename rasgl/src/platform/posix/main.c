@@ -3,6 +3,7 @@
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/input.h"
 #include "rasgl/core/maths.h"
+#include "rasgl/core/rasterize.h"
 #include <SDL2/SDL.h>
 #include <stdbool.h>
 
@@ -30,6 +31,7 @@ void map_input()
     plat_input_state.keys[RAS_KEY_Q] = keys[SDL_SCANCODE_Q];
     plat_input_state.keys[RAS_KEY_E] = keys[SDL_SCANCODE_E];
     plat_input_state.keys[RAS_KEY_P] = keys[SDL_SCANCODE_P];
+    plat_input_state.keys[RAS_KEY_O] = keys[SDL_SCANCODE_O];
     plat_input_state.keys[RAS_KEY_B] = keys[SDL_SCANCODE_B];
     plat_input_state.keys[RAS_KEY_F] = keys[SDL_SCANCODE_F];
     plat_input_state.keys[RAS_KEY_EQUALS] = keys[SDL_SCANCODE_EQUALS];
@@ -45,36 +47,69 @@ void map_input()
 
 void render_state(RenderState* state)
 {
-    RasVector4f* sv;
     int i = 0;
-    while (i < state->num_visible_indexes) {
-        RasPipelineVertex* pv0 = &state->pipeline_verts[state->visible_indexes[i++]];
-        sv = &pv0->screen_space_position;
-        Point2i point0 = {
-            .x = FIXED_16_16_TO_INT_32(sv->x),
-            .y = FIXED_16_16_TO_INT_32(sv->y)
-        };
 
-        RasPipelineVertex* pv1 = &state->pipeline_verts[state->visible_indexes[i++]];
-        sv = &pv1->screen_space_position;
-        Point2i point1 = {
-            .x = FIXED_16_16_TO_INT_32(sv->x),
-            .y = FIXED_16_16_TO_INT_32(sv->y)
-        };
+    if (state->polygon_mode == RAS_POLYGON_WIREFRAME) {
+        RasVector4f* sv;
 
-        RasPipelineVertex* pv2 = &state->pipeline_verts[state->visible_indexes[i++]];
-        sv = &pv2->screen_space_position;
-        Point2i point2 = {
-            .x = FIXED_16_16_TO_INT_32(sv->x),
-            .y = FIXED_16_16_TO_INT_32(sv->y)
-        };
+        while (i < state->num_visible_indexes) {
+            RasPipelineVertex* pv0 = &state->pipeline_verts[state->visible_indexes[i++]];
+            sv = &pv0->screen_space_position;
+            Point2i point0 = {
+                .x = FIXED_16_16_TO_INT_32(sv->x),
+                .y = FIXED_16_16_TO_INT_32(sv->y)
+            };
 
-        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-        SDL_RenderDrawLine(renderer, point0.x, point0.y, point1.x, point1.y);
-        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-        SDL_RenderDrawLine(renderer, point1.x, point1.y, point2.x, point2.y);
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-        SDL_RenderDrawLine(renderer, point2.x, point2.y, point0.x, point0.y);
+            RasPipelineVertex* pv1 = &state->pipeline_verts[state->visible_indexes[i++]];
+            sv = &pv1->screen_space_position;
+            Point2i point1 = {
+                .x = FIXED_16_16_TO_INT_32(sv->x),
+                .y = FIXED_16_16_TO_INT_32(sv->y)
+            };
+
+            RasPipelineVertex* pv2 = &state->pipeline_verts[state->visible_indexes[i++]];
+            sv = &pv2->screen_space_position;
+            Point2i point2 = {
+                .x = FIXED_16_16_TO_INT_32(sv->x),
+                .y = FIXED_16_16_TO_INT_32(sv->y)
+            };
+
+            SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+            SDL_RenderDrawLine(renderer, point0.x, point0.y, point1.x, point1.y);
+            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+            SDL_RenderDrawLine(renderer, point1.x, point1.y, point2.x, point2.y);
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+            SDL_RenderDrawLine(renderer, point2.x, point2.y, point0.x, point0.y);
+        }
+    } else {
+        i = 0;
+        RasVector4f* tri[3];
+        RasHorizontalLine hlines[255];
+        size_t num_hlines = 0;
+        while (i < state->num_visible_indexes) {
+            RasPipelineVertex* pv0 = &state->pipeline_verts[state->visible_indexes[i++]];
+            tri[0] = &pv0->screen_space_position;
+
+            RasPipelineVertex* pv1 = &state->pipeline_verts[state->visible_indexes[i++]];
+            tri[1] = &pv1->screen_space_position;
+
+            RasPipelineVertex* pv2 = &state->pipeline_verts[state->visible_indexes[i++]];
+            tri[2] = &pv2->screen_space_position;
+            rasterize_tri(tri, hlines, &num_hlines);
+
+            SDL_SetRenderDrawColor(renderer, 0, 70, 100, 255);
+            for (size_t j = 0; j < num_hlines; j++) {
+                Point2i point0 = {
+                    .x = hlines[j].left.x,
+                    .y = hlines[j].left.y
+                };
+                Point2i point1 = {
+                    .x = hlines[j].right.x,
+                    .y = hlines[j].right.y
+                };
+                SDL_RenderDrawLine(renderer, point0.x, point0.y, point1.x, point1.y);
+            }
+        }
     }
 
     for (size_t i = 0; i < state->num_commands; i++) {
@@ -167,9 +202,11 @@ int main(int argc, const char** argv)
                 plat_input_state.keys[RAS_KEY_F] = event.key.keysym.scancode == SDL_SCANCODE_F
                     ? RAS_KEY_EVENT_UP
                     : RAS_KEY_EVENT_NONE;
+                plat_input_state.keys[RAS_KEY_O] = event.key.keysym.scancode == SDL_SCANCODE_O
+                    ? RAS_KEY_EVENT_UP
+                    : RAS_KEY_EVENT_NONE;
             }
         }
-
         if (state.max_frames == UINT32_MAX || state.current_frame < state.max_frames) {
             core_renderstate_clear(&state);
             ras_core_update(&plat_input_state, &state);

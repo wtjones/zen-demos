@@ -11,7 +11,8 @@
 - [ ] Add AABB debug view toggle
 - [ ] Render origin and grid lines
 - [ ] Validate screen points are in screen bounds
-- [ ] Filled polygon mode
+- [ ] Fix poly fill gaps
+- [ ] Support DOS poly fill
 - [ ] Shaded polygon mode
 
 ### Clipping - Polygon
@@ -67,6 +68,7 @@
 ### Rendering
 
 - [x] Backface culling is broken
+- [x] Filled polygon mode
 
 ### Scene Loading
 

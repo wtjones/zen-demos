@@ -14,6 +14,7 @@ add_library(core
     matrix_projection.c
     model.c
     plane.c
+    rasterize.c
     repr.c
     scene.c
     string.c)

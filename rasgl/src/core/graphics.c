@@ -123,6 +123,7 @@ void core_renderstate_init(RenderState* state)
     state->max_frames = UINT32_MAX;
     state->projection_mode = RAS_PERSPECTIVE_MATRIX;
     state->backface_culling_mode = RAS_BACKFACE_CULLING_ON;
+    state->polygon_mode = RAS_POLYGON_WIREFRAME;
 };
 
 void core_renderstate_clear(RenderState* state)

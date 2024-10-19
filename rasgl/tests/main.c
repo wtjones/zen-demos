@@ -5,6 +5,7 @@
 #include "rasgl/core/matrix_projection.h"
 #include "rasgl/core/model.h"
 #include "rasgl/core/plane.h"
+#include "rasgl/core/rasterize.h"
 #include "rasgl/core/repr.h"
 #include "rasgl/core/scene.h"
 #include <assert.h>
@@ -352,6 +353,71 @@ void scene_tests()
     core_free_scene(&scene);
 }
 
+void rasterize_tri_tests()
+{
+
+    RasVector4f p0 = {
+        .x = float_to_fixed_16_16(15.0f),
+        .y = float_to_fixed_16_16(15.0f),
+        .z = 0,
+        .w = 1
+    };
+
+    RasVector4f p1 = {
+        .x = float_to_fixed_16_16(21.0f),
+        .y = float_to_fixed_16_16(20.0f),
+        .z = 0,
+        .w = 1
+    };
+
+    RasVector4f p2 = {
+        .x = float_to_fixed_16_16(4.0f),
+        .y = float_to_fixed_16_16(24.0f),
+        .z = 0,
+        .w = 1
+    };
+
+    RasVector4f* pv[3] = { &p0, &p1, &p2 };
+
+    RasHorizontalLine lines[255];
+    size_t num_lines = 0;
+    rasterize_tri(pv, lines, &num_lines);
+
+    ras_log_trace("Rasterize result of %zu lines...", num_lines);
+    for (size_t i = 0; i < num_lines; i++) {
+        char buffer1[255];
+        char buffer2[255];
+        ras_log_trace("LineL: %s LineR: %s\n",
+            repr_point2i(buffer1, 255, &lines[i].left),
+            repr_point2i(buffer2, 255, &lines[i].right));
+    }
+}
+
+void interpolate_tests()
+{
+    RasVector4f p0 = {
+        .x = float_to_fixed_16_16(10.0f),
+        .y = float_to_fixed_16_16(10.0f),
+        .z = 0,
+        .w = 1
+    };
+    RasVector4f p1 = {
+        .x = float_to_fixed_16_16(15.0f),
+        .y = float_to_fixed_16_16(12.0f),
+        .z = 0,
+        .w = 1
+    };
+
+    RasFixed result[255];
+    size_t count = core_interpolate(p0.x, p0.y, p0.x, p1.y, result, 255);
+
+    ras_log_trace("Interpolate result...");
+    for (size_t i = 0; i < count; i++) {
+        char buffer[255];
+        ras_log_trace("Div: %s\n", repr_fixed_16_16(buffer, 255, result[i]));
+    }
+}
+
 int main()
 {
     FILE* log_file = fopen("/tmp/rasgl.log", "w");
@@ -377,5 +443,7 @@ int main()
     mat_ortho_tests();
     model_tests();
     scene_tests();
+    interpolate_tests();
+    rasterize_tri_tests();
     return 0;
 }

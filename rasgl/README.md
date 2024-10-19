@@ -220,6 +220,7 @@ example: `./run_dos.sh poly 0 assets/secenes/tri.lsp`
 
 Toggle projection mode: p
 Toggle backface culling mode: b
+Cycle polygon render modes: o
 Flush per-frame logs: f
 
 ### Demo: world
