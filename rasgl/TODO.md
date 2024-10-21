@@ -13,8 +13,7 @@
 - [ ] Validate screen points are in screen bounds
 - [ ] Fix poly fill gaps
 - [ ] Support DOS poly fill
-- [ ] Vertex colors in wireframe
-- [ ] Vertex colors in filled polygons
+- [ ] Material colors in filled polygon mode
 - [ ] Shaded polygon mode
 
 ### Clipping - Polygon
@@ -31,6 +30,7 @@
 ### Models
 
 - [ ] Support dynamic allocation for models
+- [ ] Support material colors
 
 ### Scene loading
 

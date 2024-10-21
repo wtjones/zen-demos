@@ -45,6 +45,8 @@ RasGL ideas
 
 ### Vertex colors
 
+*Update*: Vertex colors are not useful with palette-based rendering.
+
 > Assigning Colors to Vertices Using Vertex Paint
 >
 > Vertex colors allow you to paint colors directly onto the vertices of your model, and Blender interpolates the color across the faces. This method is common in game development and low-poly art where simple vertex coloring is used.
@@ -57,6 +59,16 @@ RasGL ideas
 ```plaintext
 v 1.152022 0.647829 -0.910811 1.0000 0.2000 0.4392
 ```
+
+## Colors
+
+### Color ramps
+
+From [Pixelblog](https://www.slynyrd.com/blog/2018/1/10/pixelblog-1-color-palettes):
+
+> A color ramp is a specific range of colors that work well together, arranged according to brightness. Here is an example of what I consider a good color ramp.
+
+> I want 8 ramps total so I will shift the hues of each ramp by 45 degrees to complete the 360 degree cycle around the color wheel.
 
 ## Platform
 
