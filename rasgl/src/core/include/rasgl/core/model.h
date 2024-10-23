@@ -25,23 +25,23 @@ typedef struct RasModelFace {
 } RasModelFace;
 
 typedef struct RasModelGroup {
-    char name[RAS_MAX_MODEL_NAME];
-    RasVector3f verts[RAS_MAX_MODEL_VERTS];
+    char* name;
+    RasVector3f* verts;
     uint32_t num_verts;
-    RasVector3f normals[RAS_MAX_MODEL_NORMALS];
+    RasVector3f* normals;
     uint32_t num_normals;
-    RasModelFace faces[RAS_MAX_MODEL_FACES];
+    RasModelFace* faces;
     uint32_t num_faces;
 } RasModelGroup;
 
 typedef struct RasModel {
-    char name[RAS_MAX_MODEL_NAME];
-    RasModelGroup groups[RAS_MAX_MODEL_GROUPS];
+    char* name;
+    RasModelGroup* groups;
     uint32_t num_groups;
 } RasModel;
 
-RasResult core_load_model(const char* path, RasModel* model);
-
+RasModel* core_load_model(const char* path);
+void core_free_model(RasModel* model);
 char* core_repr_model(char* buffer, size_t count, RasModel* model);
 
 #endif

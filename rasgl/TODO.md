@@ -30,7 +30,7 @@
 
 ### Models
 
-- [ ] Support dynamic allocation for models
+- [ ] Free model on error during load
 
 ### Scene loading
 
@@ -68,6 +68,7 @@
 ### Models
 
 - [x] Fix DOS version not taking model param
+- [x] Support dynamic allocation for models
 
 ### Rendering
 

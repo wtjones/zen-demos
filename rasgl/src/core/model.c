@@ -20,9 +20,12 @@ void core_plat_free(char** buffer)
 
 void core_model_group_init(RasModelGroup* group)
 {
-    group->name[0] = '\0';
+    group->name = NULL;
+    group->verts = NULL;
     group->num_verts = 0;
+    group->normals = NULL;
     group->num_normals = 0;
+    group->faces = NULL;
     group->num_faces = 0;
 }
 
@@ -42,6 +45,7 @@ int core_parse_group_name(char* line, RasModelGroup* group)
         return 1;
     }
     ras_log_trace("parsed from token: %s", token);
+    group->name = (char*)malloc(strlen(token) + 1);
     strcat(group->name, token);
     core_plat_free(&tofree);
     return 0;
@@ -207,7 +211,7 @@ int core_parse_face(char* line, RasModelFace* dest)
     return 0;
 }
 
-RasResult core_load_model(const char* path, RasModel* model)
+RasModel* core_load_model(const char* path)
 {
     char buffer[255];
     FILE* file;
@@ -217,15 +221,32 @@ RasResult core_load_model(const char* path, RasModel* model)
     file = fopen(path, "r");
     if (!file) {
         ras_log_error("Can't open file: %s\n", path);
-        return RAS_RESULT_ERROR;
+        return NULL;
+    }
+    RasModel* model = malloc(sizeof(RasModel));
+    if (model == NULL) {
+        ras_log_error("Failed to allocate memory for model.");
+        return NULL;
+    }
+    model->name = malloc(strlen(path) + 1);
+    if (model->name == NULL) {
+        ras_log_error("Failed to allocate memory for model name.");
+        return NULL;
     }
 
     strcpy(model->name, path);
     // We default to the first group even if group isn't specifed. The actual
     // file group count is tracked to determine when to move past the default.
+
     int file_num_groups = 0;
+    model->groups = malloc(sizeof(RasModelGroup));
+    if (model->groups == NULL) {
+        ras_log_error("Failed to allocate memory for model groups.");
+        return NULL;
+    }
     RasModelGroup* current_group = &model->groups[0];
     model->num_groups = 1;
+
     core_model_group_init(current_group);
 
     while (core_getline(&line, &linesize, file) != -1) {
@@ -239,50 +260,70 @@ RasResult core_load_model(const char* path, RasModel* model)
             file_num_groups++;
             if (file_num_groups > 1) {
                 ras_log_error("Multiple groups not supported.");
-                return RAS_RESULT_ERROR;
+                return NULL;
             }
             int result = core_parse_group_name(line, current_group);
             if (result != 0) {
-                return RAS_RESULT_ERROR;
+                return NULL;
             }
         } else if (strncmp(line, "v ", 2) == 0) {
             ras_log_trace("vertex... %s", "");
+            current_group->verts = realloc(current_group->verts, sizeof(RasVector3f) * (current_group->num_verts + 1));
             RasVector3f* v = &current_group->verts[current_group->num_verts];
             int result = core_parse_vector(line, v);
             if (result != 0) {
-                return RAS_RESULT_ERROR;
+                return NULL;
             }
             current_group->num_verts++;
-        } else if (strncmp(line, "vn ", 3) == 0) {
+        }
+
+        else if (strncmp(line, "vn ", 3) == 0) {
             ras_log_trace("vertex normal... %s", "");
+            current_group->normals = realloc(current_group->normals, sizeof(RasVector3f) * (current_group->num_normals + 1));
             RasVector3f* v = &current_group->normals[current_group->num_normals];
             int result = core_parse_vector(line, v);
             if (result != 0) {
-                return RAS_RESULT_ERROR;
+                return NULL;
             }
             current_group->num_normals++;
         } else if (strncmp(line, "f ", 2) == 0) {
             ras_log_trace("face... %s", "");
+            current_group->faces = realloc(current_group->faces, sizeof(RasModelFace) * (current_group->num_faces + 1));
             RasModelFace* f = &current_group->faces[current_group->num_faces];
             int result = core_parse_face(line, f);
             if (result != 0) {
-                return RAS_RESULT_ERROR;
+                return NULL;
             }
             current_group->num_faces++;
         }
         core_plat_free(&line);
     }
     core_plat_free(&line);
+    ras_log_trace("Model loaded: %s, bytes: %zu", model->name, sizeof *model);
+    ras_log_info("%s", core_repr_model(buffer, sizeof buffer, model));
+    return model;
+    ;
+}
 
-    ras_log_info("%s\n", core_repr_model(buffer, sizeof buffer, model));
-    return RAS_RESULT_OK;
+void core_free_model(RasModel* model)
+{
+    for (int i = 0; i < model->num_groups; i++) {
+        RasModelGroup* group = &model->groups[i];
+        free(group->name);
+        free(group->verts);
+        free(group->normals);
+        free(group->faces);
+    }
+    free(model->name);
+    free(model->groups);
+    free(model);
 }
 
 char* core_repr_model(char* buffer, size_t count, RasModel* model)
 {
     char buffer2[255];
     buffer[0] = '\0';
-    snprintf(buffer2, sizeof buffer2, "model obj: %s\n", model->name);
+    snprintf(buffer2, sizeof buffer2, "model obj: %s bytes: %zu\n", model->name, sizeof(model));
     strcat(buffer, buffer2);
 
     for (int i = 0; i < model->num_groups; i++) {

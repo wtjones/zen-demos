@@ -224,14 +224,9 @@ RasResult core_script_map_model(LarNode* model_exp, RasSceneModel* scene_model)
     strcpy(scene_model->path, model_path->atom.val_string);
     ras_log_info("Mapped model %s to %s", scene_model->name, scene_model->path);
 
-    RasModel* file_model = (RasModel*)malloc(sizeof(RasModel));
-    RAS_CHECK_AND_LOG(file_model == NULL,
-        "Failed to allocate memory for model");
+    RasModel* file_model = core_load_model(scene_model->path);
 
-    memset(file_model, 0, sizeof(RasModel));
-    RasResult result = core_load_model(scene_model->path, file_model);
-
-    if (result != RAS_RESULT_OK) {
+    if (file_model == NULL) {
         ras_log_error("Failed to load model %s", scene_model->path);
         free(file_model);
         return RAS_RESULT_ERROR;
@@ -241,7 +236,7 @@ RasResult core_script_map_model(LarNode* model_exp, RasSceneModel* scene_model)
         &file_model->groups[0], &scene_model->element);
     ras_log_info("Mapped model %s to pipeline elements", scene_model->name);
 
-    free(file_model);
+    core_free_model(file_model);
     return RAS_RESULT_OK;
 }
 

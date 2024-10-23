@@ -315,12 +315,13 @@ void plane_tests()
 
 void model_tests()
 {
-    RasModel model;
-    RasResult result = core_load_model("./assets/models/cube.obj", &model);
+    RasModel* model = core_load_model("./assets/models/cube.obj");
 
-    if (result != RAS_RESULT_OK) {
+    if (model == NULL) {
         ras_log_error("core_load_model error\n");
+        return;
     }
+    core_free_model(model);
 }
 
 void scene_tests()
