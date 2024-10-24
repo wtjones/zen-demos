@@ -30,7 +30,7 @@
 ### Models
 
 - [ ] Free model on error during load
-- [ ] Support material colors
+- [ ] Assume muliple usemtl lines can refer to same material
 
 ### Scene loading
 
@@ -39,6 +39,10 @@
 - [ ] Support parameterized scene loading
 
 ## In Progress
+
+### Models
+
+- [ ] Support material colors
 
 ## Done ✓
 

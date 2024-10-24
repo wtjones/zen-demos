@@ -18,6 +18,15 @@ void core_plat_free(char** buffer)
     *buffer = NULL;
 }
 
+void core_model_init(RasModel* model)
+{
+    model->name = NULL;
+    model->groups = NULL;
+    model->num_groups = 0;
+    model->materials = NULL;
+    model->num_materials = 0;
+}
+
 void core_model_group_init(RasModelGroup* group)
 {
     group->name = NULL;
@@ -44,7 +53,6 @@ int core_parse_group_name(char* line, RasModelGroup* group)
     }
     ras_log_trace("parsed from token: %s", token);
     group->name = (char*)malloc(strlen(token) + 1);
-    group->name[0] = '\0';
     strcpy(group->name, token);
     core_plat_free(&tofree);
     return 0;
@@ -104,6 +112,34 @@ int core_parse_vector(char* line, RasVector3f* dest)
     dest->y = y;
     dest->z = z;
     ras_log_trace("parsed vector: %s\n", repr_point3f(buffer, sizeof buffer, dest));
+    return 0;
+}
+
+/**
+ * @brief Parse a usemtl line in the face section
+ *
+ * @param line
+ * @param material
+ * @return int
+ */
+int core_parse_face_material(char* line, RasModelMaterial* material)
+{
+    char *token, *str, *tofree;
+
+    // strsep() is destructive, so make a copy
+    tofree = str = strdup(line);
+
+    token = strsep(&str, " "); // g
+    token = strsep(&str, " "); // name
+    if (token == NULL) {
+        ras_log_error("strsep() returned NULL %s", str);
+        return 1;
+    }
+    ras_log_trace("parsed from token: %s", token);
+    material->name = (char*)malloc(strlen(token) + 1);
+
+    strcpy(material->name, token);
+    core_plat_free(&tofree);
     return 0;
 }
 
@@ -227,6 +263,9 @@ RasModel* core_load_model(const char* path)
         ras_log_error("Failed to allocate memory for model.");
         return NULL;
     }
+
+    core_model_init(model);
+
     model->name = malloc(strlen(path) + 1);
     if (model->name == NULL) {
         ras_log_error("Failed to allocate memory for model name.");
@@ -245,6 +284,8 @@ RasModel* core_load_model(const char* path)
     }
     RasModelGroup* current_group = &model->groups[0];
     model->num_groups = 1;
+
+    int32_t current_material_index = -1;
 
     core_model_group_init(current_group);
 
@@ -285,15 +326,33 @@ RasModel* core_load_model(const char* path)
                 return NULL;
             }
             current_group->num_normals++;
+        } else if (strncmp(line, "usemtl ", 7) == 0) {
+            ras_log_trace("face material... %s", "");
+            current_material_index = model->num_materials;
+            model->num_materials++;
+            model->materials = realloc(model->materials, sizeof(RasModelMaterial) * model->num_materials);
+            RasModelMaterial* material = &model->materials[current_material_index];
+            int result = core_parse_face_material(line, material);
+
         } else if (strncmp(line, "f ", 2) == 0) {
+
+            // todo: ensure material is set
+
             ras_log_trace("face... %s", "");
-            current_group->faces = realloc(current_group->faces, sizeof(RasModelFace) * (current_group->num_faces + 1));
-            RasModelFace* f = &current_group->faces[current_group->num_faces];
+            uint32_t current_face_index = current_group->num_faces;
+            current_group->num_faces++;
+            current_group->faces = realloc(current_group->faces, sizeof(RasModelFace) * (current_group->num_faces));
+            RasModelFace* f = &current_group->faces[current_face_index];
+            if (current_material_index == -1) {
+                ras_log_warn("Material not set for face.");
+            } else {
+                ras_log_trace("Face material index: %d", current_material_index);
+            }
+            f->material_index = current_material_index;
             int result = core_parse_face(line, f);
             if (result != 0) {
                 return NULL;
             }
-            current_group->num_faces++;
         }
         core_plat_free(&line);
     }
@@ -313,8 +372,14 @@ void core_free_model(RasModel* model)
         free(group->normals);
         free(group->faces);
     }
-    free(model->name);
     free(model->groups);
+
+    for (int i = 0; i < model->num_materials; i++) {
+        RasModelMaterial* material = &model->materials[i];
+        free(material->name);
+    }
+    free(model->materials);
+    free(model->name);
     free(model);
 }
 
@@ -334,6 +399,12 @@ char* core_repr_model(char* buffer, size_t count, RasModel* model)
         snprintf(buffer2, sizeof buffer2, "    num_normals: %d\n", group->num_normals);
         strcat(buffer, buffer2);
         snprintf(buffer2, sizeof buffer2, "    num_faces: %d\n", group->num_faces);
+        strcat(buffer, buffer2);
+    }
+
+    for (int i = 0; i < model->num_materials; i++) {
+        RasModelMaterial* material = &model->materials[i];
+        snprintf(buffer2, sizeof buffer2, "  material %d name: %s\n", i, material->name);
         strcat(buffer, buffer2);
     }
     return buffer;

@@ -11,6 +11,10 @@
 #define RAS_MAX_MODEL_FACE_INDEXES 3
 #define RAS_MAX_MODEL_NORMALS 256
 
+typedef struct RasModelMaterial {
+    char* name;
+} RasModelMaterial;
+
 typedef struct RasModelFaceIndex {
     RasFixed vert_index;    // -1 if undefined
     RasFixed texture_index; // -1 if undefined
@@ -21,6 +25,7 @@ typedef struct RasModelFaceIndex {
  * The three vertices of a triangle
  */
 typedef struct RasModelFace {
+    int32_t material_index;
     RasModelFaceIndex indexes[RAS_MAX_MODEL_FACE_INDEXES];
 } RasModelFace;
 
@@ -38,6 +43,8 @@ typedef struct RasModel {
     char* name;
     RasModelGroup* groups;
     uint32_t num_groups;
+    RasModelMaterial* materials;
+    uint32_t num_materials;
 } RasModel;
 
 RasModel* core_load_model(const char* path);
