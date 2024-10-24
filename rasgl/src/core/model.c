@@ -31,9 +31,7 @@ void core_model_group_init(RasModelGroup* group)
 
 int core_parse_group_name(char* line, RasModelGroup* group)
 {
-    char buffer[255];
     char *token, *str, *tofree;
-    group->name[0] = '\0';
 
     // strsep() is destructive, so make a copy
     tofree = str = strdup(line);
@@ -46,7 +44,8 @@ int core_parse_group_name(char* line, RasModelGroup* group)
     }
     ras_log_trace("parsed from token: %s", token);
     group->name = (char*)malloc(strlen(token) + 1);
-    strcat(group->name, token);
+    group->name[0] = '\0';
+    strcpy(group->name, token);
     core_plat_free(&tofree);
     return 0;
 }
