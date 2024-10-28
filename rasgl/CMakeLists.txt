@@ -11,4 +11,6 @@ add_compile_definitions(DEBUG=${DEBUG})
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_subdirectory(src)
-add_subdirectory(tests)
+if (NOT DEFINED RAS_PLATFORM)
+    add_subdirectory(tests)
+endif()
