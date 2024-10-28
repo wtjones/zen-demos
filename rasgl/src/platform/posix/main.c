@@ -4,11 +4,14 @@
 #include "rasgl/core/input.h"
 #include "rasgl/core/maths.h"
 #include "rasgl/core/rasterize.h"
+#include "rasterize.h"
 #include <SDL2/SDL.h>
 #include <stdbool.h>
 
-ScreenSettings plat_settings = { .screen_width = 320, .screen_height = 240 };
+ScreenSettings plat_settings
+    = { .screen_width = 320, .screen_height = 240 };
 SDL_Renderer* renderer;
+SDL_Surface* surface;
 
 RenderState state;
 InputState plat_input_state;
@@ -74,12 +77,9 @@ void render_state(RenderState* state)
                 .y = FIXED_16_16_TO_INT_32(sv->y)
             };
 
-            SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-            SDL_RenderDrawLine(renderer, point0.x, point0.y, point1.x, point1.y);
-            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-            SDL_RenderDrawLine(renderer, point1.x, point1.y, point2.x, point2.y);
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-            SDL_RenderDrawLine(renderer, point2.x, point2.y, point0.x, point0.y);
+            ras_draw_line(surface, &point0, &point1, 0);
+            ras_draw_line(surface, &point1, &point2, 1);
+            ras_draw_line(surface, &point2, &point0, 2);
         }
     } else {
         i = 0;
@@ -97,7 +97,6 @@ void render_state(RenderState* state)
             tri[2] = &pv2->screen_space_position;
             rasterize_tri(tri, hlines, &num_hlines);
 
-            SDL_SetRenderDrawColor(renderer, 0, 70, 100, 255);
             for (size_t j = 0; j < num_hlines; j++) {
                 Point2i point0 = {
                     .x = hlines[j].left.x,
@@ -107,7 +106,7 @@ void render_state(RenderState* state)
                     .x = hlines[j].right.x,
                     .y = hlines[j].right.y
                 };
-                SDL_RenderDrawLine(renderer, point0.x, point0.y, point1.x, point1.y);
+                ras_draw_line(surface, &point0, &point1, 2);
             }
         }
     }
@@ -117,23 +116,21 @@ void render_state(RenderState* state)
 
         if (command->num_points == 1) {
             Point2i* point = &(state->points[command->point_indices[0]]);
-            SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
-            SDL_RenderDrawPoint(renderer, point->x, point->y);
+            RAS_PLOT_PIXEL(surface, point->x, point->y, 1);
+
         } else if (command->num_points == 2) {
             Point2i* point0 = &(state->points[command->point_indices[0]]);
             Point2i* point1 = &(state->points[command->point_indices[1]]);
-            SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-            SDL_RenderDrawLine(renderer, point0->x, point0->y, point1->x, point1->y);
+            ras_draw_line(surface, point0, point1, 2);
+
         } else if (command->num_points == 3) {
             Point2i* point0 = &(state->points[command->point_indices[0]]);
             Point2i* point1 = &(state->points[command->point_indices[1]]);
             Point2i* point2 = &(state->points[command->point_indices[2]]);
-            SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-            SDL_RenderDrawLine(renderer, point0->x, point0->y, point1->x, point1->y);
-            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-            SDL_RenderDrawLine(renderer, point1->x, point1->y, point2->x, point2->y);
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-            SDL_RenderDrawLine(renderer, point2->x, point2->y, point0->x, point0->y);
+
+            ras_draw_line(surface, point0, point1, 0);
+            ras_draw_line(surface, point1, point2, 1);
+            ras_draw_line(surface, point2, point0, 2);
         }
     }
     state->current_frame++;
@@ -164,6 +161,26 @@ int main(int argc, const char** argv)
     renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     SDL_RenderSetLogicalSize(renderer, 320, 240);
+
+    surface = SDL_CreateRGBSurface(
+        0,
+        plat_settings.screen_width,
+        plat_settings.screen_height,
+        8, 0, 0, 0, 0);
+
+    SDL_Color colors[256];
+    colors[0] = (SDL_Color) { 255, 0, 0, 255 }; // Red
+    colors[1] = (SDL_Color) { 0, 255, 0, 255 }; // Green
+    colors[2] = (SDL_Color) { 0, 0, 255, 255 }; // Blue
+    colors[3] = (SDL_Color) { 0, 0, 0, 255 };   // Black
+
+    if (SDL_SetPaletteColors(surface->format->palette, colors, 0, 4) != 0) {
+        ras_log_error("SDL_SetPaletteColors failed: %s", SDL_GetError());
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(win);
+        SDL_Quit();
+        return 1;
+    }
 
     RasResult result = ras_app_init(argc, argv, &plat_settings);
     if (result != RAS_RESULT_OK) {
@@ -213,11 +230,31 @@ int main(int argc, const char** argv)
             ras_app_update(&plat_input_state);
             state.screen_settings.screen_width = plat_settings.screen_width;
             state.screen_settings.screen_height = plat_settings.screen_height;
+            SDL_LockSurface(surface);
+
             ras_app_render(&state);
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-            SDL_RenderClear(renderer);
+
+            Uint8* pixels = (Uint8*)surface->pixels;
+            for (int i = 0; i < surface->w * surface->h; i++) {
+                pixels[i] = 3;
+            }
             render_state(&state);
 
+            SDL_UnlockSurface(surface);
+
+            SDL_Surface* rgb_surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGB888, 0);
+            if (!rgb_surface) {
+                printf("SDL_ConvertSurfaceFormat failed: %s\n", SDL_GetError());
+                SDL_FreeSurface(surface);
+                SDL_DestroyRenderer(renderer);
+                SDL_DestroyWindow(win);
+                SDL_Quit();
+                return -1;
+            }
+
+            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, rgb_surface);
+            SDL_RenderClear(renderer);
+            SDL_RenderCopy(renderer, texture, NULL, NULL);
             SDL_RenderPresent(renderer);
         }
 

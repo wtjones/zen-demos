@@ -1,6 +1,6 @@
 find_package(SDL2 REQUIRED)
 
-add_library(ras_sdl main.c)
+add_library(ras_sdl main.c rasterize.c)
 
 target_link_libraries(ras_sdl PRIVATE m core PUBLIC SDL2::SDL2)
 

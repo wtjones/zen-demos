@@ -5,6 +5,7 @@
 ### General
 
 - [ ] Support CTest
+- [ ] POSIX - screen resolution shouldn't be hard-coded
 
 ### Rendering
 
@@ -15,6 +16,7 @@
 - [ ] Support DOS poly fill
 - [ ] Material colors in filled polygon mode
 - [ ] Shaded polygon mode
+- [ ] Support color ramps
 
 ### Clipping - Polygon
 
