@@ -23,5 +23,6 @@ void core_log_buffer(int level, const char* file, int line, const char* fmt, ...
     va_start(args, fmt);
     vsnprintf(buffer, sizeof buffer, fmt, args);
     va_end(args);
+    strcat(buffer, "\n");
     strcat(log_buffer, buffer);
 }
