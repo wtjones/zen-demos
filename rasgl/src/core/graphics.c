@@ -119,6 +119,7 @@ void core_renderstate_init(RenderState* state)
     state->num_points = 0;
     state->num_pipeline_verts = 0;
     state->num_visible_indexes = 0;
+    state->num_material_indexes = 0;
     state->current_frame = 0;
     state->max_frames = UINT32_MAX;
     state->projection_mode = RAS_PERSPECTIVE_MATRIX;
@@ -132,6 +133,7 @@ void core_renderstate_clear(RenderState* state)
     state->num_points = 0;
     state->num_pipeline_verts = 0;
     state->num_visible_indexes = 0;
+    state->num_material_indexes = 0;
 }
 
 void projected_to_screen_point(RasFixed screen_width, RasFixed screen_height, RasFixed projected_point[4], Point2i* screen_point)
@@ -641,6 +643,13 @@ void core_append_vertex_buffer(
         render_state->visible_indexes[*si] = num_pipeline_verts_prev + vert_buffer->visible_indexes[i];
         (*si)++;
     }
+
+    si = &render_state->num_material_indexes;
+    for (uint32_t i = 0; i < vert_buffer->num_material_indexes; i++) {
+        render_state->material_indexes[*si]
+            = num_pipeline_verts_prev + vert_buffer->material_indexes[i];
+        (*si)++;
+    }
 }
 
 void core_draw_element(
@@ -742,6 +751,9 @@ void core_draw_element(
     uint32_t num_faces_must_clip = 0;
     uint32_t* vi = &vert_buffer.num_visible_indexes;
     uint32_t num_projected_verts = vert_buffer.num_verts;
+    uint32_t current_src_face_index = 0;
+    uint32_t* num_dest_materials = &vert_buffer.num_material_indexes;
+    *num_dest_materials = 0;
 
     for (uint32_t i = 0; i < element->num_indexes; i += 3) {
         RasPipelineVertex* pv1 = &vert_buffer.verts[element->indexes[i]];
@@ -749,6 +761,8 @@ void core_draw_element(
         RasPipelineVertex* pv3 = &vert_buffer.verts[element->indexes[i + 2]];
 
         if (pv1->clip_flags & pv2->clip_flags & pv3->clip_flags) {
+            current_src_face_index++;
+
             continue; // face is all out
         }
         num_faces_in_frustum += 1;
@@ -768,7 +782,12 @@ void core_draw_element(
             vert_buffer.visible_indexes[*vi + 1] = element->indexes[i + 1];
             vert_buffer.visible_indexes[*vi + 2] = element->indexes[i + 2];
             vert_buffer.num_visible_indexes += 3;
+
+            vert_buffer.material_indexes[*num_dest_materials]
+                = element->material_indexes[current_src_face_index];
+            (*num_dest_materials)++;
         }
+        current_src_face_index++;
     }
 
     // Project verts created from clipping
@@ -842,7 +861,9 @@ void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineEleme
     core_get_element_aabb(element, &element->aabb);
 
     element->num_indexes = group->num_faces * 3;
+    element->num_material_indexes = group->num_faces;
     uint32_t* element_index = &element->indexes[0];
+    int32_t* material_index = &element->material_indexes[0];
     for (int j = 0; j < group->num_faces; j++) {
         RasModelFace* face = &group->faces[j];
         for (int k = 0; k < RAS_MAX_MODEL_FACE_INDEXES; k++) {
@@ -850,5 +871,8 @@ void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineEleme
             *element_index = face_index->vert_index;
             element_index++;
         }
+
+        *material_index = face->material_index;
+        material_index++;
     }
 }

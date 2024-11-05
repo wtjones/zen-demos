@@ -39,6 +39,7 @@
 - [ ] Reference larse as a target or package
 - [ ] Add scene explanation to README
 - [ ] Support parameterized scene loading
+- [ ] Configurable background color
 
 ## In Progress
 

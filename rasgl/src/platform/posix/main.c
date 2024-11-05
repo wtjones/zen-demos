@@ -86,7 +86,15 @@ void render_state(RenderState* state)
         RasVector4f* tri[3];
         RasHorizontalLine hlines[255];
         size_t num_hlines = 0;
+        uint32_t material_index = 0;
+
         while (i < state->num_visible_indexes) {
+            int32_t material = state->material_indexes[material_index];
+
+            // TODO: Use calculated shade
+            int8_t color = 7 + (material * 8);
+            ras_log_buffer("Render: Face material index: %d, %d\n", material, color);
+
             RasPipelineVertex* pv0 = &state->pipeline_verts[state->visible_indexes[i++]];
             tri[0] = &pv0->screen_space_position;
 
@@ -106,8 +114,9 @@ void render_state(RenderState* state)
                     .x = hlines[j].right.x,
                     .y = hlines[j].right.y
                 };
-                ras_draw_line(surface, &point0, &point1, 2);
+                ras_draw_line(surface, &point0, &point1, color);
             }
+            material_index++;
         }
     }
 
@@ -168,13 +177,49 @@ int main(int argc, const char** argv)
         plat_settings.screen_height,
         8, 0, 0, 0, 0);
 
-    SDL_Color colors[256];
-    colors[0] = (SDL_Color) { 255, 0, 0, 255 }; // Red
-    colors[1] = (SDL_Color) { 0, 255, 0, 255 }; // Green
-    colors[2] = (SDL_Color) { 0, 0, 255, 255 }; // Blue
-    colors[3] = (SDL_Color) { 0, 0, 0, 255 };   // Black
+    SDL_Color colors[256] = {
+        // Grey ramp
+        { 0x17, 0x18, 0x03, 255 }, // #171803
+        { 0x1B, 0x25, 0x0A, 255 }, // #1B250A
+        { 0x23, 0x35, 0x1A, 255 }, // #23351A
+        { 0x31, 0x45, 0x30, 255 }, // #314530
+        { 0x52, 0x66, 0x58, 255 }, // #526658
+        { 0x84, 0x96, 0x8E, 255 }, // #84968E
+        { 0xB6, 0xC3, 0xC2, 255 }, // #B6C3C2
+        { 0xF1, 0xF1, 0xF1, 255 }, // #F1F1F1
 
-    if (SDL_SetPaletteColors(surface->format->palette, colors, 0, 4) != 0) {
+        // Red ramp
+        { 0x1F, 0x00, 0x00, 255 }, // Darkest red
+        { 0x3F, 0x00, 0x00, 255 },
+        { 0x5F, 0x00, 0x00, 255 },
+        { 0x7F, 0x00, 0x00, 255 },
+        { 0x9F, 0x00, 0x00, 255 },
+        { 0xBF, 0x00, 0x00, 255 },
+        { 0xDF, 0x00, 0x00, 255 },
+        { 0xFF, 0x00, 0x00, 255 }, // Brightest red
+
+        // Green ramp
+        { 0x00, 0x1F, 0x00, 255 }, // Darkest green
+        { 0x00, 0x3F, 0x00, 255 },
+        { 0x00, 0x5F, 0x00, 255 },
+        { 0x00, 0x7F, 0x00, 255 },
+        { 0x00, 0x9F, 0x00, 255 },
+        { 0x00, 0xBF, 0x00, 255 },
+        { 0x00, 0xDF, 0x00, 255 },
+        { 0x00, 0xFF, 0x00, 255 }, // Brightest green
+
+        // Blue ramp
+        { 0x00, 0x00, 0x1F, 255 }, // Darkest blue
+        { 0x00, 0x00, 0x3F, 255 },
+        { 0x00, 0x00, 0x5F, 255 },
+        { 0x00, 0x00, 0x7F, 255 },
+        { 0x00, 0x00, 0x9F, 255 },
+        { 0x00, 0x00, 0xBF, 255 },
+        { 0x00, 0x00, 0xDF, 255 },
+        { 0x00, 0x00, 0xFF, 255 } // Brightest blue
+    };
+
+    if (SDL_SetPaletteColors(surface->format->palette, colors, 0, 256) != 0) {
         ras_log_error("SDL_SetPaletteColors failed: %s", SDL_GetError());
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(win);
@@ -236,7 +281,7 @@ int main(int argc, const char** argv)
 
             Uint8* pixels = (Uint8*)surface->pixels;
             for (int i = 0; i < surface->w * surface->h; i++) {
-                pixels[i] = 3;
+                pixels[i] = 0;
             }
             render_state(&state);
 

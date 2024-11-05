@@ -70,6 +70,10 @@ From [Pixelblog](https://www.slynyrd.com/blog/2018/1/10/pixelblog-1-color-palett
 
 > I want 8 ramps total so I will shift the hues of each ramp by 45 degrees to complete the 360 degree cycle around the color wheel.
 
+#### Color ramp creator
+
+<http://mycours.es/crc/80700921>
+
 ## Platform
 
 ### Classic Mac

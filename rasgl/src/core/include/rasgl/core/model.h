@@ -25,7 +25,7 @@ typedef struct RasModelFaceIndex {
  * The three vertices of a triangle
  */
 typedef struct RasModelFace {
-    int32_t material_index;
+    int32_t material_index; // -1 if undefined
     RasModelFaceIndex indexes[RAS_MAX_MODEL_FACE_INDEXES];
 } RasModelFace;
 
