@@ -4,7 +4,7 @@
 
 ### CORDIC
 
-https://github.com/francisrstokes/githublog/blob/main/2024/5/10/cordic.md
+<https://github.com/francisrstokes/githublog/blob/main/2024/5/10/cordic.md>
 
 > CORDIC is an algorithm for computing trig functions like sin, cos, tan etc on low powered hardware, without an FPU (i.e. no floating point) or expensive lookup tables. In fact, it reduces these complex functions to simple additions and bit shifts.
 
@@ -82,7 +82,7 @@ From [Pixelblog](https://www.slynyrd.com/blog/2018/1/10/pixelblog-1-color-palett
 
 ### PSX
 
-To avoid WinXP: https://github.com/Lameguy64/PSn00bSDK
+To avoid WinXP: <https://github.com/Lameguy64/PSn00bSDK>
 
 ### PS2
 
