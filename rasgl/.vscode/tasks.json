@@ -2,6 +2,18 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"label": "CMake: Create Build Directory",
+			"type": "shell",
+			"command": "mkdir -p build",
+			"problemMatcher": []
+		},
+		{
+			"type": "cmake",
+			"label": "CMake: configure",
+			"command": "configure",
+			"dependsOn": "CMake: Create Build Directory"
+		},
+		{
 			"type": "cmake",
 			"label": "CMake: build",
 			"command": "build",
@@ -10,7 +22,8 @@
 			],
 			"group": "build",
 			"problemMatcher": [],
-			"detail": "CMake template build task"
+			"detail": "CMake template build task",
+			"dependsOn": "CMake: configure"
 		}
 	]
 }
