@@ -14,7 +14,6 @@
 - [ ] Validate screen points are in screen bounds
 - [ ] Fix poly fill gaps
 - [ ] Support DOS poly fill
-- [ ] Material colors in filled polygon mode
 - [ ] Shaded polygon mode
 - [ ] Support color ramps
 
@@ -45,8 +44,6 @@
 
 ### Models
 
-- [ ] Support material colors
-
 ## Done ✓
 
 ### General
@@ -76,11 +73,13 @@
 
 - [x] Fix DOS version not taking model param
 - [x] Support dynamic allocation for models
+- [x] Support material colors
 
 ### Rendering
 
 - [x] Backface culling is broken
 - [x] Filled polygon mode
+- [x] Material colors in filled polygon mode
 
 ### Scene Loading
 

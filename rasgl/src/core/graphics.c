@@ -304,8 +304,8 @@ void core_clip_poly_plane(
     RasFrustum* frustum,
     RasFrustumPlane side,
     RasPipelineVertexBuffer* vertex_buffer,
-
-    uint32_t indexes[3])
+    uint32_t indexes[3],
+    int32_t material_index)
 {
     // FIXME: Happens when a triangle is rotating and clipping on the left side
     assert(vertex_buffer->num_verts < MAX_PIPELINE_VERTS);
@@ -410,6 +410,11 @@ void core_clip_poly_plane(
         indexes[1] = pv_b_alt_index;
         indexes[2] = pv_c_alt_index;
 
+        // Set material index
+        uint32_t* mi = &vertex_buffer->num_material_indexes;
+        vertex_buffer->material_indexes[*mi] = material_index;
+        (*mi)++;
+
     } else if (num_in == 2) {
         /**
          * scenario: 2 vertices in
@@ -510,6 +515,11 @@ void core_clip_poly_plane(
         vertex_buffer->visible_indexes[(*vi)++] = pv_a_alt_index;
         vertex_buffer->visible_indexes[(*vi)++] = pv_b_index;
 
+        // Set material index
+        uint32_t* mi = &vertex_buffer->num_material_indexes;
+        vertex_buffer->material_indexes[*mi] = material_index;
+        (*mi)++;
+
         // The first face is the repurposed face. Point element indices to new pvs
         // so that the subsequent calls to this function clip correctly.
         indexes[0] = pv_a_index;
@@ -521,9 +531,13 @@ void core_clip_poly_plane(
         vertex_buffer->visible_indexes[(*vi)++] = pv_b_alt_index;
         vertex_buffer->visible_indexes[(*vi)++] = pv_b_index;
 
+        vertex_buffer->material_indexes[*mi] = material_index;
+        (*mi)++;
+
         // Recurse to clip added face
         uint32_t new_face_indexes[3] = { pv_a_alt_index, pv_b_alt_index, pv_b_index };
-        core_clip_poly(frustum, 0, vertex_buffer, new_face_indexes);
+        core_clip_poly(
+            frustum, 0, vertex_buffer, new_face_indexes, material_index);
     } else {
         assert(true);
     }
@@ -533,7 +547,8 @@ void core_clip_poly(
     RasFrustum* frustum,
     RasClipFlags face_clip_flags,
     RasPipelineVertexBuffer* vertex_buffer,
-    uint32_t in_indexes[3])
+    uint32_t in_indexes[3],
+    int32_t material_index)
 {
     uint32_t indexes[3] = { in_indexes[0], in_indexes[1], in_indexes[2] };
 
@@ -548,7 +563,8 @@ void core_clip_poly(
         uint8_t mask = 1 << i;
         if (face_clip_flags & mask) {
             ras_log_buffer("PV clipping against plane %d\n", i);
-            core_clip_poly_plane(frustum, (RasFrustumPlane)i, vertex_buffer, indexes);
+            core_clip_poly_plane(
+                frustum, (RasFrustumPlane)i, vertex_buffer, indexes, material_index);
         }
     }
 }
@@ -776,7 +792,12 @@ void core_draw_element(
         num_faces_must_clip += face_clip_flags == 0 ? 0 : 1;
 
         if (face_clip_flags != 0) {
-            core_clip_poly(frustum, face_clip_flags, &vert_buffer, &element->indexes[i]);
+            core_clip_poly(
+                frustum,
+                face_clip_flags,
+                &vert_buffer,
+                &element->indexes[i],
+                element->material_indexes[current_src_face_index]);
         } else {
             vert_buffer.visible_indexes[*vi] = element->indexes[i];
             vert_buffer.visible_indexes[*vi + 1] = element->indexes[i + 1];
