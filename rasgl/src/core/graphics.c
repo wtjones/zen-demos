@@ -663,7 +663,7 @@ void core_append_vertex_buffer(
     si = &render_state->num_material_indexes;
     for (uint32_t i = 0; i < vert_buffer->num_material_indexes; i++) {
         render_state->material_indexes[*si]
-            = num_pipeline_verts_prev + vert_buffer->material_indexes[i];
+            = vert_buffer->material_indexes[i];
         (*si)++;
     }
 }
@@ -785,6 +785,7 @@ void core_draw_element(
 
         if (core_is_backface(&vert_buffer, &element->indexes[i])
             && render_state->backface_culling_mode == RAS_BACKFACE_CULLING_ON) {
+            current_src_face_index++;
             continue;
         }
 
