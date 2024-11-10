@@ -48,14 +48,30 @@ void map_input()
     plat_input_state.keys[RAS_KEY_LCTRL] = keys[SDL_SCANCODE_LCTRL];
 }
 
+uint8_t color_from_material(int32_t material)
+{
+
+    // TODO: Use calculated shade
+    int8_t color = material == -1
+        ? 7
+        : (7 + (material * 8));
+}
+
 void render_state(RenderState* state)
 {
     int i = 0;
 
     if (state->polygon_mode == RAS_POLYGON_WIREFRAME) {
         RasVector4f* sv;
-
+        uint32_t material_index = 0;
         while (i < state->num_visible_indexes) {
+            int32_t material = state->material_indexes[material_index];
+            if (material == -1) {
+                ras_log_buffer("Face %d has material = %d", i / 3, material);
+            }
+            int8_t color = material == -1
+                ? 7
+                : (7 + (material * 8));
             RasPipelineVertex* pv0 = &state->pipeline_verts[state->visible_indexes[i++]];
             sv = &pv0->screen_space_position;
             Point2i point0 = {
@@ -77,9 +93,10 @@ void render_state(RenderState* state)
                 .y = FIXED_16_16_TO_INT_32(sv->y)
             };
 
-            ras_draw_line(surface, &point0, &point1, 0);
-            ras_draw_line(surface, &point1, &point2, 1);
-            ras_draw_line(surface, &point2, &point0, 2);
+            ras_draw_line(surface, &point0, &point1, color);
+            ras_draw_line(surface, &point1, &point2, color);
+            ras_draw_line(surface, &point2, &point0, color);
+            material_index++;
         }
     } else {
         i = 0;
@@ -91,9 +108,14 @@ void render_state(RenderState* state)
         while (i < state->num_visible_indexes) {
             int32_t material = state->material_indexes[material_index];
 
+            if (material == -1) {
+                ras_log_buffer("Face %d has material = %d", i / 3, material);
+            }
+
             // TODO: Use calculated shade
-            int8_t color = 7 + (material * 8);
-            ras_log_buffer("Render: Face material index: %d, %d\n", material, color);
+            int8_t color = material == -1
+                ? 7
+                : (7 + (material * 8));
 
             RasPipelineVertex* pv0 = &state->pipeline_verts[state->visible_indexes[i++]];
             tri[0] = &pv0->screen_space_position;
