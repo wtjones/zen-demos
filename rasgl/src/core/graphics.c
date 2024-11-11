@@ -124,6 +124,7 @@ void core_renderstate_init(RenderState* state)
     state->max_frames = UINT32_MAX;
     state->projection_mode = RAS_PERSPECTIVE_MATRIX;
     state->backface_culling_mode = RAS_BACKFACE_CULLING_ON;
+    state->clipping_mode = RAS_CLIPPING_ON;
     state->polygon_mode = RAS_POLYGON_WIREFRAME;
 };
 
@@ -765,6 +766,7 @@ void core_draw_element(
     uint32_t num_visible_indexes_prev = render_state->num_visible_indexes;
     uint32_t num_faces_in_frustum = 0;
     uint32_t num_faces_must_clip = 0;
+    uint32_t num_faces_excluded = 0;
     uint32_t* vi = &vert_buffer.num_visible_indexes;
     uint32_t num_projected_verts = vert_buffer.num_verts;
     uint32_t current_src_face_index = 0;
@@ -793,22 +795,30 @@ void core_draw_element(
         num_faces_must_clip += face_clip_flags == 0 ? 0 : 1;
 
         if (face_clip_flags != 0) {
+            if (render_state->clipping_mode == RAS_CLIPPING_EXCLUDE) {
+                num_faces_excluded++;
+                current_src_face_index++;
+                continue;
+            }
             core_clip_poly(
                 frustum,
                 face_clip_flags,
                 &vert_buffer,
                 &element->indexes[i],
                 element->material_indexes[current_src_face_index]);
-        } else {
-            vert_buffer.visible_indexes[*vi] = element->indexes[i];
-            vert_buffer.visible_indexes[*vi + 1] = element->indexes[i + 1];
-            vert_buffer.visible_indexes[*vi + 2] = element->indexes[i + 2];
-            vert_buffer.num_visible_indexes += 3;
-
-            vert_buffer.material_indexes[*num_dest_materials]
-                = element->material_indexes[current_src_face_index];
-            (*num_dest_materials)++;
+            current_src_face_index++;
+            continue;
         }
+
+        vert_buffer.visible_indexes[*vi] = element->indexes[i];
+        vert_buffer.visible_indexes[*vi + 1] = element->indexes[i + 1];
+        vert_buffer.visible_indexes[*vi + 2] = element->indexes[i + 2];
+        vert_buffer.num_visible_indexes += 3;
+
+        vert_buffer.material_indexes[*num_dest_materials]
+            = element->material_indexes[current_src_face_index];
+        (*num_dest_materials)++;
+
         current_src_face_index++;
     }
 
@@ -845,11 +855,12 @@ void core_draw_element(
     uint32_t num_faces_visible = (render_state->num_visible_indexes - num_visible_indexes_prev) / 3;
 
     ras_log_buffer(
-        "Faces:\n    In Model: %d. In frustum: %d. Visible: %d. Must clip %d. After clip: %d\n",
+        "Faces:\n    In Model: %d. In frustum: %d. Visible: %d. Must clip %d. Dropped: %d. After clip: %d\n",
         element->num_indexes / 3,
         num_faces_in_frustum,
         num_faces_visible,
         num_faces_must_clip,
+        num_faces_excluded,
         render_state->num_visible_indexes / 3);
 }
 

@@ -1,5 +1,10 @@
 #include "rasgl/core/repr.h"
 
+static const char* g_repr_clipping_mode[] = {
+    "RAS_CLIPPING_ON",
+    "RAS_CLIPPING_EXCLUDE"
+};
+
 char* repr_point2i(char* buffer, size_t count, Point2i* p)
 {
     snprintf(
@@ -112,4 +117,9 @@ char* repr_mat_4x1(char* buffer, size_t count, RasFixed s[4])
 
     strcat(buffer, "]");
     return buffer;
+}
+
+const char* repr_clipping_mode(char* buffer, size_t count, RasClippingMode mode)
+{
+    return g_repr_clipping_mode[mode];
 }

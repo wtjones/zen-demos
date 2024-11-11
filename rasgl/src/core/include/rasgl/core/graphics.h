@@ -40,6 +40,12 @@ typedef enum {
 } RasBackfaceCullingMode;
 
 typedef enum {
+    RAS_CLIPPING_ON,
+    RAS_CLIPPING_EXCLUDE,
+    RAS_CLIPPING_MODE_COUNT
+} RasClippingMode;
+
+typedef enum {
     RAS_POLYGON_WIREFRAME,
     RAS_POLYGON_SOLID
 } RasPolygonMode;
@@ -124,6 +130,7 @@ typedef struct RenderState {
     ScreenSettings screen_settings;
     RasProjectionMode projection_mode;
     RasBackfaceCullingMode backface_culling_mode;
+    RasClippingMode clipping_mode;
     RasPolygonMode polygon_mode;
 } RenderState;
 

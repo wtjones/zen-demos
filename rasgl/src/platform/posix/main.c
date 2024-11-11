@@ -37,6 +37,7 @@ void map_input()
     plat_input_state.keys[RAS_KEY_O] = keys[SDL_SCANCODE_O];
     plat_input_state.keys[RAS_KEY_B] = keys[SDL_SCANCODE_B];
     plat_input_state.keys[RAS_KEY_F] = keys[SDL_SCANCODE_F];
+    plat_input_state.keys[RAS_KEY_C] = keys[SDL_SCANCODE_C];
     plat_input_state.keys[RAS_KEY_EQUALS] = keys[SDL_SCANCODE_EQUALS];
     plat_input_state.keys[RAS_KEY_MINUS] = keys[SDL_SCANCODE_MINUS];
     plat_input_state.keys[RAS_KEY_ESCAPE] = keys[SDL_SCANCODE_ESCAPE];
@@ -281,6 +282,9 @@ int main(int argc, const char** argv)
                     ? RAS_KEY_EVENT_UP
                     : RAS_KEY_EVENT_NONE;
                 plat_input_state.keys[RAS_KEY_B] = event.key.keysym.scancode == SDL_SCANCODE_B
+                    ? RAS_KEY_EVENT_UP
+                    : RAS_KEY_EVENT_NONE;
+                plat_input_state.keys[RAS_KEY_C] = event.key.keysym.scancode == SDL_SCANCODE_C
                     ? RAS_KEY_EVENT_UP
                     : RAS_KEY_EVENT_NONE;
                 plat_input_state.keys[RAS_KEY_F] = event.key.keysym.scancode == SDL_SCANCODE_F

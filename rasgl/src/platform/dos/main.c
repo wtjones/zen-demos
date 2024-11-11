@@ -19,6 +19,7 @@ void map_input()
 {
     RasKeyMap key_maps[] = {
         { .ras_key = RAS_KEY_B, .plat_key = KEY_B },
+        { .ras_key = RAS_KEY_C, .plat_key = KEY_C },
         { .ras_key = RAS_KEY_W, .plat_key = KEY_W },
         { .ras_key = RAS_KEY_A, .plat_key = KEY_A },
         { .ras_key = RAS_KEY_S, .plat_key = KEY_S },
