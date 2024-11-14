@@ -11,6 +11,10 @@
 ScreenSettings plat_settings
     = { .screen_width = 320, .screen_height = 240 };
 SDL_Renderer* renderer;
+/**
+ * @brief Drawing surface with 8-bit color
+ *
+ */
 SDL_Surface* surface;
 
 RenderState state;
@@ -199,6 +203,35 @@ int main(int argc, const char** argv)
         plat_settings.screen_width,
         plat_settings.screen_height,
         8, 0, 0, 0, 0);
+    if (!surface) {
+        printf("SDL_CreateRGBSurface failed: %s\n", SDL_GetError());
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(win);
+        SDL_Quit();
+        return -1;
+    }
+
+    SDL_Surface* rgb_surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGB888, 0);
+    if (!rgb_surface) {
+        printf("SDL_ConvertSurfaceFormat failed: %s\n", SDL_GetError());
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(win);
+        SDL_Quit();
+        return -1;
+    }
+
+    /**
+     * @brief Texture to render 8bpp surface
+     *
+     */
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, rgb_surface);
+    if (!texture) {
+        printf("SDL_CreateTextureFromSurface failed: %s\n", SDL_GetError());
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(win);
+        SDL_Quit();
+        return -1;
+    }
 
     SDL_Color colors[256] = {
         // Grey ramp
@@ -313,17 +346,9 @@ int main(int argc, const char** argv)
 
             SDL_UnlockSurface(surface);
 
-            SDL_Surface* rgb_surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGB888, 0);
-            if (!rgb_surface) {
-                printf("SDL_ConvertSurfaceFormat failed: %s\n", SDL_GetError());
-                SDL_FreeSurface(surface);
-                SDL_DestroyRenderer(renderer);
-                SDL_DestroyWindow(win);
-                SDL_Quit();
-                return -1;
-            }
+            SDL_BlitSurface(surface, NULL, rgb_surface, NULL);
 
-            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, rgb_surface);
+            SDL_UpdateTexture(texture, NULL, rgb_surface->pixels, rgb_surface->pitch);
             SDL_RenderClear(renderer);
             SDL_RenderCopy(renderer, texture, NULL, NULL);
             SDL_RenderPresent(renderer);
