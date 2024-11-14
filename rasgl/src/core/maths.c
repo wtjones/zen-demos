@@ -220,6 +220,30 @@ void mat_mul_project(RasFixed projection_matrix[4][4], RasFixed v[4], RasFixed d
     };
 }
 
+void core_mat_normal_init(RasFixed mvt[4][4], RasFixed dest[4][4])
+{
+    mat_set_identity_4x4(dest);
+    dest[0][0] = mvt[0][0];
+    dest[0][1] = mvt[0][1];
+    dest[0][2] = mvt[0][2];
+    dest[0][3] = 0;
+
+    dest[1][0] = mvt[1][0];
+    dest[1][1] = mvt[1][1];
+    dest[1][2] = mvt[1][2];
+    dest[1][3] = 0;
+
+    dest[2][0] = mvt[2][0];
+    dest[2][1] = mvt[2][1];
+    dest[2][2] = mvt[2][2];
+    dest[2][3] = 0;
+
+    dest[3][0] = 0;
+    dest[3][1] = 0;
+    dest[3][2] = 0;
+    dest[3][3] = RAS_FIXED_ONE;
+}
+
 RasFixed core_get_vec_length(Point3f* vec)
 {
     RasFixed length;

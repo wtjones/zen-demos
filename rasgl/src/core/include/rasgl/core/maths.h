@@ -115,6 +115,14 @@ void mat_projection_init(RasFixed projection_matrix[4][4], float fov, float aspe
  */
 void mat_mul_project(RasFixed projection_matrix[4][4], RasFixed v[4], RasFixed dest[4]);
 
+/**
+ * @brief Create a normal matrix from a model view matrix by omitting the translation. Scaling tranforms are not supported with this method.
+ *
+ * @param mvt
+ * @param dest
+ */
+void core_mat_normal_init(RasFixed mvt[4][4], RasFixed dest[4][4]);
+
 void core_vector3f_to_4x1(RasVector3f* vec, RasFixed m[4]);
 void core_4x1_to_vector3f(RasFixed m[4], RasVector3f* vec);
 

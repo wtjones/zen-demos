@@ -119,6 +119,7 @@ void core_renderstate_init(RenderState* state)
     state->num_points = 0;
     state->num_pipeline_verts = 0;
     state->num_visible_indexes = 0;
+    state->num_visible_faces = 0;
     state->num_material_indexes = 0;
     state->current_frame = 0;
     state->max_frames = UINT32_MAX;
@@ -682,12 +683,17 @@ void core_draw_element(
     static RasPipelineVertexBuffer vert_buffer;
     RasFixed model_view_matrix[4][4];
     RasFixed combined_matrix[4][4];
+    RasFixed normal_mvt_matrix[4][4];
     RasFixed dest_vec[4];
 
     ras_log_buffer("core_draw_element ##################\n");
 
     // model -> view transform
     mat_mul_4x4_4x4(world_view_matrix, model_world_matrix, model_view_matrix);
+
+    // Remove translation from model matrix to get normal matrix
+    core_mat_normal_init(model_view_matrix, normal_mvt_matrix);
+    ras_log_buffer("normal mvt: %s", repr_mat_4x4(buffer, sizeof buffer, normal_mvt_matrix));
 
     // model/view -> projection
     mat_mul_4x4_4x4(proj_matrix, model_view_matrix, combined_matrix);
@@ -772,6 +778,8 @@ void core_draw_element(
     uint32_t current_src_face_index = 0;
     uint32_t* num_dest_materials = &vert_buffer.num_material_indexes;
     *num_dest_materials = 0;
+    uint32_t* num_dest_faces = &vert_buffer.num_visible_faces;
+    *num_dest_faces = 0;
 
     for (uint32_t i = 0; i < element->num_indexes; i += 3) {
         RasPipelineVertex* pv1 = &vert_buffer.verts[element->indexes[i]];
@@ -819,6 +827,11 @@ void core_draw_element(
             = element->material_indexes[current_src_face_index];
         (*num_dest_materials)++;
 
+        vert_buffer.visible_faces[*num_dest_faces].material_index
+            = element->material_indexes[current_src_face_index];
+        vert_buffer.visible_faces[*num_dest_faces].normal
+            = element->faces[current_src_face_index].normal;
+        (*num_dest_faces)++;
         current_src_face_index++;
     }
 
@@ -841,6 +854,23 @@ void core_draw_element(
             &pv->screen_space_position);
 
         ras_log_trace("pipeline screen space pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->screen_space_position));
+    }
+
+    /**
+     * @brief Transform face normals
+     *
+     */
+    for (uint32_t i = 0; i < vert_buffer.num_visible_faces; i++) {
+        RasElementFace* face = &vert_buffer.visible_faces[i];
+        RasFixed model_space_normal[4];
+        RasFixed view_space_normal[4];
+
+        core_vector3f_to_4x1(&face->normal, model_space_normal);
+        mat_mul_4x4_4x1(normal_mvt_matrix, model_space_normal, view_space_normal);
+        core_4x1_to_vector3f(view_space_normal, &face->view_space_normal);
+
+        ras_log_buffer("face normal: %s\n", repr_point3f(buffer, sizeof buffer, &face->normal));
+        ras_log_buffer("face view space normal: %s\n", repr_point3f(buffer, sizeof buffer, &face->view_space_normal));
     }
 
     core_append_vertex_buffer(render_state, &vert_buffer);
@@ -895,8 +925,11 @@ void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineEleme
 
     element->num_indexes = group->num_faces * 3;
     element->num_material_indexes = group->num_faces;
+    element->num_faces = group->num_faces;
     uint32_t* element_index = &element->indexes[0];
     int32_t* material_index = &element->material_indexes[0];
+    RasElementFace* dest_face = &element->faces[0];
+
     for (int j = 0; j < group->num_faces; j++) {
         RasModelFace* face = &group->faces[j];
         for (int k = 0; k < RAS_MAX_MODEL_FACE_INDEXES; k++) {
@@ -907,5 +940,10 @@ void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineEleme
 
         *material_index = face->material_index;
         material_index++;
+
+        dest_face->material_index = face->material_index;
+        RasVector3f* src_normal = &group->normals[face->indexes[0].normal_index];
+        dest_face->normal = *src_normal;
+        dest_face++;
     }
 }
