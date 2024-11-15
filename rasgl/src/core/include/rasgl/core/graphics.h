@@ -46,6 +46,13 @@ typedef enum {
 } RasClippingMode;
 
 typedef enum {
+    RAS_NORMAL_MODE_OFF,
+    RAS_NORMAL_MODE_FAUX,
+    RAS_NORMAL_MODE_ORTHO,
+    RAS_NORMAL_MODE_COUNT
+} RasNormalMode;
+
+typedef enum {
     RAS_POLYGON_WIREFRAME,
     RAS_POLYGON_SOLID
 } RasPolygonMode;
@@ -154,6 +161,7 @@ typedef struct RenderState {
     RasBackfaceCullingMode backface_culling_mode;
     RasClippingMode clipping_mode;
     RasPolygonMode polygon_mode;
+    RasNormalMode normal_mode;
 } RenderState;
 
 void core_clip_poly(

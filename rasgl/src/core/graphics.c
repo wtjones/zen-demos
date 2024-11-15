@@ -127,6 +127,7 @@ void core_renderstate_init(RenderState* state)
     state->backface_culling_mode = RAS_BACKFACE_CULLING_ON;
     state->clipping_mode = RAS_CLIPPING_ON;
     state->polygon_mode = RAS_POLYGON_WIREFRAME;
+    state->normal_mode = RAS_NORMAL_MODE_OFF;
 };
 
 void core_renderstate_clear(RenderState* state)
@@ -591,6 +592,28 @@ void core_render_point(RenderState* render_state, RasVector4f* screen_space_posi
     (*num_commands)++;
 }
 
+void core_render_line(RenderState* render_state, RasVector4f* p0, RasVector4f* p1)
+{
+    uint32_t* num_points = &render_state->num_points;
+    uint32_t* num_commands = &render_state->num_commands;
+    Point2i* screen_pos;
+
+    screen_pos = &render_state->points[*num_points];
+    screen_pos->x = FIXED_16_16_TO_INT_32(p0->x);
+    screen_pos->y = FIXED_16_16_TO_INT_32(p0->y);
+
+    render_state->commands[*num_commands].num_points = 2;
+    render_state->commands[*num_commands].point_indices[0] = *num_points;
+    (*num_points)++;
+    screen_pos++;
+
+    screen_pos->x = FIXED_16_16_TO_INT_32(p1->x);
+    screen_pos->y = FIXED_16_16_TO_INT_32(p1->y);
+    render_state->commands[*num_commands].point_indices[1] = *num_points;
+    (*num_points)++;
+    (*num_commands)++;
+}
+
 void core_projected_to_screen_point(int32_t screen_width, int32_t screen_height, RasFixed projected_point[4], RasVector4f* screen_point)
 {
     RasFixed half_screen_width = INT_32_TO_FIXED_16_16(screen_width / 2);
@@ -667,6 +690,67 @@ void core_append_vertex_buffer(
         render_state->material_indexes[*si]
             = vert_buffer->material_indexes[i];
         (*si)++;
+    }
+}
+
+void draw_element_normals(
+    RenderState* render_state,
+    RasPipelineVertexBuffer* vert_buffer,
+    RasFixed model_view_matrix[4][4],
+    RasFixed proj_matrix[4][4])
+{
+    RasFixed view_space_position[4];
+    RasFixed projected_vec[4];
+    RasVector4f screen_space_position;
+    RasVector3f origin_vec = { 0, 0, 0 };
+    RasFixed projected_origin[4];
+    RasVector4f screen_origin;
+    RasFixed model_space_position[4];
+
+    // Project model origin
+    core_vector3f_to_4x1(&origin_vec, model_space_position);
+    mat_mul_4x4_4x1(model_view_matrix, model_space_position, view_space_position);
+    mat_mul_project(proj_matrix, view_space_position, projected_origin);
+
+    core_projected_to_screen_point(
+        render_state->screen_settings.screen_width,
+        render_state->screen_settings.screen_height,
+        projected_origin,
+        &screen_origin);
+
+    for (size_t i = 0; i < vert_buffer->num_visible_faces; i++) {
+        RasElementFace* face = &vert_buffer->visible_faces[i];
+
+        if (render_state->normal_mode == RAS_NORMAL_MODE_FAUX) {
+
+            core_vector3f_to_4x1(&face->normal, model_space_position);
+            mat_mul_4x4_4x1(model_view_matrix, model_space_position, view_space_position);
+            mat_mul_project(proj_matrix, view_space_position, projected_vec);
+
+            core_projected_to_screen_point(
+                render_state->screen_settings.screen_width,
+                render_state->screen_settings.screen_height,
+                projected_vec,
+                &screen_space_position);
+
+            core_render_point(render_state, &screen_space_position);
+            core_render_line(render_state, &screen_origin, &screen_space_position);
+            continue;
+        }
+
+        if (render_state->normal_mode == RAS_NORMAL_MODE_ORTHO) {
+
+            core_vector3f_to_4x1(&face->view_space_normal, view_space_position);
+            mat_mul_project(proj_matrix, view_space_position, projected_vec);
+
+            core_projected_to_screen_point(
+                render_state->screen_settings.screen_width,
+                render_state->screen_settings.screen_height,
+                projected_vec,
+                &screen_space_position);
+
+            core_render_point(render_state, &screen_space_position);
+        }
     }
 }
 
@@ -871,6 +955,10 @@ void core_draw_element(
 
         ras_log_buffer("face normal: %s\n", repr_point3f(buffer, sizeof buffer, &face->normal));
         ras_log_buffer("face view space normal: %s\n", repr_point3f(buffer, sizeof buffer, &face->view_space_normal));
+    }
+
+    if (render_state->normal_mode != RAS_NORMAL_MODE_OFF) {
+        draw_element_normals(render_state, &vert_buffer, model_view_matrix, proj_matrix);
     }
 
     core_append_vertex_buffer(render_state, &vert_buffer);

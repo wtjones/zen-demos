@@ -24,6 +24,11 @@ void ras_core_update(InputState* input_state, RenderState* render_state)
 
         ras_log_info("clipping_mode: %s", repr_clipping_mode(buffer, sizeof(buffer), render_state->clipping_mode));
     }
+    if (input_state->keys[RAS_KEY_N] == RAS_KEY_EVENT_UP) {
+        render_state->normal_mode = (RasNormalMode)((render_state->normal_mode + 1) % RAS_NORMAL_MODE_COUNT);
+
+        ras_log_info("normal_mode: %s", repr_normal_mode(buffer, sizeof(buffer), render_state->normal_mode));
+    }
     if (input_state->keys[RAS_KEY_O] == RAS_KEY_EVENT_UP) {
         render_state->polygon_mode = (render_state->polygon_mode + 1) % 2;
 

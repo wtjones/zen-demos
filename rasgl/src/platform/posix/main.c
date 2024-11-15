@@ -201,12 +201,12 @@ void render_state(RenderState* state)
 
         if (command->num_points == 1) {
             Point2i* point = &(state->points[command->point_indices[0]]);
-            RAS_PLOT_PIXEL(surface, point->x, point->y, 1);
+            RAS_PLOT_PIXEL(surface, point->x, point->y, 14);
 
         } else if (command->num_points == 2) {
             Point2i* point0 = &(state->points[command->point_indices[0]]);
             Point2i* point1 = &(state->points[command->point_indices[1]]);
-            ras_draw_line(surface, point0, point1, 2);
+            ras_draw_line(surface, point0, point1, 14);
 
         } else if (command->num_points == 3) {
             Point2i* point0 = &(state->points[command->point_indices[0]]);

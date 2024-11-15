@@ -218,12 +218,12 @@ example: `./run_dos.sh poly 0 assets/secenes/tri.lsp`
 
 ### Common Controls
 
-
 * Toggle projection mode: p
 * Toggle backface culling mode: b
 * Cycle polygon render modes: o
+* Cycle polygon clipping modes: c
+* Cycle normal diagnostic modes: n
 * Flush per-frame logs: f
-
 
 ### Demo: world
 
@@ -263,7 +263,6 @@ Provide a model obj file as an optional param.
 * Tilt model forward/backward around X: up/down + ctrl + shift
 * Rotate model left/right around Y: left/right + ctrl
 * Tilt model left/right around Z: up/down + ctrl
-
 
 ## Debug output
 

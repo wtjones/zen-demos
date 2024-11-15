@@ -5,6 +5,12 @@ static const char* g_repr_clipping_mode[] = {
     "RAS_CLIPPING_EXCLUDE"
 };
 
+static const char* g_repr_normal_mode[] = {
+    "RAS_NORMAL_MODE_OFF",
+    "RAS_NORMAL_MODE_FAUX",
+    "RAS_NORMAL_MODE_ORTHO"
+};
+
 char* repr_point2i(char* buffer, size_t count, Point2i* p)
 {
     snprintf(
@@ -122,4 +128,9 @@ char* repr_mat_4x1(char* buffer, size_t count, RasFixed s[4])
 const char* repr_clipping_mode(char* buffer, size_t count, RasClippingMode mode)
 {
     return g_repr_clipping_mode[mode];
+}
+
+const char* repr_normal_mode(char* buffer, size_t count, RasNormalMode mode)
+{
+    return g_repr_normal_mode[mode];
 }
