@@ -21,6 +21,9 @@
  */
 
 #include "log.h"
+#ifdef __MSDOS__
+#include <unistd.h>
+#endif
 
 #define MAX_CALLBACKS 32
 
@@ -78,6 +81,12 @@ static void file_callback(log_Event *ev) {
   vfprintf(ev->udata, ev->fmt, ev->ap);
   fprintf(ev->udata, "\n");
   fflush(ev->udata);
+#ifdef __MSDOS__
+  int fd = fileno(ev->udata);
+  if (fd != -1) {
+    fsync(fd);
+  }
+#endif
 }
 
 
