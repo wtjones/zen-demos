@@ -24,7 +24,7 @@ void map_input()
 {
     int num_keys;
     const Uint8* keys = SDL_GetKeyboardState(&num_keys);
-    for (int i = 0; i < RAS_MAX_KEYS; i++) {
+    for (int i = 0; i < RAS_KEY_COUNT; i++) {
         plat_input_state.keys[i] = 0;
     }
     plat_input_state.keys[RAS_KEY_UP] = keys[SDL_SCANCODE_UP];

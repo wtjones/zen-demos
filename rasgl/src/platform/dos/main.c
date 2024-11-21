@@ -15,36 +15,100 @@ ScreenSettings plat_settings
 RenderState state;
 InputState plat_input_state;
 
+volatile int scancode_up = 0;
+volatile int scancode_down = 0;
+volatile int watcher_count = 0;
+
+int g_key_app_to_plat[RAS_KEY_COUNT];
+
+/**
+ * @brief Track key-up events in interrupt
+ *
+ */
+volatile RasKeyEvent g_plat_keystate[KEY_MAX];
+
+void input_init()
+{
+    for (int i = 0; i < KEY_MAX; i++) {
+        g_plat_keystate[i] = RAS_KEY_EVENT_NONE;
+    }
+
+    g_key_app_to_plat[RAS_KEY_A] = KEY_A;
+    g_key_app_to_plat[RAS_KEY_B] = KEY_B;
+    g_key_app_to_plat[RAS_KEY_C] = KEY_C;
+    g_key_app_to_plat[RAS_KEY_D] = KEY_D;
+    g_key_app_to_plat[RAS_KEY_E] = KEY_E;
+    g_key_app_to_plat[RAS_KEY_F] = KEY_F;
+    g_key_app_to_plat[RAS_KEY_G] = KEY_G;
+    g_key_app_to_plat[RAS_KEY_H] = KEY_H;
+    g_key_app_to_plat[RAS_KEY_I] = KEY_I;
+    g_key_app_to_plat[RAS_KEY_J] = KEY_J;
+    g_key_app_to_plat[RAS_KEY_K] = KEY_K;
+    g_key_app_to_plat[RAS_KEY_L] = KEY_L;
+    g_key_app_to_plat[RAS_KEY_M] = KEY_M;
+    g_key_app_to_plat[RAS_KEY_N] = KEY_N;
+    g_key_app_to_plat[RAS_KEY_O] = KEY_O;
+    g_key_app_to_plat[RAS_KEY_P] = KEY_P;
+    g_key_app_to_plat[RAS_KEY_Q] = KEY_Q;
+    g_key_app_to_plat[RAS_KEY_R] = KEY_R;
+    g_key_app_to_plat[RAS_KEY_S] = KEY_S;
+    g_key_app_to_plat[RAS_KEY_T] = KEY_T;
+    g_key_app_to_plat[RAS_KEY_U] = KEY_U;
+    g_key_app_to_plat[RAS_KEY_V] = KEY_V;
+    g_key_app_to_plat[RAS_KEY_W] = KEY_W;
+    g_key_app_to_plat[RAS_KEY_X] = KEY_X;
+    g_key_app_to_plat[RAS_KEY_Y] = KEY_Y;
+    g_key_app_to_plat[RAS_KEY_Z] = KEY_Z;
+    g_key_app_to_plat[RAS_KEY_LCTRL] = KEY_LCONTROL;
+    g_key_app_to_plat[RAS_KEY_RCTRL] = KEY_RCONTROL;
+    g_key_app_to_plat[RAS_KEY_LSHIFT] = KEY_LSHIFT;
+    g_key_app_to_plat[RAS_KEY_RSHIFT] = KEY_RSHIFT;
+    g_key_app_to_plat[RAS_KEY_MINUS] = KEY_MINUS;
+    g_key_app_to_plat[RAS_KEY_EQUALS] = KEY_EQUALS;
+    g_key_app_to_plat[RAS_KEY_TAB] = KEY_TAB;
+    g_key_app_to_plat[RAS_KEY_ESCAPE] = KEY_ESC;
+    g_key_app_to_plat[RAS_KEY_LEFTBRACKET] = KEY_OPENBRACE;
+    g_key_app_to_plat[RAS_KEY_RIGHTBRACKET] = KEY_CLOSEBRACE;
+    g_key_app_to_plat[RAS_KEY_UP] = KEY_UP;
+    g_key_app_to_plat[RAS_KEY_DOWN] = KEY_DOWN;
+    g_key_app_to_plat[RAS_KEY_LEFT] = KEY_LEFT;
+    g_key_app_to_plat[RAS_KEY_RIGHT] = KEY_RIGHT;
+    g_key_app_to_plat[RAS_KEY_F1] = KEY_F1;
+    g_key_app_to_plat[RAS_KEY_F2] = KEY_F2;
+    g_key_app_to_plat[RAS_KEY_F3] = KEY_F3;
+    g_key_app_to_plat[RAS_KEY_F4] = KEY_F4;
+    g_key_app_to_plat[RAS_KEY_F5] = KEY_F5;
+    g_key_app_to_plat[RAS_KEY_F6] = KEY_F6;
+    g_key_app_to_plat[RAS_KEY_F7] = KEY_F7;
+    g_key_app_to_plat[RAS_KEY_F8] = KEY_F8;
+    g_key_app_to_plat[RAS_KEY_F9] = KEY_F9;
+    g_key_app_to_plat[RAS_KEY_F10] = KEY_F10;
+    g_key_app_to_plat[RAS_KEY_F11] = KEY_F11;
+    g_key_app_to_plat[RAS_KEY_F12] = KEY_F12;
+}
+
 void map_input()
 {
-    RasKeyMap key_maps[] = {
-        { .ras_key = RAS_KEY_B, .plat_key = KEY_B },
-        { .ras_key = RAS_KEY_C, .plat_key = KEY_C },
-        { .ras_key = RAS_KEY_W, .plat_key = KEY_W },
-        { .ras_key = RAS_KEY_A, .plat_key = KEY_A },
-        { .ras_key = RAS_KEY_S, .plat_key = KEY_S },
-        { .ras_key = RAS_KEY_D, .plat_key = KEY_D },
-        { .ras_key = RAS_KEY_E, .plat_key = KEY_E },
-        { .ras_key = RAS_KEY_Q, .plat_key = KEY_Q },
-        { .ras_key = RAS_KEY_P, .plat_key = KEY_P },
-        { .ras_key = RAS_KEY_F, .plat_key = KEY_F },
-        { .ras_key = RAS_KEY_EQUALS, .plat_key = KEY_EQUALS },
-        { .ras_key = RAS_KEY_MINUS, .plat_key = KEY_MINUS },
-        { .ras_key = RAS_KEY_ESCAPE, .plat_key = KEY_ESC },
-        { .ras_key = RAS_KEY_DOWN, .plat_key = KEY_DOWN },
-        { .ras_key = RAS_KEY_UP, .plat_key = KEY_UP },
-        { .ras_key = RAS_KEY_LEFT, .plat_key = KEY_LEFT },
-        { .ras_key = RAS_KEY_RIGHT, .plat_key = KEY_RIGHT },
-        { .ras_key = RAS_KEY_TAB, .plat_key = KEY_TAB },
-        { .ras_key = RAS_KEY_LSHIFT, .plat_key = KEY_LSHIFT },
-        { .ras_key = RAS_KEY_LCTRL, .plat_key = KEY_LCONTROL }
-    };
+    for (int i = 0; i < RAS_KEY_COUNT; i++) {
 
-    for (uint32_t i = 0; i < sizeof(key_maps) / sizeof(RasKeyMap); i++) {
-        plat_input_state.keys[key_maps[i].ras_key] = plat_input_state.keys[key_maps[i].ras_key] == RAS_KEY_EVENT_DOWN && !key[key_maps[i].plat_key]
-            ? RAS_KEY_EVENT_UP
-            : key[key_maps[i].plat_key] ? RAS_KEY_EVENT_DOWN
-                                        : RAS_KEY_EVENT_NONE;
+        int plat_scancode = g_key_app_to_plat[i];
+        RasKeyEvent app_key_state_prior = plat_input_state.keys[i];
+        RasKeyEvent plat_key_state = key[plat_scancode];
+        bool plat_had_up_event = g_plat_keystate[plat_scancode] == RAS_KEY_EVENT_UP;
+
+        // A key-up event should process for one frame only.
+        // If the prior frame did not have a key-up, look at both:
+        //  - the current key state
+        //  - interrupt key-up events from since the last frame
+        if (app_key_state_prior != RAS_KEY_EVENT_UP
+            && (plat_key_state == RAS_KEY_EVENT_UP || plat_had_up_event)) {
+            plat_input_state.keys[i] = RAS_KEY_EVENT_UP;
+        } else {
+            plat_input_state.keys[i] = plat_key_state ? RAS_KEY_EVENT_DOWN
+                                                      : RAS_KEY_EVENT_NONE;
+        }
+
+        g_plat_keystate[plat_scancode] = RAS_KEY_EVENT_NONE;
     }
 }
 
@@ -99,6 +163,25 @@ void render_state(BITMAP* buffer, RenderState* state)
     }
     state->current_frame++;
 }
+
+/**
+ * @brief Capture key-up events via interrupt. This allows for toggle-like
+ *  controls (such as modes) to trigger during low frame rate conditions.
+ *
+ * @param scancode
+ */
+void keypress_watcher(int scancode)
+{
+    watcher_count++;
+    if (scancode & 0x80) {
+        scancode_up = scancode & 0x7F;
+        g_plat_keystate[scancode & 0x7F] = RAS_KEY_EVENT_UP;
+    } else {
+        scancode_down = scancode & 0x7F;
+    }
+}
+END_OF_FUNCTION(keypress_watcher)
+
 int main(int argc, const char** argv)
 {
     FILE* log_file = fopen("l:\\RASGL.LOG", "w");
@@ -114,9 +197,15 @@ int main(int argc, const char** argv)
         ras_log_error("Failed to start Allegro.");
         return 1;
     }
+    input_init();
 
-    install_keyboard();
     install_timer();
+    LOCK_VARIABLE(scancode_up);
+    LOCK_VARIABLE(scancode_down);
+    LOCK_FUNCTION(keypress_watcher);
+    install_keyboard();
+    keyboard_lowlevel_callback = keypress_watcher;
+    set_keyboard_rate(0, 0);
 
     if (set_gfx_mode(GFX_AUTODETECT, 320, 240, 0, 0) != 0) {
         set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
@@ -152,6 +241,15 @@ int main(int argc, const char** argv)
 
         textprintf_ex(buffer, font, 0, 0, makecol(255, 255, 255), -1,
             "Double buffered (%s)", gfx_driver->name);
+
+        textprintf_ex(buffer, font, 0, 10, makecol(255, 255, 255), -1,
+            "Key d/u: %d - %d, %d : %s %s",
+            watcher_count,
+            scancode_down,
+            scancode_up,
+            scancode_to_name(scancode_down),
+            scancode_to_name(scancode_up));
+
         vsync();
         blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
     }
