@@ -19,38 +19,87 @@ SDL_Surface* surface;
 
 RenderState state;
 InputState plat_input_state;
+int g_key_app_to_plat[RAS_KEY_COUNT];
+/**
+ * @brief Maintain a mapping of SDL scancodes to RasKey for key-up events
+ *
+ */
+int g_key_plat_to_app[SDL_NUM_SCANCODES];
+
+void input_init()
+{
+    g_key_app_to_plat[RAS_KEY_A] = SDL_SCANCODE_A;
+    g_key_app_to_plat[RAS_KEY_B] = SDL_SCANCODE_B;
+    g_key_app_to_plat[RAS_KEY_C] = SDL_SCANCODE_C;
+    g_key_app_to_plat[RAS_KEY_D] = SDL_SCANCODE_D;
+    g_key_app_to_plat[RAS_KEY_E] = SDL_SCANCODE_E;
+    g_key_app_to_plat[RAS_KEY_F] = SDL_SCANCODE_F;
+    g_key_app_to_plat[RAS_KEY_G] = SDL_SCANCODE_G;
+    g_key_app_to_plat[RAS_KEY_H] = SDL_SCANCODE_H;
+    g_key_app_to_plat[RAS_KEY_I] = SDL_SCANCODE_I;
+    g_key_app_to_plat[RAS_KEY_J] = SDL_SCANCODE_J;
+    g_key_app_to_plat[RAS_KEY_K] = SDL_SCANCODE_K;
+    g_key_app_to_plat[RAS_KEY_L] = SDL_SCANCODE_L;
+    g_key_app_to_plat[RAS_KEY_M] = SDL_SCANCODE_M;
+    g_key_app_to_plat[RAS_KEY_N] = SDL_SCANCODE_N;
+    g_key_app_to_plat[RAS_KEY_O] = SDL_SCANCODE_O;
+    g_key_app_to_plat[RAS_KEY_P] = SDL_SCANCODE_P;
+    g_key_app_to_plat[RAS_KEY_Q] = SDL_SCANCODE_Q;
+    g_key_app_to_plat[RAS_KEY_R] = SDL_SCANCODE_R;
+    g_key_app_to_plat[RAS_KEY_S] = SDL_SCANCODE_S;
+    g_key_app_to_plat[RAS_KEY_T] = SDL_SCANCODE_T;
+    g_key_app_to_plat[RAS_KEY_U] = SDL_SCANCODE_U;
+    g_key_app_to_plat[RAS_KEY_V] = SDL_SCANCODE_V;
+    g_key_app_to_plat[RAS_KEY_W] = SDL_SCANCODE_W;
+    g_key_app_to_plat[RAS_KEY_X] = SDL_SCANCODE_X;
+    g_key_app_to_plat[RAS_KEY_Y] = SDL_SCANCODE_Y;
+    g_key_app_to_plat[RAS_KEY_Z] = SDL_SCANCODE_Z;
+    g_key_app_to_plat[RAS_KEY_LCTRL] = SDL_SCANCODE_LCTRL;
+    g_key_app_to_plat[RAS_KEY_RCTRL] = SDL_SCANCODE_RCTRL;
+    g_key_app_to_plat[RAS_KEY_LSHIFT] = SDL_SCANCODE_LSHIFT;
+    g_key_app_to_plat[RAS_KEY_RSHIFT] = SDL_SCANCODE_RSHIFT;
+    g_key_app_to_plat[RAS_KEY_MINUS] = SDL_SCANCODE_MINUS;
+    g_key_app_to_plat[RAS_KEY_EQUALS] = SDL_SCANCODE_EQUALS;
+    g_key_app_to_plat[RAS_KEY_TAB] = SDL_SCANCODE_TAB;
+    g_key_app_to_plat[RAS_KEY_ESCAPE] = SDL_SCANCODE_ESCAPE;
+    g_key_app_to_plat[RAS_KEY_LEFTBRACKET] = SDL_SCANCODE_LEFTBRACKET;
+    g_key_app_to_plat[RAS_KEY_RIGHTBRACKET] = SDL_SCANCODE_RIGHTBRACKET;
+    g_key_app_to_plat[RAS_KEY_UP] = SDL_SCANCODE_UP;
+    g_key_app_to_plat[RAS_KEY_DOWN] = SDL_SCANCODE_DOWN;
+    g_key_app_to_plat[RAS_KEY_LEFT] = SDL_SCANCODE_LEFT;
+    g_key_app_to_plat[RAS_KEY_RIGHT] = SDL_SCANCODE_RIGHT;
+    g_key_app_to_plat[RAS_KEY_F1] = SDL_SCANCODE_F1;
+    g_key_app_to_plat[RAS_KEY_F2] = SDL_SCANCODE_F2;
+    g_key_app_to_plat[RAS_KEY_F3] = SDL_SCANCODE_F3;
+    g_key_app_to_plat[RAS_KEY_F4] = SDL_SCANCODE_F4;
+    g_key_app_to_plat[RAS_KEY_F5] = SDL_SCANCODE_F5;
+    g_key_app_to_plat[RAS_KEY_F6] = SDL_SCANCODE_F6;
+    g_key_app_to_plat[RAS_KEY_F7] = SDL_SCANCODE_F7;
+    g_key_app_to_plat[RAS_KEY_F8] = SDL_SCANCODE_F8;
+    g_key_app_to_plat[RAS_KEY_F9] = SDL_SCANCODE_F9;
+    g_key_app_to_plat[RAS_KEY_F10] = SDL_SCANCODE_F10;
+    g_key_app_to_plat[RAS_KEY_F11] = SDL_SCANCODE_F11;
+    g_key_app_to_plat[RAS_KEY_F12] = SDL_SCANCODE_F12;
+
+    for (int i = 0; i < SDL_NUM_SCANCODES; i++) {
+        g_key_plat_to_app[i] = RAS_KEY_UNKNOWN;
+    }
+
+    for (int i = 0; i < RAS_KEY_COUNT; i++) {
+        g_key_plat_to_app[g_key_app_to_plat[i]] = i;
+    }
+}
 
 void map_input()
 {
     int num_keys;
     const Uint8* keys = SDL_GetKeyboardState(&num_keys);
+
     for (int i = 0; i < RAS_KEY_COUNT; i++) {
-        plat_input_state.keys[i] = 0;
+        int plat_scancode = g_key_app_to_plat[i];
+        plat_input_state.keys[i] = keys[plat_scancode] ? RAS_KEY_EVENT_DOWN
+                                                       : RAS_KEY_EVENT_NONE;
     }
-    plat_input_state.keys[RAS_KEY_UP] = keys[SDL_SCANCODE_UP];
-    plat_input_state.keys[RAS_KEY_DOWN] = keys[SDL_SCANCODE_DOWN];
-    plat_input_state.keys[RAS_KEY_LEFT] = keys[SDL_SCANCODE_LEFT];
-    plat_input_state.keys[RAS_KEY_RIGHT] = keys[SDL_SCANCODE_RIGHT];
-    plat_input_state.keys[RAS_KEY_W] = keys[SDL_SCANCODE_W];
-    plat_input_state.keys[RAS_KEY_A] = keys[SDL_SCANCODE_A];
-    plat_input_state.keys[RAS_KEY_S] = keys[SDL_SCANCODE_S];
-    plat_input_state.keys[RAS_KEY_D] = keys[SDL_SCANCODE_D];
-    plat_input_state.keys[RAS_KEY_Q] = keys[SDL_SCANCODE_Q];
-    plat_input_state.keys[RAS_KEY_E] = keys[SDL_SCANCODE_E];
-    plat_input_state.keys[RAS_KEY_P] = keys[SDL_SCANCODE_P];
-    plat_input_state.keys[RAS_KEY_O] = keys[SDL_SCANCODE_O];
-    plat_input_state.keys[RAS_KEY_B] = keys[SDL_SCANCODE_B];
-    plat_input_state.keys[RAS_KEY_F] = keys[SDL_SCANCODE_F];
-    plat_input_state.keys[RAS_KEY_C] = keys[SDL_SCANCODE_C];
-    plat_input_state.keys[RAS_KEY_EQUALS] = keys[SDL_SCANCODE_EQUALS];
-    plat_input_state.keys[RAS_KEY_MINUS] = keys[SDL_SCANCODE_MINUS];
-    plat_input_state.keys[RAS_KEY_ESCAPE] = keys[SDL_SCANCODE_ESCAPE];
-    plat_input_state.keys[RAS_KEY_RIGHT] = keys[SDL_SCANCODE_RIGHT];
-    plat_input_state.keys[RAS_KEY_LEFT] = keys[SDL_SCANCODE_LEFT];
-    plat_input_state.keys[RAS_KEY_LEFTBRACKET] = keys[SDL_SCANCODE_LEFTBRACKET];
-    plat_input_state.keys[RAS_KEY_RIGHTBRACKET] = keys[SDL_SCANCODE_RIGHTBRACKET];
-    plat_input_state.keys[RAS_KEY_LSHIFT] = keys[SDL_SCANCODE_LSHIFT];
-    plat_input_state.keys[RAS_KEY_LCTRL] = keys[SDL_SCANCODE_LCTRL];
 }
 
 uint8_t color_from_material(int32_t material)
@@ -294,6 +343,7 @@ int main(int argc, const char** argv)
     }
 
     core_renderstate_init(&state);
+    input_init();
     core_input_init(&plat_input_state);
 
     int last_frame = SDL_GetTicks();
@@ -308,24 +358,12 @@ int main(int argc, const char** argv)
                 break;
             case SDL_KEYUP:
                 should_quit = event.key.keysym.scancode == SDL_SCANCODE_ESCAPE;
-                plat_input_state.keys[RAS_KEY_TAB] = event.key.keysym.scancode == SDL_SCANCODE_TAB
-                    ? RAS_KEY_EVENT_UP
-                    : RAS_KEY_EVENT_NONE;
-                plat_input_state.keys[RAS_KEY_P] = event.key.keysym.scancode == SDL_SCANCODE_P
-                    ? RAS_KEY_EVENT_UP
-                    : RAS_KEY_EVENT_NONE;
-                plat_input_state.keys[RAS_KEY_B] = event.key.keysym.scancode == SDL_SCANCODE_B
-                    ? RAS_KEY_EVENT_UP
-                    : RAS_KEY_EVENT_NONE;
-                plat_input_state.keys[RAS_KEY_C] = event.key.keysym.scancode == SDL_SCANCODE_C
-                    ? RAS_KEY_EVENT_UP
-                    : RAS_KEY_EVENT_NONE;
-                plat_input_state.keys[RAS_KEY_F] = event.key.keysym.scancode == SDL_SCANCODE_F
-                    ? RAS_KEY_EVENT_UP
-                    : RAS_KEY_EVENT_NONE;
-                plat_input_state.keys[RAS_KEY_O] = event.key.keysym.scancode == SDL_SCANCODE_O
-                    ? RAS_KEY_EVENT_UP
-                    : RAS_KEY_EVENT_NONE;
+                int app_scancode = g_key_plat_to_app[event.key.keysym.scancode];
+                if (app_scancode != RAS_KEY_UNKNOWN) {
+                    plat_input_state.keys[app_scancode] = RAS_KEY_EVENT_UP;
+                } else {
+                    ras_log_warn("Unknown scancode: %d", event.key.keysym.scancode);
+                }
             }
         }
         if (state.max_frames == UINT32_MAX || state.current_frame < state.max_frames) {
