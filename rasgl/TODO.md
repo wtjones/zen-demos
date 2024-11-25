@@ -16,6 +16,7 @@
 - [ ] Support DOS poly fill
 - [ ] Shaded polygon mode
 - [ ] Support color ramps
+- [ ] Tidy diagnosic rendering to another module
 
 ### Clipping - Polygon
 
