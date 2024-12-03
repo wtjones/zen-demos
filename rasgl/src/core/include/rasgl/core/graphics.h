@@ -97,9 +97,15 @@ typedef struct RasAABB {
 
 typedef struct RasElementFace {
     RasVector3f normal;
-    RasVector3f view_space_normal;
     int32_t material_index;
 } RasElementFace;
+
+typedef struct RasPipelineFace {
+    RasVector3f normal;
+    RasVector3f view_space_normal;
+    int32_t material_index;
+    RasFixed diffuse_intensity;
+} RasPipelineFace;
 
 typedef struct RasPipelineElement {
     RasVertex verts[MAX_PIPELINE_VERTS];
@@ -128,7 +134,7 @@ typedef struct RasPipelineVertexBuffer {
     uint32_t visible_indexes[MAX_VISIBLE_INDEXES];
     uint32_t num_visible_indexes;
 
-    RasElementFace visible_faces[MAX_PIPELINE_VERTS / 3];
+    RasPipelineFace visible_faces[MAX_PIPELINE_VERTS / 3];
     uint32_t num_visible_faces;
 
     int32_t material_indexes[MAX_VISIBLE_INDEXES]; // -1 if undefined
@@ -148,7 +154,7 @@ typedef struct RenderState {
     uint32_t visible_indexes[MAX_VISIBLE_INDEXES];
     uint32_t num_visible_indexes;
 
-    RasElementFace visible_faces[MAX_PIPELINE_VERTS / 3];
+    RasPipelineFace visible_faces[MAX_PIPELINE_VERTS / 3];
     uint32_t num_visible_faces;
 
     int32_t material_indexes[MAX_VISIBLE_INDEXES];

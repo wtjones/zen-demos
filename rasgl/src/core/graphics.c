@@ -728,7 +728,7 @@ void draw_element_normals_faux(
         &screen_origin);
 
     for (size_t i = 0; i < vert_buffer->num_visible_faces; i++) {
-        RasElementFace* face = &vert_buffer->visible_faces[i];
+        RasPipelineFace* face = &vert_buffer->visible_faces[i];
 
         RasFixed projected_vec[4];
         RasVector4f screen_space_position;
@@ -795,7 +795,7 @@ void draw_element_normals_ortho(
         &screen_ortho_origin);
 
     for (size_t i = 0; i < vert_buffer->num_visible_faces; i++) {
-        RasElementFace* face = &vert_buffer->visible_faces[i];
+        RasPipelineFace* face = &vert_buffer->visible_faces[i];
 
         RasFixed projected_vec[4];
         RasVector4f screen_space_position;
@@ -967,6 +967,22 @@ void core_draw_element(
             continue;
         }
 
+        /**
+         * @brief Transform face normal to view space
+         *
+         */
+        RasElementFace* src_face = &element->faces[current_src_face_index];
+        RasPipelineFace* face = &vert_buffer.visible_faces[*num_dest_faces];
+        face->normal = src_face->normal;
+        face->material_index = src_face->material_index;
+
+        RasFixed model_space_normal[4];
+        RasFixed view_space_normal[4];
+
+        core_vector3f_to_4x1(&face->normal, model_space_normal);
+        mat_mul_4x4_4x1(normal_mvt_matrix, model_space_normal, view_space_normal);
+        core_4x1_to_vector3f(view_space_normal, &face->view_space_normal);
+        (*num_dest_faces)++;
         RasClipFlags face_clip_flags = pv1->clip_flags | pv2->clip_flags | pv3->clip_flags;
         num_faces_must_clip += face_clip_flags == 0 ? 0 : 1;
 
@@ -995,11 +1011,6 @@ void core_draw_element(
             = element->material_indexes[current_src_face_index];
         (*num_dest_materials)++;
 
-        vert_buffer.visible_faces[*num_dest_faces].material_index
-            = element->material_indexes[current_src_face_index];
-        vert_buffer.visible_faces[*num_dest_faces].normal
-            = element->faces[current_src_face_index].normal;
-        (*num_dest_faces)++;
         current_src_face_index++;
     }
 
@@ -1022,23 +1033,6 @@ void core_draw_element(
             &pv->screen_space_position);
 
         ras_log_trace("pipeline screen space pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->screen_space_position));
-    }
-
-    /**
-     * @brief Transform face normals
-     *
-     */
-    for (uint32_t i = 0; i < vert_buffer.num_visible_faces; i++) {
-        RasElementFace* face = &vert_buffer.visible_faces[i];
-        RasFixed model_space_normal[4];
-        RasFixed view_space_normal[4];
-
-        core_vector3f_to_4x1(&face->normal, model_space_normal);
-        mat_mul_4x4_4x1(normal_mvt_matrix, model_space_normal, view_space_normal);
-        core_4x1_to_vector3f(view_space_normal, &face->view_space_normal);
-
-        ras_log_buffer("face normal: %s\n", repr_point3f(buffer, sizeof buffer, &face->normal));
-        ras_log_buffer("face view space normal: %s\n", repr_point3f(buffer, sizeof buffer, &face->view_space_normal));
     }
 
     if (render_state->normal_mode != RAS_NORMAL_MODE_OFF) {
