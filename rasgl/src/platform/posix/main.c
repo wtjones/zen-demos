@@ -4,6 +4,7 @@
 #include "rasgl/core/input.h"
 #include "rasgl/core/maths.h"
 #include "rasgl/core/rasterize.h"
+#include "rasgl/core/repr.h"
 #include "rasterize.h"
 #include <SDL2/SDL.h>
 #include <stdbool.h>
@@ -159,6 +160,8 @@ void render_state(RenderState* state)
         size_t num_hlines = 0;
         uint32_t material_index = 0;
 
+        RasPipelineFace* face = &state->visible_faces[0];
+
         while (i < state->num_visible_indexes) {
             int32_t material = state->material_indexes[material_index];
 
@@ -166,10 +169,18 @@ void render_state(RenderState* state)
                 ras_log_buffer("Face %d has material = %d", i / 3, material);
             }
 
-            // TODO: Use calculated shade
+            char buffer[255];
+            RasFixed max_shade = INT_32_TO_FIXED_16_16(7);
+            RasFixed shade_fixed = mul_fixed_16_16_by_fixed_16_16(face->diffuse_intensity, max_shade);
+            ras_log_buffer("diffuse_intensity: %s", repr_fixed_16_16(buffer, sizeof buffer, face->diffuse_intensity));
+            ras_log_buffer("shade_fixed: %s", repr_fixed_16_16(buffer, sizeof buffer, shade_fixed));
+            int shade = FIXED_16_16_TO_INT_32(shade_fixed);
+            shade = shade < 1 ? 1 : shade;
+            assert(shade <= 7);
+
             int8_t color = material == -1
-                ? 7
-                : (7 + (material * 8));
+                ? shade
+                : (shade + (material * 8));
 
             RasPipelineVertex* pv0 = &state->pipeline_verts[state->visible_indexes[i++]];
             tri[0] = &pv0->screen_space_position;
@@ -193,6 +204,7 @@ void render_state(RenderState* state)
                 ras_draw_line(surface, &point0, &point1, color);
             }
             material_index++;
+            face++;
         }
     }
 

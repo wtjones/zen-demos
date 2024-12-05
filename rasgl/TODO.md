@@ -14,15 +14,16 @@
 - [ ] Validate screen points are in screen bounds
 - [ ] Fix poly fill gaps
 - [ ] Support DOS poly fill
-- [ ] Shaded polygon mode
 - [ ] Support color ramps
 - [ ] Tidy diagnosic rendering to another module
+- [ ] Add flat shading toggle
 
 ### Clipping - Polygon
 
 - [ ] Fix assert on certain far plane clip scenarios
 - [ ] Fix assert when a triangle is rotating and clipping on the left side
 - [ ] AABB should remain correct when model rotates
+- [ ] Carry over pipeline face to clipped polys
 
 ### Math
 
@@ -81,6 +82,7 @@
 - [x] Backface culling is broken
 - [x] Filled polygon mode
 - [x] Material colors in filled polygon mode
+- [x] Shaded polygon mode
 
 ### Scene Loading
 

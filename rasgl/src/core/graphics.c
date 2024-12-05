@@ -137,6 +137,7 @@ void core_renderstate_clear(RenderState* state)
     state->num_pipeline_verts = 0;
     state->num_visible_indexes = 0;
     state->num_material_indexes = 0;
+    state->num_visible_faces = 0;
 }
 
 void projected_to_screen_point(RasFixed screen_width, RasFixed screen_height, RasFixed projected_point[4], Point2i* screen_point)
@@ -691,6 +692,13 @@ void core_append_vertex_buffer(
             = vert_buffer->material_indexes[i];
         (*si)++;
     }
+
+    memcpy(
+        &render_state->visible_faces[render_state->num_visible_faces],
+        vert_buffer->visible_faces,
+        sizeof(RasPipelineFace) * vert_buffer->num_visible_faces);
+
+    render_state->num_visible_faces += vert_buffer->num_visible_faces;
 }
 
 /**
@@ -851,6 +859,8 @@ void core_light_poly(
         &face->view_space_normal, &light_dir);
 
     face->diffuse_intensity = face->diffuse_intensity < 0 ? 0 : face->diffuse_intensity;
+    char buffer[255];
+    ras_log_buffer("diffuse_intensity: %s", repr_fixed_16_16(buffer, sizeof buffer, face->diffuse_intensity));
 }
 
 void core_draw_element(
