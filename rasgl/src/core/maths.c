@@ -299,3 +299,10 @@ void core_max_vector3f(RasVector3f* v1, RasVector3f* v2, RasVector3f* dest)
     dest->y = v1->y > v2->y ? v1->y : v2->y;
     dest->z = v1->z > v2->z ? v1->z : v2->z;
 }
+
+void core_sub_vector3f(RasVector3f* v1, RasVector3f* v2, RasVector3f* dest)
+{
+    dest->x = v1->x - v2->x;
+    dest->y = v1->y - v2->y;
+    dest->z = v1->z - v2->z;
+}

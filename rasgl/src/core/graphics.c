@@ -838,6 +838,21 @@ void draw_element_normals(
     }
 }
 
+void core_light_poly(
+    RasPipelineFace* face,
+    RasVector3f* camera_pos,
+    RasVector3f* light_pos)
+{
+    RasVector3f light_dir;
+    core_sub_vector3f(light_pos, camera_pos, &light_dir);
+    core_normalize(&light_dir);
+
+    face->diffuse_intensity = core_dot_product(
+        &face->view_space_normal, &light_dir);
+
+    face->diffuse_intensity = face->diffuse_intensity < 0 ? 0 : face->diffuse_intensity;
+}
+
 void core_draw_element(
     RenderState* render_state,
     RasPipelineElement* element,
@@ -983,6 +998,15 @@ void core_draw_element(
         mat_mul_4x4_4x1(normal_mvt_matrix, model_space_normal, view_space_normal);
         core_4x1_to_vector3f(view_space_normal, &face->view_space_normal);
         (*num_dest_faces)++;
+
+        RasVector3f camera_pos = { 0, 0, 0 };
+        RasVector3f light_pos = { 0, 0, RAS_FIXED_ONE };
+
+        core_light_poly(
+            face,
+            &camera_pos,
+            &light_pos);
+
         RasClipFlags face_clip_flags = pv1->clip_flags | pv2->clip_flags | pv3->clip_flags;
         num_faces_must_clip += face_clip_flags == 0 ? 0 : 1;
 

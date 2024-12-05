@@ -140,4 +140,6 @@ void core_mat_mul_4x4_vec3f(RasFixed projection_matrix[4][4], RasVector3f* vec, 
 void core_min_vector3f(RasVector3f* v1, RasVector3f* v2, RasVector3f* dest);
 void core_max_vector3f(RasVector3f* v1, RasVector3f* v2, RasVector3f* dest);
 
+void core_sub_vector3f(RasVector3f* v1, RasVector3f* v2, RasVector3f* dest);
+
 #endif
