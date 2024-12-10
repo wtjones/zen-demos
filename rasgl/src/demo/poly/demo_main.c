@@ -23,7 +23,7 @@ Point3f delta = {
 };
 
 RasCamera* camera;
-RasSceneObject* current_object;
+RasSceneObject* selected_object;
 
 char* default_scene = "./assets/scenes/tri.lsp";
 
@@ -45,7 +45,7 @@ RasResult ras_app_init(int argc, const char** argv, ScreenSettings* init_setting
     camera->fov = RAS_CAMERA_DEFAULT_FOV;
     camera->projection_mode = RAS_CAMERA_DEFAULT_PROJECTION_MODE;
 
-    current_object = &scene->objects[0];
+    selected_object = &scene->objects[0];
 
     return RAS_RESULT_OK;
 }
@@ -54,13 +54,13 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
 {
     RasVector3f model_pos_prev;
     RasVector3f model_rot_prev;
-    RasVector3f* model_pos = &current_object->position;
-    RasVector3f* model_rotation = &current_object->rotation;
+    RasVector3f* model_pos = &selected_object->position;
+    RasVector3f* model_rotation = &selected_object->rotation;
 
     ras_camera_update(camera, input_state);
 
-    memcpy(&model_pos_prev, &current_object->position, sizeof model_pos_prev);
-    memcpy(&model_rot_prev, &current_object->rotation, sizeof model_rot_prev);
+    memcpy(&model_pos_prev, &selected_object->position, sizeof model_pos_prev);
+    memcpy(&model_rot_prev, &selected_object->rotation, sizeof model_rot_prev);
 
     bool modifiers = input_state->keys[RAS_KEY_LCTRL] == 1
         || input_state->keys[RAS_KEY_LSHIFT] == 1;
@@ -170,6 +170,7 @@ void ras_app_render(__attribute__((unused)) RenderState* render_state)
     RasFixed projection_matrix[4][4];
     RasFixed combined_matrix[4][4];
     RasFrustum frustum;
+    RasSceneObject* current_object;
 
     ras_camera_projection_init(camera, projection_matrix);
     mat_set_identity_4x4(world_view_matrix);
