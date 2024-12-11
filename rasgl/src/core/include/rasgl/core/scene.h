@@ -29,6 +29,10 @@
 #define SCRIPT_SYMBOL_POSITION ":position"
 #define SCRIPT_SYMBOL_ORIENTATION ":orientation"
 #define SCRIPT_SYMBOL_ROTATION_DELTA ":rotation_delta"
+#define SCRIPT_SYMBOL_ANIMATION ":animation"
+#define SCRIPT_SYMBOL_ROTATION ":rotation"
+#define SCRIPT_SYMBOL_SPEED ":speed"
+#define SCRIPT_SYMBOL_AXIS ":axis"
 #define SCRIPT_SYMBOL_VEC "vec"
 #define SCRIPT_SYMBOL_NAME ":name"
 
@@ -44,6 +48,15 @@ typedef struct {
 } RasSceneModel;
 
 typedef struct {
+    RasVector3f axis;
+    RasFixed speed;
+} RasSceneObjectAnimationRotation;
+
+typedef struct {
+    RasSceneObjectAnimationRotation rotation;
+} RasSceneObjectAnimation;
+
+typedef struct {
     /**
      * @brief The model referenced via :name in script is converted to
      * a pipeline element and referenced here.
@@ -53,6 +66,7 @@ typedef struct {
     RasVector3f position;
     RasVector3f rotation;       // Intialized from :orientation in scene script
     RasVector3f rotation_delta; // Rotation speed
+    RasSceneObjectAnimation* animation;
 } RasSceneObject;
 
 typedef struct {

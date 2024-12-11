@@ -97,9 +97,67 @@ RasResult core_script_map_cameras(LarNode* scene_exp, RasScene* scene)
     return RAS_RESULT_OK;
 }
 
+/**
+ * @brief Allocate and map the optional :animation property of an object.
+ *
+ * (object
+ *   ...
+ *   :animation (rotation :axis (vec 0.0 1.0 0.0) :speed 0.5))
+ *
+ * @param object_exp
+ * @param scene_object
+ * @return RasResult
+ */
+RasResult core_script_map_animation(
+    LarNode* object_exp, RasSceneObject* scene_object)
+{
+    LarNode* animation_exp = lar_get_property_by_type(
+        object_exp, SCRIPT_SYMBOL_ANIMATION, LAR_NODE_LIST);
+
+    if (animation_exp == NULL) {
+        ras_log_info("Scene object animation not present. Skipping...");
+        scene_object->animation = NULL;
+        return RAS_RESULT_OK;
+    }
+
+    LarNode* axis_exp = lar_get_property_by_type(
+        animation_exp, SCRIPT_SYMBOL_AXIS, LAR_NODE_LIST);
+
+    RAS_CHECK_AND_LOG(axis_exp == NULL,
+        "Failed to find property %s", SCRIPT_SYMBOL_AXIS);
+    RasVector3f axis;
+    RasResult result = core_script_map_vector(axis_exp, &axis);
+
+    RAS_CHECK_RESULT_AND_LOG(result,
+        "Failed to map property %s", SCRIPT_SYMBOL_AXIS);
+
+    LarNode* speed_exp = lar_get_property_by_type(
+        animation_exp, SCRIPT_SYMBOL_SPEED, LAR_NODE_ATOM_FIXED);
+
+    RAS_CHECK_AND_LOG(speed_exp == NULL,
+        "Failed to find property %s", SCRIPT_SYMBOL_SPEED);
+
+    RasSceneObjectAnimation* animation = (RasSceneObjectAnimation*)malloc(
+        sizeof(RasSceneObjectAnimation));
+
+    RAS_CHECK_AND_LOG(animation == NULL,
+        "Failed to allocate memory for animation");
+
+    animation->rotation.axis = axis;
+    animation->rotation.speed = speed_exp->atom.val_fixed;
+    scene_object->animation = animation;
+
+    return RAS_RESULT_OK;
+}
+
 RasResult core_script_map_object(
     RasScene* scene, LarNode* object_exp, RasSceneObject* scene_object)
 {
+
+    RasResult result = core_script_map_animation(object_exp, scene_object);
+
+    RAS_CHECK_AND_LOG(result != RAS_RESULT_OK,
+        "Failed to map object animation %s", SCRIPT_SYMBOL_ANIMATION);
 
     LarNode* model_name = lar_get_property_by_type(
         object_exp, SCRIPT_SYMBOL_MODEL_NAME, LAR_NODE_ATOM_STRING);
@@ -127,7 +185,7 @@ RasResult core_script_map_object(
         "Failed to find property %s", SCRIPT_SYMBOL_POSITION);
 
     // Set initial rotation based on orientation
-    RasResult result = core_script_map_vector(position, &scene_object->position);
+    result = core_script_map_vector(position, &scene_object->position);
 
     RAS_CHECK_RESULT_AND_LOG(result,
         "Failed to map property %s", SCRIPT_SYMBOL_POSITION);
@@ -357,11 +415,23 @@ void core_free_scene_models(RasScene* scene)
     free(scene->models);
 }
 
+void core_free_scene_objects(RasScene* scene)
+{
+    for (size_t i = 0; i < scene->num_objects; i++) {
+        if (scene->objects[i].animation != NULL) {
+            free(scene->objects[i].animation);
+            scene->objects[i].animation = NULL;
+        }
+    }
+
+    free(scene->objects);
+}
+
 void core_free_scene(RasScene** scene)
 {
     RasScene* s = *scene;
     core_free_scene_models(s);
-    free(s->objects);
+    core_free_scene_objects(s);
     free(s);
     *scene = NULL;
 }

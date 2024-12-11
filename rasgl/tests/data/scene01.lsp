@@ -5,7 +5,8 @@
     (object
       :model_name "ico"
       :position (vec 0.0 0.0 -2.5)
-      :orientation (vec 0.0 0.5 0.0)))
+      :orientation (vec 0.0 0.5 0.0)
+      :animation (rotation :axis (vec 0.0 1.0 0.0) :speed 0.5)))
   (cameras
     (camera
       :name "main"
