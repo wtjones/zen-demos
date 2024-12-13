@@ -42,6 +42,12 @@
 - [ ] Support parameterized scene loading
 - [ ] Configurable background color
 
+### Scene management
+
+- [ ] Support fractional rotation
+- [ ] Support object selection
+- [ ] Add animation disable
+
 ## In Progress
 
 ### Models

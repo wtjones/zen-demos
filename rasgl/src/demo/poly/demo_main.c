@@ -50,6 +50,41 @@ RasResult ras_app_init(int argc, const char** argv, ScreenSettings* init_setting
     return RAS_RESULT_OK;
 }
 
+void ras_app_update_animation(RasSceneObject* scene_object)
+{
+    if (!scene_object->animation) {
+        return;
+    }
+    RasSceneObjectAnimationRotation* rotation = &scene_object->animation->rotation;
+
+    RasVector3f* model_rotation = &scene_object->rotation;
+    int32_t delta_rotation = FIXED_16_16_TO_INT_32(rotation->speed);
+
+    model_rotation->x = rotation->axis.x == RAS_FIXED_ONE
+        ? (model_rotation->x + delta_rotation) % 360
+        : model_rotation->x;
+
+    if (model_rotation->x < 0) {
+        model_rotation->x += 360;
+    }
+
+    model_rotation->y = rotation->axis.y == RAS_FIXED_ONE
+        ? (model_rotation->y + delta_rotation) % 360
+        : model_rotation->y;
+
+    if (model_rotation->y < 0) {
+        model_rotation->y += 360;
+    }
+
+    model_rotation->z = rotation->axis.z == RAS_FIXED_ONE
+        ? (model_rotation->z + delta_rotation) % 360
+        : model_rotation->z;
+
+    if (model_rotation->z < 0) {
+        model_rotation->z += 360;
+    }
+}
+
 void ras_app_update(__attribute__((unused)) InputState* input_state)
 {
     RasVector3f model_pos_prev;
@@ -58,6 +93,14 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
     RasVector3f* model_rotation = &selected_object->rotation;
 
     ras_camera_update(camera, input_state);
+
+    for (size_t i = 0; i < scene->num_objects; i++) {
+        RasSceneObject* current_object = &scene->objects[i];
+
+        if (current_object != selected_object) {
+            ras_app_update_animation(current_object);
+        }
+    }
 
     memcpy(&model_pos_prev, &selected_object->position, sizeof model_pos_prev);
     memcpy(&model_rot_prev, &selected_object->rotation, sizeof model_rot_prev);
