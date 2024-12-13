@@ -38,9 +38,6 @@ typedef struct RasVector4f {
     RasFixed w;
 } RasVector4f;
 
-extern RasFixed cos_table[360];
-extern RasFixed sin_table[360];
-
 void init_math_lookups();
 void apply_unit_vector(Point2f* src, int angle, Point2f* dest);
 int64_t cross(Point2f* v1, Point2f* v2);

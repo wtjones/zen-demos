@@ -12,12 +12,12 @@
       :model_name "cube"
       :position (vec 0.0 0.0 -2.5)
       :orientation (vec 0.0 0.0 0.0)
-      :animation (rotation :axis (vec 0.0 1.0 0.0) :speed 2.0))
+      :animation (rotation :axis (vec 0.0 1.0 0.0) :speed 0.5))
     (object
       :model_name "ico"
       :position (vec 2.5 0.0 -2.5)
       :orientation (vec 0.0 0.0 0.0)
-      :animation (rotation :axis (vec 1.0 0.0 1.0) :speed -1.0)))
+      :animation (rotation :axis (vec 1.0 0.0 1.0) :speed -0.2)))
   (cameras
     (camera
       :name "main"

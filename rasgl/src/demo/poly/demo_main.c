@@ -14,7 +14,7 @@
 
 ScreenSettings* settings;
 RasScene* scene;
-int32_t delta_rotation = 1;
+RasFixed delta_rotation = RAS_FIXED_ONE;
 
 Point3f delta = {
     .x = RAS_FLOAT_TO_FIXED(0.05f),
@@ -58,30 +58,29 @@ void ras_app_update_animation(RasSceneObject* scene_object)
     RasSceneObjectAnimationRotation* rotation = &scene_object->animation->rotation;
 
     RasVector3f* model_rotation = &scene_object->rotation;
-    int32_t delta_rotation = FIXED_16_16_TO_INT_32(rotation->speed);
 
     model_rotation->x = rotation->axis.x == RAS_FIXED_ONE
-        ? (model_rotation->x + delta_rotation) % 360
+        ? (model_rotation->x + rotation->speed) % INT_32_TO_FIXED_16_16(360)
         : model_rotation->x;
 
     if (model_rotation->x < 0) {
-        model_rotation->x += 360;
+        model_rotation->x += INT_32_TO_FIXED_16_16(360);
     }
 
     model_rotation->y = rotation->axis.y == RAS_FIXED_ONE
-        ? (model_rotation->y + delta_rotation) % 360
+        ? (model_rotation->y + rotation->speed) % INT_32_TO_FIXED_16_16(360)
         : model_rotation->y;
 
     if (model_rotation->y < 0) {
-        model_rotation->y += 360;
+        model_rotation->y += INT_32_TO_FIXED_16_16(360);
     }
 
     model_rotation->z = rotation->axis.z == RAS_FIXED_ONE
-        ? (model_rotation->z + delta_rotation) % 360
+        ? (model_rotation->z + rotation->speed) % INT_32_TO_FIXED_16_16(360)
         : model_rotation->z;
 
     if (model_rotation->z < 0) {
-        model_rotation->z += 360;
+        model_rotation->z += INT_32_TO_FIXED_16_16(360);
     }
 }
 
@@ -145,17 +144,17 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
     if (input_state->keys[RAS_KEY_LEFT] == 1
         && input_state->keys[RAS_KEY_LSHIFT] == 1
         && input_state->keys[RAS_KEY_LCTRL] == 1) {
-        delta_rotation = 1;
+        delta_rotation = RAS_FIXED_ONE;
     }
     if (input_state->keys[RAS_KEY_RIGHT] == 1
         && input_state->keys[RAS_KEY_LSHIFT] == 1
         && input_state->keys[RAS_KEY_LCTRL] == 1) {
-        delta_rotation = -1;
+        delta_rotation = -RAS_FIXED_ONE;
     }
 
-    model_rotation->x = (model_rotation->x + delta_rotation) % 360;
+    model_rotation->x = (model_rotation->x + delta_rotation) % INT_32_TO_FIXED_16_16(360);
     if (model_rotation->x < 0) {
-        model_rotation->x += 360;
+        model_rotation->x += INT_32_TO_FIXED_16_16(360);
     }
 
     // Model Y rotation
@@ -164,17 +163,17 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
     if (input_state->keys[RAS_KEY_LEFT] == 1
         && input_state->keys[RAS_KEY_LSHIFT] != 1
         && input_state->keys[RAS_KEY_LCTRL] == 1) {
-        delta_rotation = 1;
+        delta_rotation = RAS_FIXED_ONE;
     }
     if (input_state->keys[RAS_KEY_RIGHT] == 1
         && input_state->keys[RAS_KEY_LSHIFT] != 1
         && input_state->keys[RAS_KEY_LCTRL] == 1) {
-        delta_rotation = -1;
+        delta_rotation = -RAS_FIXED_ONE;
     }
 
-    model_rotation->y = (model_rotation->y + delta_rotation) % 360;
+    model_rotation->y = (model_rotation->y + delta_rotation) % INT_32_TO_FIXED_16_16(360);
     if (model_rotation->y < 0) {
-        model_rotation->y += 360;
+        model_rotation->y += INT_32_TO_FIXED_16_16(360);
     }
 
     // Model Z rotation
@@ -183,17 +182,17 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
     if (input_state->keys[RAS_KEY_DOWN] == 1
         && input_state->keys[RAS_KEY_LSHIFT] != 1
         && input_state->keys[RAS_KEY_LCTRL] == 1) {
-        delta_rotation = 1;
+        delta_rotation = RAS_FIXED_ONE;
     }
     if (input_state->keys[RAS_KEY_UP] == 1
         && input_state->keys[RAS_KEY_LSHIFT] != 1
         && input_state->keys[RAS_KEY_LCTRL] == 1) {
-        delta_rotation = -1;
+        delta_rotation = -RAS_FIXED_ONE;
     }
 
-    model_rotation->z = (model_rotation->z + delta_rotation) % 360;
+    model_rotation->z = (model_rotation->z + delta_rotation) % INT_32_TO_FIXED_16_16(360);
     if (model_rotation->z < 0) {
-        model_rotation->z += 360;
+        model_rotation->z += INT_32_TO_FIXED_16_16(360);
     }
 
     if (!cmp_point3f(model_pos, &model_pos_prev)
@@ -232,9 +231,9 @@ void ras_app_render(__attribute__((unused)) RenderState* render_state)
         RasFixed model_world3[4][4];
 
         // FIXME: Should rotate around model origin
-        core_rotate_x_apply(model_world_matrix, model_rotation->x);
-        mat_rotate_y(model_world_matrix, model_rotation->y, model_world2);
-        mat_rotate_z(model_world2, model_rotation->z, model_world3);
+        core_rotate_x_apply(model_world_matrix, FIXED_16_16_TO_INT_32(model_rotation->x));
+        mat_rotate_y(model_world_matrix, FIXED_16_16_TO_INT_32(model_rotation->y), model_world2);
+        mat_rotate_z(model_world2, FIXED_16_16_TO_INT_32(model_rotation->z), model_world3);
 
         core_translate_apply(model_world3, model_pos);
 

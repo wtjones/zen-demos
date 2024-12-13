@@ -3,6 +3,7 @@
 
 #define _USE_MATH_DEFINES
 #include "fixed_maths.h"
+#include <assert.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -13,6 +14,9 @@
 
 extern RasFixed cos_table[360];
 extern RasFixed sin_table[360];
+
+#define RAS_COS(angle) (assert((angle) >= 0 && (angle) < 360), cos_table[(angle)])
+#define RAS_SIN(angle) (assert((angle) >= 0 && (angle) < 360), sin_table[(angle)])
 
 void dump_maths_tables();
 #endif

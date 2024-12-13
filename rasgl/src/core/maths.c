@@ -2,14 +2,11 @@
 #include "rasgl/core/debug.h"
 #include "rasgl/core/repr.h"
 
-extern RasFixed cos_table[360];
-extern RasFixed sin_table[360];
-
 void apply_unit_vector(Point2f* src, int angle, Point2f* dest)
 {
     RasFixed xform_result[3];
-    RasFixed c = cos_table[angle];
-    RasFixed s = sin_table[angle];
+    RasFixed c = RAS_COS(angle);
+    RasFixed s = RAS_SIN(angle);
 
     RasFixed matrix[3][3] = {
         { c, -s, src->x },
@@ -132,8 +129,8 @@ void core_translate_init(RasFixed m[4][4], Point3f* v)
 
 void core_rotate_x_apply(RasFixed m[4][4], int32_t angle)
 {
-    RasFixed c = cos_table[angle];
-    RasFixed s = sin_table[angle];
+    RasFixed c = RAS_COS(angle);
+    RasFixed s = RAS_SIN(angle);
 
     m[1][1] = c;
     m[1][2] = -s;
@@ -143,8 +140,8 @@ void core_rotate_x_apply(RasFixed m[4][4], int32_t angle)
 
 void core_rotate_y_apply(RasFixed m[4][4], int32_t angle)
 {
-    RasFixed c = cos_table[angle];
-    RasFixed s = sin_table[angle];
+    RasFixed c = RAS_COS(angle);
+    RasFixed s = RAS_SIN(angle);
 
     m[0][0] = c;
     m[0][2] = s;
@@ -154,8 +151,8 @@ void core_rotate_y_apply(RasFixed m[4][4], int32_t angle)
 
 void core_rotate_z_apply(RasFixed m[4][4], int32_t angle)
 {
-    RasFixed c = cos_table[angle];
-    RasFixed s = sin_table[angle];
+    RasFixed c = RAS_COS(angle);
+    RasFixed s = RAS_SIN(angle);
 
     m[0][0] = c;
     m[0][1] = -s;
