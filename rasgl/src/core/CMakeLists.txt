@@ -16,7 +16,9 @@ add_library(core
     plane.c
     rasterize.c
     repr.c
-    scene.c
+    sc_animation.c
+    sc_load.c
+    sc_scene.c
     string.c)
 
 target_include_directories(core PUBLIC include)

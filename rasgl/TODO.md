@@ -44,7 +44,6 @@
 
 ### Scene management
 
-- [ ] Support fractional rotation
 - [ ] Support object selection
 - [ ] Add animation disable
 
@@ -96,3 +95,7 @@
 - [x] Scene model position
 - [x] Render multiple scene objects
 - [x] DOS scene support
+
+### Scene Management
+
+- [x] Support fractional rotation

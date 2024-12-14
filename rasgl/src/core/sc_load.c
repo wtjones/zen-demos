@@ -1,6 +1,6 @@
-#include "rasgl/core/scene.h"
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/model.h"
+#include "rasgl/core/scene.h"
 #include <string.h>
 
 RasResult core_script_map_int32(LarNode* exp, const char* symbol, int32_t* dest)
@@ -407,31 +407,4 @@ RasResult core_load_scene(const char* path, RasScene** scene)
     lar_free_script(&script);
 
     return RAS_RESULT_OK;
-}
-
-void core_free_scene_models(RasScene* scene)
-{
-    // TODO: free RasModel
-    free(scene->models);
-}
-
-void core_free_scene_objects(RasScene* scene)
-{
-    for (size_t i = 0; i < scene->num_objects; i++) {
-        if (scene->objects[i].animation != NULL) {
-            free(scene->objects[i].animation);
-            scene->objects[i].animation = NULL;
-        }
-    }
-
-    free(scene->objects);
-}
-
-void core_free_scene(RasScene** scene)
-{
-    RasScene* s = *scene;
-    core_free_scene_models(s);
-    core_free_scene_objects(s);
-    free(s);
-    *scene = NULL;
 }

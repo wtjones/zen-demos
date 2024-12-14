@@ -91,8 +91,6 @@ RasResult core_load_scene(const char* path, RasScene** scene);
 
 void core_free_scene(RasScene** scene);
 
-RasResult core_script_map_vec(LarNode* node, RasVector3f* vec);
-
 /**
  * @brief Map a scene script to a RasScene
  *
@@ -101,5 +99,12 @@ RasResult core_script_map_vec(LarNode* node, RasVector3f* vec);
  * @return RasResult
  */
 RasResult core_script_map_scene(LarScript* script, RasScene** scene);
+
+/**
+ * @brief Iterate the object's state based on the animation
+ *
+ * @param scene_object
+ */
+void core_update_animation(RasSceneObject* scene_object);
 
 #endif
