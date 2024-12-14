@@ -44,7 +44,6 @@
 
 ### Scene management
 
-- [ ] Support object selection
 - [ ] Add animation disable
 
 ## In Progress
@@ -99,3 +98,4 @@
 ### Scene Management
 
 - [x] Support fractional rotation
+- [x] Support object selection

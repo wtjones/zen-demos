@@ -23,7 +23,7 @@ Point3f delta = {
 };
 
 RasCamera* camera;
-RasSceneObject* selected_object;
+RasSceneObject* selected_object = NULL;
 
 char* default_scene = "./assets/scenes/tri.lsp";
 
@@ -45,19 +45,21 @@ RasResult ras_app_init(int argc, const char** argv, ScreenSettings* init_setting
     camera->fov = RAS_CAMERA_DEFAULT_FOV;
     camera->projection_mode = RAS_CAMERA_DEFAULT_PROJECTION_MODE;
 
-    selected_object = &scene->objects[0];
+    selected_object = scene->num_objects > 0 ? &scene->objects[0] : NULL;
 
     return RAS_RESULT_OK;
 }
 
-void ras_app_update(__attribute__((unused)) InputState* input_state)
+void ras_objects_update(InputState* input_state)
 {
-    RasVector3f model_pos_prev;
-    RasVector3f model_rot_prev;
-    RasVector3f* model_pos = &selected_object->position;
-    RasVector3f* model_rotation = &selected_object->rotation;
-
-    ras_camera_update(camera, input_state);
+    if (input_state->keys[RAS_KEY_J] == RAS_KEY_EVENT_UP) {
+        if (selected_object != NULL) {
+            size_t new_index = (selected_object - scene->objects + 1) % scene->num_objects;
+            selected_object = &scene->objects[new_index];
+            ras_log_info("Selected object index %d",
+                new_index);
+        }
+    }
 
     for (size_t i = 0; i < scene->num_objects; i++) {
         RasSceneObject* current_object = &scene->objects[i];
@@ -66,6 +68,19 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
             core_update_animation(current_object);
         }
     }
+}
+
+void ras_app_update(__attribute__((unused)) InputState* input_state)
+{
+    RasVector3f model_pos_prev;
+    RasVector3f model_rot_prev;
+
+    ras_camera_update(camera, input_state);
+
+    ras_objects_update(input_state);
+
+    RasVector3f* model_pos = &selected_object->position;
+    RasVector3f* model_rotation = &selected_object->rotation;
 
     memcpy(&model_pos_prev, &selected_object->position, sizeof model_pos_prev);
     memcpy(&model_rot_prev, &selected_object->rotation, sizeof model_rot_prev);
