@@ -207,7 +207,7 @@ void mat_mul_project(RasFixed projection_matrix[4][4], RasFixed v[4], RasFixed d
 {
     char buffer[100];
     mat_mul_4x4_4x1(projection_matrix, v, dest);
-    ras_log_trace("after proj matrix: %s\n", repr_mat_4x1(buffer, sizeof buffer, dest));
+    ras_log_buffer_trace("after proj matrix: %s\n", repr_mat_4x1(buffer, sizeof buffer, dest));
 
     // perspective divide
     if (dest[3] != 0) {

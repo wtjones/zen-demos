@@ -35,6 +35,8 @@
 #define ras_log_error(...) log_log(LOG_ERROR, __FILE_NAME__, __LINE__, __VA_ARGS__)
 #define ras_log_fatal(...) log_log(LOG_FATAL, __FILE_NAME__, __LINE__, __VA_ARGS__)
 #define ras_log_buffer(...) core_log_buffer(LOG_INFO, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_buffer_trace(...) core_log_buffer(LOG_TRACE, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_buffer_info(...) core_log_buffer(LOG_INFO, __FILE_NAME__, __LINE__, __VA_ARGS__)
 
 typedef enum RasResult {
     RAS_RESULT_OK,

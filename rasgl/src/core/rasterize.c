@@ -9,7 +9,7 @@ size_t core_interpolate(
 {
     char buffer1[255];
     char buffer2[255];
-    ras_log_buffer("Interpolating from %s to %s\n",
+    ras_log_buffer_trace("Interpolating from %s to %s\n",
         repr_fixed_16_16(buffer1, 255, i0),
         repr_fixed_16_16(buffer2, 255, i1));
 
@@ -43,7 +43,7 @@ size_t core_interpolate(
     ras_log_buffer("Interpolate result...");
     for (size_t i = 0; i < count; i++) {
         char buffer3[255];
-        ras_log_buffer("Interp: %s", repr_fixed_16_16(buffer3, 255, dest[i]));
+        ras_log_buffer_trace("Interp: %s", repr_fixed_16_16(buffer3, 255, dest[i]));
     }
 
     return count;

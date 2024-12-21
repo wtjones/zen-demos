@@ -17,6 +17,10 @@ void ras_log_clear()
 
 void core_log_buffer(int level, const char* file, int line, const char* fmt, ...)
 {
+    if (level < log_get_level()) {
+        return;
+    }
+
     char buffer[1000];
     va_list args;
 

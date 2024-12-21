@@ -3,7 +3,7 @@
 
 void ras_draw_line(SDL_Surface* surface, Point2i* p0, Point2i* p1, uint8_t color)
 {
-    ras_log_buffer(
+    ras_log_buffer_trace(
         "Drawing line from %d, %d to %d, %d", p0->x, p0->y, p1->x, p1->y);
 
     int x0 = p0->x, y0 = p0->y;

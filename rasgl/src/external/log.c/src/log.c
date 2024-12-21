@@ -110,6 +110,16 @@ void log_set_lock(log_LockFn fn, void *udata) {
   L.udata = udata;
 }
 
+int log_get_level(){
+
+  for (int i = 0; i < MAX_CALLBACKS; i++) {
+    if (L.callbacks[i].fn) {
+      return L.callbacks[i].level;
+    }
+  };
+
+  return L.level;
+}
 
 void log_set_level(int level) {
   L.level = level;

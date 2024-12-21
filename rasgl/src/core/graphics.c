@@ -953,7 +953,7 @@ void core_draw_element(
             projected_vec,
             &pv->screen_space_position);
 
-        ras_log_trace("pipeline screen space pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->screen_space_position));
+        ras_log_buffer_trace("pipeline screen space pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->screen_space_position));
 
         vert_buffer.num_verts++;
     }
@@ -1066,7 +1066,7 @@ void core_draw_element(
             projected_vec,
             &pv->screen_space_position);
 
-        ras_log_trace("pipeline screen space pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->screen_space_position));
+        ras_log_buffer_trace("pipeline screen space pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->screen_space_position));
     }
 
     if (render_state->normal_mode != RAS_NORMAL_MODE_OFF) {
