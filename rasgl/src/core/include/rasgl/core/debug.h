@@ -3,7 +3,7 @@
 
 #include "log.c/src/log.h"
 
-#define RAX_MAX_LOG_BUFFER 100000
+#define RAS_MAX_LOG_BUFFER 100000
 
 // FIXME: needed for vscode intellisense
 #ifndef __FILE_NAME__
