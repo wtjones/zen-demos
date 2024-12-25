@@ -993,6 +993,19 @@ void core_draw_element(
         }
 
         /**
+         * @brief If dropped due to clipping exclusion, skip out to avoid
+         * adding the face to the visible faces list.
+         *
+         */
+        RasClipFlags face_clip_flags = pv1->clip_flags | pv2->clip_flags | pv3->clip_flags;
+
+        if (face_clip_flags != 0 && render_state->clipping_mode == RAS_CLIPPING_EXCLUDE) {
+            num_faces_excluded++;
+            current_src_face_index++;
+            continue;
+        }
+
+        /**
          * @brief Transform face normal to view space
          *
          */
@@ -1017,15 +1030,8 @@ void core_draw_element(
             &camera_pos,
             &light_pos);
 
-        RasClipFlags face_clip_flags = pv1->clip_flags | pv2->clip_flags | pv3->clip_flags;
         num_faces_must_clip += face_clip_flags == 0 ? 0 : 1;
-
         if (face_clip_flags != 0) {
-            if (render_state->clipping_mode == RAS_CLIPPING_EXCLUDE) {
-                num_faces_excluded++;
-                current_src_face_index++;
-                continue;
-            }
             core_clip_poly(
                 frustum,
                 face_clip_flags,
