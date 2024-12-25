@@ -22,15 +22,14 @@ Consider [kons-9](https://kaveh808.github.io/kons-9/#KONS-9:@POINT%20MGL-PAX:SEC
 
 From Trials camera [example](https://github.com/Shirakumo/trial/blob/ee2b107d5f21f089e8a78fb7e4272b26e9ada99b/examples/scene-loader.lisp#L52):
 
-```
+```lisp
 (setf (camera scene) camera)
 (enter (make-instance 'editor-camera :name :camera :location (VEC3 10.0 20 14) :rotation (vec3 0.75 5.5 0.0) :fov 50 :move-speed 0.1) scene)
-
 ```
 
 RasGL ideas
 
-```
+```lisp
 (scene "MyScene"
   (objects
     (object "object1" "/path/to/object1.obj" :position (vector 1.0 2.0 3.0) :orientation (vector 0.0 0.0 0.0))
@@ -67,7 +66,7 @@ v 1.152022 0.647829 -0.910811 1.0000 0.2000 0.4392
 From [Pixelblog](https://www.slynyrd.com/blog/2018/1/10/pixelblog-1-color-palettes):
 
 > A color ramp is a specific range of colors that work well together, arranged according to brightness. Here is an example of what I consider a good color ramp.
-
+>
 > I want 8 ramps total so I will shift the hues of each ramp by 45 degrees to complete the 360 degree cycle around the color wheel.
 
 #### Color ramp creator
@@ -92,7 +91,7 @@ The PS2 CPU is currently not a candidate for this project as it is [64-bit](http
 
 From [example](https://github.com/longjoel/ultimate-homebrew/blob/main/PS2.Dockerfile) that uses gcc via [ps2sdk](https://github.com/ps2dev/ps2sdk)
 
-```
+```bash
 root@deef3201c7fa:/app# mips64r5900el-ps2-elf-gcc -v
 Using built-in specs.
 COLLECT_GCC=mips64r5900el-ps2-elf-gcc

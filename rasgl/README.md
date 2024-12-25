@@ -55,7 +55,7 @@ Platform support progress:
 
 ## Proposed Structure
 
-```
+```text
 /src
     /demo
         demo_main.c     // uses gfx
@@ -94,7 +94,7 @@ For each triangle:
 
 Assume world size of 5x5.
 
-```
+```text
 p0-------p1-------p2
 |  t0  / |  t2  / |
 |    /   |    /   |
@@ -106,7 +106,7 @@ p6-------p7-------p8
 
 A [right-handed system](https://learnopengl.com/Getting-started/Coordinate-Systems) is used.
 
-```
+```text
             +Y
             |
             |     -Z
@@ -132,7 +132,7 @@ Run `build_deps.sh` to build the script system.
 
 ### Posix/SDL
 
-```
+```bash
 cmake -S . -DRAS_PLATFORM=ras_sdl -B build
 cmake --build build
 ./build/ras_sdl
@@ -152,7 +152,7 @@ Extract somewhere such as `/opt/djgpp`.
 
 Set variable `DJGPP_PREFIX` in shell or profile:
 
-```
+```bash
 export DJGPP_PREFIX="/opt/djgpp"
 # if building with defaults:
 export DJGPP_PREFIX="/usr/local/djgpp"
@@ -167,7 +167,7 @@ Optional: Set PATH or use provided shell script.
 
 Clone repo somewhere locally: <https://github.com/wtjones/allegro-4.2.2-xc>
 
-```
+```bash
 cd allegro-4.2.2-xc
 ```
 
@@ -180,13 +180,13 @@ make: *** No rule to make target 'setup/setup.exe', needed by 'setup'.  Stop.
 
 Set variable `ALLEGRO` in shell or profile:
 
-```
+```bash
 export ALLEGRO="/home/myuser/dev/allegro-4.2.2-xc"
 ```
 
 #### Build
 
-```
+```bash
 cmake -S . -DCMAKE_TOOLCHAIN_FILE=tools/djgpp.cmake -DRAS_PLATFORM=ras_dos -B build
 cmake --build build -t demo
 ```
@@ -208,7 +208,7 @@ export DOSBOX_BIN="flatpak run --filesystem=/tmp com.dosbox_x.DOSBox-X"
 
 #### Run
 
-```
+```bash
 ./run_dos.sh [world | poly] [0 | 1] [scene path]`
 ```
 
@@ -242,13 +242,13 @@ Demonstrates movement controls over world geometry.
 
 ### Demo: poly
 
-```
+```bash
 ./run_posix poly 0
 ```
 
 Provide a model obj file as an optional param.
 
-```
+```bash
 ./run_posix poly 0 ./assets/models/cube.obj
 ./run_posix poly 0 ./assets/models/ico.obj
 ./run_posix poly 0 ./assets/models/tri.obj
@@ -275,7 +275,7 @@ Provide a model obj file as an optional param.
 
 Pass a value of 1 in the run script:
 
-```
+```bash
 run_tests.sh 1
 run_posix.sh [world | poly] 1
 run_dos.sh [world | poly] 1
