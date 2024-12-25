@@ -24,6 +24,7 @@ Point3f delta = {
 
 RasCamera* camera;
 RasSceneObject* selected_object = NULL;
+bool animation_enabled = true;
 
 char* default_scene = "./assets/scenes/tri.lsp";
 
@@ -59,6 +60,15 @@ void ras_objects_update(InputState* input_state)
             ras_log_info("Selected object index %d",
                 new_index);
         }
+    }
+
+    if (input_state->keys[RAS_KEY_K] == RAS_KEY_EVENT_UP) {
+        animation_enabled = !animation_enabled;
+        ras_log_info("Animation enabled: %s", animation_enabled ? "true" : "false");
+    }
+
+    if (!animation_enabled) {
+        return;
     }
 
     for (size_t i = 0; i < scene->num_objects; i++) {
