@@ -128,6 +128,9 @@ void core_renderstate_init(RenderState* state)
     state->clipping_mode = RAS_CLIPPING_ON;
     state->polygon_mode = RAS_POLYGON_WIREFRAME;
     state->normal_mode = RAS_NORMAL_MODE_OFF;
+    memset(state->material_indexes, 0, sizeof(state->material_indexes));
+    memset(state->visible_indexes, 0, sizeof(state->visible_indexes));
+    memset(state->visible_faces, 0, sizeof(state->visible_faces));
 };
 
 void core_renderstate_clear(RenderState* state)
@@ -138,6 +141,9 @@ void core_renderstate_clear(RenderState* state)
     state->num_visible_indexes = 0;
     state->num_material_indexes = 0;
     state->num_visible_faces = 0;
+    memset(state->material_indexes, 0, sizeof(state->material_indexes));
+    memset(state->visible_indexes, 0, sizeof(state->visible_indexes));
+    memset(state->visible_faces, 0, sizeof(state->visible_faces));
 }
 
 void projected_to_screen_point(RasFixed screen_width, RasFixed screen_height, RasFixed projected_point[4], Point2i* screen_point)
@@ -671,6 +677,11 @@ void core_append_vertex_buffer(
     RasPipelineVertexBuffer* vert_buffer)
 {
     uint32_t num_pipeline_verts_prev = render_state->num_pipeline_verts;
+
+    if (render_state->num_pipeline_verts + vert_buffer->num_verts > MAX_PIPELINE_VERTS) {
+        ras_log_error("Pipeline vertex buffer full, skipping append.");
+        return;
+    }
 
     memcpy(
         &render_state->pipeline_verts[render_state->num_pipeline_verts],
