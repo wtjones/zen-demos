@@ -54,3 +54,7 @@ Performs rotation and 'sub-tile' translation in the same pass. Runs slightly slo
 ## Games
 
 * [Rexile](rexile/) - Solitaire variant with a TUI
+
+## Tools
+
+* [Common Lisp env](tools/cl/) SBCL container
