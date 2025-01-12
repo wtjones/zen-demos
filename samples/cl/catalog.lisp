@@ -1,7 +1,10 @@
 (defstruct catalog-book
   (id 0 :type integer)
-  title
-  (isbn "" :type string))
+  (title "" :type string)
+  (isbn "" :type string)
+  (author "" :type string)
+  publication-year
+  genre)
 (defstruct book-checkout
   patron-id
   book-id
@@ -28,6 +31,14 @@
   (format t "Checked out:~% ~a~%" *catalog-book-checkouts*))
 (defun print-patrons ()
   (format t "Patrons:~% ~a~%" *patrons*))
+
+(defun load-catalog-from-file (file-path)
+  (with-open-file (stream file-path :direction :input)
+    (let ((entries (read stream)))
+      (mapcar (lambda (entry)
+                (apply #'make-catalog-book entry))
+          entries))))
+
 
 (defun get-patron-checkouts (patron-id)
   (remove-if-not
@@ -99,7 +110,7 @@
   (setf *patrons* (append patrons *patrons*)))
 
 (defun test ()
-  (setf *catalog-books* '())
+  (setf *catalog-books* (load-catalog-from-file "catalog.sexp"))
   (setf *catalog-book-checkouts* '())
   (setf *patrons* '())
 
@@ -107,34 +118,30 @@
                    (make-patron :id (get-id) :name "Abe")
                    (make-patron :id (get-id) :name "Brine")))
 
-  (let ((count-1 (intake-books (list (make-catalog-book :id (get-id) :title 'the-hobbit :isbn "0-306-40615-2")
-                                     (make-catalog-book :id (get-id) :title 'dune :isbn "0-406-40615-2")
-                                     (make-catalog-book :id (get-id) :title 'dune :isbn "0-406-40615-2")
-                                     (make-catalog-book :id (get-id) :title 'elder-race :isbn "0-506-40615-2")
-                                     (make-catalog-book :id (get-id) :title 'sapiens :isbn "0-606-40615-2")))))
-    (format t "Returned: ~a~%" count-1))
-
   (checkout-book
     (catalog-book-id
-      (find 'sapiens *catalog-books* :key #'catalog-book-title))
+      (find "The Martian" *catalog-books*
+        :key #'catalog-book-title :test #'string-equal))
     (patron-id
       (second *patrons*)))
 
   (checkout-book
     (catalog-book-id
-      (find 'the-hobbit *catalog-books* :key #'catalog-book-title))
+      (find "the hobbit" *catalog-books*
+        :key #'catalog-book-title :test #'string-equal))
     (patron-id
       (first *patrons*)))
 
   (checkout-book
     (catalog-book-id
-      (find 'dune *catalog-books* :key #'catalog-book-title))
+      (find "Dune" *catalog-books*
+        :key #'catalog-book-title :test #'string-equal))
     (patron-id
       (first *patrons*)))
 
   (checkout-book
     (catalog-book-id
-      (find 'elder-race *catalog-books* :key #'catalog-book-title))
+      (find "1984" *catalog-books* :key #'catalog-book-title :test #'string-equal))
     (patron-id
       (second *patrons*)))
 
