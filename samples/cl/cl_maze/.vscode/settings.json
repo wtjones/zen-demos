@@ -1,0 +1,19 @@
+{
+    "editor.formatOnType": true,
+    "[commonlisp]": {
+        "editor.wordSeparators": "`|;:'\",()"
+    },
+    "alive.lsp.startCommand": [
+        "sbcl",
+        "--eval",
+        "(require :asdf)",
+        "--eval",
+        "(asdf:load-system :alive-lsp)",
+        "--eval",
+        "(alive/server:start)",
+        "--load",
+        "maze.asd",
+        "--eval",
+        "(asdf:load-system :maze)"
+    ]
+}
