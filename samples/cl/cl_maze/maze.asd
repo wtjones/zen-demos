@@ -3,10 +3,12 @@
   :version "0.0.1"
   :author ""
   :license ""
-  :depends-on (:cl-charms)
+  :depends-on (#:cl-charms
+               #:alexandria)
   :components ((:module "src"
                         :components
                         ((:file "main")
-                         (:file "tui"))))
+                         (:file "tui")
+                         (:file "board"))))
   :description "Sample library"
   :long-description "Common Lisp sample library")

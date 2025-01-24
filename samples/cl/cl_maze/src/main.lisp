@@ -6,7 +6,8 @@
 (defvar *log-file*)
 
 (defun command-maze-export (&rest args)
-  (format t "Command: export with args: ~a~%" args))
+  (format t "Command: export with args: ~a~%" args)
+  (format t "gen: ~a~%" (generate-maze (first args) (second args))))
 
 
 (defun main ()
