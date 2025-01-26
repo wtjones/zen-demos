@@ -9,19 +9,25 @@
   (cells nil :type array))
 
 (defun is-pillar (row col)
-  (and (evenp row) (evenp col)))
+  (and (oddp row) (oddp col)))
 
 (defun initial-num-pillars (width height)
-  (* (+ (/ (- width 1) 2) 1)
-     (+ (/ (- height 1) 2) 1)))
+  (* (/ (- width 1) 2)
+     (/ (- height 1) 2)))
 
 (defun initial-pillars (width height)
   (let ((pillars ()))
-    (loop for row from 0 to (- height 1) by 2 do
-            (loop for col from 0 to (- width 1) by 2 do
+    (loop for row from 1 to (- height 2) by 2 do
+            (loop for col from 1 to (- width 2) by 2 do
                     (setf pillars (cons (list row col) pillars))))
     pillars))
 
+(defun in-bounds (board row col)
+  (let ((dimensions (array-dimensions (board-cells board))))
+    (and (< row (first dimensions))
+         (< col (second dimensions))
+         (>= row 0)
+         (>= col 0))))
 
 ; Create list of all pillars
 ; Randomize list 
@@ -62,6 +68,7 @@
   (let ((board (make-board
                  :cells (make-array
                             (list width height)
+                          :element-type *cell-type*
                           :initial-element 'empty)))
         (pillars (initial-pillars width height)))
 
@@ -69,10 +76,55 @@
     (format t "pillars: ~a~%" pillars)
 
     (loop while (> (length pillars) 0) do
-            (let ((pillar (pop pillars))
-                  (direction (random-direction)))
+            (let* ((pillar (pop pillars))
+                   (direction (random-direction))
+                   (row (first pillar))
+                   (col (second pillar)))
               (format t "dir: ~a~%" direction)
               (format t "pillar: ~a~%" pillar)
-              ; HERE: loop from pillar to first wall
-                      ))
+
+              ; Pillar becomes a wall
+              (setf
+                (aref (board-cells board) row col)
+                'wall)
+
+              ; do
+              ; set pos = next
+              ; if oob: break
+              ; if wall: break
+              ; if pillar: pop pillar
+              ; set wall
+
+              (loop while t
+                    do (format t "loop! ~a ~a~%" row col)
+
+                      (setq row
+                          (+ row
+                             (cond
+                              ((eq direction 'up) -1)
+                              ((eq direction 'down) 1)
+                              (t 0))))
+                      (setq col
+                          (+ col
+                             (cond
+                              ((eq direction 'left) -1)
+                              ((eq direction 'right) 1)
+                              (t 0))))
+                      (format t "loop after! ~a ~a~%" row col)
+
+                      (when (not (in-bounds board row col)) (return))
+                      (when (is-pillar row col)
+                            (format t "Removing pillar: before:~a~%" pillars)
+
+                            (setq pillars
+                                (remove-if
+                                    (lambda (item) (equal (list row col) item))
+                                    pillars))
+                            (format t "Removing pillar: after:~a~%" pillars))
+
+                      (setf
+                        (aref (board-cells board) row col)
+                        'wall))
+
+              (setf)))
     board))
