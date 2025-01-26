@@ -4,21 +4,21 @@
 (defparameter *direction* '(up down left right))
 
 (defstruct board
-  (width 0 :type integer)
-  (height 0 :type integer)
+  (cols 0 :type integer)
+  (rows 0 :type integer)
   (cells nil :type array))
 
 (defun is-pillar (row col)
   (and (oddp row) (oddp col)))
 
-(defun initial-num-pillars (width height)
-  (* (/ (- width 1) 2)
-     (/ (- height 1) 2)))
+(defun initial-num-pillars (rows cols)
+  (* (/ (- cols 1) 2)
+     (/ (- rows 1) 2)))
 
-(defun initial-pillars (width height)
+(defun initial-pillars (rows cols)
   (let ((pillars ()))
-    (loop for row from 1 to (- height 2) by 2 do
-            (loop for col from 1 to (- width 2) by 2 do
+    (loop for row from 1 to (- rows 2) by 2 do
+            (loop for col from 1 to (- cols 2) by 2 do
                     (setf pillars (cons (list row col) pillars))))
     pillars))
 
@@ -63,14 +63,14 @@
 (defun random-direction ()
   (nth (random (length *direction*)) *direction*))
 
-(defun generate-maze (width height)
-  (format t "Gen maze of sizex ~a~%" width)
+(defun generate-maze (rows cols)
+  (format t "Gen maze of sizex ~a~%" cols)
   (let ((board (make-board
                  :cells (make-array
-                            (list width height)
+                            (list rows cols)
                           :element-type *cell-type*
                           :initial-element 'empty)))
-        (pillars (initial-pillars width height)))
+        (pillars (initial-pillars rows cols)))
 
     (alexandria:shuffle pillars)
     (format t "pillars: ~a~%" pillars)
@@ -113,6 +113,8 @@
                       (format t "loop after! ~a ~a~%" row col)
 
                       (when (not (in-bounds board row col)) (return))
+                      (when (equal (aref (board-cells board) row col) 'wall)
+                            (return))
                       (when (is-pillar row col)
                             (format t "Removing pillar: before:~a~%" pillars)
 

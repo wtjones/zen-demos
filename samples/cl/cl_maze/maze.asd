@@ -7,8 +7,10 @@
                #:alexandria)
   :components ((:module "src"
                         :components
-                        ((:file "main")
-                         (:file "tui")
-                         (:file "board"))))
+                        ((:file "board")
+                         (:file "main")
+                         (:file "repr")
+                         (:file "tiles")
+                         (:file "tui"))))
   :description "Sample library"
   :long-description "Common Lisp sample library")

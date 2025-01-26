@@ -24,8 +24,30 @@ _Pillars_ are the anchor points for possible starting point for walls spans.
 +——————————————————+
 ```
 
+Logic
+
 ```text
 while !pillarsRemain:
     Choose an unused pillar at random // unused means no wall yet
     Choose a random direction
+    Move along direction:
+        If out-of-bounds: continue
+        If wall: continue
+        Set wall // this will overwrite pillars
+```
+
+Generated maze
+
+```text
+▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+▓▓          ░░      ▓▓
+▓▓  ░░░░░░  ░░  ░░  ▓▓
+▓▓  ░░      ░░  ░░  ▓▓
+▓▓░░░░  ░░  ░░  ░░  ▓▓
+▓▓      ░░  ░░  ░░  ▓▓
+▓▓  ░░░░░░  ░░  ░░░░▓▓
+▓▓      ░░          ▓▓
+▓▓  ░░░░░░░░░░  ░░  ▓▓
+▓▓      ░░      ░░  ▓▓
+▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 ```
