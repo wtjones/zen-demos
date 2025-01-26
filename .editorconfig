@@ -1,0 +1,7 @@
+# Top-most EditorConfig file
+root = true
+
+# Match all files
+[*]
+insert_final_newline = true
+
