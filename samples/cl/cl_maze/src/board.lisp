@@ -8,6 +8,9 @@
   (rows 0 :type integer)
   (cells nil :type array))
 
+(defun is-size-valid (rows cols)
+  (and (oddp rows) (oddp cols) (> rows 1) (> cols 1)))
+
 (defun is-pillar (row col)
   (and (oddp row) (oddp col)))
 
@@ -65,6 +68,9 @@
 
 (defun generate-maze (rows cols)
   (format t "Gen maze of sizex ~a~%" cols)
+  (when (not (is-size-valid rows cols))
+        (format *error-output* "Maze dimensions must be odd and >= (3 3).~%")
+        (return-from generate-maze))
   (let ((board (make-board
                  :cells (make-array
                             (list rows cols)
