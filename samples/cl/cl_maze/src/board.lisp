@@ -1,7 +1,7 @@
 (in-package #:maze)
 
 (defparameter *cell-type* '(empty wall))
-(defparameter *direction* '(up down left right))
+(defparameter *direction* '(up right down left))
 
 (defstruct board
   (cols 0 :type integer)
@@ -65,6 +65,62 @@
 
 (defun random-direction ()
   (nth (random (length *direction*)) *direction*))
+
+;; Returns (row col) one unit forward in direction 
+(defun next-pos (row col direction)
+  (format t "next-pos ~a ~a ~A ~S ~A ~S ~a~%"
+    row col direction direction 'up 'up (eql direction 'up))
+  (list (+ row
+           (cond
+            ((eql direction 'up) -1)
+            ((eql direction 'down) 1)
+            (t 0)))
+        (+ col
+           (cond
+            ((eql direction 'left) -1)
+            ((eql direction 'right) 1)
+            (t 0)))))
+
+(defun next-cursor-state (board cursor)
+
+  ; get next pos
+  (let ((new-pos (apply 'next-pos cursor))
+        (clockwise-dir
+         (nth
+           (mod (+ 1 (position (nth 2 cursor) *direction*)) 4)
+           *direction*))
+        (bounds-pos '()))
+    (format t "clockwise: ~a~%" clockwise-dir)
+    (assert
+        (in-bounds board (nth 0 new-pos) (nth 1 new-pos)))
+    ; if wall, get next again
+    (setq new-pos
+        (if
+         (eq
+          (aref (board-cells board) (first new-pos) (second new-pos))
+          'wall)
+         (next-pos (nth 0 new-pos) (nth 1 new-pos) (nth 2 cursor))
+         new-pos))
+    (setq bounds-pos (next-pos
+                       (nth 0 new-pos) (nth 1 new-pos) (nth 2 cursor)))
+    ; if next is oob, rotate cursor clockwise
+    (list (nth 0 new-pos) (nth 1 new-pos)
+          (if
+           (in-bounds board (nth 0 bounds-pos) (nth 1 bounds-pos))
+           (nth 2 cursor)
+           clockwise-dir))))
+
+;; Return count of adjacent walls
+(defun num-walls (board row col)
+  (let ((result 0))
+    (loop for r from (- row 1) to (+ row 1) do
+            (loop for c from (- col 1) to (+ col 1) do
+                    (incf result
+                          (cond ((not (in-bounds board r c)) 1)
+                                ((eq (aref (board-cells board) r c) 'wall) 1)
+                                (t 0)))))
+    result))
+
 
 (defun generate-maze (rows cols)
   (format t "Gen maze of sizex ~a~%" cols)
