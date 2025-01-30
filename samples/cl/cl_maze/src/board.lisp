@@ -82,7 +82,6 @@
             (t 0)))))
 
 (defun next-cursor-state (board cursor)
-
   ; get next pos
   (let ((new-pos (apply 'next-pos cursor))
         (clockwise-dir
@@ -111,7 +110,7 @@
            clockwise-dir))))
 
 ;; Return count of adjacent walls
-(defun num-walls (board row col)
+(defun count-walls (board row col)
   (let ((result 0))
     (loop for r from (- row 1) to (+ row 1) do
             (loop for c from (- col 1) to (+ col 1) do
@@ -121,6 +120,69 @@
                                 (t 0)))))
     result))
 
+
+;; Walk clockwise along border from start-cusor to end-cursor to find
+;; first cell that is a leaf.
+;; Leaf = cell with 7 walls that represents the end of a path.
+;; If not found, end-cursor is returned.
+(defun generate-goal (board start-cursor end-cursor)
+  (let* ((cursor (copy-list start-cursor))
+         (steps 0))
+    (loop while
+            (and
+             (/= (count-walls board (nth 0 cursor) (nth 1 cursor)) 7)
+             (not (equal cursor end-cursor)))
+          do
+            (setq cursor (next-cursor-state board cursor))
+            (incf steps)
+            (format t "cursor :~a~%" cursor)
+            ; sanity check
+            (assert (< steps 10000)))
+    cursor))
+
+;; Place entrance and exit cursors at opposite corners
+(defun generate-goals (board)
+  (let* ((dimensions (array-dimensions (board-cells board)))
+         (top-left '(0 0))
+         (bottom-right (list (- (nth 0 dimensions) 1)
+                             (- (nth 1 dimensions) 1)))
+         (start-cursor '(0 0 right))
+         (end-cursor (list (- (nth 0 dimensions) 1)
+                           (- (nth 1 dimensions) 1)
+                           'left))
+         (entrance '())
+         (exit '()))
+    (format t "gen goal: ~a ~a~%" start-cursor end-cursor)
+    (setq entrance (generate-goal
+                     board
+                     start-cursor
+                     end-cursor))
+
+    ; If entrance is bottom-right, start two spaces to the left
+    (setq start-cursor
+        (if
+         (equal entrance bottom-right)
+         (list (- (nth 0 dimensions) 1)
+               (- (nth 1 dimensions) 3)
+               'left)
+         (list (- (nth 0 dimensions) 1)
+               (- (nth 1 dimensions) 1)
+               'left)))
+
+    ; If entrance is top-left, end two spaces below
+    (setq end-cursor
+        (if
+         (equal entrance top-left)
+         '(2 0 'up)
+         '(0 0 'right)))
+
+    ; Seek from bottom-right to top-left
+    (setq exit (generate-goal
+                 board
+                 start-cursor
+                 end-cursor))
+
+    (list entrance exit)))
 
 (defun generate-maze (rows cols)
   (format t "Gen maze of sizex ~a~%" cols)
@@ -172,7 +234,6 @@
                               ((eq direction 'left) -1)
                               ((eq direction 'right) 1)
                               (t 0))))
-                      (format t "loop after! ~a ~a~%" row col)
 
                       (when (not (in-bounds board row col)) (return))
                       (when (equal (aref (board-cells board) row col) 'wall)
