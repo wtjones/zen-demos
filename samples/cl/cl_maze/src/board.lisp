@@ -187,7 +187,7 @@
                  end-cursor))
 
     (assert (not (equal entrance exit)))
-    (list entrance exit)))
+    (values entrance exit)))
 
 (defun generate-maze (rows cols)
   (format t "Gen maze of sizex ~a~%" cols)
@@ -255,7 +255,7 @@
                       (setf
                         (aref (board-cells board) row col)
                         'wall))))
-    (destructuring-bind (entrance exit) (generate-goals board)
+    (multiple-value-bind (entrance exit) (generate-goals board)
       (setf (board-entrance board) entrance)
       (setf (board-exit board) exit))
     board))
