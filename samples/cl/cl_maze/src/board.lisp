@@ -6,6 +6,8 @@
 (defstruct board
   (cols 0 :type integer)
   (rows 0 :type integer)
+  (entrance nil)
+  (exit nil)
   (cells nil :type array))
 
 (defun is-size-valid (rows cols)
@@ -68,8 +70,6 @@
 
 ;; Returns (row col) one unit forward in direction 
 (defun next-pos (row col direction)
-  (format t "next-pos ~a ~a ~A ~S ~A ~S ~a~%"
-    row col direction direction 'up 'up (eql direction 'up))
   (list (+ row
            (cond
             ((eql direction 'up) -1)
@@ -89,7 +89,6 @@
            (mod (+ 1 (position (nth 2 cursor) *direction*)) 4)
            *direction*))
         (bounds-pos '()))
-    (format t "clockwise: ~a~%" clockwise-dir)
     (assert
         (in-bounds board (nth 0 new-pos) (nth 1 new-pos)))
     ; if wall, get next again
@@ -135,10 +134,13 @@
           do
             (setq cursor (next-cursor-state board cursor))
             (incf steps)
-            (format t "cursor :~a~%" cursor)
+            (format t "cursor :~a is equal to ~a? ~a~%"
+              cursor
+              end-cursor
+              (equal cursor end-cursor))
             ; sanity check
             (assert (< steps 10000)))
-    cursor))
+    (subseq cursor 0 2)))
 
 ;; Place entrance and exit cursors at opposite corners
 (defun generate-goals (board)
@@ -157,6 +159,7 @@
                      board
                      start-cursor
                      end-cursor))
+    (format t "Entrance: ~a~%" entrance)
 
     ; If entrance is bottom-right, start two spaces to the left
     (setq start-cursor
@@ -173,15 +176,17 @@
     (setq end-cursor
         (if
          (equal entrance top-left)
-         '(2 0 'up)
-         '(0 0 'right)))
+         '(2 0 up)
+         '(0 0 right)))
 
     ; Seek from bottom-right to top-left
+    (format t "gen goal2: ~a ~a~%" start-cursor end-cursor)
     (setq exit (generate-goal
                  board
                  start-cursor
                  end-cursor))
 
+    (assert (not (equal entrance exit)))
     (list entrance exit)))
 
 (defun generate-maze (rows cols)
@@ -249,7 +254,8 @@
 
                       (setf
                         (aref (board-cells board) row col)
-                        'wall))
-
-              (setf)))
+                        'wall))))
+    (destructuring-bind (entrance exit) (generate-goals board)
+      (setf (board-entrance board) entrance)
+      (setf (board-exit board) exit))
     board))

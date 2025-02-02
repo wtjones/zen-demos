@@ -8,3 +8,4 @@
 (defconstant char-wall char-light-shade)
 (defconstant char-border char-dark-shade)
 (defconstant char-empty #\Space)
+(defconstant char-entrance #\E)
