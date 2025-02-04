@@ -7,8 +7,8 @@
                #:alexandria)
   :components ((:module "src"
                         :components
-                        ((:file "board")
-                         (:file "main")
+                        ((:file "main")
+                         (:file "board")
                          (:file "repr")
                          (:file "tiles")
                          (:file "tui"))))
