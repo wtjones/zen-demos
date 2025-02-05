@@ -8,6 +8,7 @@
   (rows 0 :type integer)
   (entrance nil)
   (exit nil)
+  (seed nil :type (unsigned-byte))
   (cells nil :type array))
 
 (defun is-size-valid (rows cols)
@@ -47,12 +48,12 @@
     (setf (nth index1 items) (nth index2 items))
     (setf (nth index2 items) temp)))
 
-(defun randomize (items)
+(defun shuffle (items &optional (seed-state (make-random-state t)))
   (dotimes (i (length items))
     (swap-elements
       items
-      (random (length items))
-      (random (length items)))))
+      (random (length items) seed-state)
+      (random (length items) seed-state))))
 
 
 ; FIXME: not working because can't reassign the reference
@@ -65,8 +66,8 @@
           items))
     result))
 
-(defun random-direction ()
-  (nth (random (length *direction*)) *direction*))
+(defun random-direction (&optional (seed-state (make-random-state t)))
+  (nth (random (length *direction*) seed-state) *direction*))
 
 ;; Returns (row col) one unit forward in direction 
 (defun next-pos (row col direction)
@@ -189,24 +190,26 @@
     (assert (not (equal entrance exit)))
     (values entrance exit)))
 
-(defun generate-maze (rows cols)
-  (format t "Gen maze of sizex ~a~%" cols)
+(defun generate-maze (rows cols &optional (seed (random 256)))
+  (format t "Gen maze of sizex ~a with seed ~a~%" cols seed)
   (when (not (is-size-valid rows cols))
         (format *error-output* "Maze dimensions must be odd and >= (3 3).~%")
         (return-from generate-maze))
   (let ((board (make-board
+                 :seed seed
                  :cells (make-array
                             (list rows cols)
                           :element-type *cell-type*
                           :initial-element 'empty)))
-        (pillars (initial-pillars rows cols)))
+        (pillars (initial-pillars rows cols))
+        (seed-state (sb-ext:seed-random-state seed)))
 
-    (alexandria:shuffle pillars)
+    (shuffle pillars seed-state)
     (format t "pillars: ~a~%" pillars)
 
     (loop while (> (length pillars) 0) do
             (let* ((pillar (pop pillars))
-                   (direction (random-direction))
+                   (direction (random-direction seed-state))
                    (row (first pillar))
                    (col (second pillar)))
               (format t "dir: ~a~%" direction)
@@ -225,8 +228,7 @@
               ; set wall
 
               (loop while t
-                    do (format t "loop! ~a ~a~%" row col)
-
+                    do
                       (setq row
                           (+ row
                              (cond

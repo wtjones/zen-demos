@@ -11,7 +11,6 @@
       (format s "~a~a" char-border char-border)
 
       (loop for col from 0 to col-max by 1 do
-              (format t "comparing ~a ~a ~%" (list 0 col) (board-entrance board))
               (cond
                ((equal (list 0 col) (board-entrance board))
                  (format s "~a~a" char-entrance char-entrance))

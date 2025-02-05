@@ -2,7 +2,9 @@
 
 ## Todo
 
-- [] Support random seed option
+- [] Single-iteration solver
+- [] Render maze in TUI
+- [] Solve maze in TUI
 
 ## Done
 
@@ -26,3 +28,4 @@
         ▓▓          ▓▓
         ▓▓▓▓▓▓▓▓▓▓▓▓▓▓
         goals: ((0 0) (0 0))
+- [x] Support random seed option

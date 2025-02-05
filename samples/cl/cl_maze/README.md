@@ -2,6 +2,25 @@
 
 ## Usage
 
+```lisp
+(load "maze.asd")
+(asdf:load-system :maze)
+```
+
+Random seed
+
+```lisp
+(let ((mz (maze::generate-maze 5 9)))
+  (maze::print-maze mz))
+```
+
+Specific seed
+
+```lisp
+(let ((mz (maze::generate-maze 5 9 128)))
+  (maze::print-maze mz))
+```
+
 ## Maze Gen
 
 Determine size of maze constrained to odd dimentions.
@@ -95,12 +114,3 @@ Result
 ```
 
 There are special cases where start and land on the same spot. The end goal range is moved over two spots from either corner to avoid.
-
-Scratch tests:
-
-```lisp
-(setq mz (maze::generate-maze 5 15))
-(let ((goals (maze::generate-goals mz)))
-  (maze::print-maze mz)
-  (format t "goals: ~a~%" goals))
-```
