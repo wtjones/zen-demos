@@ -1,6 +1,6 @@
 (in-package #:maze)
 
-(defparameter *cell-type* '(empty wall))
+(defparameter *cell-type* '(empty wall visited))
 (defparameter *direction* '(up right down left))
 
 (defstruct board

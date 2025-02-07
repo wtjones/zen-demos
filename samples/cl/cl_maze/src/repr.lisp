@@ -39,9 +39,13 @@
 
               (loop for col from 0 to col-max by 1 do
                       (let* ((cell (aref (board-cells board) row col))
-                             (char (if (equal cell 'wall)
-                                       char-wall
-                                       char-empty)))
+                             (char
+                               (cond
+                                ((equal cell 'wall)
+                                  char-wall)
+                                ((equal cell 'visited)
+                                  char-visited)
+                                (t char-empty))))
                         (format s "~a~a" char char)))
 
               ; trailing row border
