@@ -2,7 +2,7 @@
 
 ## Todo
 
-- [] Single-iteration solver
+- [] Solver example
 - [] Render maze in TUI
 - [] Solve maze in TUI
 
@@ -15,17 +15,8 @@
         ▓▓  ░░  ░░  ▓▓
         ▓▓  ░░  ░░  ▓▓
         ▓▓  ░░  ░░  ▓▓
-        ▓▓  ░░  ░░  ▓▓
-        ▓▓  ░░  ░░  ▓▓
-        ▓▓  ░░  ░░  ▓▓
-        ▓▓  ░░  ░░  ▓▓
-        ▓▓  ░░  ░░  ▓▓
-        ▓▓  ░░  ░░  ▓▓
-        ▓▓  ░░  ░░  ▓▓
-        ▓▓  ░░  ░░  ▓▓
-        ▓▓  ░░  ░░  ▓▓
-        ▓▓  ░░  ░░  ▓▓
         ▓▓          ▓▓
         ▓▓▓▓▓▓▓▓▓▓▓▓▓▓
         goals: ((0 0) (0 0))
 - [x] Support random seed option
+- [x] Single-iteration solver

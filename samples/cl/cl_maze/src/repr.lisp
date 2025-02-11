@@ -45,6 +45,8 @@
                                   char-wall)
                                 ((equal cell 'visited)
                                   char-visited)
+                                ((equal cell 'retreated)
+                                  char-retreated)
                                 (t char-empty))))
                         (format s "~a~a" char char)))
 

@@ -9,8 +9,9 @@
                         :components
                         ((:file "main")
                          (:file "board")
-                         (:file "repr")
+                         (:file "solve")
                          (:file "tiles")
+                         (:file "repr")
                          (:file "tui"))))
   :description "Sample library"
   :long-description "Common Lisp sample library")

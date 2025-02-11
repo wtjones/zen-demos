@@ -1,6 +1,6 @@
 (in-package #:maze)
 
-(defparameter *cell-type* '(empty wall visited))
+(defparameter *cell-type* '(empty wall visited retreated))
 (defparameter *direction* '(up right down left))
 
 (defstruct board
@@ -10,6 +10,13 @@
   (exit nil)
   (seed nil :type (unsigned-byte))
   (cells nil :type array))
+
+(defun next-direction (direction)
+  (nth
+    (mod (+ 1 (position
+                  direction
+                  *direction*)) 4)
+    *direction*))
 
 (defun is-size-valid (rows cols)
   (and (oddp rows) (oddp cols) (> rows 1) (> cols 1)))
@@ -34,6 +41,11 @@
          (< col (second dimensions))
          (>= row 0)
          (>= col 0))))
+
+(defun get-cell (board row col)
+  (if (not (in-bounds board row col))
+      (return-from get-cell nil))
+  (aref (board-cells board) row col))
 
 ; Create list of all pillars
 ; Randomize list 
