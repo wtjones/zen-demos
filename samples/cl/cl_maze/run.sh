@@ -3,13 +3,13 @@
 if [ "$#" -eq 0 ]; then
   sbcl --noinform --non-interactive \
        --load maze.asd \
-       --eval '(asdf:load-system :maze)' \
+       --eval '(require :maze)' \
        --eval '(maze:main)' \
        --quit
 else
   sbcl --noinform --non-interactive \
        --load maze.asd \
-       --eval '(asdf:load-system :maze)' \
+       --eval '(require :maze)' \
        --eval '(maze:main)' \
        --quit "$@"
 fi

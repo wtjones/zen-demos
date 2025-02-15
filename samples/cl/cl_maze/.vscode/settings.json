@@ -14,6 +14,6 @@
         "--load",
         "maze.asd",
         "--eval",
-        "(asdf:load-system :maze)"
+        "(require :maze)"
     ]
 }

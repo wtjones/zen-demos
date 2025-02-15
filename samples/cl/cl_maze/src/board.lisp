@@ -147,10 +147,6 @@
           do
             (setq cursor (next-cursor-state board cursor))
             (incf steps)
-            (format t "cursor :~a is equal to ~a? ~a~%"
-              cursor
-              end-cursor
-              (equal cursor end-cursor))
             ; sanity check
             (assert (< steps 10000)))
     (subseq cursor 0 2)))
@@ -167,12 +163,12 @@
                            'left))
          (entrance '())
          (exit '()))
-    (format t "gen goal: ~a ~a~%" start-cursor end-cursor)
+    (log:debug "gen goal: ~a ~a" start-cursor end-cursor)
     (setq entrance (generate-goal
                      board
                      start-cursor
                      end-cursor))
-    (format t "Entrance: ~a~%" entrance)
+    (log:debug "Entrance: ~a" entrance)
 
     ; If entrance is bottom-right, start two spaces to the left
     (setq start-cursor
@@ -193,7 +189,6 @@
          '(0 0 right)))
 
     ; Seek from bottom-right to top-left
-    (format t "gen goal2: ~a ~a~%" start-cursor end-cursor)
     (setq exit (generate-goal
                  board
                  start-cursor
@@ -203,7 +198,7 @@
     (values entrance exit)))
 
 (defun generate-maze (rows cols &optional (seed (random 256)))
-  (format t "Gen maze of sizex ~a with seed ~a~%" cols seed)
+  (log:debug "Gen maze of sizex ~a with seed ~a" cols seed)
   (when (not (is-size-valid rows cols))
         (format *error-output* "Maze dimensions must be odd and >= (3 3).~%")
         (return-from generate-maze))
@@ -217,15 +212,15 @@
         (seed-state (sb-ext:seed-random-state seed)))
 
     (shuffle pillars seed-state)
-    (format t "pillars: ~a~%" pillars)
+    (log:debug "pillars: ~a" pillars)
 
     (loop while (> (length pillars) 0) do
             (let* ((pillar (pop pillars))
                    (direction (random-direction seed-state))
                    (row (first pillar))
                    (col (second pillar)))
-              (format t "dir: ~a~%" direction)
-              (format t "pillar: ~a~%" pillar)
+              (log:debug "dir: ~a" direction)
+              (log:debug "pillar: ~a" pillar)
 
               ; Pillar becomes a wall
               (setf
@@ -258,13 +253,13 @@
                       (when (equal (aref (board-cells board) row col) 'wall)
                             (return))
                       (when (is-pillar row col)
-                            (format t "Removing pillar: before:~a~%" pillars)
+                            (log:debug "Removing pillar: before:~a" pillars)
 
                             (setq pillars
                                 (remove-if
                                     (lambda (item) (equal (list row col) item))
                                     pillars))
-                            (format t "Removing pillar: after:~a~%" pillars))
+                            (log:debug "Removing pillar: after:~a" pillars))
 
                       (setf
                         (aref (board-cells board) row col)

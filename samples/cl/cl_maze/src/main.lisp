@@ -3,19 +3,28 @@
   (:export #:main #:command-maze-export))
 (in-package #:maze)
 
-(defvar *log-file*)
-
-(defun command-maze-export (&rest args)
+(defun command-maze-export (args)
   (format t "Command: export with args: ~a~%" args)
-  (format t "gen: ~a~%" (generate-maze (first args) (second args))))
+
+  (let ((board (generate-maze
+                 (parse-integer (nth 0 args))
+                 (parse-integer (nth 1 args)))))
+    (format t "~a~%" (print-maze board))))
 
 
-(defun main ()
-  (let ((args (uiop:command-line-arguments)))
-    (if args
-        (progn
-         (format t "the arg: ~a~%" (first args))
-         (if (string= (string-downcase (string (first args))) "export")
-             (command-maze-export (cdr args))
-             (format t "Command ~a not valid~%" (first args))))
-        (command-maze-tui (cdr args)))))
+(defun main (&optional (args (uiop:command-line-arguments)))
+
+  (setup-logging)
+  (log:info "startup...")
+
+  (if args
+      (progn
+       (log:info "parsing command: ~a~%" (first args))
+       (if (string= (string-downcase (string (first args))) "export")
+           (command-maze-export (cdr args))
+           (format *error-output* "Command ~a not valid~%" (first args))))
+      t
+      ;disable until functional
+      ; (command-maze-tui (cdr args))
+      ;      )
+  ))

@@ -4,10 +4,12 @@
   :author ""
   :license ""
   :depends-on (#:cl-charms
-               #:alexandria)
+               #:alexandria
+               #:log4cl-extras)
   :components ((:module "src"
                         :components
                         ((:file "main")
+                         (:file "log")
                          (:file "board")
                          (:file "solve")
                          (:file "tiles")

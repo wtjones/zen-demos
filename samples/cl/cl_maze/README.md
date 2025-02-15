@@ -21,6 +21,10 @@ Specific seed
   (maze::print-maze mz))
 ```
 
+## Diagnostics
+
+Logs to `/tmp/cl_maze.log`.
+
 ## Maze Gen
 
 Determine size of maze constrained to odd dimentions.

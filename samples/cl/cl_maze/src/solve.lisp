@@ -51,7 +51,7 @@
 
            (next-dir (if is-first-step 'up
                          (next-direction (solution-step-direction (nth 0 stack))))))
-        (format t "so far: row ~a col ~a next-dir ~a~%" row col next-dir)
+        (log:debug "so far: row ~a col ~a next-dir ~a" row col next-dir)
 
         (when is-first-step
               (destructuring-bind (row col) entrance
@@ -62,7 +62,7 @@
         (loop for dir in *direction*
               do
 
-                (format t "Searching ~a ~a dir: ~a cell: ~a~%"
+                (log:debug "Searching ~a ~a dir: ~a cell: ~a"
                   row col dir
                   (apply 'get-cell (cons board (next-pos row col dir))))
 
@@ -73,7 +73,7 @@
                 ;   else: continue
 
                 (when (eq (apply 'get-cell (cons board (next-pos row col dir))) 'empty)
-                      (format t "Found empty~%")
+                      (log:debug "Found empty")
 
                       (destructuring-bind (row col) (next-pos row col dir)
                         (push (make-solution-step
@@ -86,19 +86,18 @@
                           (aref (board-cells board) row col)
                           'visited)
 
-                        (format t "Comparing ~a with exit ~a~%"
+                        (log:debug "Comparing ~a with exit ~a"
                           (list row col) exit)
                         (when (equal (list row col) exit)
-                              (format t "Exit found~%")
+                              (log:debug "Exit found~%")
                               (return-from iterate-solution t)))
 
                       (return-from iterate-solution nil)))
 
         ; Valid stop not found, pop and retreat
-        (format t "Retreating: ~a~%" (pop stack))
+        (log:debug "Retreating: %")
+        (pop stack)
         (setf
           (aref (board-cells board) row col)
-          'retreated))
-
-      (format t "stack: ~a~%" stack)))
+          'retreated))))
   nil)
