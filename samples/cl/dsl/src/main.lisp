@@ -8,7 +8,6 @@
            #:.&return))
 (in-package #:dsl)
 
-
 (defun to-infix (expr)
   (cond ((not (listp expr)) (princ-to-string expr))
         ((equal expr '()) nil)
@@ -18,42 +17,37 @@
              (nth 0 expr)
              (to-infix (nth 2 expr))))))
 
-
-(defun eval-dsl (expr &key (indent-level 0))
-  (with-output-to-string (s)
+(defun eval-dsl (expr)
+  (let ((result '()))
     (loop for e in expr collect
-
             (destructuring-bind (name &rest properties) e
               (let* ((zfunc (intern (format nil ".&~a" name) :dsl))
                      (struct-def `(,zfunc ,@properties)))
                 (format t "eval: ~a~%" struct-def)
-                (format t "len: ~a~%" (length expr))
-                (princ (make-string indent-level :initial-element #\Space))
-                (princ (apply zfunc properties) s)
+                (format t "evala: ~a~%" (apply zfunc properties))
 
-                (when (> (length expr) 1)
-                      (terpri s)))))))
+                (setf result (append result
+                               (apply zfunc properties))))))
+    result))
 
 
 (defun .&equ (name expr)
-  (format nil "DEF ~a ~a" name (to-infix expr)))
+  (list (make-line 'directive "DEF" name "EQU" (to-infix expr))))
 
 (defun .&defsub (name &rest expr)
-  (with-output-to-string (s)
-    (format s "~a::~%~a~%    ret~%"
-      name
-      (eval-dsl expr))))
+  (append (list (make-line 'instruction name))
+    (eval-dsl expr)
+    (list (make-line 'instruction "ret"))))
 
 (defun .&setf (name val)
-  (with-output-to-string (s)
-    (format s "    ld a, ~a~%" val)
-    (format s "    [~(~A~)], a" name)))
+  (list
+   (make-line 'instruction (format nil "ld a, ~a" val))
+   (make-line 'instruction (format nil "[~(~A~)], a" name))))
 
 (defun .&return ()
-  (with-output-to-string (s)
-    (format s "    ret~%")))
+  (list (make-line 'instruction "ret")))
 
-
+; here: convert to new structure
 (defun .&when (cond-expr &rest body)
   (with-output-to-string (s)
     (let ((cond-asm

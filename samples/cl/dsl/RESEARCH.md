@@ -41,7 +41,7 @@ Output
 
 ```asm
 DEF COMMAND_LIST_SIZE       EQU 1
-DEF COMMANDS_PER_FRAME_MAX  EQU SCRN_X_B * 3 ; only expanded, as rgbds will computed at compile time
+DEF COMMANDS_PER_FRAME_MAX  EQU SCRN_X_B * 3 ; only expanded, as rgbds will compute at compile time
 
 ```
 

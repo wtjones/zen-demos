@@ -4,20 +4,63 @@
 
 (REMOVE-ALL-TESTS-IN-PACKAGE)
 
-(define-test eval-equates-scalar
-  (is equal "DEF BAD 123"
-      (dsl::eval-dsl '((equ :bad 123)))))
+(defun join-elements (vec)
+  (format nil "~{~A~^ ~A~}" vec))
 
+(defun compare-asm-line (line1 line2)
+
+  (format t "comp elem: ~a~%~a~%~a~%"
+    (dsl::asm-line-elements line1) (dsl::asm-line-elements line2)
+    (equalp (dsl::asm-line-elements line1)
+            (dsl::asm-line-elements line2)))
+
+  (and (equal (dsl::asm-line-line-type line1)
+              (dsl::asm-line-line-type line2))
+       (equalp (dsl::asm-line-elements line1)
+               (dsl::asm-line-elements line2))))
+
+
+(define-test sanity1
+  (let ((line1
+         (dsl::make-line 'dsl::label "foo::"))
+
+        (line2
+         (dsl::make-line 'dsl::label "foo::")))
+    (true (compare-asm-line line1 line2))))
+
+
+(define-test eval-equates-scalar
+  (true
+      (compare-asm-line
+        (dsl::make-line 'dsl::directive "DEF" "BAD" "EQU" "123")
+        (nth 0 (dsl::eval-dsl '((equ BAD "123")))))))
 
 (define-test eval-equates-operator
-  (is equal "DEF MAX (4 + 5)" (dsl::eval-dsl '((equ max (+ 4 5))))))
+  (true (compare-asm-line
+          (dsl::make-line 'dsl::directive "DEF" "MAX" "EQU" "(4 + 5)")
+          (nth 0 (dsl::eval-dsl '((equ MAX (+ 4 5))))))))
+
+
+(define-test eval-setf
+  (true
+      (compare-asm-line
+        (dsl::make-line 'dsl::instruction "ld a, 123")
+        (nth 0 (dsl::eval-dsl '((setf baz 123)))))))
 
 (define-test eval-sub
   (let ((result (dsl::eval-dsl '((defsub mysub
-                                         (setf foo 1)
+                                         (setf fob 10)
                                          (setf baz 3))))))
-    (format t "~a~%" result)
-    (true result)))
+    (format t "*********testing sub!!!! ~a~%" (nth 1 result))
+    (true
+        (compare-asm-line
+          (dsl::make-line 'dsl::instruction "mysub")
+          (nth 0 result)))
+
+    (true
+        (compare-asm-line
+          (dsl::make-line 'dsl::instruction "ld a, 10")
+          (nth 1 result)))))
 
 
 (define-test eval-whenf

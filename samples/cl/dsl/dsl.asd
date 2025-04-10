@@ -6,7 +6,8 @@
   :depends-on ()
   :components ((:module "src"
                         :components
-                        ((:file "main"))))
+                        ((:file "main")
+                         (:file "asm"))))
   :description "Sample dsl"
   :long-description "Common Lisp sample dsl")
 
