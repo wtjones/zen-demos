@@ -73,8 +73,8 @@ ld      [my_byte], a
 Input
 
 ```lisp
-(defsub init
-    (setf my_byte 0))
+(defsub (:global init)
+    setf my_byte 0))
 ```
 
 Output

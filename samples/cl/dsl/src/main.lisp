@@ -35,9 +35,19 @@
   (list (make-line 'directive "DEF" name "EQU" (to-infix expr))))
 
 (defun .&defsub (name &rest expr)
-  (append (list (make-line 'instruction name))
-    (eval-dsl expr)
-    (list (make-line 'instruction "ret"))))
+  (when (or (not (consp name)) (/= (length name) 2))
+        (progn
+         (format t "Param error")
+         (return-from .&defsub)))
+
+  (let
+      ((scope (cond
+               ((and (consp name) (eq (first name) :global)) "::")
+               (t ":"))))
+    (append (list (make-line 'label
+                    (format nil "~a~a" (nth 1 name) scope)))
+      (eval-dsl expr)
+      (list (make-line 'instruction "ret")))))
 
 (defun .&setf (name val)
   (list

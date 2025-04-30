@@ -48,7 +48,7 @@
         (nth 0 (dsl::eval-dsl '((setf baz 123)))))))
 
 (define-test eval-sub
-  (let ((result (dsl::eval-dsl '((defsub mysub
+  (let ((result (dsl::eval-dsl '((defsub (:global mysub)
                                          (setf fob 10)
                                          (setf baz 3))))))
     (format t "*********testing sub!!!! ~a~%" (nth 1 result))
