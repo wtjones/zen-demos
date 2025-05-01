@@ -19,6 +19,10 @@
        (equalp (dsl::asm-line-elements line1)
                (dsl::asm-line-elements line2))))
 
+(defun compare-asm-lines (lines1 lines2)
+  (when (/= (length lines1) (length lines2))
+        (return-from compare-asm-lines nil))
+  (every #'compare-asm-line lines1 lines2))
 
 (define-test sanity1
   (let ((line1
@@ -49,19 +53,15 @@
 
 (define-test eval-sub
   (let ((result (dsl::eval-dsl '((defsub (:global mysub)
-                                         (setf fob 10)
-                                         (setf baz 3))))))
-    (format t "*********testing sub!!!! ~a~%" (nth 1 result))
+                                         (setf fob 10))))))
     (true
-        (compare-asm-line
-          (dsl::make-line 'dsl::instruction "mysub")
-          (nth 0 result)))
-
-    (true
-        (compare-asm-line
-          (dsl::make-line 'dsl::instruction "ld a, 10")
-          (nth 1 result)))))
-
+        (compare-asm-lines
+          result
+          (list
+           (dsl::make-line 'dsl::label "mysub::")
+           (dsl::make-line 'dsl::instruction "ld a, 10")
+           (dsl::make-line 'dsl::instruction "[fob], a")
+           (dsl::make-line 'dsl::instruction "ret"))))))
 
 (define-test eval-whenf
   (let ((result (dsl::eval-dsl '((when (<= MAP_WIDTH pos_x)
@@ -69,6 +69,5 @@
                                        (return))))))
     (format t "~a~%" result)
     (true result)))
-
 
 (test :dsl/tests)
