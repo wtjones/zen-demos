@@ -3,6 +3,7 @@
 (in-package :dsl/tests)
 
 (REMOVE-ALL-TESTS-IN-PACKAGE)
+(defvar *dummystate* (dsl::make-asm-state))
 
 (defun join-elements (vec)
   (format nil "~{~A~^ ~A~}" vec))
@@ -34,26 +35,32 @@
 
 
 (define-test eval-equates-scalar
-  (true
-      (compare-asm-line
-        (dsl::make-line 'dsl::directive "DEF" "BAD" "EQU" "123")
-        (nth 0 (dsl::eval-dsl '((equ BAD "123")))))))
+  (let ((state (dsl::make-asm-state)))
+    (true
+        (compare-asm-line
+          (dsl::make-line 'dsl::directive "DEF" "BAD" "EQU" "123")
+          (nth 0 (dsl::eval-dsl state '((equ BAD "123"))))))
+    (true (dsl::asm-constant-p state 'BAD))))
 
 (define-test eval-equates-operator
   (true (compare-asm-line
           (dsl::make-line 'dsl::directive "DEF" "MAX" "EQU" "(4 + 5)")
-          (nth 0 (dsl::eval-dsl '((equ MAX (+ 4 5))))))))
+          (nth 0 (dsl::eval-dsl *dummystate* '((equ MAX (+ 4 5))))))))
 
 
 (define-test eval-setf
   (true
       (compare-asm-line
         (dsl::make-line 'dsl::instruction "ld a, 123")
-        (nth 0 (dsl::eval-dsl '((setf baz 123)))))))
+        (nth 0 (dsl::eval-dsl
+                 *dummystate*
+                 '((setf baz 123)))))))
 
 (define-test eval-sub
-  (let ((result (dsl::eval-dsl '((defsub (:global mysub)
-                                         (setf fob 10))))))
+  (let ((result (dsl::eval-dsl
+                  *dummystate*
+                  '((defsub (:global mysub)
+                            (setf fob 10))))))
     (true
         (compare-asm-lines
           result
@@ -64,9 +71,12 @@
            (dsl::make-line 'dsl::instruction "ret"))))))
 
 (define-test eval-whenf
-  (let ((result (dsl::eval-dsl '((when (<= MAP_WIDTH pos_x)
-                                       (setf my_result EMPTY_TILE)
-                                       (return))))))
+  (let ((result
+         (dsl::eval-dsl
+           *dummystate*
+           '((when (<= MAP_WIDTH pos_x)
+                   (setf my_result EMPTY_TILE)
+                   (return))))))
     (format t "~a~%" result)
     (true result)))
 

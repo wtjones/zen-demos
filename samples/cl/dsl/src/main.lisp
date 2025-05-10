@@ -17,24 +17,24 @@
              (nth 0 expr)
              (to-infix (nth 2 expr))))))
 
-(defun eval-dsl (expr)
+(defun eval-dsl (state expr)
   (let ((result '()))
     (loop for e in expr collect
             (destructuring-bind (name &rest properties) e
               (let* ((zfunc (intern (format nil ".&~a" name) :dsl))
                      (struct-def `(,zfunc ,@properties)))
                 (format t "eval: ~a~%" struct-def)
-                (format t "evala: ~a~%" (apply zfunc properties))
-
                 (setf result (append result
-                               (apply zfunc properties))))))
+                               (apply zfunc (cons state properties)))))))
     result))
 
 
-(defun .&equ (name expr)
+(defun .&equ (state name expr)
+  (format t "Setting const: ~a~%" name)
+  (asm-set-constant state name)
   (list (make-line 'directive "DEF" name "EQU" (to-infix expr))))
 
-(defun .&defsub (name &rest expr)
+(defun .&defsub (state name &rest expr)
   (when (or (not (consp name)) (/= (length name) 2))
         (progn
          (format t "Param error")
@@ -46,10 +46,10 @@
                (t ":"))))
     (append (list (make-line 'label
                     (format nil "~a~a" (nth 1 name) scope)))
-      (eval-dsl expr)
+      (eval-dsl state expr)
       (list (make-line 'instruction "ret")))))
 
-(defun .&setf (name val)
+(defun .&setf (state name val)
   (list
    (make-line 'instruction (format nil "ld a, ~a" val))
    (make-line 'instruction (format nil "[~(~A~)], a" name))))
@@ -58,7 +58,7 @@
   (list (make-line 'instruction "ret")))
 
 ; here: convert to new structure
-(defun .&when (cond-expr &rest body)
+(defun .&when (state cond-expr &rest body)
   (with-output-to-string (s)
     (let ((cond-asm
            (cond
@@ -69,7 +69,7 @@
 
       (format s "~a~%~a~%~%"
         cond-asm
-        (eval-dsl body)))))
+        (eval-dsl state body)))))
 
 
 (defun main (&optional (args (uiop:command-line-arguments)))
