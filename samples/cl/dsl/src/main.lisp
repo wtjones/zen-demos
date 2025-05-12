@@ -58,6 +58,10 @@
       (list (make-line 'instruction "ret")))))
 
 (defun .&setf (state name val)
+  (when (not (asm-variable-p state name))
+        (progn
+         (format t "Variable not defined.")
+         (return-from .&setf)))
   (list
    (make-line 'instruction (format nil "ld a, ~a" val))
    (make-line 'instruction (format nil "[~(~A~)], a" name))))

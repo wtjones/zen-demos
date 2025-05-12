@@ -58,35 +58,42 @@
 
 
 (define-test eval-setf
-  (true
-      (compare-asm-line
-        (dsl::make-line 'dsl::instruction "ld a, 123")
-        (nth 0 (dsl::eval-dsl
-                 *dummystate*
-                 '((setf baz 123)))))))
+  (let ((state (dsl::make-asm-state)))
+    (dsl::asm-set-variable state 'baz)
+    (true
+        (compare-asm-line
+          (dsl::make-line 'dsl::instruction "ld a, 123")
+          (nth 0 (dsl::eval-dsl
+                   state
+                   '((setf baz 123))))))))
 
 (define-test eval-sub
-  (let ((result (dsl::eval-dsl
-                  *dummystate*
-                  '((defsub (:global mysub)
-                            (setf fob 10))))))
-    (true
-        (compare-asm-lines
-          result
-          (list
-           (dsl::make-line 'dsl::label "mysub::")
-           (dsl::make-line 'dsl::instruction "ld a, 10")
-           (dsl::make-line 'dsl::instruction "[fob], a")
-           (dsl::make-line 'dsl::instruction "ret"))))))
+  (let ((state (dsl::make-asm-state)))
+    (dsl::asm-set-variable state 'fob)
+
+    (let ((result (dsl::eval-dsl
+                    state
+                    '((defsub (:global mysub)
+                              (setf fob 10))))))
+      (true
+          (compare-asm-lines
+            result
+            (list
+             (dsl::make-line 'dsl::label "mysub::")
+             (dsl::make-line 'dsl::instruction "ld a, 10")
+             (dsl::make-line 'dsl::instruction "[fob], a")
+             (dsl::make-line 'dsl::instruction "ret")))))))
 
 (define-test eval-whenf
-  (let ((result
-         (dsl::eval-dsl
-           *dummystate*
-           '((when (<= MAP_WIDTH pos_x)
-                   (setf my_result EMPTY_TILE)
-                   (return))))))
-    (format t "~a~%" result)
-    (true result)))
+  (let ((state (dsl::make-asm-state)))
+    (dsl::asm-set-variable state 'my_result)
+    (let ((result
+           (dsl::eval-dsl
+             state
+             '((when (<= MAP_WIDTH pos_x)
+                     (setf my_result EMPTY_TILE)
+                     (return))))))
+      (format t "~a~%" result)
+      (true result))))
 
 (test :dsl/tests)
