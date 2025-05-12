@@ -48,6 +48,15 @@
           (nth 0 (dsl::eval-dsl *dummystate* '((equ MAX (+ 4 5))))))))
 
 
+(define-test eval-defvar
+  (let ((state (dsl::make-asm-state)))
+    (true
+        (compare-asm-line
+          (dsl::make-line 'dsl::directive "my_var:" "DS" "1")
+          (nth 0 (dsl::eval-dsl state '((defvar my_var))))))
+    (true (dsl::asm-variable-p state 'my_var))))
+
+
 (define-test eval-setf
   (true
       (compare-asm-line

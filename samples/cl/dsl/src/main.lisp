@@ -34,6 +34,14 @@
   (asm-set-constant state name)
   (list (make-line 'directive "DEF" name "EQU" (to-infix expr))))
 
+(defun .&defvar (state name)
+  "Defines a var in form of 'name: DS 1' with lower case."
+  (asm-set-variable state name)
+
+  (list (make-line
+            'directive
+          (format nil "~a:" (string-downcase name)) "DS" "1")))
+
 (defun .&defsub (state name &rest expr)
   (when (or (not (consp name)) (/= (length name) 2))
         (progn
