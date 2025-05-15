@@ -111,6 +111,26 @@ Output
 Input
 
 ```lisp
+(when (> MAP_WIDTH pos_x)
+    (setf my_result EMPTY_TILE)
+    (return))
+```
+
+Output
+
+```asm
+    ld      a,77
+    sub     (hl)
+    jp      nc,i_4 ; if MAP_WIDTH > x
+    ld  a, EMPTY_TILE
+    ld  [my_result], a
+    ret
+.i_4
+```
+
+Input
+
+```lisp
 (when (= cell_buffer_x 0)
     (inc_neighbor_count_buffer))
 ```
@@ -130,3 +150,5 @@ Output
 <https://gitlab.com/nebogeo/co2/-/blob/master/co2.scm?ref_type=heads>
 
 <https://inconvergent.net/2023/lets-write-a-dsl/>
+
+<https://godbolt.org/z/WEhrrWrEW>
