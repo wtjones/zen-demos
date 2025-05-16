@@ -89,15 +89,16 @@ When either:
 
 Not implemented, just listing some that I have seen.
 
-* Combine with 15, not 10
-* Non-corner borders can have either J/Q
+* Combine with 15, not 10.
+* Non-corner borders can have either J/Q.
 * Deck must be empty to win.
+* Combine with n-cards, not just pairs.
 
 ## Run
 
 ```bash
 ./run_build.sh
-./build/rexile
+./build/bin/rexile
 ```
 
 Logs are written to `/tmp/rexile.log`
