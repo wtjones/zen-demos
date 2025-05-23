@@ -44,7 +44,15 @@
 
 ### Scene management
 
+### Text
+
+- [ ] Text clipping
+- [ ] Font bitmap material
+- [ ] Format printing
+
 ## In Progress
+
+- [ ] Text culling
 
 ### Models
 

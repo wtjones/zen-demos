@@ -103,3 +103,28 @@ Thread model: posix
 Supported LTO compression algorithms: zlib
 gcc version 14.1.0 (GCC)
 ```
+
+## Text
+
+Ideal situation is to use the same 3d pipline by rendering characters as orthographic two poly sprites.
+
+### Phase 1 - direct screen space
+
+1. App calls core_draw_text()
+    - provide font, top-left coords
+    - coords are screen absolute
+1. Determine top left screen coord of first char from given pos.
+    - Ortho matrix is skipped here. Coord should match.
+1. Generate 4 verts
+1. Generate two triangles via vert indices.
+1. Map material in some way.
+    - Lacking texture mapping, add a special sprite mode that assumes two tris.
+
+### Phase 2 - texture mapping
+
+1. App calls core_draw_text()
+    - provide font, top-left coords
+    - coords are screen absolute
+1. Build ortho matrix
+1. Generate 4 verts, 2 tris per character.
+1. Apply UVs via texture mapping.

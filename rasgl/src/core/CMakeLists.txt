@@ -19,6 +19,7 @@ add_library(core
     sc_animation.c
     sc_load.c
     sc_scene.c
+    text.c
     string.c)
 
 target_include_directories(core PUBLIC include)
