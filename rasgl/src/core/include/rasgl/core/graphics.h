@@ -54,7 +54,9 @@ typedef enum {
 
 typedef enum {
     RAS_POLYGON_WIREFRAME,
-    RAS_POLYGON_SOLID
+    RAS_POLYGON_SOLID,
+    RAS_POLYGON_BITMAP,
+    RAS_POLYGON_COUNT
 } RasPolygonMode;
 
 typedef struct ScreenSettings {

@@ -112,101 +112,119 @@ uint8_t color_from_material(int32_t material)
         : (7 + (material * 8));
 }
 
+void render_polygon_wireframe(RenderState* state)
+{
+    uint32_t i = 0;
+
+    RasVector4f* sv;
+    uint32_t material_index = 0;
+    while (i < state->num_visible_indexes) {
+        int32_t material = state->material_indexes[material_index];
+        if (material == -1) {
+            ras_log_buffer("Face %d has material = %d", i / 3, material);
+        }
+        int8_t color = material == -1
+            ? 7
+            : (7 + (material * 8));
+        RasPipelineVertex* pv0 = &state->pipeline_verts[state->visible_indexes[i++]];
+        sv = &pv0->screen_space_position;
+        Point2i point0 = {
+            .x = FIXED_16_16_TO_INT_32(sv->x),
+            .y = FIXED_16_16_TO_INT_32(sv->y)
+        };
+
+        RasPipelineVertex* pv1 = &state->pipeline_verts[state->visible_indexes[i++]];
+        sv = &pv1->screen_space_position;
+        Point2i point1 = {
+            .x = FIXED_16_16_TO_INT_32(sv->x),
+            .y = FIXED_16_16_TO_INT_32(sv->y)
+        };
+
+        RasPipelineVertex* pv2 = &state->pipeline_verts[state->visible_indexes[i++]];
+        sv = &pv2->screen_space_position;
+        Point2i point2 = {
+            .x = FIXED_16_16_TO_INT_32(sv->x),
+            .y = FIXED_16_16_TO_INT_32(sv->y)
+        };
+
+        ras_draw_line(surface, &point0, &point1, color);
+        ras_draw_line(surface, &point1, &point2, color);
+        ras_draw_line(surface, &point2, &point0, color);
+        material_index++;
+    }
+}
+
+void render_polygon_solid(RenderState* state)
+{
+    uint32_t i = 0;
+    RasVector4f* tri[3];
+    RasHorizontalLine hlines[255];
+    size_t num_hlines = 0;
+    uint32_t material_index = 0;
+
+    RasPipelineFace* face = &state->visible_faces[0];
+
+    while (i < state->num_visible_indexes) {
+        int32_t material = state->material_indexes[material_index];
+
+        if (material == -1) {
+            ras_log_buffer("Face %d has material = %d", i / 3, material);
+        }
+
+        char buffer[255];
+        RasFixed max_shade = INT_32_TO_FIXED_16_16(7);
+        RasFixed shade_fixed = mul_fixed_16_16_by_fixed_16_16(face->diffuse_intensity, max_shade);
+        ras_log_buffer("diffuse_intensity: %s", repr_fixed_16_16(buffer, sizeof buffer, face->diffuse_intensity));
+        ras_log_buffer("shade_fixed: %s", repr_fixed_16_16(buffer, sizeof buffer, shade_fixed));
+        int shade = FIXED_16_16_TO_INT_32(shade_fixed);
+        shade = shade < 1 ? 1 : shade;
+        assert(shade <= 7);
+
+        int8_t color = material == -1
+            ? shade
+            : (shade + (material * 8));
+
+        RasPipelineVertex* pv0 = &state->pipeline_verts[state->visible_indexes[i++]];
+        tri[0] = &pv0->screen_space_position;
+
+        RasPipelineVertex* pv1 = &state->pipeline_verts[state->visible_indexes[i++]];
+        tri[1] = &pv1->screen_space_position;
+
+        RasPipelineVertex* pv2 = &state->pipeline_verts[state->visible_indexes[i++]];
+        tri[2] = &pv2->screen_space_position;
+        rasterize_tri(tri, hlines, &num_hlines);
+
+        for (size_t j = 0; j < num_hlines; j++) {
+            Point2i point0 = {
+                .x = hlines[j].left.x,
+                .y = hlines[j].left.y
+            };
+            Point2i point1 = {
+                .x = hlines[j].right.x,
+                .y = hlines[j].right.y
+            };
+            ras_draw_line(surface, &point0, &point1, color);
+        }
+        material_index++;
+        face++;
+    }
+}
+
+void render_polygon_bitmap(RenderState* state)
+{
+}
+
+void (*g_render_fns[RAS_POLYGON_COUNT])(RenderState* state) = {
+    render_polygon_wireframe,
+    render_polygon_solid,
+    render_polygon_bitmap
+};
+
 void render_state(RenderState* state)
 {
     int i = 0;
 
-    if (state->polygon_mode == RAS_POLYGON_WIREFRAME) {
-        RasVector4f* sv;
-        uint32_t material_index = 0;
-        while (i < state->num_visible_indexes) {
-            int32_t material = state->material_indexes[material_index];
-            if (material == -1) {
-                ras_log_buffer("Face %d has material = %d", i / 3, material);
-            }
-            int8_t color = material == -1
-                ? 7
-                : (7 + (material * 8));
-            RasPipelineVertex* pv0 = &state->pipeline_verts[state->visible_indexes[i++]];
-            sv = &pv0->screen_space_position;
-            Point2i point0 = {
-                .x = FIXED_16_16_TO_INT_32(sv->x),
-                .y = FIXED_16_16_TO_INT_32(sv->y)
-            };
-
-            RasPipelineVertex* pv1 = &state->pipeline_verts[state->visible_indexes[i++]];
-            sv = &pv1->screen_space_position;
-            Point2i point1 = {
-                .x = FIXED_16_16_TO_INT_32(sv->x),
-                .y = FIXED_16_16_TO_INT_32(sv->y)
-            };
-
-            RasPipelineVertex* pv2 = &state->pipeline_verts[state->visible_indexes[i++]];
-            sv = &pv2->screen_space_position;
-            Point2i point2 = {
-                .x = FIXED_16_16_TO_INT_32(sv->x),
-                .y = FIXED_16_16_TO_INT_32(sv->y)
-            };
-
-            ras_draw_line(surface, &point0, &point1, color);
-            ras_draw_line(surface, &point1, &point2, color);
-            ras_draw_line(surface, &point2, &point0, color);
-            material_index++;
-        }
-    } else {
-        i = 0;
-        RasVector4f* tri[3];
-        RasHorizontalLine hlines[255];
-        size_t num_hlines = 0;
-        uint32_t material_index = 0;
-
-        RasPipelineFace* face = &state->visible_faces[0];
-
-        while (i < state->num_visible_indexes) {
-            int32_t material = state->material_indexes[material_index];
-
-            if (material == -1) {
-                ras_log_buffer("Face %d has material = %d", i / 3, material);
-            }
-
-            char buffer[255];
-            RasFixed max_shade = INT_32_TO_FIXED_16_16(7);
-            RasFixed shade_fixed = mul_fixed_16_16_by_fixed_16_16(face->diffuse_intensity, max_shade);
-            ras_log_buffer("diffuse_intensity: %s", repr_fixed_16_16(buffer, sizeof buffer, face->diffuse_intensity));
-            ras_log_buffer("shade_fixed: %s", repr_fixed_16_16(buffer, sizeof buffer, shade_fixed));
-            int shade = FIXED_16_16_TO_INT_32(shade_fixed);
-            shade = shade < 1 ? 1 : shade;
-            assert(shade <= 7);
-
-            int8_t color = material == -1
-                ? shade
-                : (shade + (material * 8));
-
-            RasPipelineVertex* pv0 = &state->pipeline_verts[state->visible_indexes[i++]];
-            tri[0] = &pv0->screen_space_position;
-
-            RasPipelineVertex* pv1 = &state->pipeline_verts[state->visible_indexes[i++]];
-            tri[1] = &pv1->screen_space_position;
-
-            RasPipelineVertex* pv2 = &state->pipeline_verts[state->visible_indexes[i++]];
-            tri[2] = &pv2->screen_space_position;
-            rasterize_tri(tri, hlines, &num_hlines);
-
-            for (size_t j = 0; j < num_hlines; j++) {
-                Point2i point0 = {
-                    .x = hlines[j].left.x,
-                    .y = hlines[j].left.y
-                };
-                Point2i point1 = {
-                    .x = hlines[j].right.x,
-                    .y = hlines[j].right.y
-                };
-                ras_draw_line(surface, &point0, &point1, color);
-            }
-            material_index++;
-            face++;
-        }
-    }
+    g_render_fns[state->polygon_mode](state);
 
     for (size_t i = 0; i < state->num_commands; i++) {
         RenderCommand* command = &state->commands[i];
