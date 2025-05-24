@@ -59,6 +59,12 @@ typedef enum {
     RAS_POLYGON_COUNT
 } RasPolygonMode;
 
+typedef enum {
+    RAS_LAYER_SCENE,
+    RAS_LAYER_UI,
+    RAS_LAYER_COUNT
+} RasRenderLayer;
+
 typedef struct ScreenSettings {
     uint32_t screen_width;
     uint32_t screen_height;
@@ -165,6 +171,7 @@ typedef struct RenderState {
     uint32_t current_frame;
     uint32_t max_frames;
     ScreenSettings screen_settings;
+    RasRenderLayer layer;
     RasProjectionMode projection_mode;
     RasBackfaceCullingMode backface_culling_mode;
     RasClippingMode clipping_mode;
@@ -196,9 +203,19 @@ void core_get_line_plane_intersect(
 void core_renderstate_init(RenderState* state);
 
 /**
+ * Set sensible defaults for all layer states
+ */
+void core_renderstates_init(RenderState states[]);
+
+/**
  * Clear index buffers buffers
  */
 void core_renderstate_clear(RenderState* state);
+
+/**
+ * Clear index buffers buffers
+ */
+void core_renderstates_clear(RenderState states[]);
 
 void core_aabb_init(RasAABB* aabb);
 

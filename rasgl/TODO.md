@@ -17,6 +17,7 @@
 - [ ] Support color ramps
 - [ ] Tidy diagnosic rendering to another module
 - [ ] Add flat shading toggle
+- [ ] Support render layers in DOS
 
 ### Clipping - Polygon
 
@@ -49,10 +50,14 @@
 - [ ] Text clipping
 - [ ] Font bitmap material
 - [ ] Format printing
+- [ ] DOS support
 
 ## In Progress
 
+### Text
+
 - [ ] Text culling
+- [ ] Implement bitmap polygon mode
 
 ### Models
 

@@ -123,15 +123,37 @@ void core_renderstate_init(RenderState* state)
     state->num_material_indexes = 0;
     state->current_frame = 0;
     state->max_frames = UINT32_MAX;
-    state->projection_mode = RAS_PERSPECTIVE_MATRIX;
+
     state->backface_culling_mode = RAS_BACKFACE_CULLING_ON;
     state->clipping_mode = RAS_CLIPPING_ON;
-    state->polygon_mode = RAS_POLYGON_WIREFRAME;
     state->normal_mode = RAS_NORMAL_MODE_OFF;
+
     memset(state->material_indexes, 0, sizeof(state->material_indexes));
     memset(state->visible_indexes, 0, sizeof(state->visible_indexes));
     memset(state->visible_faces, 0, sizeof(state->visible_faces));
 };
+
+void core_renderstate_scene_init(RenderState* state)
+{
+    core_renderstate_init(state);
+    state->layer = RAS_LAYER_SCENE;
+    state->projection_mode = RAS_PERSPECTIVE_MATRIX;
+    state->polygon_mode = RAS_POLYGON_WIREFRAME;
+}
+
+void core_renderstate_ui_init(RenderState* state)
+{
+    core_renderstate_init(state);
+    state->layer = RAS_LAYER_UI;
+    state->projection_mode = RAS_ORTHO_MATRIX;
+    state->polygon_mode = RAS_POLYGON_BITMAP;
+}
+
+void core_renderstates_init(RenderState states[])
+{
+    core_renderstate_scene_init(&states[RAS_LAYER_SCENE]);
+    core_renderstate_ui_init(&states[RAS_LAYER_UI]);
+}
 
 void core_renderstate_clear(RenderState* state)
 {
@@ -144,6 +166,13 @@ void core_renderstate_clear(RenderState* state)
     memset(state->material_indexes, 0, sizeof(state->material_indexes));
     memset(state->visible_indexes, 0, sizeof(state->visible_indexes));
     memset(state->visible_faces, 0, sizeof(state->visible_faces));
+}
+
+void core_renderstates_clear(RenderState states[])
+{
+    for (size_t i = 0; i < RAS_LAYER_COUNT; i++) {
+        core_renderstate_clear(&states[i]);
+    }
 }
 
 void projected_to_screen_point(RasFixed screen_width, RasFixed screen_height, RasFixed projected_point[4], Point2i* screen_point)

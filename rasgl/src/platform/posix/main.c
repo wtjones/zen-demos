@@ -18,8 +18,9 @@ SDL_Renderer* renderer;
  */
 SDL_Surface* surface;
 
-RenderState state;
+RenderState states[RAS_LAYER_COUNT];
 InputState plat_input_state;
+
 int g_key_app_to_plat[RAS_KEY_COUNT];
 /**
  * @brief Maintain a mapping of SDL scancodes to RasKey for key-up events
@@ -217,7 +218,7 @@ void render_polygon_bitmap(RenderState* state)
 void (*g_render_fns[RAS_POLYGON_COUNT])(RenderState* state) = {
     render_polygon_wireframe,
     render_polygon_solid,
-    render_polygon_bitmap
+    render_polygon_wireframe // FIXME
 };
 
 void render_state(RenderState* state)
@@ -373,7 +374,7 @@ int main(int argc, const char** argv)
         return 1;
     }
 
-    core_renderstate_init(&state);
+    core_renderstates_init(states);
     input_init();
     core_input_init(&plat_input_state);
 
@@ -397,21 +398,24 @@ int main(int argc, const char** argv)
                 }
             }
         }
-        if (state.max_frames == UINT32_MAX || state.current_frame < state.max_frames) {
-            core_renderstate_clear(&state);
-            ras_core_update(&plat_input_state, &state);
+        if (states[RAS_LAYER_SCENE].max_frames == UINT32_MAX || states[RAS_LAYER_SCENE].current_frame < states[RAS_LAYER_SCENE].max_frames) {
+            core_renderstates_clear(states);
+            ras_core_update(&plat_input_state, &states[RAS_LAYER_SCENE]);
             ras_app_update(&plat_input_state);
-            state.screen_settings.screen_width = plat_settings.screen_width;
-            state.screen_settings.screen_height = plat_settings.screen_height;
-            SDL_LockSurface(surface);
 
-            ras_app_render(&state);
+            for (size_t i = 0; i < RAS_LAYER_COUNT; i++) {
+                states[i].screen_settings.screen_width = plat_settings.screen_width;
+                states[i].screen_settings.screen_height = plat_settings.screen_height;
+            }
+            SDL_LockSurface(surface);
+            ras_app_render(states);
 
             Uint8* pixels = (Uint8*)surface->pixels;
             for (int i = 0; i < surface->w * surface->h; i++) {
                 pixels[i] = 0;
             }
-            render_state(&state);
+            render_state(&states[RAS_LAYER_SCENE]);
+            render_state(&states[RAS_LAYER_UI]);
 
             SDL_UnlockSurface(surface);
 

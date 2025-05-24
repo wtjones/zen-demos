@@ -467,6 +467,9 @@ void render_viewer(RenderState* render_state)
 
 void ras_app_render(RenderState* render_state)
 {
+    if (render_state->layer != RAS_LAYER_SCENE) {
+        return;
+    }
     render_state->num_points = 0;
     render_state->num_commands = 0;
     if (view_mode == MAP) {

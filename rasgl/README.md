@@ -102,6 +102,19 @@ p0-------p1-------p2
 p6-------p7-------p8
 ```
 
+## Render layers
+
+### Scene pass
+
+* World geometry
+* Terrain
+* Models
+
+### UI pass
+
+* Text rendering
+* Orthographic mode
+
 ## Coordinate system
 
 A [right-handed system](https://learnopengl.com/Getting-started/Coordinate-Systems) is used.

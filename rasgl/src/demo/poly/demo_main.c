@@ -9,11 +9,13 @@
 #include "rasgl/core/model.h"
 #include "rasgl/core/repr.h"
 #include "rasgl/core/scene.h"
+#include "rasgl/core/text.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 ScreenSettings* settings;
 RasScene* scene;
+RasFont* font;
 RasFixed delta_rotation = RAS_FIXED_ONE;
 
 Point3f delta = {
@@ -34,6 +36,8 @@ RasResult ras_app_init(int argc, const char** argv, ScreenSettings* init_setting
     ras_log_info("ras_app_init()... screen_width.x: %d\n", init_settings->screen_width);
     settings = init_settings;
     const char* scene_path = (argc > 1) ? argv[1] : default_scene;
+
+    font = core_get_font_system(RAS_SYSTEM_FONT_DEFAULT);
 
     RasResult result = core_load_scene(scene_path, &scene);
 
@@ -195,9 +199,9 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
             "model_rot: %s", repr_point3f(buffer, sizeof(buffer), model_rotation));
     }
 }
-
-void ras_app_render(__attribute__((unused)) RenderState* render_state)
+void render_scene(RenderState* render_state)
 {
+
     RasFixed model_world_matrix[4][4];
     RasFixed world_view_matrix[4][4];
     RasFixed projection_matrix[4][4];
@@ -241,4 +245,23 @@ void ras_app_render(__attribute__((unused)) RenderState* render_state)
             projection_matrix,
             &frustum);
     }
+}
+
+void render_ui(RenderState* render_state)
+{
+    Point2i text_pos = { .x = 0, .y = 0 };
+
+    core_draw_text(
+        render_state,
+        font,
+        "Hello",
+        text_pos,
+        7,
+        0);
+}
+
+void ras_app_render(__attribute__((unused)) RenderState states[])
+{
+    render_scene(&states[RAS_LAYER_SCENE]);
+    render_ui(&states[RAS_LAYER_UI]);
 }
