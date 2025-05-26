@@ -24,6 +24,16 @@ void core_free_font(RasFont* font)
     free(font);
 }
 
+RasFixed core_get_font_width(RasFont* font)
+{
+    return font == NULL ? -1 : RAS_TEXT_LETTER_WIDTH;
+}
+
+RasFixed core_get_font_height(RasFont* font)
+{
+    return font == NULL ? -1 : RAS_TEXT_LETTER_HEIGHT;
+}
+
 /**
  * @brief Construct bitmap characters as two triangles per character.
  *
@@ -84,11 +94,11 @@ RasResult core_draw_text(
         pv0->screen_space_position.x = cur_x;
         pv0->screen_space_position.y = cur_y;
         pv1->screen_space_position.x = cur_x;
-        pv1->screen_space_position.y = cur_y + INT_32_TO_FIXED_16_16(7);
-        pv2->screen_space_position.x = cur_x + INT_32_TO_FIXED_16_16(7);
+        pv1->screen_space_position.y = cur_y + RAS_TEXT_LETTER_HEIGHT - RAS_FIXED_ONE;
+        pv2->screen_space_position.x = cur_x + RAS_TEXT_LETTER_WIDTH - RAS_FIXED_ONE;
         pv2->screen_space_position.y = cur_y;
-        pv3->screen_space_position.x = cur_x + INT_32_TO_FIXED_16_16(7);
-        pv3->screen_space_position.y = cur_y + INT_32_TO_FIXED_16_16(7);
+        pv3->screen_space_position.x = cur_x + RAS_TEXT_LETTER_WIDTH - RAS_FIXED_ONE;
+        pv3->screen_space_position.y = cur_y + RAS_TEXT_LETTER_HEIGHT - RAS_FIXED_ONE;
 
         // uv0 (0,0) ------ uv1 (1,0)
         //    |               |

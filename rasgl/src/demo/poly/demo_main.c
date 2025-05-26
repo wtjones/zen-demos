@@ -202,7 +202,7 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
 
     text_pos.y = (text_pos.y + RAS_FIXED_ONE)
         % (INT_32_TO_FIXED_16_16(settings->screen_height)
-            - INT_32_TO_FIXED_16_16(8));
+            - core_get_font_height(font));
 }
 void render_scene(RenderState* render_state)
 {
