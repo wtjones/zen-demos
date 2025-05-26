@@ -22,6 +22,7 @@ See [TODO.md](TODO.md) and [RESEARCH.md](RESEARCH.md).
   * View frustum creation from projection matrix
   * Backface culling
   * Wireframe polygon rendering
+  * Bitmap font rendering
 * Planned
   * Frustum culling
   * Polygon clipping
@@ -300,8 +301,9 @@ The [cmake variant file](https://vector-of-bool.github.io/docs/vscode-cmake-tool
 
 ## External libraries
 
-* [log.c](https://github.com/rxi/log.c)
+* [font8x8](https://github.com/dhepper/font8x8)
 * [fpsqrt](https://github.com/chmike/fpsqrt)
+* [log.c](https://github.com/rxi/log.c)
 
 ## References
 

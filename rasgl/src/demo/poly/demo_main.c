@@ -23,6 +23,7 @@ Point3f delta = {
     .y = RAS_FLOAT_TO_FIXED(0.05f),
     .z = RAS_FLOAT_TO_FIXED(0.05f)
 };
+Point2f text_pos = { .x = RAS_FIXED_ZERO, .y = RAS_FIXED_ZERO };
 
 RasCamera* camera;
 RasSceneObject* selected_object = NULL;
@@ -198,6 +199,10 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
         ras_log_info(
             "model_rot: %s", repr_point3f(buffer, sizeof(buffer), model_rotation));
     }
+
+    text_pos.y = (text_pos.y + RAS_FIXED_ONE)
+        % (INT_32_TO_FIXED_16_16(settings->screen_height)
+            - INT_32_TO_FIXED_16_16(8));
 }
 void render_scene(RenderState* render_state)
 {
@@ -249,12 +254,11 @@ void render_scene(RenderState* render_state)
 
 void render_ui(RenderState* render_state)
 {
-    Point2i text_pos = { .x = 0, .y = 0 };
 
     core_draw_text(
         render_state,
         font,
-        "Hello",
+        "Hello, no worries here!",
         text_pos,
         7,
         0);

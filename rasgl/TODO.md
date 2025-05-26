@@ -18,6 +18,7 @@
 - [ ] Tidy diagnosic rendering to another module
 - [ ] Add flat shading toggle
 - [ ] Support render layers in DOS
+- [ ] Toggle UI layer
 
 ### Clipping - Polygon
 
@@ -48,7 +49,8 @@
 ### Text
 
 - [ ] Text clipping
-- [ ] Font bitmap material
+- [ ] Manage font bitmap via materials
+- [ ] Font colors
 - [ ] Format printing
 - [ ] DOS support
 
@@ -57,7 +59,7 @@
 ### Text
 
 - [ ] Text culling
-- [ ] Implement bitmap polygon mode
+- [ ] Font metrics
 
 ### Models
 
@@ -111,3 +113,7 @@
 - [x] Support fractional rotation
 - [x] Support object selection
 - [x] Add animation disable
+
+### Text
+
+- [x] Implement font bitmap polygon mode

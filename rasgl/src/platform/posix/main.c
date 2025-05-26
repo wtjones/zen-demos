@@ -1,3 +1,4 @@
+#include "font8x8/font8x8_basic.h"
 #include "rasgl/core/app.h"
 #include "rasgl/core/debug.h"
 #include "rasgl/core/graphics.h"
@@ -213,12 +214,80 @@ void render_polygon_solid(RenderState* state)
 
 void render_polygon_bitmap(RenderState* state)
 {
+    int32_t i = 0;
+
+    RasVector4f* sv;
+    uint32_t material_index = 0;
+    char* font_index = 0;
+
+    while (i < state->num_pipeline_verts) {
+        int32_t material = state->material_indexes[material_index];
+        if (material == -1) {
+            ras_log_buffer("Bitmap face %d has material = %d", i / 3, material);
+        }
+
+        // FIXME: Use pv color?
+        int8_t color = material == -1
+            ? 7
+            : (7 + (material * 8));
+
+        RasPipelineVertex* pv0 = &state->pipeline_verts[i++];
+        sv = &pv0->screen_space_position;
+        Point2i point0 = {
+            .x = FIXED_16_16_TO_INT_32(sv->x),
+            .y = FIXED_16_16_TO_INT_32(sv->y)
+        };
+
+        RasPipelineVertex* pv1 = &state->pipeline_verts[i++];
+        sv = &pv1->screen_space_position;
+        Point2i point1 = {
+            .x = FIXED_16_16_TO_INT_32(sv->x),
+            .y = FIXED_16_16_TO_INT_32(sv->y)
+        };
+
+        RasPipelineVertex* pv2 = &state->pipeline_verts[i++];
+        sv = &pv2->screen_space_position;
+        Point2i point2 = {
+            .x = FIXED_16_16_TO_INT_32(sv->x),
+            .y = FIXED_16_16_TO_INT_32(sv->y)
+        };
+
+        RasPipelineVertex* pv3 = &state->pipeline_verts[i++];
+        sv = &pv3->screen_space_position;
+        Point2i point3 = {
+            .x = FIXED_16_16_TO_INT_32(sv->x),
+            .y = FIXED_16_16_TO_INT_32(sv->y)
+        };
+
+        uint32_t cur_x = point0.x;
+        uint32_t cur_y = point0.y;
+        uint8_t fg_color = 14;
+        uint8_t bg_color = 0;
+
+        ras_log_trace("bottom font %d", point3.y);
+        for (size_t font_row = 0; font_row < 8; font_row++) {
+
+            font_index = &font8x8_basic[material][font_row];
+
+            ras_log_trace("Font material: %d: 0x%X", material, *font_index);
+            // Get each bit in bitmap row
+            for (size_t c = 0; c < 8; c++) {
+                uint8_t bit = (*font_index) & 1 << c;
+                RAS_PLOT_PIXEL(surface, cur_x, cur_y, bit ? fg_color : bg_color);
+                cur_x++;
+            }
+            cur_y++;
+            cur_x = point0.x;
+        }
+
+        material_index += 2;
+    }
 }
 
 void (*g_render_fns[RAS_POLYGON_COUNT])(RenderState* state) = {
     render_polygon_wireframe,
     render_polygon_solid,
-    render_polygon_wireframe // FIXME
+    render_polygon_bitmap
 };
 
 void render_state(RenderState* state)

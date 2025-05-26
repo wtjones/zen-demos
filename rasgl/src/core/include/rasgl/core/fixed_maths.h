@@ -8,6 +8,7 @@
 #define FIXED_16_16_TO_INT_32(n) ((n) >> 16)
 #define RAS_FIXED_MAX (32767 << 16)
 #define RAS_FIXED_MIN (-32768 << 16)
+#define RAS_FIXED_ZERO 0
 #define RAS_FIXED_ONE INT_32_TO_FIXED_16_16(1)
 
 /**
@@ -46,7 +47,7 @@ static inline RasFixed div_fixed_16_16_by_fixed_16_16(RasFixed f1, RasFixed f2)
     return result;
 }
 #define RAS_FLOAT_TO_FIXED(n) \
-    (int32_t) n * 65536 + ((n - (float)((int32_t)n)) * 65536)
+    (int32_t)n * 65536 + ((n - (float)((int32_t)n)) * 65536)
 
 static inline RasFixed float_to_fixed_16_16(float n)
 {

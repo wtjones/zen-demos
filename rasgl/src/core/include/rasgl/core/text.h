@@ -22,7 +22,7 @@ RasResult core_draw_text(
     RenderState* state,
     RasFont* font,
     const char* text,
-    Point2i pos,
+    Point2f pos,
     uint8_t fg_color,
     int32_t bg_color);
 
