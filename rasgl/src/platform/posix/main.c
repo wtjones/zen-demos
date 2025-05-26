@@ -427,7 +427,9 @@ int main(int argc, const char** argv)
             SDL_RenderPresent(renderer);
         }
 
-        while (SDL_GetTicks() - last_frame < 1000 / 60) {
+        Uint32 frame_time = SDL_GetTicks() - last_frame;
+        if (frame_time < 1000 / 60) {
+            SDL_Delay((1000 / 60) - frame_time);
         }
         last_frame = SDL_GetTicks();
     }
