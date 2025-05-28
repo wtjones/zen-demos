@@ -220,7 +220,7 @@ void render_polygon_bitmap(RenderState* state)
     uint32_t material_index = 0;
     char* font_index = 0;
 
-    while (i < state->num_pipeline_verts) {
+    while (i < state->num_visible_indexes) {
         int32_t material = state->material_indexes[material_index];
         if (material == -1) {
             ras_log_buffer("Bitmap face %d has material = %d", i / 3, material);
@@ -231,28 +231,42 @@ void render_polygon_bitmap(RenderState* state)
             ? 7
             : (7 + (material * 8));
 
-        RasPipelineVertex* pv0 = &state->pipeline_verts[i++];
+        RasPipelineVertex* pv0 = &state->pipeline_verts[state->visible_indexes[i++]];
+
         sv = &pv0->screen_space_position;
         Point2i point0 = {
             .x = FIXED_16_16_TO_INT_32(sv->x),
             .y = FIXED_16_16_TO_INT_32(sv->y)
         };
 
-        RasPipelineVertex* pv1 = &state->pipeline_verts[i++];
+        RasPipelineVertex* pv1 = &state->pipeline_verts[state->visible_indexes[i++]];
+
         sv = &pv1->screen_space_position;
         Point2i point1 = {
             .x = FIXED_16_16_TO_INT_32(sv->x),
             .y = FIXED_16_16_TO_INT_32(sv->y)
         };
 
-        RasPipelineVertex* pv2 = &state->pipeline_verts[i++];
+        RasPipelineVertex* pv2 = &state->pipeline_verts[state->visible_indexes[i++]];
+
         sv = &pv2->screen_space_position;
         Point2i point2 = {
             .x = FIXED_16_16_TO_INT_32(sv->x),
             .y = FIXED_16_16_TO_INT_32(sv->y)
         };
 
-        RasPipelineVertex* pv3 = &state->pipeline_verts[i++];
+        // Rectangle made of two tris, so skip over the next two indexes
+        // to get to p3:
+        // p0-------p2
+        // |  t0  / |
+        // |    /   |
+        // |  /  t1 |
+        // p1-------p3
+
+        i += 2;
+
+        RasPipelineVertex* pv3 = &state->pipeline_verts[state->visible_indexes[i++]];
+
         sv = &pv3->screen_space_position;
         Point2i point3 = {
             .x = FIXED_16_16_TO_INT_32(sv->x),
