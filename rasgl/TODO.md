@@ -49,6 +49,7 @@
 ### Text
 
 - [ ] Text clipping
+  - Might be easier once ortho frustum added.
 - [ ] Manage font bitmap via materials
 - [ ] Font colors
 - [ ] Format printing
@@ -58,7 +59,6 @@
 
 ### Text
 
-- [ ] Text culling
 - [ ] Font metrics
 
 ### Models
@@ -117,3 +117,4 @@
 ### Text
 
 - [x] Implement font bitmap polygon mode
+- [x] Text culling

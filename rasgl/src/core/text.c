@@ -1,5 +1,6 @@
 #include "rasgl/core/text.h"
 #include "rasgl/core/graphics.h"
+#include "rasgl/core/maths.h"
 #include <stdlib.h>
 
 /**
@@ -32,6 +33,19 @@ RasFixed core_get_font_width(RasFont* font)
 RasFixed core_get_font_height(RasFont* font)
 {
     return font == NULL ? -1 : RAS_TEXT_LETTER_HEIGHT;
+}
+
+bool bitmap_in_rect(RasPipelineVertex* pvs[4], Point2f top_left, Point2f bottom_right)
+{
+    for (size_t i = 0; i < 4; i++) {
+        Point2f p;
+        core_vector4f_to_vector2f(&pvs[i]->screen_space_position, &p);
+
+        if (!core_point_in_rect(&p, &top_left, &bottom_right)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 /**
@@ -114,6 +128,20 @@ RasResult core_draw_text(
         pv3->u = 1;
         pv3->v = 1;
 
+        Point2f top_left = { .x = RAS_FIXED_ZERO, .y = RAS_FIXED_ZERO };
+        Point2f bottom_right = {
+
+            .x = INT_32_TO_FIXED_16_16(state->screen_settings.screen_width) - RAS_FIXED_ONE,
+            .y = INT_32_TO_FIXED_16_16(state->screen_settings.screen_height) - RAS_FIXED_ONE
+        };
+
+        RasPipelineVertex* pvs[4] = { pv0, pv1, pv2, pv3 };
+
+        if (!bitmap_in_rect(pvs, top_left, bottom_right)) {
+            cur_x += RAS_TEXT_LETTER_WIDTH + RAS_TEXT_LETTER_SPACING;
+            ras_log_debug("Bitmap culled: %c", text[i]);
+            continue;
+        }
         si = &state->num_visible_indexes;
 
         state->visible_indexes[(*si)++] = pv0_i;

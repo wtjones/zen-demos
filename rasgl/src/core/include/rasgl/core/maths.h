@@ -121,6 +121,7 @@ void mat_mul_project(RasFixed projection_matrix[4][4], RasFixed v[4], RasFixed d
 void core_mat_normal_init(RasFixed mvt[4][4], RasFixed dest[4][4]);
 
 void core_vector3f_to_4x1(RasVector3f* vec, RasFixed m[4]);
+void core_vector4f_to_vector2f(RasVector4f* vec4f, Point2f* vec2f);
 void core_4x1_to_vector3f(RasFixed m[4], RasVector3f* vec);
 
 /**
@@ -138,5 +139,7 @@ void core_min_vector3f(RasVector3f* v1, RasVector3f* v2, RasVector3f* dest);
 void core_max_vector3f(RasVector3f* v1, RasVector3f* v2, RasVector3f* dest);
 
 void core_sub_vector3f(RasVector3f* v1, RasVector3f* v2, RasVector3f* dest);
+
+bool core_point_in_rect(Point2f* p, Point2f* top_left, Point2f* bottom_right);
 
 #endif

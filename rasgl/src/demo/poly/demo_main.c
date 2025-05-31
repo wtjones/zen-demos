@@ -200,9 +200,11 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
             "model_rot: %s", repr_point3f(buffer, sizeof(buffer), model_rotation));
     }
 
-    text_pos.y = (text_pos.y + RAS_FIXED_ONE)
-        % (INT_32_TO_FIXED_16_16(settings->screen_height)
-            - core_get_font_height(font));
+    if (input_state->current_frame % 2 == 0) {
+        text_pos.x = (text_pos.x + RAS_FIXED_ONE)
+            % (INT_32_TO_FIXED_16_16(settings->screen_width)
+                - core_get_font_height(font));
+    }
 }
 void render_scene(RenderState* render_state)
 {

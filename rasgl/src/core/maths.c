@@ -271,6 +271,12 @@ void core_vector3f_to_4x1(RasVector3f* vec, RasFixed m[4])
     m[3] = INT_32_TO_FIXED_16_16(1);
 }
 
+void core_vector4f_to_vector2f(RasVector4f* vec4f, Point2f* vec2f)
+{
+    vec2f->x = vec4f->x;
+    vec2f->y = vec4f->y;
+}
+
 void core_4x1_to_vector3f(RasFixed m[4], RasVector3f* vec)
 {
     vec->x = m[0];
@@ -302,4 +308,12 @@ void core_sub_vector3f(RasVector3f* v1, RasVector3f* v2, RasVector3f* dest)
     dest->x = v1->x - v2->x;
     dest->y = v1->y - v2->y;
     dest->z = v1->z - v2->z;
+}
+
+bool core_point_in_rect(Point2f* p, Point2f* top_left, Point2f* bottom_right)
+{
+    return p->x >= top_left->x
+        && p->x <= bottom_right->x
+        && p->y >= top_left->y
+        && p->y <= bottom_right->y;
 }
