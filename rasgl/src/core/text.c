@@ -25,9 +25,16 @@ void core_free_font(RasFont* font)
     free(font);
 }
 
-RasFixed core_get_font_width(RasFont* font)
+RasFixed core_get_font_width(RasFont* font, const char* str)
 {
-    return font == NULL ? -1 : RAS_TEXT_LETTER_WIDTH;
+    if (font == NULL) {
+        return -1;
+    }
+
+    return strlen(str) * RAS_TEXT_LETTER_WIDTH
+        + (strlen(str) == 0
+                ? 0
+                : RAS_TEXT_LETTER_SPACING * (strlen(str) - 1));
 }
 
 RasFixed core_get_font_height(RasFont* font)
@@ -85,10 +92,6 @@ RasResult core_draw_text(
 
     for (size_t i = 0; i < strlen(text); i++) {
 
-        state->material_indexes[state->num_material_indexes] = text[i];
-        state->material_indexes[state->num_material_indexes + 1] = text[i];
-        state->num_material_indexes += 2;
-
         pv0 = &state->pipeline_verts[state->num_pipeline_verts];
         pv0_i = state->num_pipeline_verts;
         state->num_pipeline_verts++;
@@ -130,7 +133,6 @@ RasResult core_draw_text(
 
         Point2f top_left = { .x = RAS_FIXED_ZERO, .y = RAS_FIXED_ZERO };
         Point2f bottom_right = {
-
             .x = INT_32_TO_FIXED_16_16(state->screen_settings.screen_width) - RAS_FIXED_ONE,
             .y = INT_32_TO_FIXED_16_16(state->screen_settings.screen_height) - RAS_FIXED_ONE
         };
@@ -142,6 +144,11 @@ RasResult core_draw_text(
             ras_log_debug("Bitmap culled: %c", text[i]);
             continue;
         }
+
+        state->material_indexes[state->num_material_indexes] = text[i];
+        state->material_indexes[state->num_material_indexes + 1] = text[i];
+        state->num_material_indexes += 2;
+
         si = &state->num_visible_indexes;
 
         state->visible_indexes[(*si)++] = pv0_i;

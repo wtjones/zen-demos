@@ -23,6 +23,7 @@ Point3f delta = {
     .y = RAS_FLOAT_TO_FIXED(0.05f),
     .z = RAS_FLOAT_TO_FIXED(0.05f)
 };
+const char* str = "Hello, no worries here!";
 Point2f text_pos = { .x = RAS_FIXED_ZERO, .y = RAS_FIXED_ZERO };
 
 RasCamera* camera;
@@ -201,9 +202,12 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
     }
 
     if (input_state->current_frame % 2 == 0) {
-        text_pos.x = (text_pos.x + RAS_FIXED_ONE)
-            % (INT_32_TO_FIXED_16_16(settings->screen_width)
-                - core_get_font_height(font));
+
+        text_pos.x = (text_pos.x + RAS_FIXED_ONE);
+
+        if (text_pos.x == (INT_32_TO_FIXED_16_16(settings->screen_width))) {
+            text_pos.x = -core_get_font_width(font, str);
+        }
     }
 }
 void render_scene(RenderState* render_state)
@@ -260,10 +264,13 @@ void render_ui(RenderState* render_state)
     core_draw_text(
         render_state,
         font,
-        "Hello, no worries here!",
+        str,
         text_pos,
         7,
         0);
+
+    ras_log_debug("Text width %d",
+        FIXED_16_16_TO_INT_32(core_get_font_width(font, "Hello!")));
 }
 
 void ras_app_render(__attribute__((unused)) RenderState states[])

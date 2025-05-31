@@ -20,7 +20,7 @@ typedef struct RasFont {
 RasFont* core_get_font_system(RasSystemFont font_id);
 void core_free_font(RasFont* font);
 
-RasFixed core_get_font_width(RasFont* font);
+RasFixed core_get_font_width(RasFont* font, const char* str);
 RasFixed core_get_font_height(RasFont* font);
 
 RasResult core_draw_text(
