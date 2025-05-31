@@ -59,8 +59,6 @@
 
 ### Text
 
-- [ ] Font metrics
-
 ### Models
 
 ## Done ✓
@@ -118,3 +116,4 @@
 
 - [x] Implement font bitmap polygon mode
 - [x] Text culling
+- [x] Font metrics

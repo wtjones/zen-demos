@@ -278,12 +278,10 @@ void render_polygon_bitmap(RenderState* state)
         uint8_t fg_color = 14;
         uint8_t bg_color = 0;
 
-        ras_log_trace("bottom font %d", point3.y);
         for (size_t font_row = 0; font_row < 8; font_row++) {
 
             font_index = &font8x8_basic[material][font_row];
 
-            ras_log_trace("Font material: %d: 0x%X", material, *font_index);
             // Get each bit in bitmap row
             for (size_t c = 0; c < 8; c++) {
                 uint8_t bit = (*font_index) & 1 << c;
