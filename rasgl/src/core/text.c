@@ -1,6 +1,8 @@
 #include "rasgl/core/text.h"
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/maths.h"
+#include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 /**
@@ -75,10 +77,8 @@ bool bitmap_in_rect(RasPipelineVertex* pvs[4], Point2f top_left, Point2f bottom_
 RasResult core_draw_text(
     RenderState* state,
     RasFont* font,
-    const char* text,
     Point2f pos,
-    uint8_t fg_color,
-    int32_t bg_color)
+    const char* text)
 {
 
     RasPipelineVertex *pv0, *pv1, *pv2, *pv3;
@@ -161,4 +161,26 @@ RasResult core_draw_text(
         cur_x += RAS_TEXT_LETTER_WIDTH + RAS_TEXT_LETTER_SPACING;
     }
     return RAS_RESULT_OK;
+}
+
+RasResult core_draw_textf(RenderState* state,
+    RasFont* font,
+    Point2f pos,
+    const char* fmt,
+    ...)
+{
+
+    char buffer[1000];
+    va_list args;
+
+    int result = 0;
+    va_start(args, fmt);
+    result = vsnprintf(buffer, sizeof buffer, fmt, args);
+    va_end(args);
+
+    if (result < 0 || result > strlen(buffer)) {
+        ras_log_error("Bad result from vsnprintf(): %d", result);
+        return RAS_RESULT_ERROR;
+    }
+    return core_draw_text(state, font, pos, buffer);
 }

@@ -26,9 +26,12 @@ RasFixed core_get_font_height(RasFont* font);
 RasResult core_draw_text(
     RenderState* state,
     RasFont* font,
-    const char* text,
     Point2f pos,
-    uint8_t fg_color,
-    int32_t bg_color);
+    const char* text);
+
+RasResult core_draw_textf(RenderState* state,
+    RasFont* font,
+    Point2f pos,
+    const char* fmt, ...);
 
 #endif

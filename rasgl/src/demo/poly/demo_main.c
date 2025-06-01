@@ -24,7 +24,10 @@ Point3f delta = {
     .z = RAS_FLOAT_TO_FIXED(0.05f)
 };
 const char* str = "Hello, no worries here!";
-Point2f text_pos = { .x = RAS_FIXED_ZERO, .y = RAS_FIXED_ZERO };
+Point2f text_pos = {
+    .x = RAS_FIXED_ZERO,
+    .y = RAS_TEXT_LETTER_HEIGHT + RAS_TEXT_LETTER_SPACING
+};
 
 RasCamera* camera;
 RasSceneObject* selected_object = NULL;
@@ -260,14 +263,16 @@ void render_scene(RenderState* render_state)
 
 void render_ui(RenderState* render_state)
 {
-
-    core_draw_text(
+    core_draw_textf(
         render_state,
         font,
-        str,
         text_pos,
-        7,
-        0);
+        str);
+
+    Point2f stat_pos = { .x = RAS_FIXED_ZERO, .y = RAS_FIXED_ZERO };
+
+    core_draw_textf(
+        render_state, font, stat_pos, "Frame: %d", render_state->current_frame);
 
     ras_log_debug("Text width %d",
         FIXED_16_16_TO_INT_32(core_get_font_width(font, "Hello!")));

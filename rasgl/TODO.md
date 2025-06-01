@@ -52,7 +52,6 @@
   - Might be easier once ortho frustum added.
 - [ ] Manage font bitmap via materials
 - [ ] Font colors
-- [ ] Format printing
 - [ ] DOS support
 
 ## In Progress
@@ -117,3 +116,4 @@
 - [x] Implement font bitmap polygon mode
 - [x] Text culling
 - [x] Font metrics
+- [x] Format printing
