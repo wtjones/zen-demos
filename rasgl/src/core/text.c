@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /**
  * @brief Initialize a delivered non asset-based font.
@@ -27,16 +28,38 @@ void core_free_font(RasFont* font)
     free(font);
 }
 
+RasFixed get_font_line_width(RasFont* font, char* line)
+{
+    return strlen(line) * RAS_TEXT_LETTER_WIDTH
+        + (strlen(line) == 0
+                ? 0
+                : RAS_TEXT_LETTER_SPACING * (strlen(line) - 1));
+}
+
 RasFixed core_get_font_width(RasFont* font, const char* str)
 {
     if (font == NULL) {
+        ras_log_error("RasFont is NULL.");
+        return -1;
+    }
+    if (strlen(str) > RAS_TEXT_CHAR_MAX) {
+        ras_log_error("Exceeded text max length.");
         return -1;
     }
 
-    return strlen(str) * RAS_TEXT_LETTER_WIDTH
-        + (strlen(str) == 0
-                ? 0
-                : RAS_TEXT_LETTER_SPACING * (strlen(str) - 1));
+    RasFixed result = RAS_FIXED_ZERO;
+    char lines[RAS_TEXT_CHAR_MAX];
+    const char* delim = "\n";
+    strcpy(lines, str);
+    char* token = strtok(lines, delim);
+
+    while (token != NULL) {
+        RasFixed width = get_font_line_width(font, token);
+        result = result < width ? width : result;
+        token = strtok(NULL, delim);
+    }
+
+    return result;
 }
 
 RasFixed core_get_font_height(RasFont* font)
@@ -91,6 +114,12 @@ RasResult core_draw_text(
     int32_t cur_y = pos.y;
 
     for (size_t i = 0; i < strlen(text); i++) {
+
+        if (text[i] == '\n') {
+            cur_y += RAS_TEXT_LETTER_HEIGHT + RAS_TEXT_LETTER_SPACING;
+            cur_x = pos.x;
+            continue;
+        }
 
         pv0 = &state->pipeline_verts[state->num_pipeline_verts];
         pv0_i = state->num_pipeline_verts;

@@ -23,7 +23,7 @@ Point3f delta = {
     .y = RAS_FLOAT_TO_FIXED(0.05f),
     .z = RAS_FLOAT_TO_FIXED(0.05f)
 };
-const char* str = "Hello, no worries here!";
+const char* str = "Hello, no worries here!\nNext line.";
 Point2f text_pos = {
     .x = RAS_FIXED_ZERO,
     .y = RAS_TEXT_LETTER_HEIGHT + RAS_TEXT_LETTER_SPACING

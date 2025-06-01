@@ -53,6 +53,7 @@
 - [ ] Manage font bitmap via materials
 - [ ] Font colors
 - [ ] DOS support
+- [ ] Height metrix with wrapped text
 
 ## In Progress
 
