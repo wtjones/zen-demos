@@ -53,7 +53,8 @@
 - [ ] Manage font bitmap via materials
 - [ ] Font colors
 - [ ] DOS support
-- [ ] Height metrix with wrapped text
+- [ ] Height metrics with wrapped text
+- [ ] UI render toggle
 
 ## In Progress
 

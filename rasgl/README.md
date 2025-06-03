@@ -198,6 +198,18 @@ Set variable `ALLEGRO` in shell or profile:
 export ALLEGRO="/home/myuser/dev/allegro-4.2.2-xc"
 ```
 
+#### Build deps
+
+The _larse_ project must be build with djgpp.
+
+```bash
+./build_deps_dos.sh
+```
+
+If an error like the following is encountered, try deleting the _larse_ `build` folder.
+
+> gcc-12: fatal error: cannot execute ‘cc1’: execvp: No such file or directory
+
 #### Build
 
 ```bash
