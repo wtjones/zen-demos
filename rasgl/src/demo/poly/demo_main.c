@@ -15,7 +15,7 @@
 
 ScreenSettings* settings;
 RasScene* scene;
-RasFont* font;
+RasFont* ui_font;
 RasFixed delta_rotation = RAS_FIXED_ONE;
 
 Point3f delta = {
@@ -42,7 +42,7 @@ RasResult ras_app_init(int argc, const char** argv, ScreenSettings* init_setting
     settings = init_settings;
     const char* scene_path = (argc > 1) ? argv[1] : default_scene;
 
-    font = core_get_font_system(RAS_SYSTEM_FONT_DEFAULT);
+    ui_font = core_get_font_system(RAS_SYSTEM_FONT_DEFAULT);
 
     RasResult result = core_load_scene(scene_path, &scene);
 
@@ -209,7 +209,7 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
         text_pos.x = (text_pos.x + RAS_FIXED_ONE);
 
         if (text_pos.x == (INT_32_TO_FIXED_16_16(settings->screen_width))) {
-            text_pos.x = -core_get_font_width(font, str);
+            text_pos.x = -core_get_font_width(ui_font, str);
         }
     }
 }
@@ -265,17 +265,17 @@ void render_ui(RenderState* render_state)
 {
     core_draw_textf(
         render_state,
-        font,
+        ui_font,
         text_pos,
         str);
 
     Point2f stat_pos = { .x = RAS_FIXED_ZERO, .y = RAS_FIXED_ZERO };
 
     core_draw_textf(
-        render_state, font, stat_pos, "Frame: %d", render_state->current_frame);
+        render_state, ui_font, stat_pos, "Frame: %d", render_state->current_frame);
 
     ras_log_debug("Text width %d",
-        FIXED_16_16_TO_INT_32(core_get_font_width(font, "Hello!")));
+        FIXED_16_16_TO_INT_32(core_get_font_width(ui_font, "Hello!")));
 }
 
 void ras_app_render(__attribute__((unused)) RenderState states[])

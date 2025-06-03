@@ -13,6 +13,6 @@ void app_main();
 /**
  * Handle common key bindings
  */
-void ras_core_update(InputState* input_state, RenderState* state);
+void ras_core_update(InputState* input_state, RenderState states[RAS_LAYER_COUNT]);
 
 #endif

@@ -12,7 +12,7 @@ typedef struct {
 
 ScreenSettings plat_settings
     = { .screen_width = 320, .screen_height = 240 };
-RenderState state;
+RenderState states[RAS_LAYER_COUNT];
 InputState plat_input_state;
 
 volatile int scancode_up = 0;
@@ -114,6 +114,10 @@ void map_input()
 
 void render_state(BITMAP* buffer, RenderState* state)
 {
+    if (state->layer == RAS_LAYER_UI) {
+        // Not yet supported
+        return;
+    }
     RasVector4f* sv;
     uint32_t i = 0;
     while (i < state->num_visible_indexes) {
@@ -197,6 +201,11 @@ int main(int argc, const char** argv)
         ras_log_error("Failed to start Allegro.");
         return 1;
     }
+    if (!font) {
+        ras_log_warn("Allegro font not loaded.");
+        allegro_message("Font not loaded!");
+        exit(1);
+    }
     input_init();
 
     install_timer();
@@ -213,13 +222,12 @@ int main(int argc, const char** argv)
         return 1;
     }
     buffer = create_bitmap(SCREEN_W, SCREEN_H);
-
     RasResult result = ras_app_init(argc, argv, &plat_settings);
     if (result != RAS_RESULT_OK) {
         ras_log_error("Error result from ras_app_init(), exiting...");
         return 1;
     }
-    core_renderstate_init(&state);
+    core_renderstates_init(states);
     core_input_init(&plat_input_state);
 
     set_palette(desktop_palette);
@@ -227,16 +235,25 @@ int main(int argc, const char** argv)
 
     while (!key[KEY_ESC]) {
         map_input();
-        if (state.max_frames == UINT32_MAX || state.current_frame < state.max_frames) {
-            core_renderstate_clear(&state);
-            ras_core_update(&plat_input_state, &state);
+
+        if (states[RAS_LAYER_SCENE].max_frames == UINT32_MAX
+            || states[RAS_LAYER_SCENE].current_frame < states[RAS_LAYER_SCENE].max_frames) {
+
+            core_renderstates_clear(states);
+            ras_core_update(&plat_input_state, states);
             ras_app_update(&plat_input_state);
-            state.screen_settings.screen_width = plat_settings.screen_width;
-            state.screen_settings.screen_height = plat_settings.screen_height;
-            ras_app_render(&state);
+
+            for (size_t i = 0; i < RAS_LAYER_COUNT; i++) {
+                states[i].screen_settings.screen_width = plat_settings.screen_width;
+                states[i].screen_settings.screen_height = plat_settings.screen_height;
+            }
+
+            ras_app_render(states);
 
             clear_to_color(buffer, makecol(0, 0, 0));
-            render_state(buffer, &state);
+
+            render_state(buffer, &states[RAS_LAYER_SCENE]);
+            render_state(buffer, &states[RAS_LAYER_UI]);
         }
 
         textprintf_ex(buffer, font, 0, 0, makecol(255, 255, 255), -1,
