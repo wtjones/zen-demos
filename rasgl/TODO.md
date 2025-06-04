@@ -54,7 +54,6 @@
 - [ ] Font colors
 - [ ] DOS support
 - [ ] Height metrics with wrapped text
-- [ ] UI render toggle
 
 ## In Progress
 
@@ -119,3 +118,4 @@
 - [x] Text culling
 - [x] Font metrics
 - [x] Format printing
+- [x] UI render toggle

@@ -137,6 +137,7 @@ void core_renderstate_scene_init(RenderState* state)
 {
     core_renderstate_init(state);
     state->layer = RAS_LAYER_SCENE;
+    state->layer_visible = true;
     state->projection_mode = RAS_PERSPECTIVE_MATRIX;
     state->polygon_mode = RAS_POLYGON_WIREFRAME;
 }
@@ -145,6 +146,7 @@ void core_renderstate_ui_init(RenderState* state)
 {
     core_renderstate_init(state);
     state->layer = RAS_LAYER_UI;
+    state->layer_visible = true;
     state->projection_mode = RAS_ORTHO_MATRIX;
     state->polygon_mode = RAS_POLYGON_BITMAP;
 }

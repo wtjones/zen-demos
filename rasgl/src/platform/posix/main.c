@@ -214,6 +214,10 @@ void render_polygon_solid(RenderState* state)
 
 void render_polygon_bitmap(RenderState* state)
 {
+    if (!state->layer_visible) {
+        return;
+    }
+
     int32_t i = 0;
 
     RasVector4f* sv;

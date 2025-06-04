@@ -252,6 +252,7 @@ example: `./run_dos.sh poly 0 assets/secenes/tri.lsp`
 | Cycle polygon clipping modes    | c   |
 | Cycle normal diagnostic modes   | n   |
 | Flush per-frame logs            | f   |
+| Toggle UI layer                 | F3  |
 
 ### Demo: world
 

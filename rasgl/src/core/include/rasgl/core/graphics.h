@@ -172,6 +172,7 @@ typedef struct RenderState {
     uint32_t max_frames;
     ScreenSettings screen_settings;
     RasRenderLayer layer;
+    bool layer_visible;
     RasProjectionMode projection_mode;
     RasBackfaceCullingMode backface_culling_mode;
     RasClippingMode clipping_mode;

@@ -114,8 +114,7 @@ void map_input()
 
 void render_state(BITMAP* buffer, RenderState* state)
 {
-    if (state->layer == RAS_LAYER_UI) {
-        // Not yet supported
+    if (!state->layer_visible) {
         return;
     }
     RasVector4f* sv;
@@ -228,6 +227,7 @@ int main(int argc, const char** argv)
         return 1;
     }
     core_renderstates_init(states);
+    states[RAS_LAYER_UI].layer_visible = false;
     core_input_init(&plat_input_state);
 
     set_palette(desktop_palette);

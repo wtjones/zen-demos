@@ -36,6 +36,10 @@ void ras_core_update(InputState* input_state, RenderState render_states[RAS_LAYE
 
         ras_log_info("polygon_mode: %s", scene_state->polygon_mode == RAS_POLYGON_WIREFRAME ? "wireframe" : "solid");
     }
+    if (input_state->keys[RAS_KEY_F3] == RAS_KEY_EVENT_UP) {
+        ui_state->layer_visible = !ui_state->layer_visible;
+        ras_log_info("UI visible: %s", ui_state->layer_visible ? "true" : "false");
+    }
     if (input_state->keys[RAS_KEY_F] == RAS_KEY_EVENT_UP) {
         ras_log_flush();
     }
