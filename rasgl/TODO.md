@@ -55,6 +55,12 @@
 - [ ] DOS support
 - [ ] Height metrics with wrapped text
 
+### Console
+
+- [ ] DOS support
+- [ ] Pull down/up animation
+- [ ] Prompt echo
+
 ## In Progress
 
 ### Text

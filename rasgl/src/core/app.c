@@ -8,6 +8,7 @@ void ras_core_update(InputState* input_state, RenderState render_states[RAS_LAYE
 
     RenderState* scene_state = &render_states[RAS_LAYER_SCENE];
     RenderState* ui_state = &render_states[RAS_LAYER_UI];
+    RenderState* console_state = &render_states[RAS_LAYER_CONSOLE];
 
     if (input_state->keys[RAS_KEY_P] == RAS_KEY_EVENT_UP) {
         scene_state->projection_mode = scene_state->projection_mode == RAS_PERSPECTIVE_MATRIX
@@ -40,6 +41,11 @@ void ras_core_update(InputState* input_state, RenderState render_states[RAS_LAYE
         ui_state->layer_visible = !ui_state->layer_visible;
         ras_log_info("UI visible: %s", ui_state->layer_visible ? "true" : "false");
     }
+    if (input_state->keys[RAS_KEY_BACKQUOTE] == RAS_KEY_EVENT_UP) {
+        console_state->layer_visible = !console_state->layer_visible;
+        ras_log_info("Console visible: %s", console_state->layer_visible ? "true" : "false");
+    }
+
     if (input_state->keys[RAS_KEY_F] == RAS_KEY_EVENT_UP) {
         ras_log_flush();
     }

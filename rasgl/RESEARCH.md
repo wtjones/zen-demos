@@ -128,3 +128,38 @@ Ideal situation is to use the same 3d pipline by rendering characters as orthogr
 1. Build ortho matrix
 1. Generate 4 verts, 2 tris per character.
 1. Apply UVs via texture mapping.
+
+## Console
+
+### Project
+
+```text
+/src
+  /core
+    - console - ux for render, input
+    - repl  - parses and processes commands
+  /shell - optional cli target
+    uses repl
+```
+
+### Commands
+
+`exec <script>`: Run a larse script
+`help`
+`clear`
+`scene load <filename.lsp>`: Load a scene
+`scene show`: Dump out current scene
+`scene restart`
+`scene save <out.lsp>`: Save out state of scene
+`material list`: Get material atlas
+
+### Qs
+
+How does the repl access the camera?
+How does the repl reload the scene?
+
+Create a world concept.
+Register the scene with the world.
+Move animation code to world.
+Register camera with world.
+Repl takes world reference.

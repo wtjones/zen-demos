@@ -1,4 +1,5 @@
 #include "font8x8/font8x8_basic.h"
+#include "font8x8/font8x8_block.h"
 #include "rasgl/core/app.h"
 #include "rasgl/core/debug.h"
 #include "rasgl/core/graphics.h"
@@ -83,6 +84,7 @@ void input_init()
     g_key_app_to_plat[RAS_KEY_F10] = SDL_SCANCODE_F10;
     g_key_app_to_plat[RAS_KEY_F11] = SDL_SCANCODE_F11;
     g_key_app_to_plat[RAS_KEY_F12] = SDL_SCANCODE_F12;
+    g_key_app_to_plat[RAS_KEY_BACKQUOTE] = SDL_SCANCODE_GRAVE;
 
     for (int i = 0; i < SDL_NUM_SCANCODES; i++) {
         g_key_plat_to_app[i] = RAS_KEY_UNKNOWN;
@@ -277,25 +279,35 @@ void render_polygon_bitmap(RenderState* state)
             .y = FIXED_16_16_TO_INT_32(sv->y)
         };
 
-        uint32_t cur_x = point0.x;
-        uint32_t cur_y = point0.y;
         uint8_t fg_color = 14;
         uint8_t bg_color = 0;
 
-        for (size_t font_row = 0; font_row < 8; font_row++) {
+        char* font_base;
 
-            font_index = &font8x8_basic[material][font_row];
-
-            // Get each bit in bitmap row
-            for (size_t c = 0; c < 8; c++) {
-                uint8_t bit = (*font_index) & 1 << c;
-                RAS_PLOT_PIXEL(surface, cur_x, cur_y, bit ? fg_color : bg_color);
-                cur_x++;
-            }
-            cur_y++;
-            cur_x = point0.x;
+        if (material <= 0x007f) {
+            font_base = &font8x8_basic[material][0];
+        } else if (material >= 0x2580) {
+            font_base = &font8x8_block[material - 0x2580][0];
+            fg_color = 4; // FIXME: console shade
+        } else {
+            ras_log_error("Invalid font material: %d", material);
+            return;
         }
 
+        for (uint32_t cur_y = point0.y; cur_y <= point1.y; cur_y++) {
+            size_t font_row = (cur_y - point0.y) % 8;
+
+            font_index = &font_base[font_row];
+            for (uint32_t cur_x = point0.x; cur_x <= point2.x; cur_x++) {
+
+                size_t c = (cur_x - point0.x) % 8;
+
+                uint8_t bit = (*font_index) & 1 << c;
+                if (bit) {
+                    RAS_PLOT_PIXEL(surface, cur_x, cur_y, fg_color);
+                }
+            }
+        }
         material_index += 2;
     }
 }
@@ -501,6 +513,7 @@ int main(int argc, const char** argv)
             }
             render_state(&states[RAS_LAYER_SCENE]);
             render_state(&states[RAS_LAYER_UI]);
+            render_state(&states[RAS_LAYER_CONSOLE]);
 
             SDL_UnlockSurface(surface);
 

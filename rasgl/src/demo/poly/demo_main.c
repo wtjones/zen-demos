@@ -1,5 +1,6 @@
 #include "rasgl/core/app.h"
 #include "rasgl/core/camera.h"
+#include "rasgl/core/console.h"
 #include "rasgl/core/debug.h"
 #include "rasgl/core/fixed_maths.h"
 #include "rasgl/core/frustum.h"
@@ -282,4 +283,5 @@ void ras_app_render(__attribute__((unused)) RenderState states[])
 {
     render_scene(&states[RAS_LAYER_SCENE]);
     render_ui(&states[RAS_LAYER_UI]);
+    core_draw_console(&states[RAS_LAYER_CONSOLE], ui_font);
 }

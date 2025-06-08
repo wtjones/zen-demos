@@ -58,6 +58,7 @@ typedef enum {
     RAS_KEY_F10,
     RAS_KEY_F11,
     RAS_KEY_F12,
+    RAS_KEY_BACKQUOTE,
     RAS_KEY_COUNT
 } RasKey;
 

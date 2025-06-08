@@ -151,10 +151,20 @@ void core_renderstate_ui_init(RenderState* state)
     state->polygon_mode = RAS_POLYGON_BITMAP;
 }
 
+void core_renderstate_console_init(RenderState* state)
+{
+    core_renderstate_init(state);
+    state->layer = RAS_LAYER_CONSOLE;
+    state->layer_visible = true;
+    state->projection_mode = RAS_ORTHO_MATRIX;
+    state->polygon_mode = RAS_POLYGON_BITMAP;
+}
+
 void core_renderstates_init(RenderState states[])
 {
     core_renderstate_scene_init(&states[RAS_LAYER_SCENE]);
     core_renderstate_ui_init(&states[RAS_LAYER_UI]);
+    core_renderstate_console_init(&states[RAS_LAYER_CONSOLE]);
 }
 
 void core_renderstate_clear(RenderState* state)

@@ -62,6 +62,7 @@ typedef enum {
 typedef enum {
     RAS_LAYER_SCENE,
     RAS_LAYER_UI,
+    RAS_LAYER_CONSOLE,
     RAS_LAYER_COUNT
 } RasRenderLayer;
 
