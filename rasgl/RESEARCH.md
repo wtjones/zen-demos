@@ -163,3 +163,12 @@ Register the scene with the world.
 Move animation code to world.
 Register camera with world.
 Repl takes world reference.
+
+### Render
+
+From tail, search backward to find newline.
+Write to last visible row.
+
+## CMake peer libraries
+
+<https://github.com/pr0g/cmake-examples/blob/main/examples/core/shared/application/configure.sh>
