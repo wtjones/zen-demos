@@ -1,3 +1,4 @@
+#include "rasgl/core/console.h"
 #include "rasgl/core/debug.h"
 #include "rasgl/core/fixed_maths.h"
 #include "rasgl/core/graphics.h"
@@ -420,6 +421,61 @@ void interpolate_tests()
         char buffer[255];
         ras_log_trace("Div: %s\n", repr_fixed_16_16(buffer, 255, result[i]));
     }
+}
+
+void console_index_tests()
+{
+    RasConsole console;
+    ScreenSettings ss = { .screen_width = 320, .screen_height = 240 };
+    RasConsoleLineIndex line_index;
+    line_index.max_count = RAS_CONSOLE_MAX_LINE_COUNT;
+
+    core_console_init(&console, &ss);
+
+    core_console_append(&console, "Hi");
+    core_console_append(&console, "World!");
+    core_console_append(&console, "More");
+
+    RasResult result = core_console_build_index(&console, &line_index);
+
+    assert(result == RAS_RESULT_OK);
+    assert(line_index.count == 3);
+}
+
+void console_ring_tests()
+{
+    RasConsole console;
+    ScreenSettings ss = { .screen_width = 320, .screen_height = 240 };
+    RasConsoleLineIndex line_index;
+    line_index.max_count = RAS_CONSOLE_MAX_LINE_COUNT;
+
+    core_console_init(&console, &ss);
+
+    const char* first_line = "First line.";
+    core_console_append(&console, first_line);
+    core_console_append(&console, "World!");
+    core_console_append(&console, "More");
+
+    size_t len = core_console_count(&console);
+    // Manually trim the first line
+    console.buffer.head += strlen(first_line) + 1;
+    size_t new_len = core_console_count(&console);
+
+    assert(new_len == len - strlen(first_line) - 1);
+
+    RasResult result = core_console_build_index(&console, &line_index);
+
+    assert(result == RAS_RESULT_OK);
+    assert(line_index.count == 2);
+
+    // Add another line
+    len = new_len;
+    result = core_console_append(&console, "Turbo");
+    assert(result == RAS_RESULT_OK);
+    new_len = core_console_count(&console);
+    assert(new_len == len + 6);
+    result = core_console_build_index(&console, &line_index);
+    assert(line_index.count == 3);
 }
 
 int main()

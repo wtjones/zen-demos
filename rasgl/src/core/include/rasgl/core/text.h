@@ -15,7 +15,8 @@ typedef enum RasSystemFont {
 } RasSystemFont;
 
 typedef struct RasFont {
-
+    // Placeholder
+    size_t size;
 } RasFont;
 
 RasFont* core_get_font_system(RasSystemFont font_id);

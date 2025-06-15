@@ -60,10 +60,15 @@
 - [ ] DOS support
 - [ ] Pull down/up animation
 - [ ] Prompt echo
+- [ ] Trim ring buffer
 
 ## In Progress
 
 ### Text
+
+### Console
+
+- [ ] Render buffer text
 
 ### Models
 

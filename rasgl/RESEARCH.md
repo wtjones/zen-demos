@@ -166,8 +166,44 @@ Repl takes world reference.
 
 ### Render
 
+#### option 1
+
+We need pull n visible rows/lines from ring buffer.
+
+Build array of ints that index the start of each line.
+
+Determine index of first row of console via max index - rows - 1.
+
+For each visible row, call function that builds a line from current index to next - 1.
+
+- Discard trailing newline if exists. It may not if wrap is supported.  
+
+#### option alt
+
 From tail, search backward to find newline.
 Write to last visible row.
+
+## Ring buffer
+
+Imagine a buffer with 5 slots:
+
+```text
+[0] [1] [2] [3] [4]
+ ↑    ↑
+head  tail
+```
+
+head → where to read
+
+tail → where to write
+
+As data is added (tail++) or removed (head++), both wrap back to 0 when they reach the end.
+
+Full when tail + 1 == head (modulo capacity)
+
+- One slot is intentionally left empty to distinguish between full and empty. This is the 1-slot reservation strategy.
+
+Empty when head == tail
 
 ## CMake peer libraries
 
