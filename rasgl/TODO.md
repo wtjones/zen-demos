@@ -60,7 +60,6 @@
 - [ ] DOS support
 - [ ] Pull down/up animation
 - [ ] Prompt echo
-- [ ] Trim ring buffer
 
 ## In Progress
 
@@ -130,3 +129,7 @@
 - [x] Font metrics
 - [x] Format printing
 - [x] UI render toggle
+
+### Console
+
+- [x] Trim ring buffer

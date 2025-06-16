@@ -34,25 +34,51 @@ size_t core_console_count(RasConsole* console)
         : console->buffer.tail + console->buffer.capacity - console->buffer.head;
 }
 
+RasResult console_trim(RasConsole* console, size_t append_count)
+{
+    ras_log_info("Console trim free count before: %d",
+        console->buffer.max_count - core_console_count(console));
+    if (append_count > console->buffer.max_count) {
+        ras_log_error("Trim request exceeds max_count.");
+        return RAS_RESULT_ERROR;
+    }
+
+    size_t* head = &console->buffer.head;
+
+    // Allow for newline delimitter.
+    bool done = console->buffer.max_count - core_console_count(console) >= append_count + 1;
+    while (!done) {
+        while (console->buffer.text[*head] != '\n') {
+            (*head)++;
+        }
+        (*head)++; // Eat the newline;
+
+        done = console->buffer.max_count - core_console_count(console) >= append_count + 1;
+    }
+
+    ras_log_info("Console trim free count after: %d",
+        console->buffer.max_count - core_console_count(console));
+
+    return RAS_RESULT_OK;
+}
+
 RasResult core_console_append(RasConsole* console, const char* str)
 {
     const char* src = str;
 
-    if (core_console_is_full(console)) {
-        ras_log_error("Console buffer is full.");
+    if (RAS_RESULT_ERROR == console_trim(console, strlen(str))) {
+        ras_log_error("Unable to trim buffer head.");
         return RAS_RESULT_ERROR;
-    }
-    if (core_console_count(console) + strlen(str) > console->buffer.max_count) {
-        ras_log_error("Line length of %d is would exeed buffer with count of %d",
-            strlen(str),
-            core_console_count(console));
     }
 
     while (*src != '\0') {
-        console->buffer.text[console->buffer.tail++] = *src;
+        console->buffer.text[console->buffer.tail] = *src;
+        console->buffer.tail = (console->buffer.tail + 1) % RAS_CONSOLE_DEFAULT_CAPACITY;
         src++;
     }
-    console->buffer.text[console->buffer.tail++] = '\n';
+    console->buffer.text[console->buffer.tail] = '\n';
+    console->buffer.tail = (console->buffer.tail + 1) % RAS_CONSOLE_DEFAULT_CAPACITY;
+
     return RAS_RESULT_OK;
 }
 
@@ -239,4 +265,26 @@ RasResult core_draw_console(RenderState* state, RasFont* font)
     state->visible_indexes[(*si)++] = pv3_i;
 
     return RAS_RESULT_OK;
+}
+
+char* repr_console_buffer(char* buffer, size_t count, RasConsole* console)
+{
+    size_t* head = &console->buffer.head;
+    size_t* tail = &console->buffer.tail;
+    size_t current = *head;
+    char* dest = buffer;
+
+    if (count < console->buffer.capacity) {
+        ras_log_error("Given buffer should match size of console.");
+        return NULL;
+    }
+
+    while (current != *tail) {
+        *dest = console->buffer.text[current];
+        current = (current + 1) % RAS_CONSOLE_DEFAULT_CAPACITY;
+        dest++;
+    }
+
+    *dest = '\0';
+    return buffer;
 }

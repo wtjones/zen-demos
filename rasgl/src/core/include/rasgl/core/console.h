@@ -72,4 +72,15 @@ size_t core_console_count(RasConsole* console);
  */
 RasResult core_console_build_index(RasConsole* console, RasConsoleLineIndex* line_index);
 
+/**
+ * @brief Fill string buffer from console text. Buffer should match
+ * capacity of console buffer.
+ *
+ * @param buffer
+ * @param count
+ * @param console
+ * @return char*
+ */
+char* repr_console_buffer(char* buffer, size_t count, RasConsole* console);
+
 #endif

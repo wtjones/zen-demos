@@ -478,6 +478,55 @@ void console_ring_tests()
     assert(line_index.count == 3);
 }
 
+void console_trim_tests()
+{
+    RasConsole console;
+    ScreenSettings ss = { .screen_width = 320, .screen_height = 240 };
+
+    const char* small_str = "Not super big but enough to seed data.";
+    const char* big_str = "Super big string that should force a trim if everything is working ok and this is a run on sentence.";
+    core_console_init(&console, &ss);
+
+    RasResult result;
+    size_t available_count = console.buffer.max_count - core_console_count(&console);
+    ras_log_info("Console available slots: %d", available_count);
+
+    while (available_count > strlen(big_str) + 1) {
+        result = core_console_append(&console, small_str);
+        assert(result == RAS_RESULT_OK);
+        available_count = console.buffer.max_count - core_console_count(&console);
+        ras_log_info("Console available slots: %d", available_count);
+    }
+
+    result = core_console_append(&console, big_str);
+    assert(result == RAS_RESULT_OK);
+    available_count = console.buffer.max_count - core_console_count(&console);
+    assert(available_count < RAS_CONSOLE_DEFAULT_CAPACITY);
+    ras_log_info("After trimmed append: Console available slots: %d", available_count);
+
+    result = core_console_append(&console, big_str);
+    assert(result == RAS_RESULT_OK);
+    result = core_console_append(&console, big_str);
+    assert(result == RAS_RESULT_OK);
+    result = core_console_append(&console, "Hello test 1 2 3!!!!!!!");
+    assert(result == RAS_RESULT_OK);
+    result = core_console_append(&console, big_str);
+    assert(result == RAS_RESULT_OK);
+    result = core_console_append(&console, big_str);
+    assert(result == RAS_RESULT_OK);
+    result = core_console_append(&console, big_str);
+    assert(result == RAS_RESULT_OK);
+
+    char buffer[RAS_CONSOLE_DEFAULT_CAPACITY];
+
+    ras_log_info("Buffer:");
+    ras_log_info("\n%s",
+        repr_console_buffer(buffer, RAS_CONSOLE_DEFAULT_CAPACITY, &console));
+
+    available_count = console.buffer.max_count - core_console_count(&console);
+    ras_log_info("Console available slots: %d", available_count);
+}
+
 int main()
 {
     FILE* log_file = fopen("/tmp/rasgl.log", "w");
