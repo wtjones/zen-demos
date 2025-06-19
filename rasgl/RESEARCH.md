@@ -183,6 +183,44 @@ For each visible row, call function that builds a line from current index to nex
 From tail, search backward to find newline.
 Write to last visible row.
 
+#### Render scenarios
+
+```text
+// start_row = max_row - index_count
+// start_row = start_row < 0 ? 0 : start_row
+// start_row = 5 - 2 = 3
+// start_line = index_count - (max_row - start_row)
+// start_line = 2 - (5 - 3) = 0
+// start_y = start_row *(8 + 2)
+// start_y = 3 * (10) = 30
+/*
+  -4    y (8 plus 2 padding)
+0 -3    0
+1 -2    10
+2 -1    20
+3 0     30
+4 1
+5 P
+*/
+
+// start_row = max_row - index_count
+// start_row = start_row < 0 ? 0 : start_row
+// start_row = 5 - 7 = -2 = 0
+// start_line = index_count - (max_row - start_row)
+// start_line = 7 - (5 - 0) = 2
+
+/*
+  0
+  1
+0 2
+1 3
+2 4
+3 5
+4 6
+5 P
+*/
+  ```
+
 ## Ring buffer
 
 Imagine a buffer with 5 slots:

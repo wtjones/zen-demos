@@ -46,6 +46,10 @@ void ras_core_update(InputState* input_state, RenderState render_states[RAS_LAYE
         ras_log_info("Console visible: %s", console_state->layer_visible ? "true" : "false");
     }
 
+    if (input_state->keys[RAS_KEY_RETURN] == RAS_KEY_EVENT_UP) {
+        ras_log_info("Return key.");
+    }
+
     if (input_state->keys[RAS_KEY_F] == RAS_KEY_EVENT_UP) {
         ras_log_flush();
     }

@@ -1,6 +1,7 @@
 #include "font8x8/font8x8_basic.h"
 #include "font8x8/font8x8_block.h"
 #include "rasgl/core/app.h"
+#include "rasgl/core/console.h"
 #include "rasgl/core/debug.h"
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/input.h"
@@ -19,7 +20,7 @@ SDL_Renderer* renderer;
  *
  */
 SDL_Surface* surface;
-
+RasConsole console;
 RenderState states[RAS_LAYER_COUNT];
 InputState plat_input_state;
 
@@ -85,6 +86,7 @@ void input_init()
     g_key_app_to_plat[RAS_KEY_F11] = SDL_SCANCODE_F11;
     g_key_app_to_plat[RAS_KEY_F12] = SDL_SCANCODE_F12;
     g_key_app_to_plat[RAS_KEY_BACKQUOTE] = SDL_SCANCODE_GRAVE;
+    g_key_app_to_plat[RAS_KEY_RETURN] = SDL_SCANCODE_RETURN;
 
     for (int i = 0; i < SDL_NUM_SCANCODES; i++) {
         g_key_plat_to_app[i] = RAS_KEY_UNKNOWN;
@@ -474,6 +476,7 @@ int main(int argc, const char** argv)
     core_renderstates_init(states);
     input_init();
     core_input_init(&plat_input_state);
+    core_console_init(&console, &plat_settings);
 
     int last_frame = SDL_GetTicks();
     while (!should_quit) {
@@ -498,6 +501,7 @@ int main(int argc, const char** argv)
         if (states[RAS_LAYER_SCENE].max_frames == UINT32_MAX || states[RAS_LAYER_SCENE].current_frame < states[RAS_LAYER_SCENE].max_frames) {
             core_renderstates_clear(states);
             ras_core_update(&plat_input_state, states);
+            core_console_update(&console, &plat_input_state);
             ras_app_update(&plat_input_state);
 
             for (size_t i = 0; i < RAS_LAYER_COUNT; i++) {
@@ -506,6 +510,9 @@ int main(int argc, const char** argv)
             }
             SDL_LockSurface(surface);
             ras_app_render(states);
+
+            RasFont font;
+            core_draw_console(&states[RAS_LAYER_CONSOLE], &font, &console);
 
             Uint8* pixels = (Uint8*)surface->pixels;
             for (int i = 0; i < surface->w * surface->h; i++) {

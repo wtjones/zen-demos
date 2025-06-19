@@ -3,10 +3,12 @@
 
 #include "debug.h"
 #include "graphics.h"
+#include "input.h"
+#include "maths.h"
 #include "text.h"
 
 #define RAS_CONSOLE_DEFAULT_CAPACITY 1024 // Favor power-of-two
-#define RAS_CONSOLE_DEFAULT_ROWS 20
+#define RAS_CONSOLE_DEFAULT_ROWS 8
 #define RAS_CONSOLE_DEFAULT_COLS 30
 #define RAS_CONSOLE_MAX_LINE_COUNT 100
 
@@ -25,6 +27,7 @@ typedef struct RasConsole {
     int32_t visible_rows;
     int32_t visible_cols;
     RasConsoleBuffer buffer;
+    Point2f screen_pos;
 } RasConsole;
 
 typedef struct RasConsoleLineIndex {
@@ -34,6 +37,7 @@ typedef struct RasConsoleLineIndex {
 } RasConsoleLineIndex;
 
 RasResult core_console_init(RasConsole* console, ScreenSettings* settings);
+void core_console_update(RasConsole* console, InputState* input_state);
 bool core_console_is_full(RasConsole* console);
 
 /**
@@ -60,7 +64,7 @@ int32_t core_console_iter_line_rev(
     RasConsole* console,
     int32_t iterator, char* dest, size_t count);
 
-RasResult core_draw_console(RenderState* state, RasFont* font);
+RasResult core_draw_console(RenderState* state, RasFont* font, RasConsole* console);
 RasResult core_console_append(RasConsole* console, const char* str);
 size_t core_console_count(RasConsole* console);
 /**
@@ -82,5 +86,17 @@ RasResult core_console_build_index(RasConsole* console, RasConsoleLineIndex* lin
  * @return char*
  */
 char* repr_console_buffer(char* buffer, size_t count, RasConsole* console);
+
+/**
+ * @brief Fill string buffer from a line console text.
+ * Copies until first newline.
+ *
+ * @param buffer
+ * @param count
+ * @param console
+ * @param start Start postion.
+ * @return char*
+ */
+char* repr_console_buffer_line(char* buffer, size_t count, RasConsole* console, size_t start);
 
 #endif

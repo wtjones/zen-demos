@@ -60,14 +60,15 @@
 - [ ] DOS support
 - [ ] Pull down/up animation
 - [ ] Prompt echo
+- [ ] Size console to visible rows.
+- [ ] Suppress scene input when console active.
+- [ ] Suppress console input when inactive.
 
 ## In Progress
 
 ### Text
 
 ### Console
-
-- [ ] Render buffer text
 
 ### Models
 
@@ -133,3 +134,4 @@
 ### Console
 
 - [x] Trim ring buffer
+- [x] Render buffer text

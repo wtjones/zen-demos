@@ -527,6 +527,39 @@ void console_trim_tests()
     ras_log_info("Console available slots: %d", available_count);
 }
 
+void console_repr_tests()
+{
+    RasConsole console;
+    ScreenSettings ss = { .screen_width = 320, .screen_height = 240 };
+
+    const char* small_str = "Not super big but enough to seed data.";
+    const char* big_str = "Super big string that should force a trim if everything is working ok and this is a run on sentence.";
+    core_console_init(&console, &ss);
+    RasConsoleLineIndex line_index;
+    core_console_append(&console, small_str);
+    core_console_append(&console, "The 2nd line.");
+    core_console_append(&console, big_str);
+
+    assert(RAS_RESULT_OK == core_console_build_index(&console, &line_index));
+
+    char buffer[RAS_CONSOLE_DEFAULT_CAPACITY];
+
+    ras_log_info("Buffer:");
+    ras_log_info("\n%s",
+        repr_console_buffer(buffer, RAS_CONSOLE_DEFAULT_CAPACITY, &console));
+
+    for (size_t i = 0; i < line_index.count; i++) {
+        repr_console_buffer_line(
+            buffer,
+            RAS_CONSOLE_DEFAULT_CAPACITY,
+            &console,
+            line_index.line_starts[i]);
+        ras_log_info("Buffer line %d:", i);
+        ras_log_info("\n%s",
+            buffer);
+    }
+}
+
 int main()
 {
     FILE* log_file = fopen("/tmp/rasgl.log", "w");
