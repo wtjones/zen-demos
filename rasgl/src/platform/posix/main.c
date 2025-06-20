@@ -501,9 +501,11 @@ int main(int argc, const char** argv)
         if (states[RAS_LAYER_SCENE].max_frames == UINT32_MAX || states[RAS_LAYER_SCENE].current_frame < states[RAS_LAYER_SCENE].max_frames) {
             core_renderstates_clear(states);
             ras_core_update(&plat_input_state, states);
-            core_console_update(&console, &plat_input_state);
-            ras_app_update(&plat_input_state);
-
+            if (states[RAS_LAYER_CONSOLE].layer_visible) {
+                core_console_update(&console, &plat_input_state);
+            } else {
+                ras_app_update(&plat_input_state);
+            }
             for (size_t i = 0; i < RAS_LAYER_COUNT; i++) {
                 states[i].screen_settings.screen_width = plat_settings.screen_width;
                 states[i].screen_settings.screen_height = plat_settings.screen_height;
