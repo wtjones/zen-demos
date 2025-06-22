@@ -235,7 +235,23 @@ int main(int argc, const char** argv)
     clear_keybuf();
 
     while (!key[KEY_ESC]) {
+
         map_input();
+
+        if (keypressed()) {
+            int key = readkey();
+            int ascii = key & 0xFF;
+            int scancode = key >> 8;
+
+            if (ascii >= 32 && ascii <= 126) {
+                ras_log_info("Text input: '%c'\n", ascii);
+            } else {
+                ras_log_info("Non-printable or special key: scan=%d ascii=%d", scancode, ascii);
+                if (plat_input_state.keys[RAS_KEY_RETURN] == RAS_KEY_EVENT_UP) {
+                    ras_log_info("Return key via state: scan=%d\n", scancode);
+                }
+            }
+        }
 
         if (states[RAS_LAYER_SCENE].max_frames == UINT32_MAX
             || states[RAS_LAYER_SCENE].current_frame < states[RAS_LAYER_SCENE].max_frames) {
