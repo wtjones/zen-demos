@@ -18,6 +18,8 @@ RasResult core_console_init(RasConsole* console, ScreenSettings* settings)
     console->visible_rows = RAS_CONSOLE_DEFAULT_ROWS;
     console->screen_pos.x = RAS_FIXED_ZERO;
     console->screen_pos.y = RAS_FIXED_ZERO;
+    console->prompt_text[0] = '\0';
+    strcat(console->prompt_text, RAS_CONSOLE_PROMPT_TEXT);
 
     return RAS_RESULT_OK;
 }
@@ -26,7 +28,20 @@ void core_console_update(RasConsole* console, InputState* input_state)
 {
     if (input_state->keys[RAS_KEY_RETURN] == RAS_KEY_EVENT_UP) {
         ras_log_info("Console enter key pressed.");
-        core_console_append(console, "Console enter key pressed.");
+        core_console_append(console, console->prompt_text);
+        console->prompt_text[0] = '\0';
+        strcat(console->prompt_text, RAS_CONSOLE_PROMPT_TEXT);
+        core_console_append(console, "TODO: process command");
+    }
+    if (strlen(input_state->text) == 1 && input_state->text[0] != '`') {
+        ras_log_info("Console text: %s", input_state->text);
+        strcat(console->prompt_text, input_state->text);
+        ras_log_info("Prompt text: \"%s\"", console->prompt_text);
+    }
+    if (input_state->keys[RAS_KEY_BACKSPACE] == RAS_KEY_EVENT_UP) {
+        if (strlen(console->prompt_text) > strlen(RAS_CONSOLE_PROMPT_TEXT)) {
+            console->prompt_text[strlen(console->prompt_text) - 1] = '\0';
+        }
     }
 }
 
@@ -166,7 +181,6 @@ RasResult core_console_build_index(RasConsole* console, RasConsoleLineIndex* lin
         return RAS_RESULT_ERROR;
     }
     if (core_console_count(console) == 0) {
-        ras_log_warn("Console empty.");
         return RAS_RESULT_OK;
     }
 
@@ -233,7 +247,8 @@ RasResult draw_console_text(RenderState* state, RasFont* font, RasConsole* conso
     ras_log_buffer_info("Prompt pos: %s", repr_point2f(b2, sizeof(b2), &pos));
     ras_log_buffer_info("Prompt pos: %s", repr_fixed_16_16(b2, sizeof(b2), pos.y));
 
-    core_draw_text(state, font, pos, ">");
+    core_draw_text(state, font, pos, console->prompt_text);
+
     return RAS_RESULT_OK;
 }
 

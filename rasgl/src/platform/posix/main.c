@@ -23,6 +23,7 @@ SDL_Surface* surface;
 RasConsole console;
 RenderState states[RAS_LAYER_COUNT];
 InputState plat_input_state;
+bool is_text_input_enabled = false;
 
 int g_key_app_to_plat[RAS_KEY_COUNT];
 /**
@@ -87,6 +88,7 @@ void input_init()
     g_key_app_to_plat[RAS_KEY_F12] = SDL_SCANCODE_F12;
     g_key_app_to_plat[RAS_KEY_BACKQUOTE] = SDL_SCANCODE_GRAVE;
     g_key_app_to_plat[RAS_KEY_RETURN] = SDL_SCANCODE_RETURN;
+    g_key_app_to_plat[RAS_KEY_BACKSPACE] = SDL_SCANCODE_BACKSPACE;
 
     for (int i = 0; i < SDL_NUM_SCANCODES; i++) {
         g_key_plat_to_app[i] = RAS_KEY_UNKNOWN;
@@ -107,6 +109,7 @@ void map_input()
         plat_input_state.keys[i] = keys[plat_scancode] ? RAS_KEY_EVENT_DOWN
                                                        : RAS_KEY_EVENT_NONE;
     }
+    plat_input_state.text[0] = '\0';
 }
 
 uint8_t color_from_material(int32_t material)
@@ -496,6 +499,11 @@ int main(int argc, const char** argv)
                 } else {
                     ras_log_warn("Unknown scancode: %d", event.key.keysym.scancode);
                 }
+                break;
+            case SDL_TEXTINPUT:
+                ras_log_info("Text input: %s", event.text.text);
+                strcpy(plat_input_state.text, event.text.text);
+                break;
             }
         }
         if (states[RAS_LAYER_SCENE].max_frames == UINT32_MAX || states[RAS_LAYER_SCENE].current_frame < states[RAS_LAYER_SCENE].max_frames) {
@@ -503,8 +511,18 @@ int main(int argc, const char** argv)
             ras_core_update(&plat_input_state, states);
             if (states[RAS_LAYER_CONSOLE].layer_visible) {
                 core_console_update(&console, &plat_input_state);
+                if (!is_text_input_enabled) {
+                    ras_log_info("Starting platform text input.");
+                    SDL_StartTextInput();
+                    is_text_input_enabled = true;
+                }
             } else {
                 ras_app_update(&plat_input_state);
+                if (is_text_input_enabled) {
+                    ras_log_info("Stopping platform text input.");
+                    SDL_StopTextInput();
+                    is_text_input_enabled = false;
+                }
             }
             for (size_t i = 0; i < RAS_LAYER_COUNT; i++) {
                 states[i].screen_settings.screen_width = plat_settings.screen_width;

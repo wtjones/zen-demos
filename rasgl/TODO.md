@@ -61,8 +61,9 @@
 - [ ] Pull down/up animation
 - [ ] Prompt echo
 - [ ] Size console to visible rows.
-- [ ] Suppress scene input when console active.
-- [ ] Suppress console input when inactive.
+- [ ] Scene should continue to animate when visible.
+- [ ] Recall history with up arrow.
+- [ ] Separate prompt character from prompt text.
 
 ## In Progress
 
@@ -135,3 +136,5 @@
 
 - [x] Trim ring buffer
 - [x] Render buffer text
+- [x] Suppress scene input when console active.
+- [x] Suppress console input when inactive.

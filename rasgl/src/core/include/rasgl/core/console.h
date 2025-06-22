@@ -11,6 +11,7 @@
 #define RAS_CONSOLE_DEFAULT_ROWS 8
 #define RAS_CONSOLE_DEFAULT_COLS 30
 #define RAS_CONSOLE_MAX_LINE_COUNT 100
+#define RAS_CONSOLE_PROMPT_TEXT ">"
 
 typedef struct RasConsoleBuffer {
     char text[RAS_CONSOLE_DEFAULT_CAPACITY];
@@ -28,6 +29,7 @@ typedef struct RasConsole {
     int32_t visible_cols;
     RasConsoleBuffer buffer;
     Point2f screen_pos;
+    char prompt_text[RAS_CONSOLE_DEFAULT_CAPACITY];
 } RasConsole;
 
 typedef struct RasConsoleLineIndex {

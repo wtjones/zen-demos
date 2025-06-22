@@ -2,6 +2,15 @@
 #define INPUT_H
 
 #include <stdint.h>
+
+/**
+ * @brief A single character is expected, however SDL2's event.text.text
+ * capacity is used as a baseline. Multi-byte unicode support is not planned,
+ * so the platform code could instead ensure a single char is captured.
+ *
+ */
+#define RAS_INPUT_STATE_TEXT_CAPACITY 32
+
 typedef enum {
     RAS_KEY_UNKNOWN,
     RAS_KEY_A,
@@ -60,6 +69,7 @@ typedef enum {
     RAS_KEY_F12,
     RAS_KEY_BACKQUOTE,
     RAS_KEY_RETURN,
+    RAS_KEY_BACKSPACE,
     RAS_KEY_COUNT
 } RasKey;
 
@@ -72,6 +82,7 @@ typedef enum {
 typedef struct InputState {
     RasKeyEvent keys[RAS_KEY_COUNT];
     uint32_t current_frame;
+    char text[RAS_INPUT_STATE_TEXT_CAPACITY];
 } InputState;
 
 void core_input_init(InputState* state);
