@@ -42,30 +42,6 @@ RasResult core_console_init(RasConsole* console, ScreenSettings* settings);
 void core_console_update(RasConsole* console, InputState* input_state);
 bool core_console_is_full(RasConsole* console);
 
-/**
- * @brief Iterate console buffer by char in reverse.
- * If buffer is emtpy:
- *  set dest = NULL
- *  return -1
- * If iterator is at head:
- *  set dest = head
- *  return -1
- * If iterator not at head:
- *  set dest = iterator
- *  return iterator - 1
- * FIXME: Deprecate?
- * @param console
- * @param end
- * @param dest
- * @return int32_t
- */
-int32_t core_console_iter_char_rev(
-    RasConsole* console, int32_t iterator, char* dest);
-// FIXME: Deprecate?
-int32_t core_console_iter_line_rev(
-    RasConsole* console,
-    int32_t iterator, char* dest, size_t count);
-
 RasResult core_draw_console(RenderState* state, RasFont* font, RasConsole* console);
 RasResult core_console_append(RasConsole* console, const char* str);
 size_t core_console_count(RasConsole* console);
