@@ -63,7 +63,6 @@
 - [ ] Size console to visible rows.
 - [ ] Scene should continue to animate when visible.
 - [ ] Recall history with up arrow.
-- [ ] Separate prompt character from prompt text.
 
 ## In Progress
 
@@ -138,3 +137,4 @@
 - [x] Render buffer text
 - [x] Suppress scene input when console active.
 - [x] Suppress console input when inactive.
+- [s] Separate prompt character from prompt text.

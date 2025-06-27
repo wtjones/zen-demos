@@ -8,10 +8,10 @@
 #include "text.h"
 
 #define RAS_CONSOLE_DEFAULT_CAPACITY 1024 // Favor power-of-two
-#define RAS_CONSOLE_DEFAULT_ROWS 8
+#define RAS_CONSOLE_DEFAULT_ROWS 30
 #define RAS_CONSOLE_DEFAULT_COLS 30
 #define RAS_CONSOLE_MAX_LINE_COUNT 100
-#define RAS_CONSOLE_PROMPT_TEXT ">"
+#define RAS_CONSOLE_PROMPT_CHAR ">"
 
 typedef struct RasConsoleBuffer {
     char text[RAS_CONSOLE_DEFAULT_CAPACITY];
