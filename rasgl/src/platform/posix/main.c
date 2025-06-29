@@ -20,7 +20,7 @@ SDL_Renderer* renderer;
  *
  */
 SDL_Surface* surface;
-RasConsole console;
+RasConsole* console;
 RenderState states[RAS_LAYER_COUNT];
 InputState plat_input_state;
 bool is_text_input_enabled = false;
@@ -479,8 +479,16 @@ int main(int argc, const char** argv)
     core_renderstates_init(states);
     input_init();
     core_input_init(&plat_input_state);
-    core_console_init(&console, &plat_settings);
 
+    console = core_console_init(&plat_settings);
+    if (console == NULL) {
+        ras_log_error("Error result from core_console_init(), exiting...");
+
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(win);
+        SDL_Quit();
+        return 1;
+    }
     int last_frame = SDL_GetTicks();
     while (!should_quit) {
         map_input();
@@ -510,7 +518,7 @@ int main(int argc, const char** argv)
             core_renderstates_clear(states);
             ras_core_update(&plat_input_state, states);
             if (states[RAS_LAYER_CONSOLE].layer_visible) {
-                core_console_update(&console, &plat_input_state);
+                core_console_update(console, &plat_input_state);
                 if (!is_text_input_enabled) {
                     ras_log_info("Starting platform text input.");
                     SDL_StartTextInput();
@@ -532,7 +540,7 @@ int main(int argc, const char** argv)
             ras_app_render(states);
 
             RasFont font;
-            core_draw_console(&states[RAS_LAYER_CONSOLE], &font, &console);
+            core_draw_console(&states[RAS_LAYER_CONSOLE], &font, console);
 
             Uint8* pixels = (Uint8*)surface->pixels;
             for (int i = 0; i < surface->w * surface->h; i++) {
@@ -559,6 +567,7 @@ int main(int argc, const char** argv)
         last_frame = SDL_GetTicks();
     }
 
+    core_console_free(console);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(win);
 

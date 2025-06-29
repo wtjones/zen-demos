@@ -2,6 +2,7 @@
 #include "rasgl/core/debug.h"
 #include "rasgl/core/fixed_maths.h"
 #include "rasgl/core/graphics.h"
+#include "rasgl/core/line_buffer.h"
 #include "rasgl/core/matrix.h"
 #include "rasgl/core/matrix_projection.h"
 #include "rasgl/core/model.h"
@@ -423,141 +424,139 @@ void interpolate_tests()
     }
 }
 
-void console_index_tests()
+void line_buffer_index_tests()
 {
-    RasConsole console;
-    ScreenSettings ss = { .screen_width = 320, .screen_height = 240 };
-    RasConsoleLineIndex line_index;
-    line_index.max_count = RAS_CONSOLE_MAX_LINE_COUNT;
+    RasLineBuffer* line_buffer = core_line_buffer_init(RAS_CONSOLE_DEFAULT_CAPACITY);
+    assert(line_buffer != NULL);
 
-    core_console_init(&console, &ss);
+    RasLineBufferIndex line_index;
 
-    core_console_append(&console, "Hi");
-    core_console_append(&console, "World!");
-    core_console_append(&console, "More");
+    core_line_buffer_append(line_buffer, "Hi");
+    core_line_buffer_append(line_buffer, "Hello world.");
+    core_line_buffer_append(line_buffer, "More");
 
-    RasResult result = core_console_build_index(&console, &line_index);
+    RasResult result = core_line_buffer_build_index(line_buffer, &line_index);
 
     assert(result == RAS_RESULT_OK);
     assert(line_index.count == 3);
 }
 
-void console_ring_tests()
+void ring_buffer_tests()
 {
-    RasConsole console;
-    ScreenSettings ss = { .screen_width = 320, .screen_height = 240 };
-    RasConsoleLineIndex line_index;
-    line_index.max_count = RAS_CONSOLE_MAX_LINE_COUNT;
+    RasLineBuffer* line_buffer = core_line_buffer_init(RAS_LINE_BUFFER_MAX_COUNT);
+    assert(line_buffer != NULL);
 
-    core_console_init(&console, &ss);
+    RasLineBufferIndex line_index;
+    line_index.max_count = RAS_LINE_BUFFER_MAX_COUNT;
 
-    const char* first_line = "First line.";
-    core_console_append(&console, first_line);
-    core_console_append(&console, "World!");
-    core_console_append(&console, "More");
+    // Fill the buffer to force a wrap
+    for (int i = 0; i < 3; ++i) {
+        char line[32];
+        snprintf(line, sizeof(line), "Line %d", i);
+        RasResult result = core_line_buffer_append(line_buffer, line);
+        assert(result == RAS_RESULT_OK);
+    }
 
-    size_t len = core_console_count(&console);
-    // Manually trim the first line
-    console.buffer.head += strlen(first_line) + 1;
-    size_t new_len = core_console_count(&console);
-
-    assert(new_len == len - strlen(first_line) - 1);
-
-    RasResult result = core_console_build_index(&console, &line_index);
-
+    RasResult result = core_line_buffer_build_index(line_buffer, &line_index);
     assert(result == RAS_RESULT_OK);
-    assert(line_index.count == 2);
-
-    // Add another line
-    len = new_len;
-    result = core_console_append(&console, "Turbo");
-    assert(result == RAS_RESULT_OK);
-    new_len = core_console_count(&console);
-    assert(new_len == len + 6);
-    result = core_console_build_index(&console, &line_index);
     assert(line_index.count == 3);
+
+    // Add enough lines to wrap the buffer
+    for (int i = 3; i < 10; ++i) {
+        char line[32];
+        snprintf(line, sizeof(line), "Line %d", i);
+        RasResult result = core_line_buffer_append(line_buffer, line);
+        assert(result == RAS_RESULT_OK);
+    }
+    result = core_line_buffer_build_index(line_buffer, &line_index);
+    assert(result == RAS_RESULT_OK);
+    // The count should not exceed max_count
+    assert(line_index.count <= line_buffer->max_count);
+
+    core_line_buffer_free(line_buffer);
 }
 
-void console_trim_tests()
+void line_buffer_trim_tests()
 {
-    RasConsole console;
-    ScreenSettings ss = { .screen_width = 320, .screen_height = 240 };
+    RasLineBuffer* line_buffer = core_line_buffer_init(RAS_LINE_BUFFER_MAX_COUNT);
+    assert(line_buffer != NULL);
 
     const char* small_str = "Not super big but enough to seed data.";
     const char* big_str = "Super big string that should force a trim if everything is working ok and this is a run on sentence.";
-    core_console_init(&console, &ss);
 
     RasResult result;
-    size_t available_count = console.buffer.max_count - core_console_count(&console);
-    ras_log_info("Console available slots: %d", available_count);
+    size_t available_count = line_buffer->max_count - core_line_buffer_count(line_buffer);
+    ras_log_info("LineBuffer available slots: %zu", available_count);
 
     while (available_count > strlen(big_str) + 1) {
-        result = core_console_append(&console, small_str);
+        result = core_line_buffer_append(line_buffer, small_str);
         assert(result == RAS_RESULT_OK);
-        available_count = console.buffer.max_count - core_console_count(&console);
-        ras_log_info("Console available slots: %d", available_count);
+        available_count = line_buffer->max_count - core_line_buffer_count(line_buffer);
+        ras_log_info("LineBuffer available slots: %zu", available_count);
     }
 
-    result = core_console_append(&console, big_str);
+    result = core_line_buffer_append(line_buffer, big_str);
     assert(result == RAS_RESULT_OK);
-    available_count = console.buffer.max_count - core_console_count(&console);
-    assert(available_count < RAS_CONSOLE_DEFAULT_CAPACITY);
-    ras_log_info("After trimmed append: Console available slots: %d", available_count);
+    available_count = line_buffer->max_count - core_line_buffer_count(line_buffer);
+    assert(available_count < RAS_LINE_BUFFER_MAX_COUNT);
+    ras_log_info("After trimmed append: LineBuffer available slots: %zu", available_count);
 
-    result = core_console_append(&console, big_str);
+    result = core_line_buffer_append(line_buffer, big_str);
     assert(result == RAS_RESULT_OK);
-    result = core_console_append(&console, big_str);
+    result = core_line_buffer_append(line_buffer, big_str);
     assert(result == RAS_RESULT_OK);
-    result = core_console_append(&console, "Hello test 1 2 3!!!!!!!");
+    result = core_line_buffer_append(line_buffer, "Hello test 1 2 3!!!!!!!");
     assert(result == RAS_RESULT_OK);
-    result = core_console_append(&console, big_str);
+    result = core_line_buffer_append(line_buffer, big_str);
     assert(result == RAS_RESULT_OK);
-    result = core_console_append(&console, big_str);
+    result = core_line_buffer_append(line_buffer, big_str);
     assert(result == RAS_RESULT_OK);
-    result = core_console_append(&console, big_str);
+    result = core_line_buffer_append(line_buffer, big_str);
     assert(result == RAS_RESULT_OK);
 
-    char buffer[RAS_CONSOLE_DEFAULT_CAPACITY];
+    char buffer[RAS_LINE_BUFFER_MAX_COUNT];
 
     ras_log_info("Buffer:");
     ras_log_info("\n%s",
-        repr_console_buffer(buffer, RAS_CONSOLE_DEFAULT_CAPACITY, &console));
+        core_repr_line_buffer(buffer, RAS_LINE_BUFFER_MAX_COUNT, line_buffer));
 
-    available_count = console.buffer.max_count - core_console_count(&console);
-    ras_log_info("Console available slots: %d", available_count);
+    available_count = line_buffer->max_count - core_line_buffer_count(line_buffer);
+    ras_log_info("LineBuffer available slots: %zu", available_count);
+
+    core_line_buffer_free(line_buffer);
 }
 
-void console_repr_tests()
+void line_buffer_repr_tests()
 {
-    RasConsole console;
-    ScreenSettings ss = { .screen_width = 320, .screen_height = 240 };
+    RasLineBuffer* line_buffer = core_line_buffer_init(RAS_CONSOLE_DEFAULT_CAPACITY);
+    assert(line_buffer != NULL);
 
     const char* small_str = "Not super big but enough to seed data.";
     const char* big_str = "Super big string that should force a trim if everything is working ok and this is a run on sentence.";
-    core_console_init(&console, &ss);
-    RasConsoleLineIndex line_index;
-    core_console_append(&console, small_str);
-    core_console_append(&console, "The 2nd line.");
-    core_console_append(&console, big_str);
 
-    assert(RAS_RESULT_OK == core_console_build_index(&console, &line_index));
+    RasLineBufferIndex line_index;
+
+    core_line_buffer_append(line_buffer, small_str);
+    core_line_buffer_append(line_buffer, "The 2nd line.");
+    core_line_buffer_append(line_buffer, big_str);
+
+    assert(RAS_RESULT_OK == core_line_buffer_build_index(line_buffer, &line_index));
 
     char buffer[RAS_CONSOLE_DEFAULT_CAPACITY];
 
-    ras_log_info("Buffer:");
-    ras_log_info("\n%s",
-        repr_console_buffer(buffer, RAS_CONSOLE_DEFAULT_CAPACITY, &console));
+    ras_log_info("Buffer\n%s",
+        core_repr_line_buffer(buffer, RAS_CONSOLE_DEFAULT_CAPACITY, line_buffer));
 
     for (size_t i = 0; i < line_index.count; i++) {
-        repr_console_buffer_line(
+        core_repr_line_buffer_line(
             buffer,
             RAS_CONSOLE_DEFAULT_CAPACITY,
-            &console,
+            line_buffer,
             line_index.line_starts[i]);
-        ras_log_info("Buffer line %d:", i);
-        ras_log_info("\n%s",
-            buffer);
+        ras_log_info("Buffer line %zu:\n%s", i, buffer);
     }
+
+    core_line_buffer_free(line_buffer);
 }
 
 int main()

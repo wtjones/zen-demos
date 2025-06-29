@@ -9,6 +9,7 @@ add_library(core
     frustum.c
     graphics.c
     input.c
+    line_buffer.c
     maths.c
     maths_tables.c
     matrix.c
