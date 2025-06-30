@@ -18,6 +18,15 @@ typedef struct RasConsole {
     int32_t visible_rows;
     int32_t visible_cols;
     RasLineBuffer* buffer;
+    RasLineBuffer* history;
+    /**
+     * @brief Current line in history to recall relative to most recent.
+     * Decremented with subsequent history key presses.
+     * Value is always <= 0.
+     * Does not equate to size of history buffer.
+     *
+     */
+    int32_t history_recall_depth;
     Point2f screen_pos;
     char prompt_text[RAS_CONSOLE_DEFAULT_CAPACITY];
 } RasConsole;

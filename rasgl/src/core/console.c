@@ -11,6 +11,11 @@ RasConsole* core_console_init(ScreenSettings* settings)
     if (console->buffer == NULL) {
         return NULL;
     }
+    console->history = core_line_buffer_init(RAS_CONSOLE_DEFAULT_CAPACITY);
+    if (console->history == NULL) {
+        return NULL;
+    }
+    console->history_recall_depth = 0;
     console->visible_cols = RAS_CONSOLE_DEFAULT_COLS;
     console->visible_rows = RAS_CONSOLE_DEFAULT_ROWS;
     console->screen_pos.x = RAS_FIXED_ZERO;
@@ -23,21 +28,84 @@ RasConsole* core_console_init(ScreenSettings* settings)
 void core_console_free(RasConsole* console)
 {
     core_line_buffer_free(console->buffer);
+    core_line_buffer_free(console->history);
     free(console);
+}
+
+void on_history_recall_back(RasConsole* console)
+{
+    RasLineBufferIndex index;
+    core_line_buffer_build_index(console->history, &index);
+    if (index.count == 0) {
+        ras_log_info("History empty.");
+        return;
+    }
+    char buffer[RAS_CONSOLE_DEFAULT_CAPACITY];
+    int32_t offset = (index.count - 1) + console->history_recall_depth;
+    int32_t last_line = index.line_starts[offset];
+
+    console->history_recall_depth -= abs(console->history_recall_depth - 1) == index.count
+        ? 0
+        : 1;
+    ras_log_info("console->history_depth: %d", console->history_recall_depth);
+    core_repr_line_buffer_line(
+        buffer, sizeof(buffer), console->history, last_line);
+    ras_log_info("History: %s", buffer);
+    console->prompt_text[0] = '\0';
+    strcat(console->prompt_text, buffer);
+}
+
+void on_history_update(RasConsole* console)
+{
+    if (strlen(console->prompt_text) == 0) {
+        return;
+    }
+
+    RasLineBufferIndex index;
+    core_line_buffer_build_index(console->history, &index);
+
+    if (index.count == 0) {
+        core_line_buffer_append(console->history, console->prompt_text);
+        return;
+    }
+
+    // Don't add a dupe.
+    char buffer[RAS_CONSOLE_DEFAULT_CAPACITY];
+    int32_t last_line = index.line_starts[index.count - 1];
+
+    core_repr_line_buffer_line(
+        buffer, sizeof(buffer), console->history, last_line);
+
+    if (strcmp(buffer, console->prompt_text) == 0) {
+        ras_log_info("Command same as prior. Not adding to history.");
+        return;
+    }
+    core_line_buffer_append(console->history, console->prompt_text);
+    // Reset recall to first item.
+    console->history_recall_depth = 0;
 }
 
 void core_console_update(RasConsole* console, InputState* input_state)
 {
+
+    if (input_state->keys[RAS_KEY_UP] == RAS_KEY_EVENT_UP) {
+        on_history_recall_back(console);
+        return;
+    }
+
     if (input_state->keys[RAS_KEY_RETURN] == RAS_KEY_EVENT_UP) {
         ras_log_info("Console enter key pressed.");
         char append[RAS_CONSOLE_DEFAULT_CAPACITY] = "";
         strcat(append, RAS_CONSOLE_PROMPT_CHAR);
         strcat(append, console->prompt_text);
         core_line_buffer_append(console->buffer, append);
+        on_history_update(console);
         console->prompt_text[0] = '\0';
+
         core_line_buffer_append(console->buffer, "TODO: process command");
         return;
     }
+
     if (strlen(input_state->text) == 1 && input_state->text[0] != '`') {
         ras_log_info("Console text: %s", input_state->text);
         strcat(console->prompt_text, input_state->text);

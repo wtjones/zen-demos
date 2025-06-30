@@ -62,13 +62,16 @@
 - [ ] Prompt echo
 - [ ] Size console to visible rows.
 - [ ] Scene should continue to animate when visible.
-- [ ] Recall history with up arrow.
+- [ ] Flush is triggered when console option. Remap/disable?
+- [ ] Trim whitespace
 
 ## In Progress
 
 ### Text
 
 ### Console
+
+- [ ] Recall history with up arrow.
 
 ### Models
 
