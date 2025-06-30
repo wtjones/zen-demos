@@ -1,6 +1,16 @@
 #include "rasgl/core/console.h"
 #include "rasgl/core/repr.h"
 
+RasResult history_init(RasConsole* console)
+{
+    console->history = core_line_buffer_init(RAS_CONSOLE_DEFAULT_CAPACITY);
+    if (console->history == NULL) {
+        return RAS_RESULT_ERROR;
+    }
+    console->history_recall_depth = RAS_CONSOLE_HISTORY_DEPTH_DEFAULT;
+    return RAS_RESULT_OK;
+}
+
 RasConsole* core_console_init(ScreenSettings* settings)
 {
     RasConsole* console = malloc(sizeof(RasConsole));
@@ -11,11 +21,9 @@ RasConsole* core_console_init(ScreenSettings* settings)
     if (console->buffer == NULL) {
         return NULL;
     }
-    console->history = core_line_buffer_init(RAS_CONSOLE_DEFAULT_CAPACITY);
-    if (console->history == NULL) {
+    if (history_init(console) == RAS_RESULT_ERROR) {
         return NULL;
     }
-    console->history_recall_depth = 0;
     console->visible_cols = RAS_CONSOLE_DEFAULT_COLS;
     console->visible_rows = RAS_CONSOLE_DEFAULT_ROWS;
     console->screen_pos.x = RAS_FIXED_ZERO;
@@ -32,6 +40,40 @@ void core_console_free(RasConsole* console)
     free(console);
 }
 
+void on_history_recall(RasConsole* console, RasLineBufferIndex* index)
+{
+
+    ras_log_info("console->history_depth: %d", console->history_recall_depth);
+
+    char buffer[RAS_CONSOLE_DEFAULT_CAPACITY];
+    int32_t offset = (index->count - 1) + console->history_recall_depth;
+    int32_t last_line = index->line_starts[offset];
+
+    core_repr_line_buffer_line(
+        buffer, sizeof(buffer), console->history, last_line);
+    ras_log_info("History: %s", buffer);
+    console->prompt_text[0] = '\0';
+    strcat(console->prompt_text, buffer);
+}
+
+void on_history_recall_forward(RasConsole* console)
+{
+    console->history_recall_depth += console->history_recall_depth == RAS_CONSOLE_HISTORY_DEPTH_DEFAULT
+        ? 0
+        : 1;
+
+    if (console->history_recall_depth == RAS_CONSOLE_HISTORY_DEPTH_DEFAULT) {
+        ras_log_info("History recall at default");
+        console->prompt_text[0] = '\0';
+        return;
+    }
+
+    RasLineBufferIndex index;
+    core_line_buffer_build_index(console->history, &index);
+
+    on_history_recall(console, &index);
+}
+
 void on_history_recall_back(RasConsole* console)
 {
     RasLineBufferIndex index;
@@ -40,19 +82,12 @@ void on_history_recall_back(RasConsole* console)
         ras_log_info("History empty.");
         return;
     }
-    char buffer[RAS_CONSOLE_DEFAULT_CAPACITY];
-    int32_t offset = (index.count - 1) + console->history_recall_depth;
-    int32_t last_line = index.line_starts[offset];
 
     console->history_recall_depth -= abs(console->history_recall_depth - 1) == index.count
         ? 0
         : 1;
-    ras_log_info("console->history_depth: %d", console->history_recall_depth);
-    core_repr_line_buffer_line(
-        buffer, sizeof(buffer), console->history, last_line);
-    ras_log_info("History: %s", buffer);
-    console->prompt_text[0] = '\0';
-    strcat(console->prompt_text, buffer);
+
+    on_history_recall(console, &index);
 }
 
 void on_history_update(RasConsole* console)
@@ -82,7 +117,7 @@ void on_history_update(RasConsole* console)
     }
     core_line_buffer_append(console->history, console->prompt_text);
     // Reset recall to first item.
-    console->history_recall_depth = 0;
+    console->history_recall_depth = RAS_CONSOLE_HISTORY_DEPTH_DEFAULT;
 }
 
 void core_console_update(RasConsole* console, InputState* input_state)
@@ -90,6 +125,11 @@ void core_console_update(RasConsole* console, InputState* input_state)
 
     if (input_state->keys[RAS_KEY_UP] == RAS_KEY_EVENT_UP) {
         on_history_recall_back(console);
+        return;
+    }
+
+    if (input_state->keys[RAS_KEY_DOWN] == RAS_KEY_EVENT_UP) {
+        on_history_recall_forward(console);
         return;
     }
 

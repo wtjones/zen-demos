@@ -13,6 +13,7 @@
 #define RAS_CONSOLE_DEFAULT_COLS 30
 #define RAS_CONSOLE_MAX_LINE_COUNT 100
 #define RAS_CONSOLE_PROMPT_CHAR ">"
+#define RAS_CONSOLE_HISTORY_DEPTH_DEFAULT 1
 
 typedef struct RasConsole {
     int32_t visible_rows;
@@ -22,7 +23,10 @@ typedef struct RasConsole {
     /**
      * @brief Current line in history to recall relative to most recent.
      * Decremented with subsequent history key presses.
-     * Value is always <= 0.
+     * A value of 1 indicates default state: no recall.
+     * A recall back adds -1.
+     * A value of 0 indicates a recall of the most recent history line.
+     * Value is always <= 1.
      * Does not equate to size of history buffer.
      *
      */

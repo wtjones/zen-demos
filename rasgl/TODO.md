@@ -71,8 +71,6 @@
 
 ### Console
 
-- [ ] Recall history with up arrow.
-
 ### Models
 
 ## Done ✓
@@ -140,4 +138,5 @@
 - [x] Render buffer text
 - [x] Suppress scene input when console active.
 - [x] Suppress console input when inactive.
-- [s] Separate prompt character from prompt text.
+- [x] Separate prompt character from prompt text.
+- [x] Recall history with up/down arrows.

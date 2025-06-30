@@ -253,7 +253,14 @@ example: `./run_dos.sh poly 0 assets/secenes/tri.lsp`
 | Cycle normal diagnostic modes   | n       |
 | Flush per-frame logs            | f       |
 | Toggle UI layer                 | F3      |
-| Toggle console                  | `` ` `` |
+
+### Console Controls
+
+| Action                          | Key       |
+| ------------------------------- | --------- |
+| Toggle console                  | `` ` ``   |
+| Recall back                     | KEY_UP    |
+| Recall forward                  | KEY_DOWN  |
 
 ### Demo: world
 
