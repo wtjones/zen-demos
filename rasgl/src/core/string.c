@@ -1,4 +1,5 @@
 #include "rasgl/core/string.h"
+#include <ctype.h>
 
 /**
  * From https://stackoverflow.com/a/47229318/107161
@@ -53,4 +54,18 @@ ssize_t core_getline(char** lineptr, size_t* n, FILE* stream)
 
     (*lineptr)[pos] = '\0';
     return pos;
+}
+
+bool is_whitespace(const char* str)
+{
+    if (str == NULL)
+        return false;
+
+    while (*str != '\0') {
+        if (!isspace((unsigned char)*str)) {
+            return false;
+        }
+        str++;
+    }
+    return true;
 }

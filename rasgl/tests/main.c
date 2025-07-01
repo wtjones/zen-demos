@@ -10,6 +10,7 @@
 #include "rasgl/core/rasterize.h"
 #include "rasgl/core/repr.h"
 #include "rasgl/core/scene.h"
+#include "rasgl/core/string.h"
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -557,6 +558,14 @@ void line_buffer_repr_tests()
     }
 
     core_line_buffer_free(line_buffer);
+}
+
+void string_tests()
+{
+    assert(is_whitespace(""));
+    assert(is_whitespace("    "));
+    assert(!is_whitespace("FooBar"));
+    assert(!is_whitespace("  Foo Bar "));
 }
 
 int main()

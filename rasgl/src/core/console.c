@@ -1,5 +1,6 @@
 #include "rasgl/core/console.h"
 #include "rasgl/core/repr.h"
+#include "rasgl/core/string.h"
 
 RasResult history_init(RasConsole* console)
 {
@@ -92,7 +93,7 @@ void on_history_recall_back(RasConsole* console)
 
 void on_history_update(RasConsole* console)
 {
-    if (strlen(console->prompt_text) == 0) {
+    if (is_whitespace(console->prompt_text)) {
         return;
     }
 
