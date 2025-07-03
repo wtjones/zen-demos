@@ -93,6 +93,7 @@ void on_history_recall_back(RasConsole* console)
 
 void on_history_update(RasConsole* console)
 {
+    console->history_recall_depth = RAS_CONSOLE_HISTORY_DEPTH_DEFAULT;
     if (is_whitespace(console->prompt_text)) {
         return;
     }
@@ -117,8 +118,6 @@ void on_history_update(RasConsole* console)
         return;
     }
     core_line_buffer_append(console->history, console->prompt_text);
-    // Reset recall to first item.
-    console->history_recall_depth = RAS_CONSOLE_HISTORY_DEPTH_DEFAULT;
 }
 
 void core_console_update(RasConsole* console, InputState* input_state)
@@ -153,7 +152,7 @@ void core_console_update(RasConsole* console, InputState* input_state)
         ras_log_info("Prompt text: \"%s\"", console->prompt_text);
         return;
     }
-    if (input_state->keys[RAS_KEY_BACKSPACE] == RAS_KEY_EVENT_UP) {
+    if (input_state->keys[RAS_KEY_BACKSPACE] == RAS_KEY_EVENT_DOWN) {
         if (strlen(console->prompt_text) > 0) {
             console->prompt_text[strlen(console->prompt_text) - 1] = '\0';
         }

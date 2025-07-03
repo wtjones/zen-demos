@@ -63,7 +63,10 @@
 - [ ] Size console to visible rows.
 - [ ] Scene should continue to animate when visible.
 - [ ] Flush is triggered when console option. Remap/disable?
-- [ ] Add key repeat for backspace
+
+### Input
+
+- [ ] Need a more elegant mapping for repeat-enabled keys.
 
 ## In Progress
 
@@ -142,3 +145,4 @@
 - [x] Recall history with up/down arrows.
 - [x] Trim whitespace
 - [x] Show cursor
+- [x] Add key repeat for backspace

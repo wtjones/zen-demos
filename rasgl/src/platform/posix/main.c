@@ -109,6 +109,8 @@ void map_input()
         plat_input_state.keys[i] = keys[plat_scancode] ? RAS_KEY_EVENT_DOWN
                                                        : RAS_KEY_EVENT_NONE;
     }
+    // Ignore keyboard state for backspace to allow repeat events.
+    plat_input_state.keys[RAS_KEY_BACKSPACE] = RAS_KEY_EVENT_NONE;
     plat_input_state.text[0] = '\0';
 }
 
@@ -506,6 +508,12 @@ int main(int argc, const char** argv)
                     plat_input_state.keys[app_scancode] = RAS_KEY_EVENT_UP;
                 } else {
                     ras_log_warn("Unknown scancode: %d", event.key.keysym.scancode);
+                }
+                break;
+            case SDL_KEYDOWN:
+                app_scancode = g_key_plat_to_app[event.key.keysym.scancode];
+                if (app_scancode == RAS_KEY_BACKSPACE) {
+                    plat_input_state.keys[app_scancode] = RAS_KEY_EVENT_DOWN;
                 }
                 break;
             case SDL_TEXTINPUT:
