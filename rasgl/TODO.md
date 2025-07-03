@@ -63,7 +63,7 @@
 - [ ] Size console to visible rows.
 - [ ] Scene should continue to animate when visible.
 - [ ] Flush is triggered when console option. Remap/disable?
-- [ ] Show cursor
+- [ ] Add key repeat for backspace
 
 ## In Progress
 
@@ -141,3 +141,4 @@
 - [x] Separate prompt character from prompt text.
 - [x] Recall history with up/down arrows.
 - [x] Trim whitespace
+- [x] Show cursor

@@ -202,6 +202,11 @@ RasResult draw_console_text(RenderState* state, RasFont* font, RasConsole* conso
 
     core_draw_text(state, font, pos, console->prompt_text);
 
+    if (state->current_frame / RAS_CONSOLE_BLINK_RATE % 2 == 0) {
+        pos.x += (core_get_font_width(font, console->prompt_text));
+        pos.x += core_get_font_width(font, "");
+        core_draw_text(state, font, pos, RAS_CONSOLE_PROMPT_CURSOR);
+    }
     return RAS_RESULT_OK;
 }
 
