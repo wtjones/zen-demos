@@ -23,6 +23,8 @@
 #define SCRIPT_SYMBOL_MODELS "models"
 #define SCRIPT_SYMBOL_OBJECT "object"
 #define SCRIPT_SYMBOL_OBJECTS "objects"
+#define SCRIPT_SYMBOL_MAP "map"
+#define SCRIPT_SYMBOL_MAPS "maps"
 #define SCRIPT_SYMBOL_CAMERA "camera"
 #define SCRIPT_SYMBOL_CAMERAS "cameras"
 #define SCRIPT_SYMBOL_ANGLE ":angle"
@@ -70,11 +72,22 @@ typedef struct {
 } RasSceneObject;
 
 typedef struct {
+    /**
+     * @brief The model referenced via :name in script is converted to
+     * a pipeline element and referenced here.
+     *
+     */
+    RasPipelineElement* element_ref;
+} RasSceneMap;
+
+typedef struct {
     char name[MAX_SCENE_NAME];
     RasSceneModel* models;
     size_t num_models;
     RasSceneObject* objects;
     size_t num_objects;
+    RasSceneMap* maps;
+    size_t num_maps;
     RasCamera* cameras;
     size_t num_cameras;
 

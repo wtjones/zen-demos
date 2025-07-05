@@ -86,6 +86,7 @@ void input_init()
     g_key_app_to_plat[RAS_KEY_F11] = KEY_F11;
     g_key_app_to_plat[RAS_KEY_F12] = KEY_F12;
     g_key_app_to_plat[RAS_KEY_RETURN] = KEY_ENTER;
+    g_key_app_to_plat[RAS_KEY_SPACE] = KEY_SPACE;
 }
 
 void map_input()

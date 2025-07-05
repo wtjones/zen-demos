@@ -89,6 +89,7 @@ void input_init()
     g_key_app_to_plat[RAS_KEY_BACKQUOTE] = SDL_SCANCODE_GRAVE;
     g_key_app_to_plat[RAS_KEY_RETURN] = SDL_SCANCODE_RETURN;
     g_key_app_to_plat[RAS_KEY_BACKSPACE] = SDL_SCANCODE_BACKSPACE;
+    g_key_app_to_plat[RAS_KEY_SPACE] = SDL_SCANCODE_SPACE;
 
     for (int i = 0; i < SDL_NUM_SCANCODES; i++) {
         g_key_plat_to_app[i] = RAS_KEY_UNKNOWN;

@@ -70,6 +70,7 @@ typedef enum {
     RAS_KEY_BACKQUOTE,
     RAS_KEY_RETURN,
     RAS_KEY_BACKSPACE,
+    RAS_KEY_SPACE,
     RAS_KEY_COUNT
 } RasKey;
 
