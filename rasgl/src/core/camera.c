@@ -50,6 +50,13 @@ void ras_camera_update(RasCamera* camera, InputState* input_state)
         camera->position.z += delta.x;
         camera->position.x -= delta.y;
     }
+    if (input_state->keys[RAS_KEY_Z] == 1) {
+        camera->position.y += RAS_VIEWER_SPEED;
+    }
+    if (input_state->keys[RAS_KEY_E] == 1) {
+        camera->position.y -= RAS_VIEWER_SPEED;
+    }
+
     if (input_state->keys[RAS_KEY_EQUALS] == 1) {
         camera->position.y += RAS_ZOOM_SPEED;
     }

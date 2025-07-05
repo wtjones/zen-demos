@@ -272,6 +272,7 @@ Demonstrates movement controls over world geometry.
 |--------------------|--------------------|
 | Move camera        | WASD               |
 | Rotate camera      | Q/E                |
+| Move up/down       | Z/C                |
 | Toggle view mode   | TAB                |
 | Adjust FOV         | left/right bracket |
 
