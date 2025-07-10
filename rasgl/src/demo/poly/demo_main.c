@@ -282,7 +282,7 @@ void render_ui(RenderState* render_state)
     core_draw_textf(
         render_state, ui_font, stat_pos, "Frame: %d", render_state->current_frame);
 
-    ras_log_debug("Text width %d",
+    ras_log_buffer_trace("Text width %d",
         FIXED_16_16_TO_INT_32(core_get_font_width(ui_font, "Hello!")));
 }
 

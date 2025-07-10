@@ -5,7 +5,6 @@
 
 void core_free_scene_models(RasScene* scene)
 {
-    // TODO: free RasModel
     free(scene->models);
 }
 
