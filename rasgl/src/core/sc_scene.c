@@ -21,11 +21,17 @@ void core_free_scene_objects(RasScene* scene)
     free(scene->objects);
 }
 
+void core_free_scene_cameras(RasScene* scene)
+{
+    free(scene->cameras);
+}
+
 void core_free_scene(RasScene** scene)
 {
     RasScene* s = *scene;
     core_free_scene_models(s);
     core_free_scene_objects(s);
+    core_free_scene_cameras(s);
     free(s);
     *scene = NULL;
 }
