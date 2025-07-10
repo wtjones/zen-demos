@@ -141,7 +141,7 @@ char* lar_repr_script(LarScript* script)
     }
 
     result = strcat_alloc(result, LAR_REPR_SCRIPT);
-    strcat_alloc(result, "\n");
+    result = strcat_alloc(result, "\n");
 
     for (size_t i = 0; i < script->expressions->list.length; i++) {
         LarNode* node = &script->expressions->list.nodes[i];
