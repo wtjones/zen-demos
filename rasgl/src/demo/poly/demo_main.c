@@ -89,14 +89,14 @@ void ras_objects_update(InputState* input_state)
     }
 }
 
-void ras_app_update(__attribute__((unused)) InputState* input_state)
+void ras_selected_object_update(__attribute__((unused)) InputState* input_state)
 {
     RasVector3f model_pos_prev;
     RasVector3f model_rot_prev;
 
-    ras_camera_update(camera, input_state);
-
-    ras_objects_update(input_state);
+    if (selected_object == NULL) {
+        return;
+    }
 
     RasVector3f* model_pos = &selected_object->position;
     RasVector3f* model_rotation = &selected_object->rotation;
@@ -203,6 +203,14 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
         ras_log_info(
             "model_rot: %s", repr_point3f(buffer, sizeof(buffer), model_rotation));
     }
+}
+
+void ras_app_update(__attribute__((unused)) InputState* input_state)
+{
+
+    ras_camera_update(camera, input_state);
+    ras_objects_update(input_state);
+    ras_selected_object_update(input_state);
 
     if (input_state->current_frame % 2 == 0) {
 
