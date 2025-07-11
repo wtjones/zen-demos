@@ -245,6 +245,12 @@ void core_draw_element(
     RasFixed proj_matrix[4][4],
     RasFrustum* frustum);
 
+void core_draw_grid(
+    RenderState* render_state,
+    RasFixed world_view_matrix[4][4],
+    RasFixed proj_matrix[4][4],
+    RasFrustum* frustum);
+
 void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineElement* element);
 
 #endif

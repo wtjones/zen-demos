@@ -10,7 +10,7 @@
 ### Rendering
 
 - [ ] Add AABB debug view toggle
-- [ ] Render origin and grid lines
+- [ ] Render grid lines
 - [ ] Validate screen points are in screen bounds
 - [ ] Fix poly fill gaps
 - [ ] Support DOS poly fill
@@ -46,6 +46,10 @@
 
 ### Scene management
 
+### Map
+
+- [ ] Render map as fixed obj
+
 ### Text
 
 - [ ] Text clipping
@@ -69,6 +73,10 @@
 - [ ] Need a more elegant mapping for repeat-enabled keys.
 
 ## In Progress
+
+### Rendering
+
+- [ ] Render origin
 
 ### Text
 

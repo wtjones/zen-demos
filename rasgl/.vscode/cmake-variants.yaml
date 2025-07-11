@@ -22,6 +22,10 @@ demo:
       short: Poly demo
       settings:
         RAS_DEMO: poly
+    map:
+      short: Map demo
+      settings:
+        RAS_DEMO: map
 logging:
   default: info_logging
   choices:
