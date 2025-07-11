@@ -8,6 +8,7 @@ add_library(core
     debug.c
     frustum.c
     graphics.c
+    grid.c
     input.c
     line_buffer.c
     maths.c

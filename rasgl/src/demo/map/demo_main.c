@@ -4,6 +4,7 @@
 #include "rasgl/core/fixed_maths.h"
 #include "rasgl/core/frustum.h"
 #include "rasgl/core/graphics.h"
+#include "rasgl/core/grid.h"
 #include "rasgl/core/input.h"
 #include "rasgl/core/matrix_projection.h"
 #include "rasgl/core/model.h"
@@ -102,8 +103,7 @@ void render_scene(RenderState* render_state __attribute__((unused)))
     core_draw_grid(
         render_state,
         world_view_matrix,
-        projection_matrix,
-        &frustum);
+        projection_matrix);
 }
 
 void ras_app_render(__attribute__((unused)) RenderState states[])

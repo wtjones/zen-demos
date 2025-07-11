@@ -232,10 +232,20 @@ void core_aabb_xform(RasAABB* aabb, RasFixed matrix[4][4], RasAABB* dest);
  */
 bool core_aabb_in_frustum(RasAABB* view_aabb, RasFrustum* frustum, RasClipFlags* flags);
 
+void core_projected_to_screen_point(
+    int32_t screen_width,
+    int32_t screen_height,
+    RasFixed projected_point[4],
+    RasVector4f* screen_point);
+
 /**
  * Transform a projected point to screen space.
  */
-void projected_to_screen_point(int32_t screen_width, int32_t screen_height, RasFixed projected_point[4], Point2i* screen_point);
+void projected_to_screen_point(
+    int32_t screen_width,
+    int32_t screen_height,
+    RasFixed projected_point[4],
+    Point2i* screen_point);
 
 void core_draw_element(
     RenderState* render_state,
@@ -245,12 +255,13 @@ void core_draw_element(
     RasFixed proj_matrix[4][4],
     RasFrustum* frustum);
 
-void core_draw_grid(
-    RenderState* render_state,
-    RasFixed world_view_matrix[4][4],
-    RasFixed proj_matrix[4][4],
-    RasFrustum* frustum);
-
 void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineElement* element);
+
+/**
+ * Add a screen-space point to the command list.
+ */
+void core_render_point(
+    RenderState* render_state,
+    RasVector4f* screen_space_position);
 
 #endif

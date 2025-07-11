@@ -19,6 +19,7 @@
 - [ ] Add flat shading toggle
 - [ ] Support render layers in DOS
 - [ ] Toggle UI layer
+- [ ] Fix naming or consolidate *projected_to_screen_point()
 
 ### Clipping - Polygon
 
