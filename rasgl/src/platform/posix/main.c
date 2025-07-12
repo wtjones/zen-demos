@@ -113,6 +113,17 @@ void map_input()
     // Ignore keyboard state for backspace to allow repeat events.
     plat_input_state.keys[RAS_KEY_BACKSPACE] = RAS_KEY_EVENT_NONE;
     plat_input_state.text[0] = '\0';
+
+    SDL_Keymod mod = SDL_GetModState();
+    plat_input_state.mods = (mod & KMOD_CTRL)
+        ? RAS_KMOD_CTRL
+        : RAS_KMOD_NONE;
+    plat_input_state.mods = (mod & KMOD_SHIFT)
+        ? plat_input_state.mods | RAS_KMOD_SHIFT
+        : plat_input_state.mods;
+    plat_input_state.mods = (mod & KMOD_ALT)
+        ? plat_input_state.mods | RAS_KMOD_ALT
+        : plat_input_state.mods;
 }
 
 uint8_t color_from_material(int32_t material)

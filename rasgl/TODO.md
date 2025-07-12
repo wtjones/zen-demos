@@ -6,6 +6,8 @@
 
 - [ ] Support CTest
 - [ ] POSIX - screen resolution shouldn't be hard-coded
+- [ ] Log buffer overflow - DOS only?
+  - Move model to left clip side to trigger.
 
 ### Rendering
 

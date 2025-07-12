@@ -246,13 +246,14 @@ example: `./run_dos.sh poly 0 assets/secenes/tri.lsp`
 
 | Action                          | Key     |
 |---------------------------------|---------|
-| Toggle projection mode          | p       |
-| Toggle backface culling mode    | b       |
-| Cycle polygon render modes      | o       |
-| Cycle polygon clipping modes    | c       |
-| Cycle normal diagnostic modes   | n       |
-| Flush per-frame logs            | f       |
+| Help                            | F1      |
 | Toggle UI layer                 | F3      |
+| Toggle projection mode          | ctrl-p  |
+| Toggle backface culling mode    | ctrl-b  |
+| Cycle polygon render modes      | ctrl-o  |
+| Cycle polygon clipping modes    | ctrl-c  |
+| Cycle normal diagnostic modes   | ctrl-n  |
+| Flush per-frame logs            | ctrl-f  |
 
 ### Console Controls
 

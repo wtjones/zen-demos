@@ -112,6 +112,15 @@ void map_input()
 
         g_plat_keystate[plat_scancode] = RAS_KEY_EVENT_NONE;
     }
+    plat_input_state.mods = (key_shifts & KB_CTRL_FLAG)
+        ? RAS_KMOD_CTRL
+        : RAS_KMOD_NONE;
+    plat_input_state.mods = (key_shifts & KB_SHIFT_FLAG)
+        ? plat_input_state.mods | RAS_KMOD_SHIFT
+        : plat_input_state.mods;
+    plat_input_state.mods = (key_shifts & KB_ALT_FLAG)
+        ? plat_input_state.mods | RAS_KMOD_ALT
+        : plat_input_state.mods;
 }
 
 void render_state(BITMAP* buffer, RenderState* state)

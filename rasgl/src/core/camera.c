@@ -34,49 +34,50 @@ void ras_camera_update(RasCamera* camera, InputState* input_state)
     Point3f viewer_pos_prev;
     memcpy(&viewer_pos_prev, &camera->position, sizeof camera->position);
 
-    if (input_state->keys[RAS_KEY_W] == 1) {
-        camera->position.z += delta.y;
-        camera->position.x += delta.x;
+    if (input_state->mods == RAS_KMOD_NONE) {
+        if (input_state->keys[RAS_KEY_W] == 1) {
+            camera->position.z += delta.y;
+            camera->position.x += delta.x;
+        }
+        if (input_state->keys[RAS_KEY_A] == 1) {
+            camera->position.z -= delta.x;
+            camera->position.x += delta.y;
+        }
+        if (input_state->keys[RAS_KEY_S] == 1) {
+            camera->position.z -= delta.y;
+            camera->position.x -= delta.x;
+        }
+        if (input_state->keys[RAS_KEY_D] == 1) {
+            camera->position.z += delta.x;
+            camera->position.x -= delta.y;
+        }
+        if (input_state->keys[RAS_KEY_Z] == 1) {
+            camera->position.y += RAS_VIEWER_SPEED;
+        }
+        if (input_state->keys[RAS_KEY_C] == RAS_KEY_EVENT_DOWN) {
+            camera->position.y -= RAS_VIEWER_SPEED;
+        }
+        if (input_state->keys[RAS_KEY_EQUALS] == 1) {
+            camera->position.y += RAS_ZOOM_SPEED;
+        }
+        if (input_state->keys[RAS_KEY_MINUS] == 1) {
+            camera->position.y -= RAS_ZOOM_SPEED;
+        }
+        if (input_state->keys[RAS_KEY_LEFTBRACKET] == 1) {
+            camera->fov -= RAS_FOV_SPEED;
+            ras_log_debug("FOV: %f\n", camera->fov);
+        }
+        if (input_state->keys[RAS_KEY_RIGHTBRACKET] == 1) {
+            camera->fov += RAS_FOV_SPEED;
+            ras_log_debug("FOV: %f\n", camera->fov);
+        }
     }
-    if (input_state->keys[RAS_KEY_A] == 1) {
-        camera->position.z -= delta.x;
-        camera->position.x += delta.y;
-    }
-    if (input_state->keys[RAS_KEY_S] == 1) {
-        camera->position.z -= delta.y;
-        camera->position.x -= delta.x;
-    }
-    if (input_state->keys[RAS_KEY_D] == 1) {
-        camera->position.z += delta.x;
-        camera->position.x -= delta.y;
-    }
-    if (input_state->keys[RAS_KEY_Z] == 1) {
-        camera->position.y += RAS_VIEWER_SPEED;
-    }
-    if (input_state->keys[RAS_KEY_E] == 1) {
-        camera->position.y -= RAS_VIEWER_SPEED;
-    }
-
-    if (input_state->keys[RAS_KEY_EQUALS] == 1) {
-        camera->position.y += RAS_ZOOM_SPEED;
-    }
-    if (input_state->keys[RAS_KEY_MINUS] == 1) {
-        camera->position.y -= RAS_ZOOM_SPEED;
-    }
-    if (input_state->keys[RAS_KEY_P] == RAS_KEY_EVENT_UP) {
+    if (input_state->keys[RAS_KEY_P] == RAS_KEY_EVENT_UP
+        && input_state->mods & RAS_KMOD_CTRL) {
         camera->projection_mode = camera->projection_mode == RAS_PERSPECTIVE_MATRIX
             ? RAS_ORTHO_MATRIX
             : RAS_PERSPECTIVE_MATRIX;
     }
-    if (input_state->keys[RAS_KEY_LEFTBRACKET] == 1) {
-        camera->fov -= RAS_FOV_SPEED;
-        ras_log_info("FOV: %f\n", camera->fov);
-    }
-    if (input_state->keys[RAS_KEY_RIGHTBRACKET] == 1) {
-        camera->fov += RAS_FOV_SPEED;
-        ras_log_info("FOV: %f\n", camera->fov);
-    }
-
     bool changed = (memcmp(&camera_prev, camera, sizeof camera_prev) != 0);
     camera->last_changed_frame = changed
         ? input_state->current_frame

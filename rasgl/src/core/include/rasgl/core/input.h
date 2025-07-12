@@ -80,8 +80,16 @@ typedef enum {
     RAS_KEY_EVENT_UP
 } RasKeyEvent;
 
+typedef enum {
+    RAS_KMOD_NONE = 0x00,
+    RAS_KMOD_SHIFT = 0x01,
+    RAS_KMOD_CTRL = 0x02,
+    RAS_KMOD_ALT = 0x04
+} RasKeyMod;
+
 typedef struct InputState {
     RasKeyEvent keys[RAS_KEY_COUNT];
+    RasKeyMod mods;
     uint32_t current_frame;
     char text[RAS_INPUT_STATE_TEXT_CAPACITY];
 } InputState;
