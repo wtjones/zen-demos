@@ -529,7 +529,6 @@ int main(int argc, const char** argv)
                 }
                 break;
             case SDL_TEXTINPUT:
-                ras_log_info("Text input: %s", event.text.text);
                 strcpy(plat_input_state.text, event.text.text);
                 break;
             }

@@ -85,8 +85,8 @@ void ras_camera_update(RasCamera* camera, InputState* input_state)
 
     if (changed) {
         char buffer[100];
-        ras_log_info("camera pos: %s\n", repr_point3f(buffer, sizeof buffer, &camera->position));
-        ras_log_info("camera->angle: %d\n", camera->angle);
+        ras_log_debug("camera pos: %s\n", repr_point3f(buffer, sizeof buffer, &camera->position));
+        ras_log_debug("camera->angle: %d\n", camera->angle);
     }
 }
 
