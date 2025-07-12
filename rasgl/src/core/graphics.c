@@ -155,7 +155,7 @@ void core_renderstate_console_init(RenderState* state)
 {
     core_renderstate_init(state);
     state->layer = RAS_LAYER_CONSOLE;
-    state->layer_visible = true;
+    state->layer_visible = false;
     state->projection_mode = RAS_ORTHO_MATRIX;
     state->polygon_mode = RAS_POLYGON_BITMAP;
 }
