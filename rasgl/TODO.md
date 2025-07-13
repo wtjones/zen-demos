@@ -75,6 +75,11 @@
 
 - [ ] Need a more elegant mapping for repeat-enabled keys.
 
+### Grid
+
+- [ ] Clip points outside of frustum.
+- [ ] Shade points
+
 ## In Progress
 
 ### Rendering

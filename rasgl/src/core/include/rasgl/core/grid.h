@@ -10,6 +10,12 @@
 #define RAS_GRID_ORIGIN_AXIS_POINTS 9
 #define RAS_GRID_ORIGIN_POINTS ((RAS_GRID_ORIGIN_AXIS_POINTS * 3) + 1)
 
+#define RAS_GRID_LINES_AXIS_POINTS 5
+#define RAS_GRID_LINE_POINTS_COUNT   \
+    (RAS_GRID_LINES_AXIS_POINTS      \
+        * RAS_GRID_LINES_AXIS_POINTS \
+        * RAS_GRID_LINES_AXIS_POINTS)
+
 void core_draw_grid(
     RenderState* render_state,
     RasFixed world_view_matrix[4][4],
