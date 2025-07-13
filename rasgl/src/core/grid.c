@@ -13,6 +13,10 @@ void core_draw_grid(
     RasFixed screen_space_vec[4];
     RasFixed projected_vec[4];
 
+    if (!(render_state->grid_mode & RAS_GRID_MODE_ORIGIN)) {
+        return;
+    }
+
     // Grid is world space.
     mat_set_identity_4x4(model_view_matrix);
     mat_set_identity_4x4(model_world_matrix);

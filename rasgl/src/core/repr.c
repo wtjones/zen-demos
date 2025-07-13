@@ -11,6 +11,12 @@ static const char* g_repr_normal_mode[] = {
     "RAS_NORMAL_MODE_ORTHO"
 };
 
+static const char* g_repr_grid_mode[] = {
+    "RAS_GRID_MODE_OFF",
+    "RAS_GRID_MODE_ORIGIN",
+    "RAS_GRID_MODE_GRID"
+};
+
 char* repr_point2i(char* buffer, size_t count, Point2i* p)
 {
     snprintf(
@@ -133,4 +139,19 @@ const char* repr_clipping_mode(char* buffer, size_t count, RasClippingMode mode)
 const char* repr_normal_mode(char* buffer, size_t count, RasNormalMode mode)
 {
     return g_repr_normal_mode[mode];
+}
+
+const char* repr_grid_mode(char* buffer, size_t count, RasGridMode mode)
+{
+    buffer[0] = '\0';
+    ras_log_info("grid debug: %d", mode);
+    if (mode == RAS_GRID_MODE_OFF) {
+        strcat(buffer, g_repr_grid_mode[mode]);
+    }
+    for (uint8_t i = 1; i < RAS_GRID_MODE_COUNT; i++) {
+        strcat(buffer, (mode & i) && strlen(buffer) > 0 ? " | " : "");
+        strcat(buffer, mode & i ? g_repr_grid_mode[mode & i] : "");
+    }
+
+    return buffer;
 }

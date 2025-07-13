@@ -17,5 +17,6 @@ char* repr_mat_4x4(char* buffer, size_t count, RasFixed s1[4][4]);
 char* repr_mat_4x1(char* buffer, size_t count, RasFixed s[4]);
 const char* repr_clipping_mode(char* buffer, size_t count, RasClippingMode mode);
 const char* repr_normal_mode(char* buffer, size_t count, RasNormalMode mode);
+const char* repr_grid_mode(char* buffer, size_t count, RasGridMode mode);
 
 #endif

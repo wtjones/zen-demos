@@ -253,6 +253,7 @@ example: `./run_dos.sh poly 0 assets/secenes/tri.lsp`
 | Cycle polygon render modes      | ctrl-o  |
 | Cycle polygon clipping modes    | ctrl-c  |
 | Cycle normal diagnostic modes   | ctrl-n  |
+| Cycle grid output modes         | ctrl-g  |
 | Flush per-frame logs            | ctrl-f  |
 
 ### Console Controls

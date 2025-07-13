@@ -59,6 +59,17 @@ typedef enum {
     RAS_POLYGON_COUNT
 } RasPolygonMode;
 
+/**
+ * @brief Grid output flags
+ *
+ */
+typedef enum {
+    RAS_GRID_MODE_OFF = 0x00,
+    RAS_GRID_MODE_ORIGIN = 0x01,
+    RAS_GRID_MODE_GRID = 0x02,
+    RAS_GRID_MODE_COUNT = 3
+} RasGridMode;
+
 typedef enum {
     RAS_LAYER_SCENE,
     RAS_LAYER_UI,
@@ -179,6 +190,7 @@ typedef struct RenderState {
     RasClippingMode clipping_mode;
     RasPolygonMode polygon_mode;
     RasNormalMode normal_mode;
+    RasGridMode grid_mode;
 } RenderState;
 
 void core_clip_poly(

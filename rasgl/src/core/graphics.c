@@ -127,6 +127,7 @@ void core_renderstate_init(RenderState* state)
     state->backface_culling_mode = RAS_BACKFACE_CULLING_ON;
     state->clipping_mode = RAS_CLIPPING_ON;
     state->normal_mode = RAS_NORMAL_MODE_OFF;
+    state->grid_mode = RAS_GRID_MODE_OFF;
 
     memset(state->material_indexes, 0, sizeof(state->material_indexes));
     memset(state->visible_indexes, 0, sizeof(state->visible_indexes));
@@ -140,6 +141,7 @@ void core_renderstate_scene_init(RenderState* state)
     state->layer_visible = true;
     state->projection_mode = RAS_PERSPECTIVE_MATRIX;
     state->polygon_mode = RAS_POLYGON_WIREFRAME;
+    state->grid_mode = RAS_GRID_MODE_ORIGIN | RAS_GRID_MODE_GRID;
 }
 
 void core_renderstate_ui_init(RenderState* state)
