@@ -77,8 +77,6 @@
 
 ### Grid
 
-- [ ] Clip points outside of frustum.
-
 ## In Progress
 
 ### Rendering
@@ -165,3 +163,4 @@
 ### Grid
 
 - [x] Shade points
+- [x] Cull points outside of frustum.

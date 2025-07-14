@@ -23,12 +23,12 @@ void render_grid_points(
         mat_mul_4x4_4x1(model_view_matrix, model_space_position, view_space_position);
         core_4x1_to_vector3f(view_space_position, &view_space_point);
 
+        if (view_space_point.z > 0) {
+            continue;
+        }
         // Screen space in NDC coords
         mat_mul_project(proj_matrix, view_space_position, projected_vec);
 
-        if (projected_vec[2] < 0) {
-            continue;
-        }
         core_projected_to_screen_point(
             render_state->screen_settings.screen_width,
             render_state->screen_settings.screen_height,
