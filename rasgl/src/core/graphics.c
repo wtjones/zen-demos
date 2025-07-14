@@ -1,4 +1,5 @@
 #include "rasgl/core/graphics.h"
+#include "rasgl/core/color.h"
 #include "rasgl/core/debug.h"
 #include "rasgl/core/repr.h"
 
@@ -622,7 +623,10 @@ void core_clip_poly(
     }
 }
 
-void core_render_point(RenderState* render_state, RasVector4f* screen_space_position)
+void core_render_point(
+    RenderState* render_state,
+    RasVector4f* screen_space_position,
+    int32_t material)
 {
     uint32_t* num_points = &render_state->num_points;
     uint32_t* num_commands = &render_state->num_commands;
@@ -634,7 +638,16 @@ void core_render_point(RenderState* render_state, RasVector4f* screen_space_posi
 
     render_state->commands[*num_commands].num_points = 1;
     render_state->commands[*num_commands].point_indices[0] = *num_points;
+    RasFixed shade_scale = float_to_fixed_16_16(3.5);
 
+    RasFixed darken = mul_fixed_16_16_by_fixed_16_16(
+        screen_space_position->z, shade_scale);
+    uint8_t darken_8 = FIXED_16_16_TO_INT_32(darken) < (RAS_COLOR_RAMP_SIZE - 1)
+        ? FIXED_16_16_TO_INT_32(darken)
+        : 6;
+
+    uint8_t shade = material + RAS_COLOR_RAMP_SIZE - 1 - darken_8;
+    render_state->commands[*num_commands].color = shade;
     (*num_points)++;
     (*num_commands)++;
 }
@@ -700,7 +713,7 @@ void core_render_aabb(
             projected_vec,
             &screen_space_position);
 
-        core_render_point(render_state, &screen_space_position);
+        core_render_point(render_state, &screen_space_position, RAS_COLOR_RAMP_OFFSET_RED);
         num_points++;
     }
     ras_log_buffer("AABB points rendered: %d\n", num_points);
@@ -813,7 +826,7 @@ void draw_element_normals_faux(
         ras_log_buffer("d ss normal %s",
             repr_vector4f(buffer, sizeof buffer, &screen_space_position));
 
-        core_render_point(render_state, &screen_space_position);
+        core_render_point(render_state, &screen_space_position, RAS_COLOR_RAMP_OFFSET_RED);
         core_render_line(render_state, &screen_origin, &screen_space_position);
     }
 }

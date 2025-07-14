@@ -1,11 +1,13 @@
 #include "rasgl/core/grid.h"
+#include "rasgl/core/color.h"
 
 void render_grid_points(
     RenderState* render_state,
     RasFixed model_view_matrix[4][4],
     RasFixed proj_matrix[4][4],
     RasVector3f* points,
-    size_t count)
+    size_t count,
+    uint32_t material)
 {
     RasFixed projected_vec[4];
     RasFixed view_space_position[4];
@@ -24,13 +26,19 @@ void render_grid_points(
         // Screen space in NDC coords
         mat_mul_project(proj_matrix, view_space_position, projected_vec);
 
+        if (projected_vec[2] < 0) {
+            continue;
+        }
         core_projected_to_screen_point(
             render_state->screen_settings.screen_width,
             render_state->screen_settings.screen_height,
             projected_vec,
             &screen_space_position);
 
-        core_render_point(render_state, &screen_space_position);
+        core_render_point(
+            render_state,
+            &screen_space_position,
+            material);
     }
 }
 
@@ -87,7 +95,8 @@ void core_draw_grid(
             model_view_matrix,
             proj_matrix,
             points,
-            RAS_GRID_ORIGIN_POINTS);
+            RAS_GRID_ORIGIN_POINTS,
+            RAS_COLOR_RAMP_OFFSET_RED);
     }
 
     if (!(render_state->grid_mode & RAS_GRID_MODE_GRID)) {
@@ -122,5 +131,6 @@ void core_draw_grid(
         model_view_matrix,
         proj_matrix,
         grid_points,
-        count);
+        count,
+        RAS_COLOR_RAMP_OFFSET_GREY);
 }

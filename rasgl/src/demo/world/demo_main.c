@@ -1,5 +1,6 @@
 #include "rasgl/core/app.h"
 #include "rasgl/core/camera.h"
+#include "rasgl/core/color.h"
 #include "rasgl/core/debug.h"
 #include "rasgl/core/fixed_maths.h"
 #include "rasgl/core/frustum.h"
@@ -169,6 +170,7 @@ void xform_to_view_mode_persp_matrix(
 
             command->num_points = 1;
             command->point_indices[0] = *num_points;
+            command->color = RAS_COLOR_RAMP_OFFSET_RED + RAS_COLOR_RAMP_SIZE - 1;
             (*num_commands)++;
             (*num_points)++;
         }
@@ -225,7 +227,7 @@ void render_point(RenderState* render_state, Point3f world_pos)
 
     render_state->commands[*num_commands].num_points = 1;
     render_state->commands[*num_commands].point_indices[0] = *num_points;
-
+    render_state->commands[*num_commands].color = RAS_COLOR_RAMP_OFFSET_RED + RAS_COLOR_RAMP_SIZE - 1;
     (*num_points)++;
     (*num_commands)++;
 }

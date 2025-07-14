@@ -85,6 +85,7 @@ typedef struct ScreenSettings {
 typedef struct RenderCommand {
     size_t point_indices[MAX_COMMAND_POINTS];
     uint32_t num_points;
+    uint8_t color;
 } RenderCommand;
 
 typedef struct RasVector3fBuffer {
@@ -274,6 +275,7 @@ void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineEleme
  */
 void core_render_point(
     RenderState* render_state,
-    RasVector4f* screen_space_position);
+    RasVector4f* screen_space_position,
+    int32_t material);
 
 #endif

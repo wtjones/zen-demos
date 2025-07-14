@@ -78,7 +78,6 @@
 ### Grid
 
 - [ ] Clip points outside of frustum.
-- [ ] Shade points
 
 ## In Progress
 
@@ -162,3 +161,7 @@
 - [x] Trim whitespace
 - [x] Show cursor
 - [x] Add key repeat for backspace
+
+### Grid
+
+- [x] Shade points
