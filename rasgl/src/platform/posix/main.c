@@ -342,14 +342,16 @@ void render_state(RenderState* state)
     int i = 0;
 
     g_render_fns[state->polygon_mode](state);
-
+    uint8_t min_color = 255;
+    uint8_t max_color = 0;
     for (size_t i = 0; i < state->num_commands; i++) {
         RenderCommand* command = &state->commands[i];
 
         if (command->num_points == 1) {
             Point2i* point = &(state->points[command->point_indices[0]]);
-            RAS_PLOT_PIXEL(surface, point->x, point->y, 14);
-
+            RAS_PLOT_PIXEL(surface, point->x, point->y, command->color);
+            min_color = command->color < min_color ? command->color : min_color;
+            max_color = command->color > max_color ? command->color : max_color;
         } else if (command->num_points == 2) {
             Point2i* point0 = &(state->points[command->point_indices[0]]);
             Point2i* point1 = &(state->points[command->point_indices[1]]);
@@ -366,6 +368,7 @@ void render_state(RenderState* state)
         }
     }
     state->current_frame++;
+    ras_log_buffer("Min color %d, Max color: %" PRId8, min_color, max_color);
 }
 
 int main(int argc, const char** argv)
