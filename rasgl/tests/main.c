@@ -11,6 +11,7 @@
 #include "rasgl/core/repr.h"
 #include "rasgl/core/scene.h"
 #include "rasgl/core/string.h"
+#include "tests.h"
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>

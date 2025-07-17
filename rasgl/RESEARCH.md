@@ -246,3 +246,13 @@ Empty when head == tail
 ## CMake peer libraries
 
 <https://github.com/pr0g/cmake-examples/blob/main/examples/core/shared/application/configure.sh>
+
+## Rendering optimizations
+
+Frustum cull in object space (transform frustum planes to object space).
+
+## Pipeline
+
+### Sorting concerns
+
+Stages work on the scene. This allows flexibility order of processing.

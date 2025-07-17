@@ -1,5 +1,6 @@
 add_executable(tests
-    main.c)
+    main.c
+    pipeline_tests.c)
 
 include(${CMAKE_SOURCE_DIR}/cmake/FindLarse.cmake)
 target_link_libraries(tests PRIVATE core)
