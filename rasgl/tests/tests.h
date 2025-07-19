@@ -4,5 +4,6 @@
 #include "rasgl/core/debug.h"
 
 void pipeline_tests();
+void pipeline_scene_tests();
 
 #endif

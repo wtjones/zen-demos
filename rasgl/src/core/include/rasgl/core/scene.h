@@ -14,6 +14,7 @@
 #include <larse/core/repr.h>
 #pragma GCC diagnostic pop
 
+#define RAS_MAX_SCENE_OBJECTS 100
 #define MAX_SCENE_NAME 50
 #define MAX_FILE_PATH 50
 #define SCRIPT_SYMBOL_SCENE "scene"

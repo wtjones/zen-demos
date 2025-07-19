@@ -1,4 +1,8 @@
+#include "rasgl/core/debug.h"
 #include "rasgl/core/pipeline.h"
+#include "rasgl/core/repr.h"
+#include "rasgl/core/scene.h"
+#include "rasgl/core/stages.h"
 #include "tests.h"
 
 typedef struct TestData {
@@ -31,4 +35,51 @@ void pipeline_tests()
     };
     TestData data = { .value = 67 };
     core_pipeline_run(&pipeline, &data);
+}
+
+void pipeline_scene_tests()
+{
+    // arrange
+    RenderState states[RAS_LAYER_COUNT] = { 0 };
+    core_renderstates_init(states);
+    RasScene* scene = NULL;
+
+    RasResult result = core_load_scene("./tests/data/scene02.lsp", &scene);
+    assert(result == RAS_RESULT_OK);
+
+    RasCamera* camera = &scene->cameras[0];
+    // FIXME: Should be set in scene
+    camera->aspect_ratio = RAS_CAMERA_DEFAULT_ASPECT_RATIO;
+    camera->near = RAS_CAMERA_DEFAULT_NEAR;
+    camera->far = RAS_CAMERA_DEFAULT_FAR;
+    camera->fov = RAS_CAMERA_DEFAULT_FOV;
+    camera->projection_mode = RAS_CAMERA_DEFAULT_PROJECTION_MODE;
+
+    RasPipeline pipeline = {
+        .num_stages = 3,
+        .stages = {
+            { .name = "core_sg_setup", core_sg_setup },
+            { .name = "core_sg_xform_objects", core_sg_xform_objects },
+            { .name = "core_sg_xform_aabb", core_sg_xform_aabb } }
+    };
+    RasRenderData render_data;
+    core_renderdata_init(
+        &render_data,
+        &states[RAS_LAYER_SCENE],
+        scene,
+        &scene->cameras[0]);
+
+    // act
+    RasRenderData* render_result = core_pipeline_run(&pipeline, &render_data);
+
+    // assert
+    assert(render_result != NULL);
+    char buffer[1000];
+    ras_log_info("Render data projection matrix: %s",
+        repr_mat_4x4(buffer, sizeof(buffer), render_result->projection_matrix));
+    ras_log_info("Render data world view matrix: %s",
+        repr_mat_4x4(buffer, sizeof(buffer), render_result->world_view_matrix));
+
+    core_free_scene(&scene);
+    ras_log_flush();
 }

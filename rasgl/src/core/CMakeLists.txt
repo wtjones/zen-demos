@@ -20,6 +20,7 @@ add_library(core
     plane.c
     rasterize.c
     repr.c
+    sg_setup.c
     sc_animation.c
     sc_load.c
     sc_scene.c
