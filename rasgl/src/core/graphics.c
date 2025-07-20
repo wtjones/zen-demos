@@ -359,7 +359,8 @@ void core_clip_poly_plane(
     RasFrustumPlane side,
     RasPipelineVertexBuffer* vertex_buffer,
     uint32_t indexes[3],
-    int32_t material_index)
+    int32_t material_index,
+    RasPipelineFace* face)
 {
     // FIXME: Happens when a triangle is rotating and clipping on the left side
     assert(vertex_buffer->num_verts < MAX_PIPELINE_VERTS);
@@ -588,10 +589,16 @@ void core_clip_poly_plane(
         vertex_buffer->material_indexes[*mi] = material_index;
         (*mi)++;
 
+        // Copy the original face to the new face
+        uint32_t* num_dest_faces = &vertex_buffer->num_visible_faces;
+        RasPipelineFace* new_face = &vertex_buffer->visible_faces[*num_dest_faces];
+        (*num_dest_faces)++;
+        memcpy(new_face, face, sizeof(RasPipelineFace));
+
         // Recurse to clip added face
         uint32_t new_face_indexes[3] = { pv_a_alt_index, pv_b_alt_index, pv_b_index };
         core_clip_poly(
-            frustum, 0, vertex_buffer, new_face_indexes, material_index);
+            frustum, 0, vertex_buffer, new_face_indexes, material_index, new_face);
     } else {
         assert(true);
     }
@@ -602,7 +609,8 @@ void core_clip_poly(
     RasClipFlags face_clip_flags,
     RasPipelineVertexBuffer* vertex_buffer,
     uint32_t in_indexes[3],
-    int32_t material_index)
+    int32_t material_index,
+    RasPipelineFace* face)
 {
     uint32_t indexes[3] = { in_indexes[0], in_indexes[1], in_indexes[2] };
 
@@ -618,7 +626,7 @@ void core_clip_poly(
         if (face_clip_flags & mask) {
             ras_log_buffer("PV clipping against plane %d\n", i);
             core_clip_poly_plane(
-                frustum, (RasFrustumPlane)i, vertex_buffer, indexes, material_index);
+                frustum, (RasFrustumPlane)i, vertex_buffer, indexes, material_index, face);
         }
     }
 }
@@ -1101,7 +1109,8 @@ void core_draw_element(
                 face_clip_flags,
                 &vert_buffer,
                 &element->indexes[i],
-                element->material_indexes[current_src_face_index]);
+                element->material_indexes[current_src_face_index],
+                face);
             current_src_face_index++;
             continue;
         }

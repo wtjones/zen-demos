@@ -199,7 +199,8 @@ void core_clip_poly(
     RasClipFlags face_clip_flags,
     RasPipelineVertexBuffer* vert_buffer,
     uint32_t in_indexes[3],
-    int32_t material_index);
+    int32_t material_index,
+    RasPipelineFace* face);
 
 /**
  * @brief Sets a vector at the intersection of the given line and plane.

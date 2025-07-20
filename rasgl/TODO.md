@@ -28,7 +28,6 @@
 - [ ] Fix assert on certain far plane clip scenarios
 - [ ] Fix assert when a triangle is rotating and clipping on the left side
 - [ ] AABB should remain correct when model rotates
-- [ ] Carry over pipeline face to clipped polys
 
 ### Math
 
@@ -113,6 +112,7 @@
 - [x] Exclude faces outside of frustum
 - [x] Clip faces that intersect frustum
 - [x] Recalc clip flags when new PVs added
+- [x] Carry over pipeline face to clipped polys
 
 ### Models
 
