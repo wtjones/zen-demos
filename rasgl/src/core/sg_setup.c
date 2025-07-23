@@ -1,3 +1,4 @@
+#include "rasgl/core/aabb.h"
 #include "rasgl/core/repr.h"
 #include "rasgl/core/stages.h"
 
@@ -91,19 +92,37 @@ void* core_sg_xform_aabb(void* input)
     for (size_t i = 0; i < render_data->scene->num_objects; i++) {
         RasSceneObject* current_object = &render_data->scene->objects[i];
         RasPipelineElement* element = current_object->element_ref;
-        RasAABB view_aabb;
+        RasAABB* view_aabb = &render_data->aabbs[i];
 
-        core_aabb_xform(&element->aabb, render_data->model_view_matrix[i], &view_aabb);
+        core_aabb_xform(&element->aabb, render_data->model_view_matrix[i], view_aabb);
 
         ras_log_buffer("AABB orig min: %s\n", repr_point3f(buffer, sizeof buffer, &element->aabb.min));
-        ras_log_buffer("AABB view min: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb.min));
-        ras_log_buffer("AABB view max: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb.max));
+        ras_log_buffer("AABB view min: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb->min));
+        ras_log_buffer("AABB view max: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb->max));
 
-        bool all_out = core_aabb_in_frustum(&view_aabb, &render_data->frustum, &render_data->aabb_clip_flags[i]);
+        bool all_out = core_aabb_in_frustum(view_aabb, &render_data->frustum, &render_data->aabb_clip_flags[i]);
 
         ras_log_buffer("AABB flags: %hhu, all_out: %s\n", render_data->aabb_clip_flags[i], all_out ? "true" : "false");
         if (!all_out) {
             render_data->visible_objects[render_data->num_visible_objects++] = i;
         }
+    }
+}
+
+void* core_sg_render_aabb(void* input)
+{
+    RasRenderData* render_data = (RasRenderData*)input;
+    RenderState* render_state = render_data->render_state;
+
+    ras_log_info("Rendering AABBs for %d visible objects", render_data->num_visible_objects);
+
+    for (uint32_t i = 0; i < render_data->num_visible_objects; i++) {
+        uint32_t object_index = render_data->visible_objects[i];
+        RasAABB* view_aabb = &render_data->aabbs[object_index];
+        core_render_aabb(
+            render_state,
+            render_data->projection_matrix,
+            &render_data->frustum,
+            view_aabb);
     }
 }

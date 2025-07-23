@@ -9,6 +9,8 @@ typedef struct TestData {
     int value;
 } TestData;
 
+RenderState states[RAS_LAYER_COUNT] = { 0 };
+
 void* foo(void* input)
 {
     TestData* data = (TestData*)input;
@@ -40,8 +42,8 @@ void pipeline_tests()
 void pipeline_scene_tests()
 {
     // arrange
-    RenderState states[RAS_LAYER_COUNT] = { 0 };
     core_renderstates_init(states);
+    ras_log_info("Render state size: %zu", sizeof(RenderState));
     RasScene* scene = NULL;
 
     RasResult result = core_load_scene("./tests/data/scene02.lsp", &scene);
@@ -56,11 +58,12 @@ void pipeline_scene_tests()
     camera->projection_mode = RAS_CAMERA_DEFAULT_PROJECTION_MODE;
 
     RasPipeline pipeline = {
-        .num_stages = 3,
+        .num_stages = 4,
         .stages = {
             { .name = "core_sg_setup", core_sg_setup },
             { .name = "core_sg_xform_objects", core_sg_xform_objects },
-            { .name = "core_sg_xform_aabb", core_sg_xform_aabb } }
+            { .name = "core_sg_xform_aabb", core_sg_xform_aabb },
+            { .name = "core_sg_render_aabb", core_sg_render_aabb } }
     };
     RasRenderData render_data;
     core_renderdata_init(

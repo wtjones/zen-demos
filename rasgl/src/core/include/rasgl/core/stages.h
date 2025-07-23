@@ -19,11 +19,15 @@ typedef struct {
     RasFixed model_world_matrix[RAS_MAX_SCENE_OBJECTS][4][4];
     RasFixed model_view_matrix[RAS_MAX_SCENE_OBJECTS][4][4];
     RasFixed normal_mvt_matrix[RAS_MAX_SCENE_OBJECTS][4][4];
-
+    RasAABB aabbs[RAS_MAX_SCENE_OBJECTS];
     RasClipFlags aabb_clip_flags[RAS_MAX_SCENE_OBJECTS];
+    /**
+     * @brief Indexes of visible objects.
+     * The indices match the render_state->meshes array.
+     */
     uint32_t visible_objects[RAS_MAX_SCENE_OBJECTS];
     uint32_t num_visible_objects;
-    RasPipelineVertexBuffer vert_buffer;
+    RasPipelineVertexBuffer vert_buffer; // needed?
 
 } RasRenderData;
 
@@ -34,7 +38,14 @@ void core_renderdata_init(
     RasCamera* camera);
 
 void* core_sg_setup(void* input);
+/**
+ * @brief Transform object matrices
+ *
+ * @param input
+ * @return void*
+ */
 void* core_sg_xform_objects(void* input);
 void* core_sg_xform_aabb(void* input);
+void* core_sg_render_aabb(void* input);
 
 #endif

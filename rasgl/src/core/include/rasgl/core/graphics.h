@@ -15,6 +15,7 @@
 #define MAX_PIPELINE_VERTS 10000
 #define MAX_VISIBLE_INDEXES MAX_PIPELINE_VERTS * 3
 #define RAS_MAX_AABB_POINTS 8
+#define RAS_MAX_MESHES 3 // FIXME
 
 #define RAS_CAMERA_DEFAULT_NEAR 0.1f
 #define RAS_CAMERA_DEFAULT_FAR 25.0f
@@ -162,6 +163,20 @@ typedef struct RasPipelineVertexBuffer {
     uint32_t num_material_indexes;                 // Will be num_visible_indexes / 3
 } RasPipelineVertexBuffer;
 
+typedef struct RasPipelineMesh {
+    RasPipelineVertex verts[MAX_PIPELINE_VERTS];
+    uint32_t num_verts;
+
+    uint32_t visible_indexes[MAX_VISIBLE_INDEXES];
+    uint32_t num_visible_indexes;
+
+    RasPipelineFace visible_faces[MAX_PIPELINE_VERTS / 3];
+    uint32_t num_visible_faces;
+
+    int32_t material_indexes[MAX_VISIBLE_INDEXES]; // -1 if undefined
+    uint32_t num_material_indexes;                 // Will be num_visible_indexes / 3
+} RasPipelineMesh;
+
 typedef struct RenderState {
     Point2i points[MAX_RENDER_POINTS];
     uint32_t num_points;
@@ -180,6 +195,9 @@ typedef struct RenderState {
 
     int32_t material_indexes[MAX_VISIBLE_INDEXES];
     uint32_t num_material_indexes; // Will be num_visible_indexes / 3
+
+    RasPipelineMesh meshes[RAS_MAX_MESHES]; // FIXME
+    uint32_t num_meshes;
 
     uint32_t current_frame;
     uint32_t max_frames;

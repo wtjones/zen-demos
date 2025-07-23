@@ -256,3 +256,39 @@ Frustum cull in object space (transform frustum planes to object space).
 ### Sorting concerns
 
 Stages work on the scene. This allows flexibility order of processing.
+
+### Clipping
+
+This could help remove the recusrive clipping. Build out a list of faces to clip that is ammended during clipping.
+
+### separate array option
+
+```text
+struct RasMesh
+
+    RasPipelineVertex *pipeline_verts;
+    uint32_t num_pipeline_verts;
+
+    uint32_t *visible_indexes;
+    uint32_t num_visible_indexes;
+
+    // not used much yet
+    RasPipelineFace visible_faces[MAX_PIPELINE_VERTS / 3];
+    uint32_t num_visible_faces;
+
+    int32_t *material_indexes;
+    uint32_t num_material_indexes; // Will be num_visible_indexes / 3
+
+
+struct RenderData
+    // index of each object
+    int object_mesh[MAXOBJECTS]
+    // after aabb
+    // there will be gaps in renderstate messages
+    int visible_object_meshes[MAXOBJS]
+
+
+struct RenderState
+
+    RasMesh meshes[MAXOBJECTS *= 20%]
+```
