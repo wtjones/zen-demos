@@ -36,7 +36,7 @@ int handle_parse_result(LarParseResult result, LarScript** script)
     }
 
     char* repr = lar_repr_script(*script);
-    log_info("Shell output: \n%s", repr);
+    log_debug("Shell output: \n%s", repr);
     printf("%s\n", repr);
     free(repr);
     lar_free_script(script);

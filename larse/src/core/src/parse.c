@@ -110,14 +110,14 @@ LarParseResult parse_list(
             break;
 
         case LAR_PARSE_EXP_LIST_END:
-            log_info("parse_list: found: )", "");
+            log_debug("parse_list: found: )", "");
             (*buffer_pos)++;
 
             return LAR_PARSE_RESULT_OK;
             break;
 
         case LAR_PARSE_EXP_ATOM:
-            log_info("parse_list: found: atom", "");
+            log_debug("parse_list: found: atom", "");
             LarNode* new_atom_node = append_list_node(node);
             new_atom_node->node_type = LAR_NODE_ATOM_INTEGER;
             LarParseResult atom_result = parse_token_atom(file_buffer, buffer_pos, new_atom_node);
@@ -128,7 +128,7 @@ LarParseResult parse_list(
 
             break;
         case LAR_PARSE_EXP_LIST_START:
-            log_info("parse_list: found: (", "");
+            log_debug("parse_list: found: (", "");
 
             LarNode* new_list_node = append_list_node(node);
             new_list_node->node_type = LAR_NODE_LIST;
