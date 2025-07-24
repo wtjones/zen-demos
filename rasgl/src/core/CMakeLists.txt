@@ -4,6 +4,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/FindLarse.cmake)
 add_library(core
     app.c
     camera.c
+    clip.c
     console.c
     debug.c
     frustum.c

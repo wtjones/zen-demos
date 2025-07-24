@@ -28,6 +28,7 @@ typedef struct {
     uint32_t visible_objects[RAS_MAX_SCENE_OBJECTS];
     uint32_t num_visible_objects;
     RasPipelineVertexBuffer vert_buffer; // needed?
+    uint32_t num_verts_in_frustum[RAS_MAX_SCENE_OBJECTS];
 
 } RasRenderData;
 
@@ -47,5 +48,6 @@ void* core_sg_setup(void* input);
 void* core_sg_xform_objects(void* input);
 void* core_sg_xform_aabb(void* input);
 void* core_sg_render_aabb(void* input);
+void* core_sg_xform_object_verts(void* input);
 
 #endif

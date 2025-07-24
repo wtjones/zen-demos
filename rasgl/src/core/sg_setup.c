@@ -1,4 +1,5 @@
 #include "rasgl/core/aabb.h"
+#include "rasgl/core/clip.h"
 #include "rasgl/core/repr.h"
 #include "rasgl/core/stages.h"
 
@@ -124,5 +125,52 @@ void* core_sg_render_aabb(void* input)
             render_data->projection_matrix,
             &render_data->frustum,
             view_aabb);
+    }
+}
+
+void* core_sg_xform_object_verts(void* input)
+{
+    RasRenderData* render_data = (RasRenderData*)input;
+
+    for (size_t i = 0; i < render_data->num_visible_objects; i++) {
+        uint32_t object_index = render_data->visible_objects[i];
+        RasSceneObject* current_object = &render_data->scene->objects[object_index];
+        RasPipelineElement* element = current_object->element_ref;
+        RasPipelineMesh* mesh = &render_data->render_state->meshes[object_index];
+
+        RasFixed(*model_world_matrix)[4] = render_data->model_world_matrix[i];
+        RasFixed(*model_view_matrix)[4] = render_data->model_view_matrix[i];
+        RasFixed(*normal_mvt_matrix)[4] = render_data->normal_mvt_matrix[i];
+
+        render_data->num_verts_in_frustum[object_index] = 0;
+        mesh->num_verts = element->num_verts;
+
+        for (uint32_t i = 0; i < element->num_verts; i++) {
+            RasVertex* vertex = &element->verts[i];
+            RasPipelineVertex* pv = &mesh->verts[i];
+
+            RasFixed model_space_position[4];
+            RasFixed view_space_position[4];
+            RasFixed screen_space_vec[4];
+            RasFixed projected_vec[4];
+
+            core_vector3f_to_4x1(&vertex->position, model_space_position);
+            mat_mul_4x4_4x1(model_view_matrix, model_space_position, view_space_position);
+            core_4x1_to_vector3f(view_space_position, &pv->view_space_position);
+
+            core_set_pv_clip_flags(
+                &render_data->frustum,
+                render_data->aabb_clip_flags[object_index],
+                pv);
+
+            pv->aabb_clip_flags = render_data->aabb_clip_flags[object_index];
+
+            render_data->num_verts_in_frustum[object_index] += pv->clip_flags == 0 ? 1 : 0;
+
+            pv->color = vertex->color;
+            pv->u = vertex->u;
+            pv->v = vertex->v;
+        }
+        ras_log_debug("Transformed %d verts in frustum", render_data->num_verts_in_frustum[object_index]);
     }
 }
