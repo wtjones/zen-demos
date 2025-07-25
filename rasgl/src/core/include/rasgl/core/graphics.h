@@ -264,6 +264,13 @@ void core_aabb_xform(RasAABB* aabb, RasFixed matrix[4][4], RasAABB* dest);
  */
 bool core_aabb_in_frustum(RasAABB* view_aabb, RasFrustum* frustum, RasClipFlags* flags);
 
+/**
+ * Determine if poly is backfacing based on the normal's angle to the viewer
+ * in screen space. Assumes vertices are counter-clockwise.
+ * Based on https://github.com/wtjones/qbasic/blob/master/POLY3D.BAS
+ */
+bool core_is_backface(RasVector4f* sv0, RasVector4f* sv1, RasVector4f* sv2);
+
 void core_projected_to_screen_point(
     int32_t screen_width,
     int32_t screen_height,

@@ -203,3 +203,61 @@ void* core_sg_project_verts(void* input)
         }
     }
 }
+
+void* core_sg_visible_faces(void* input)
+{
+    RasRenderData* render_data = (RasRenderData*)input;
+
+    for (size_t i = 0; i < render_data->num_visible_objects; i++) {
+        uint32_t object_index = render_data->visible_objects[i];
+        uint32_t current_src_face_index = 0;
+
+        RasPipelineMesh* mesh = &render_data->render_state->meshes[object_index];
+        uint32_t* vi = &mesh->num_visible_indexes;
+        uint32_t* num_dest_materials = &mesh->num_material_indexes;
+        *num_dest_materials = 0;
+
+        RasPipelineElement* element = render_data->scene->objects[object_index].element_ref;
+        render_data->num_faces_in_frustum[object_index] = 0;
+
+        for (uint32_t i = 0; i < element->num_indexes; i += 3) {
+            RasPipelineVertex* pv1 = &mesh->verts[element->indexes[i]];
+            RasPipelineVertex* pv2 = &mesh->verts[element->indexes[i + 1]];
+            RasPipelineVertex* pv3 = &mesh->verts[element->indexes[i + 2]];
+
+            if (pv1->clip_flags & pv2->clip_flags & pv3->clip_flags) {
+
+                current_src_face_index++;
+
+                continue; // face is all out
+            }
+            render_data->num_faces_in_frustum[object_index] += 1;
+
+            bool is_backface = core_is_backface(
+                &pv1->screen_space_position,
+                &pv2->screen_space_position,
+                &pv3->screen_space_position);
+            bool is_culling = render_data->render_state->backface_culling_mode == RAS_BACKFACE_CULLING_ON;
+            if (is_backface && is_culling) {
+                current_src_face_index++;
+                continue;
+            }
+
+            mesh->visible_indexes[*vi] = element->indexes[i];
+            mesh->visible_indexes[*vi + 1] = element->indexes[i + 1];
+            mesh->visible_indexes[*vi + 2] = element->indexes[i + 2];
+            (*vi) += 3;
+
+            mesh->material_indexes[*num_dest_materials]
+                = element->material_indexes[current_src_face_index];
+            (*num_dest_materials)++;
+            current_src_face_index++;
+        }
+
+        ras_log_buffer(
+            "Faces:\n    In Model: %d. In frustum: %d. Visible: %d.",
+            element->num_indexes / 3,
+            render_data->num_faces_in_frustum[object_index],
+            mesh->num_visible_indexes / 3);
+    }
+}

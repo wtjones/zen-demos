@@ -60,14 +60,15 @@ void pipeline_scene_tests()
     camera->projection_mode = RAS_CAMERA_DEFAULT_PROJECTION_MODE;
 
     RasPipeline pipeline = {
-        .num_stages = 6,
+        .num_stages = 7,
         .stages = {
             { .name = "core_sg_setup", core_sg_setup },
             { .name = "core_sg_xform_objects", core_sg_xform_objects },
             { .name = "core_sg_xform_aabb", core_sg_xform_aabb },
             { .name = "core_sg_render_aabb", core_sg_render_aabb },
             { .name = "core_sg_xform_object_verts", core_sg_xform_object_verts },
-            { .name = "core_sg_project_verts", core_sg_project_verts } }
+            { .name = "core_sg_project_verts", core_sg_project_verts },
+            { .name = "core_sg_visible_faces", core_sg_visible_faces } }
     };
 
     RasRenderData render_data;

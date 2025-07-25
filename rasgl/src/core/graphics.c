@@ -206,21 +206,8 @@ void projected_to_screen_point(RasFixed screen_width, RasFixed screen_height, Ra
         mul_fixed_16_16_by_fixed_16_16(half_screen_height, projected_point[1]) + half_screen_height);
 }
 
-/**
- * Determine if poly is backfacing based on the normal's angle to the viewer
- * in screen space. Assumes vertices are counter-clockwise.
- * Based on https://github.com/wtjones/qbasic/blob/master/POLY3D.BAS
- */
-bool core_is_backface(RasPipelineVertexBuffer* vertex_buffer, uint32_t indexes[3])
+bool core_is_backface(RasVector4f* sv0, RasVector4f* sv1, RasVector4f* sv2)
 {
-    RasPipelineVertex* pv0 = &vertex_buffer->verts[indexes[2]];
-    RasPipelineVertex* pv1 = &vertex_buffer->verts[indexes[1]];
-    RasPipelineVertex* pv2 = &vertex_buffer->verts[indexes[0]];
-
-    RasVector4f* sv0 = &pv0->screen_space_position;
-    RasVector4f* sv1 = &pv1->screen_space_position;
-    RasVector4f* sv2 = &pv2->screen_space_position;
-
     // norm1 = (1.x - 0.x) * (0.y - 2.y)
     // norm2 = (1.y - 0.y) * (0.x - 2.x)
     RasFixed norm1 = mul_fixed_16_16_by_fixed_16_16(sv1->x - sv0->x, sv0->y - sv2->y);
@@ -1004,9 +991,12 @@ void core_draw_element(
             continue; // face is all out
         }
         num_faces_in_frustum += 1;
-
-        if (core_is_backface(&vert_buffer, &element->indexes[i])
-            && render_state->backface_culling_mode == RAS_BACKFACE_CULLING_ON) {
+        bool is_backface = core_is_backface(
+            &pv1->screen_space_position,
+            &pv2->screen_space_position,
+            &pv3->screen_space_position);
+        bool is_culling = render_state->backface_culling_mode == RAS_BACKFACE_CULLING_ON;
+        if (is_backface && is_culling) {
             current_src_face_index++;
             continue;
         }
