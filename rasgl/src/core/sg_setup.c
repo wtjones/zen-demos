@@ -32,7 +32,6 @@ void* core_sg_setup(void* input)
         ras_log_error("Invalid render data or scene/camera not set.");
         return NULL;
     }
-    ras_log_info("Setting up render data for scene: %s", render_data->scene->name);
     ras_camera_projection_init(render_data->camera, render_data->projection_matrix);
     mat_set_identity_4x4(render_data->world_view_matrix);
     ras_camera_world_view_init(render_data->camera, render_data->world_view_matrix);
@@ -114,8 +113,6 @@ void* core_sg_render_aabb(void* input)
 {
     RasRenderData* render_data = (RasRenderData*)input;
     RenderState* render_state = render_data->render_state;
-
-    ras_log_info("Rendering AABBs for %d visible objects", render_data->num_visible_objects);
 
     for (uint32_t i = 0; i < render_data->num_visible_objects; i++) {
         uint32_t object_index = render_data->visible_objects[i];
