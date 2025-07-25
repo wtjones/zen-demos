@@ -43,6 +43,8 @@ void pipeline_scene_tests()
 {
     // arrange
     core_renderstates_init(states);
+    states[RAS_LAYER_SCENE].screen_settings.screen_width = 320;
+    states[RAS_LAYER_SCENE].screen_settings.screen_height = 240;
     ras_log_info("Render state size: %zu", sizeof(RenderState));
     RasScene* scene = NULL;
 
@@ -58,13 +60,14 @@ void pipeline_scene_tests()
     camera->projection_mode = RAS_CAMERA_DEFAULT_PROJECTION_MODE;
 
     RasPipeline pipeline = {
-        .num_stages = 5,
+        .num_stages = 6,
         .stages = {
             { .name = "core_sg_setup", core_sg_setup },
             { .name = "core_sg_xform_objects", core_sg_xform_objects },
             { .name = "core_sg_xform_aabb", core_sg_xform_aabb },
             { .name = "core_sg_render_aabb", core_sg_render_aabb },
-            { .name = "core_sg_xform_object_verts", core_sg_xform_object_verts } }
+            { .name = "core_sg_xform_object_verts", core_sg_xform_object_verts },
+            { .name = "core_sg_project_verts", core_sg_project_verts } }
     };
 
     RasRenderData render_data;

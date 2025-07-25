@@ -49,5 +49,6 @@ void* core_sg_xform_objects(void* input);
 void* core_sg_xform_aabb(void* input);
 void* core_sg_render_aabb(void* input);
 void* core_sg_xform_object_verts(void* input);
+void* core_sg_project_verts(void* input);
 
 #endif

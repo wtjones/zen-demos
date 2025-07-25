@@ -174,3 +174,35 @@ void* core_sg_xform_object_verts(void* input)
         ras_log_debug("Transformed %d verts in frustum", render_data->num_verts_in_frustum[object_index]);
     }
 }
+
+void* core_sg_project_verts(void* input)
+{
+    RasRenderData* render_data = (RasRenderData*)input;
+
+    for (size_t i = 0; i < render_data->num_visible_objects; i++) {
+        uint32_t object_index = render_data->visible_objects[i];
+
+        RasPipelineMesh* mesh = &render_data->render_state->meshes[object_index];
+
+        for (size_t j = 0; j < mesh->num_verts; j++) {
+            RasPipelineVertex* pv = &mesh->verts[j];
+            RasFixed view_space_position[4];
+            RasFixed screen_space_vec[4];
+            RasFixed projected_vec[4];
+
+            // Project to screen space
+            core_vector3f_to_4x1(&pv->view_space_position, view_space_position);
+            // Screen space in NDC coords
+            mat_mul_project(render_data->projection_matrix, view_space_position, projected_vec);
+
+            core_projected_to_screen_point(
+                render_data->render_state->screen_settings.screen_width,
+                render_data->render_state->screen_settings.screen_height,
+                projected_vec,
+                &pv->screen_space_position);
+
+            static char buffer[255];
+            ras_log_buffer_trace("pipeline screen space pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->screen_space_position));
+        }
+    }
+}
