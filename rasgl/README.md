@@ -134,6 +134,8 @@ A [right-handed system](https://learnopengl.com/Getting-started/Coordinate-Syste
            -Y
 ```
 
+Triangle winding order is counter-clockwise when viewed from the front.
+
 ## Build and Run
 
 ### Build dependencies

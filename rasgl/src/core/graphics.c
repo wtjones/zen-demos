@@ -213,7 +213,7 @@ bool core_is_backface(RasVector4f* sv0, RasVector4f* sv1, RasVector4f* sv2)
     RasFixed norm1 = mul_fixed_16_16_by_fixed_16_16(sv1->x - sv0->x, sv0->y - sv2->y);
     RasFixed norm2 = mul_fixed_16_16_by_fixed_16_16(sv1->y - sv0->y, sv0->x - sv2->x);
     RasFixed norm = norm1 - norm2;
-    return (norm1 - norm2 > 0);
+    return norm < 0;
 }
 
 /**
