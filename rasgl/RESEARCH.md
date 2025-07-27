@@ -259,7 +259,7 @@ Stages work on the scene. This allows flexibility order of processing.
 
 ### Clipping
 
-This could help remove the recusrive clipping. Build out a list of faces to clip that is ammended during clipping.
+This could help remove the recursive clipping. Build out a list of faces to clip that is ammended during clipping.
 
 ### separate array option
 
@@ -292,3 +292,27 @@ struct RenderState
 
     RasMesh meshes[MAXOBJECTS *= 20%]
 ```
+
+## Sorting
+
+Spliting out to the mesh structure adds a challenge to sorting.
+
+Decouple storage (VAO) from render order by introducing a render queue, often called a sort list or order table:
+
+```text
+struct RenderFace {
+    float depth;
+    int vao_id;         // Identifier for VAO or mesh
+    int start_index;    // Index in element buffer (EBO)
+    int count;          // Number of indices (3)
+};
+```
+
+For each visible face, compute:
+
+- Average view-space Z (depth)
+- Store a RenderFace in a render list
+
+Compute the view-space Z by transforming each vertex of the face with the view matrix and averaging the Z values.
+
+Use a simple sort algorithm (quick sort, radix sort, etc.) on depth, in back-to-front order (larger Z rendered first for transparency).
