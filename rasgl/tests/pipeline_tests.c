@@ -66,7 +66,7 @@ void pipeline_scene_tests()
             { .name = "core_sg_xform_objects", core_sg_xform_objects },
             { .name = "core_sg_xform_aabb", core_sg_xform_aabb },
             { .name = "core_sg_render_aabb", core_sg_render_aabb },
-            { .name = "core_sg_xform_object_verts", core_sg_xform_object_verts },
+            { .name = "core_sg_xform_verts", core_sg_xform_verts },
             { .name = "core_sg_project_verts", core_sg_project_verts },
             { .name = "core_sg_visible_faces", core_sg_visible_faces } }
     };

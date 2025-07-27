@@ -16,6 +16,7 @@ void core_renderdata_init(
     mat_set_identity_4x4(render_data->projection_matrix);
     render_data->num_visible_objects = 0;
     render_data->vert_buffer.num_verts = 0;
+    render_data->num_visible_meshes = 0;
 
     for (size_t i = 0; i < RAS_MAX_SCENE_OBJECTS; i++) {
         mat_set_identity_4x4(render_data->model_world_matrix[i]);
@@ -77,13 +78,6 @@ void* core_sg_xform_objects(void* input)
     }
 }
 
-/**
- * @brief Transforms the axis-aligned bounding boxes (AABBs) of all objects in the scene.
- * Sets clip flags and populates visible objects array.
- *
- * @param input
- * @return void*
- */
 void* core_sg_xform_aabb(void* input)
 {
     char buffer[1000];
@@ -100,11 +94,17 @@ void* core_sg_xform_aabb(void* input)
         ras_log_buffer("AABB view min: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb->min));
         ras_log_buffer("AABB view max: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb->max));
 
-        bool all_out = core_aabb_in_frustum(view_aabb, &render_data->frustum, &render_data->aabb_clip_flags[i]);
+        bool all_out = core_aabb_in_frustum(
+            view_aabb,
+            &render_data->frustum,
+            &render_data->aabb_clip_flags[i]);
 
         ras_log_buffer("AABB flags: %hhu, all_out: %s\n", render_data->aabb_clip_flags[i], all_out ? "true" : "false");
         if (!all_out) {
             render_data->visible_objects[render_data->num_visible_objects++] = i;
+            render_data->visible_meshes[render_data->num_visible_meshes].mesh_index = i;
+            render_data->visible_meshes[render_data->num_visible_meshes].element_ref = element;
+            render_data->num_visible_meshes++;
         }
     }
 }
@@ -114,9 +114,9 @@ void* core_sg_render_aabb(void* input)
     RasRenderData* render_data = (RasRenderData*)input;
     RenderState* render_state = render_data->render_state;
 
-    for (uint32_t i = 0; i < render_data->num_visible_objects; i++) {
-        uint32_t object_index = render_data->visible_objects[i];
-        RasAABB* view_aabb = &render_data->aabbs[object_index];
+    for (uint32_t i = 0; i < render_data->num_visible_meshes; i++) {
+        uint32_t mesh_index = render_data->visible_meshes[i].mesh_index;
+        RasAABB* view_aabb = &render_data->aabbs[mesh_index];
         core_render_aabb(
             render_state,
             render_data->projection_matrix,
@@ -125,21 +125,20 @@ void* core_sg_render_aabb(void* input)
     }
 }
 
-void* core_sg_xform_object_verts(void* input)
+void* core_sg_xform_verts(void* input)
 {
     RasRenderData* render_data = (RasRenderData*)input;
 
-    for (size_t i = 0; i < render_data->num_visible_objects; i++) {
-        uint32_t object_index = render_data->visible_objects[i];
-        RasSceneObject* current_object = &render_data->scene->objects[object_index];
-        RasPipelineElement* element = current_object->element_ref;
-        RasPipelineMesh* mesh = &render_data->render_state->meshes[object_index];
+    for (uint32_t i = 0; i < render_data->num_visible_meshes; i++) {
+        uint32_t mesh_index = render_data->visible_meshes[i].mesh_index;
+        RasPipelineElement* element = render_data->visible_meshes[i].element_ref;
+        RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
 
         RasFixed(*model_world_matrix)[4] = render_data->model_world_matrix[i];
         RasFixed(*model_view_matrix)[4] = render_data->model_view_matrix[i];
         RasFixed(*normal_mvt_matrix)[4] = render_data->normal_mvt_matrix[i];
 
-        render_data->num_verts_in_frustum[object_index] = 0;
+        render_data->num_verts_in_frustum[mesh_index] = 0;
         mesh->num_verts = element->num_verts;
 
         for (uint32_t i = 0; i < element->num_verts; i++) {
@@ -157,18 +156,20 @@ void* core_sg_xform_object_verts(void* input)
 
             core_set_pv_clip_flags(
                 &render_data->frustum,
-                render_data->aabb_clip_flags[object_index],
+                render_data->aabb_clip_flags[mesh_index],
                 pv);
 
-            pv->aabb_clip_flags = render_data->aabb_clip_flags[object_index];
+            pv->aabb_clip_flags = render_data->aabb_clip_flags[mesh_index];
 
-            render_data->num_verts_in_frustum[object_index] += pv->clip_flags == 0 ? 1 : 0;
+            render_data->num_verts_in_frustum[mesh_index] += pv->clip_flags == 0 ? 1 : 0;
 
             pv->color = vertex->color;
             pv->u = vertex->u;
             pv->v = vertex->v;
         }
-        ras_log_debug("Transformed %d verts in frustum", render_data->num_verts_in_frustum[object_index]);
+        ras_log_debug(
+            "Transformed %d verts in frustum",
+            render_data->num_verts_in_frustum[mesh_index]);
     }
 }
 
@@ -176,10 +177,10 @@ void* core_sg_project_verts(void* input)
 {
     RasRenderData* render_data = (RasRenderData*)input;
 
-    for (size_t i = 0; i < render_data->num_visible_objects; i++) {
-        uint32_t object_index = render_data->visible_objects[i];
-
-        RasPipelineMesh* mesh = &render_data->render_state->meshes[object_index];
+    for (uint32_t i = 0; i < render_data->num_visible_meshes; i++) {
+        uint32_t mesh_index = render_data->visible_meshes[i].mesh_index;
+        RasPipelineElement* element = render_data->visible_meshes[i].element_ref;
+        RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
 
         for (size_t j = 0; j < mesh->num_verts; j++) {
             RasPipelineVertex* pv = &mesh->verts[j];
@@ -190,7 +191,10 @@ void* core_sg_project_verts(void* input)
             // Project to screen space
             core_vector3f_to_4x1(&pv->view_space_position, view_space_position);
             // Screen space in NDC coords
-            mat_mul_project(render_data->projection_matrix, view_space_position, projected_vec);
+            mat_mul_project(
+                render_data->projection_matrix,
+                view_space_position,
+                projected_vec);
 
             core_projected_to_screen_point(
                 render_data->render_state->screen_settings.screen_width,
@@ -208,17 +212,17 @@ void* core_sg_visible_faces(void* input)
 {
     RasRenderData* render_data = (RasRenderData*)input;
 
-    for (size_t i = 0; i < render_data->num_visible_objects; i++) {
-        uint32_t object_index = render_data->visible_objects[i];
-        uint32_t current_src_face_index = 0;
+    for (uint32_t i = 0; i < render_data->num_visible_meshes; i++) {
+        uint32_t mesh_index = render_data->visible_meshes[i].mesh_index;
+        RasPipelineElement* element = render_data->visible_meshes[i].element_ref;
+        RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
 
-        RasPipelineMesh* mesh = &render_data->render_state->meshes[object_index];
         uint32_t* vi = &mesh->num_visible_indexes;
         uint32_t* num_dest_materials = &mesh->num_material_indexes;
         *num_dest_materials = 0;
 
-        RasPipelineElement* element = render_data->scene->objects[object_index].element_ref;
-        render_data->num_faces_in_frustum[object_index] = 0;
+        render_data->num_faces_in_frustum[mesh_index] = 0;
+        uint32_t current_src_face_index = 0;
 
         for (uint32_t i = 0; i < element->num_indexes; i += 3) {
             RasPipelineVertex* pv1 = &mesh->verts[element->indexes[i]];
@@ -231,7 +235,7 @@ void* core_sg_visible_faces(void* input)
 
                 continue; // face is all out
             }
-            render_data->num_faces_in_frustum[object_index] += 1;
+            render_data->num_faces_in_frustum[mesh_index] += 1;
 
             bool is_backface = core_is_backface(
                 &pv1->screen_space_position,
@@ -257,7 +261,7 @@ void* core_sg_visible_faces(void* input)
         ras_log_buffer(
             "Faces:\n    In Model: %d. In frustum: %d. Visible: %d.",
             element->num_indexes / 3,
-            render_data->num_faces_in_frustum[object_index],
+            render_data->num_faces_in_frustum[mesh_index],
             mesh->num_visible_indexes / 3);
     }
 }

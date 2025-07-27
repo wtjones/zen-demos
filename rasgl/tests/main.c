@@ -596,5 +596,6 @@ int main()
     scene_tests();
     interpolate_tests();
     rasterize_tri_tests();
+    pipeline_scene_tests();
     return 0;
 }

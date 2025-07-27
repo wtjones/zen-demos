@@ -6,6 +6,11 @@
 #include "scene.h"
 
 typedef struct {
+    uint32_t mesh_index;
+    RasPipelineElement* element_ref;
+} RasMeshElement;
+
+typedef struct {
     RenderState* render_state;
     RasScene* scene;
     /**
@@ -27,6 +32,14 @@ typedef struct {
      */
     uint32_t visible_objects[RAS_MAX_SCENE_OBJECTS];
     uint32_t num_visible_objects;
+
+    /**
+     * @brief Represents visible meshes and related models.
+     *
+     */
+    RasMeshElement visible_meshes[RAS_MAX_MESHES];
+    size_t num_visible_meshes;
+
     RasPipelineVertexBuffer vert_buffer; // needed?
     uint32_t num_verts_in_frustum[RAS_MAX_SCENE_OBJECTS];
     uint32_t num_faces_in_frustum[RAS_MAX_SCENE_OBJECTS];
@@ -47,9 +60,21 @@ void* core_sg_setup(void* input);
  * @return void*
  */
 void* core_sg_xform_objects(void* input);
+
+/**
+ * @brief Transforms the axis-aligned bounding boxes (AABBs) of all objects
+ * in the scene.
+ *
+ * - Sets clip flags.
+ * - Populates visible objects array as mapped to meshes array.
+ * - Populates visible meshes array with a mapping to element.
+ *      - This allows later stages to work without the context of objects.
+ * @param input
+ * @return void*
+ */
 void* core_sg_xform_aabb(void* input);
 void* core_sg_render_aabb(void* input);
-void* core_sg_xform_object_verts(void* input);
+void* core_sg_xform_verts(void* input);
 void* core_sg_project_verts(void* input);
 /**
  * @brief Populate visible mesh faces (visible_indexes) by:
