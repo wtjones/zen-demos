@@ -60,7 +60,7 @@ void pipeline_scene_tests()
     camera->projection_mode = RAS_CAMERA_DEFAULT_PROJECTION_MODE;
 
     RasPipeline pipeline = {
-        .num_stages = 7,
+        .num_stages = 9,
         .stages = {
             { .name = "core_sg_setup", core_sg_setup },
             { .name = "core_sg_xform_objects", core_sg_xform_objects },
@@ -68,7 +68,9 @@ void pipeline_scene_tests()
             { .name = "core_sg_render_aabb", core_sg_render_aabb },
             { .name = "core_sg_xform_verts", core_sg_xform_verts },
             { .name = "core_sg_project_verts", core_sg_project_verts },
-            { .name = "core_sg_visible_faces", core_sg_visible_faces } }
+            { .name = "core_sg_visible_faces", core_sg_visible_faces },
+            { .name = "core_sg_xform_normals", core_sg_xform_normals },
+            { .name = "core_sg_lighting", core_sg_lighting } }
     };
 
     RasRenderData render_data;
@@ -90,4 +92,5 @@ void pipeline_scene_tests()
         repr_mat_4x4(buffer, sizeof(buffer), render_result->world_view_matrix));
 
     core_free_scene(&scene);
+    ras_log_flush();
 }

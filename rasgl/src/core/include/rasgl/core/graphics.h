@@ -277,6 +277,11 @@ void core_projected_to_screen_point(
     RasFixed projected_point[4],
     RasVector4f* screen_point);
 
+void core_light_poly(
+    RasPipelineFace* face,
+    RasVector3f* camera_pos,
+    RasVector3f* light_pos);
+
 /**
  * Transform a projected point to screen space.
  */

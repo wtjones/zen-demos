@@ -216,7 +216,7 @@ void* core_sg_visible_faces(void* input)
         uint32_t mesh_index = render_data->visible_meshes[i].mesh_index;
         RasPipelineElement* element = render_data->visible_meshes[i].element_ref;
         RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
-
+        uint32_t* num_dest_faces = &mesh->num_visible_faces;
         uint32_t* vi = &mesh->num_visible_indexes;
         uint32_t* num_dest_materials = &mesh->num_material_indexes;
         *num_dest_materials = 0;
@@ -252,9 +252,15 @@ void* core_sg_visible_faces(void* input)
             mesh->visible_indexes[*vi + 2] = element->indexes[i + 2];
             (*vi) += 3;
 
+            // copy material
             mesh->material_indexes[*num_dest_materials]
                 = element->material_indexes[current_src_face_index];
             (*num_dest_materials)++;
+
+            // Copy face
+            mesh->visible_faces[*num_dest_faces].normal = element->faces[current_src_face_index].normal;
+            mesh->visible_faces[*num_dest_faces].material_index = element->faces[current_src_face_index].material_index;
+            (*num_dest_faces)++;
             current_src_face_index++;
         }
 
@@ -263,5 +269,48 @@ void* core_sg_visible_faces(void* input)
             element->num_indexes / 3,
             render_data->num_faces_in_frustum[mesh_index],
             mesh->num_visible_indexes / 3);
+    }
+}
+
+void* core_sg_xform_normals(void* input)
+{
+    RasRenderData* render_data = (RasRenderData*)input;
+
+    for (uint32_t i = 0; i < render_data->num_visible_meshes; i++) {
+        uint32_t mesh_index = render_data->visible_meshes[i].mesh_index;
+        RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
+        RasFixed(*normal_mvt_matrix)[4] = render_data->normal_mvt_matrix[i];
+
+        for (uint32_t j = 0; j < mesh->num_visible_faces; j++) {
+            RasPipelineFace* face = &mesh->visible_faces[j];
+            RasFixed model_space_normal[4];
+            RasFixed view_space_normal[4];
+
+            core_vector3f_to_4x1(&face->normal, model_space_normal);
+            mat_mul_4x4_4x1(normal_mvt_matrix, model_space_normal, view_space_normal);
+            core_4x1_to_vector3f(view_space_normal, &face->view_space_normal);
+        }
+    }
+}
+
+void* core_sg_lighting(void* input)
+{
+    RasRenderData* render_data = (RasRenderData*)input;
+
+    for (uint32_t i = 0; i < render_data->num_visible_meshes; i++) {
+        uint32_t mesh_index = render_data->visible_meshes[i].mesh_index;
+        RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
+        RasFixed(*normal_mvt_matrix)[4] = render_data->normal_mvt_matrix[i];
+
+        for (uint32_t j = 0; j < mesh->num_visible_faces; j++) {
+            RasPipelineFace* face = &mesh->visible_faces[j];
+            RasVector3f camera_pos = { 0, 0, 0 };
+            RasVector3f light_pos = { 0, 0, RAS_FIXED_ONE };
+
+            core_light_poly(
+                face,
+                &camera_pos,
+                &light_pos);
+        }
     }
 }

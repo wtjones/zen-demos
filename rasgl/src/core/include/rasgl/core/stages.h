@@ -85,4 +85,20 @@ void* core_sg_project_verts(void* input);
  * @return void*
  */
 void* core_sg_visible_faces(void* input);
+
+/**
+ * @brief Transform face normals for lighting calculations.
+ *
+ * @param input
+ * @return void*
+ */
+void* core_sg_xform_normals(void* input);
+
+/**
+ * @brief Calculate lighting for each visible face.
+ *
+ * @param input
+ * @return void*
+ */
+void* core_sg_lighting(void* input);
 #endif
