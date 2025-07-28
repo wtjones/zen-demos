@@ -59,19 +59,8 @@ void pipeline_scene_tests()
     camera->fov = RAS_CAMERA_DEFAULT_FOV;
     camera->projection_mode = RAS_CAMERA_DEFAULT_PROJECTION_MODE;
 
-    RasPipeline pipeline = {
-        .num_stages = 9,
-        .stages = {
-            { .name = "core_sg_setup", core_sg_setup },
-            { .name = "core_sg_xform_objects", core_sg_xform_objects },
-            { .name = "core_sg_xform_aabb", core_sg_xform_aabb },
-            { .name = "core_sg_render_aabb", core_sg_render_aabb },
-            { .name = "core_sg_xform_verts", core_sg_xform_verts },
-            { .name = "core_sg_project_verts", core_sg_project_verts },
-            { .name = "core_sg_visible_faces", core_sg_visible_faces },
-            { .name = "core_sg_xform_normals", core_sg_xform_normals },
-            { .name = "core_sg_lighting", core_sg_lighting } }
-    };
+    RasPipeline pipeline;
+    core_pipeline_init(&pipeline);
 
     RasRenderData render_data;
     core_renderdata_init(

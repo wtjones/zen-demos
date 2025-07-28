@@ -3,6 +3,26 @@
 #include "rasgl/core/repr.h"
 #include "rasgl/core/stages.h"
 
+void core_pipeline_init(RasPipeline* pipeline)
+{
+    RasPipeline template = {
+        .num_stages = 9,
+        .stages = {
+            { .name = "core_sg_setup", core_sg_setup },
+            { .name = "core_sg_xform_objects", core_sg_xform_objects },
+            { .name = "core_sg_xform_aabb", core_sg_xform_aabb },
+            { .name = "core_sg_render_aabb", core_sg_render_aabb },
+            { .name = "core_sg_xform_verts", core_sg_xform_verts },
+            { .name = "core_sg_project_verts", core_sg_project_verts },
+            { .name = "core_sg_visible_faces", core_sg_visible_faces },
+            { .name = "core_sg_xform_normals", core_sg_xform_normals },
+            { .name = "core_sg_lighting", core_sg_lighting } }
+    };
+
+    memcpy(pipeline, &template, sizeof(RasPipeline));
+    ras_log_info("Pipeline initialized with %d stages", pipeline->num_stages);
+}
+
 void core_renderdata_init(
     RasRenderData* render_data,
     RenderState* render_state,

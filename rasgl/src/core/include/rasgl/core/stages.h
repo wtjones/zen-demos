@@ -46,6 +46,13 @@ typedef struct {
 
 } RasRenderData;
 
+/**
+ * @brief Initialize the non-platform specific pipeline.
+ *
+ * @param pipeline
+ */
+void core_pipeline_init(RasPipeline* pipeline);
+
 void core_renderdata_init(
     RasRenderData* render_data,
     RenderState* render_state,
