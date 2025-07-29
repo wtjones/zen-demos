@@ -124,6 +124,7 @@ void core_renderstate_init(RenderState* state)
     state->num_visible_faces = 0;
     state->num_material_indexes = 0;
     state->num_meshes = 0;
+    state->num_visible_meshes = 0;
     state->current_frame = 0;
     state->max_frames = UINT32_MAX;
 
@@ -131,10 +132,12 @@ void core_renderstate_init(RenderState* state)
     state->clipping_mode = RAS_CLIPPING_ON;
     state->normal_mode = RAS_NORMAL_MODE_OFF;
     state->grid_mode = RAS_GRID_MODE_OFF;
+    state->pipeline_mode = RAS_PIPELINE_MODE_OFF;
 
     memset(state->material_indexes, 0, sizeof(state->material_indexes));
     memset(state->visible_indexes, 0, sizeof(state->visible_indexes));
     memset(state->visible_faces, 0, sizeof(state->visible_faces));
+    memset(state->visible_meshes, 0, sizeof(state->visible_meshes));
 };
 
 void core_renderstate_scene_init(RenderState* state)

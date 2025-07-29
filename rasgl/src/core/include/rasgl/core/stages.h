@@ -37,8 +37,8 @@ typedef struct {
      * @brief Represents visible meshes and related models.
      *
      */
-    RasMeshElement visible_meshes[RAS_MAX_MESHES];
-    size_t num_visible_meshes;
+    RasMeshElement mesh_elements[RAS_MAX_MESHES];
+    size_t num_mesh_elements;
 
     RasPipelineVertexBuffer vert_buffer; // needed?
     uint32_t num_verts_in_frustum[RAS_MAX_SCENE_OBJECTS];

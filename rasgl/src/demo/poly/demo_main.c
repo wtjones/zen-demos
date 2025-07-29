@@ -7,8 +7,10 @@
 #include "rasgl/core/input.h"
 #include "rasgl/core/matrix_projection.h"
 #include "rasgl/core/model.h"
+#include "rasgl/core/pipeline.h"
 #include "rasgl/core/repr.h"
 #include "rasgl/core/scene.h"
+#include "rasgl/core/stages.h"
 #include "rasgl/core/text.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +19,8 @@ ScreenSettings* settings;
 RasScene* scene;
 RasFont* ui_font;
 RasFixed delta_rotation = RAS_FIXED_ONE;
+RasPipeline pipeline = { 0 };
+RasRenderData render_data = { 0 };
 
 Point3f delta = {
     .x = RAS_FLOAT_TO_FIXED(0.05f),
@@ -40,6 +44,7 @@ RasResult ras_app_init(int argc, const char** argv, ScreenSettings* init_setting
     ras_log_info("ras_app_init()... argc: %d argv: %s\n", argc, argv[0]);
     ras_log_info("ras_app_init()... screen_width.x: %d\n", init_settings->screen_width);
     settings = init_settings;
+    core_pipeline_init(&pipeline);
     const char* scene_path = (argc > 1) ? argv[1] : default_scene;
 
     ui_font = core_get_font_system(RAS_SYSTEM_FONT_DEFAULT);
@@ -221,7 +226,8 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
         }
     }
 }
-void render_scene(RenderState* render_state)
+
+void render_scene_classic(RenderState* render_state)
 {
 
     RasFixed model_world_matrix[4][4];
@@ -266,6 +272,27 @@ void render_scene(RenderState* render_state)
             world_view_matrix,
             projection_matrix,
             &frustum);
+    }
+}
+
+void render_scene_pipeline(RenderState* render_state)
+{
+    core_renderdata_init(
+        &render_data,
+        render_state,
+        scene,
+        &scene->cameras[0]);
+    core_pipeline_run(
+        &pipeline,
+        &render_data);
+}
+
+void render_scene(RenderState* render_state)
+{
+    if (render_state->pipeline_mode == RAS_PIPELINE_MODE_OFF) {
+        render_scene_classic(render_state);
+    } else {
+        render_scene_pipeline(render_state);
     }
 }
 

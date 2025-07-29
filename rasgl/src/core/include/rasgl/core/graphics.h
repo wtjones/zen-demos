@@ -72,6 +72,12 @@ typedef enum {
 } RasGridMode;
 
 typedef enum {
+    RAS_PIPELINE_MODE_OFF,     // Use class pipeline (draw elements)
+    RAS_PIPELINE_MODE_DEFAULT, // Use staged pipeline
+    RAS_PIPELINE_MODE_COUNT
+} RasPipelineMode;
+
+typedef enum {
     RAS_LAYER_SCENE,
     RAS_LAYER_UI,
     RAS_LAYER_CONSOLE,
@@ -198,6 +204,8 @@ typedef struct RenderState {
 
     RasPipelineMesh meshes[RAS_MAX_MESHES]; // FIXME
     uint32_t num_meshes;
+    uint32_t visible_meshes[RAS_MAX_MESHES];
+    uint32_t num_visible_meshes;
 
     uint32_t current_frame;
     uint32_t max_frames;
@@ -210,6 +218,7 @@ typedef struct RenderState {
     RasPolygonMode polygon_mode;
     RasNormalMode normal_mode;
     RasGridMode grid_mode;
+    RasPipelineMode pipeline_mode;
 } RenderState;
 
 void core_clip_poly(

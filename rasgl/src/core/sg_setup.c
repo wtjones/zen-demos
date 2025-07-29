@@ -36,7 +36,8 @@ void core_renderdata_init(
     mat_set_identity_4x4(render_data->projection_matrix);
     render_data->num_visible_objects = 0;
     render_data->vert_buffer.num_verts = 0;
-    render_data->num_visible_meshes = 0;
+    render_data->num_mesh_elements = 0;
+    render_data->render_state->num_visible_meshes = 0;
 
     for (size_t i = 0; i < RAS_MAX_SCENE_OBJECTS; i++) {
         mat_set_identity_4x4(render_data->model_world_matrix[i]);
@@ -44,6 +45,8 @@ void core_renderdata_init(
         mat_set_identity_4x4(render_data->normal_mvt_matrix[i]);
         render_data->aabb_clip_flags[i] = 0;
     }
+
+    render_state->num_meshes = scene->num_objects;
 }
 
 void* core_sg_setup(void* input)
@@ -122,9 +125,12 @@ void* core_sg_xform_aabb(void* input)
         ras_log_buffer("AABB flags: %hhu, all_out: %s\n", render_data->aabb_clip_flags[i], all_out ? "true" : "false");
         if (!all_out) {
             render_data->visible_objects[render_data->num_visible_objects++] = i;
-            render_data->visible_meshes[render_data->num_visible_meshes].mesh_index = i;
-            render_data->visible_meshes[render_data->num_visible_meshes].element_ref = element;
-            render_data->num_visible_meshes++;
+            render_data->mesh_elements[render_data->num_mesh_elements].mesh_index = i;
+            render_data->mesh_elements[render_data->num_mesh_elements].element_ref = element;
+            render_data->num_mesh_elements++;
+            // Mesh indices match scene objects by convention.
+            render_data->render_state->visible_meshes[render_data->render_state->num_visible_meshes] = i;
+            render_data->render_state->num_visible_meshes++;
         }
     }
 }
@@ -134,8 +140,8 @@ void* core_sg_render_aabb(void* input)
     RasRenderData* render_data = (RasRenderData*)input;
     RenderState* render_state = render_data->render_state;
 
-    for (uint32_t i = 0; i < render_data->num_visible_meshes; i++) {
-        uint32_t mesh_index = render_data->visible_meshes[i].mesh_index;
+    for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
+        uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
         RasAABB* view_aabb = &render_data->aabbs[mesh_index];
         core_render_aabb(
             render_state,
@@ -149,9 +155,9 @@ void* core_sg_xform_verts(void* input)
 {
     RasRenderData* render_data = (RasRenderData*)input;
 
-    for (uint32_t i = 0; i < render_data->num_visible_meshes; i++) {
-        uint32_t mesh_index = render_data->visible_meshes[i].mesh_index;
-        RasPipelineElement* element = render_data->visible_meshes[i].element_ref;
+    for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
+        uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
+        RasPipelineElement* element = render_data->mesh_elements[i].element_ref;
         RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
 
         RasFixed(*model_world_matrix)[4] = render_data->model_world_matrix[i];
@@ -197,9 +203,9 @@ void* core_sg_project_verts(void* input)
 {
     RasRenderData* render_data = (RasRenderData*)input;
 
-    for (uint32_t i = 0; i < render_data->num_visible_meshes; i++) {
-        uint32_t mesh_index = render_data->visible_meshes[i].mesh_index;
-        RasPipelineElement* element = render_data->visible_meshes[i].element_ref;
+    for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
+        uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
+        RasPipelineElement* element = render_data->mesh_elements[i].element_ref;
         RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
 
         for (size_t j = 0; j < mesh->num_verts; j++) {
@@ -232,9 +238,9 @@ void* core_sg_visible_faces(void* input)
 {
     RasRenderData* render_data = (RasRenderData*)input;
 
-    for (uint32_t i = 0; i < render_data->num_visible_meshes; i++) {
-        uint32_t mesh_index = render_data->visible_meshes[i].mesh_index;
-        RasPipelineElement* element = render_data->visible_meshes[i].element_ref;
+    for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
+        uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
+        RasPipelineElement* element = render_data->mesh_elements[i].element_ref;
         RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
         uint32_t* num_dest_faces = &mesh->num_visible_faces;
         uint32_t* vi = &mesh->num_visible_indexes;
@@ -296,8 +302,8 @@ void* core_sg_xform_normals(void* input)
 {
     RasRenderData* render_data = (RasRenderData*)input;
 
-    for (uint32_t i = 0; i < render_data->num_visible_meshes; i++) {
-        uint32_t mesh_index = render_data->visible_meshes[i].mesh_index;
+    for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
+        uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
         RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
         RasFixed(*normal_mvt_matrix)[4] = render_data->normal_mvt_matrix[i];
 
@@ -317,8 +323,8 @@ void* core_sg_lighting(void* input)
 {
     RasRenderData* render_data = (RasRenderData*)input;
 
-    for (uint32_t i = 0; i < render_data->num_visible_meshes; i++) {
-        uint32_t mesh_index = render_data->visible_meshes[i].mesh_index;
+    for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
+        uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
         RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
         RasFixed(*normal_mvt_matrix)[4] = render_data->normal_mvt_matrix[i];
 

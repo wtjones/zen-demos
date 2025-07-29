@@ -52,6 +52,17 @@ void ras_core_update(InputState* input_state, RenderState render_states[RAS_LAYE
             repr_grid_mode(buffer, sizeof(buffer), scene_state->grid_mode));
     }
 
+    if (input_state->keys[RAS_KEY_L] == RAS_KEY_EVENT_UP
+        && input_state->mods & RAS_KMOD_CTRL) {
+        scene_state->pipeline_mode = (scene_state->pipeline_mode + 1) % RAS_PIPELINE_MODE_COUNT;
+
+        ras_log_info(
+            "pipeline_mode: %s",
+            scene_state->pipeline_mode == RAS_PIPELINE_MODE_OFF
+                ? "off"
+                : "default");
+    }
+
     if (input_state->keys[RAS_KEY_F3] == RAS_KEY_EVENT_UP) {
         ui_state->layer_visible = !ui_state->layer_visible;
         ras_log_info("UI visible: %s", ui_state->layer_visible ? "true" : "false");
