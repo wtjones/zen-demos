@@ -252,6 +252,7 @@ void* core_sg_visible_faces(void* input)
 
         render_data->num_faces_in_frustum[mesh_index] = 0;
         uint32_t current_src_face_index = 0;
+        uint16_t num_faces_excluded = 0;
 
         for (uint32_t i = 0; i < element->num_indexes; i += 3) {
             RasPipelineVertex* pv1 = &mesh->verts[element->indexes[i]];
@@ -276,6 +277,24 @@ void* core_sg_visible_faces(void* input)
                 continue;
             }
 
+            /**
+             * @brief If dropped due to clipping exclusion, skip out to avoid
+             * adding the face to the visible faces list.
+             *
+             */
+            RasClipFlags face_clip_flags = pv1->clip_flags | pv2->clip_flags | pv3->clip_flags;
+            bool exclude = render_data->render_state->clipping_mode == RAS_CLIPPING_EXCLUDE;
+
+            if (face_clip_flags != 0 && exclude) {
+                num_faces_excluded++;
+                current_src_face_index++;
+                continue;
+            }
+
+            // The face will be added to:
+            // - visible indexes
+            // - visible faces
+            // - material indexes
             mesh->visible_indexes[*vi] = element->indexes[i];
             mesh->visible_indexes[*vi + 1] = element->indexes[i + 1];
             mesh->visible_indexes[*vi + 2] = element->indexes[i + 2];
@@ -287,17 +306,20 @@ void* core_sg_visible_faces(void* input)
             (*num_dest_materials)++;
 
             // Copy face
-            mesh->visible_faces[*num_dest_faces].normal = element->faces[current_src_face_index].normal;
-            mesh->visible_faces[*num_dest_faces].material_index = element->faces[current_src_face_index].material_index;
+            RasPipelineFace* face = &mesh->visible_faces[*num_dest_faces];
+            face->clip_flags = face_clip_flags;
+            face->normal = element->faces[current_src_face_index].normal;
+            face->material_index = element->faces[current_src_face_index].material_index;
             (*num_dest_faces)++;
             current_src_face_index++;
         }
 
         ras_log_buffer(
-            "Faces:\n    In Model: %d. In frustum: %d. Visible: %d.",
+            "Faces:\n    In Model: %d. In frustum: %d. Visible: %d. Excluded: %d. ",
             element->num_indexes / 3,
             render_data->num_faces_in_frustum[mesh_index],
-            mesh->num_visible_indexes / 3);
+            mesh->num_visible_indexes / 3,
+            num_faces_excluded);
     }
 }
 

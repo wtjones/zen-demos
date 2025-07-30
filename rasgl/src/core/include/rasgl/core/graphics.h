@@ -133,6 +133,7 @@ typedef struct RasPipelineFace {
     RasVector3f view_space_normal;
     int32_t material_index;
     RasFixed diffuse_intensity;
+    RasClipFlags clip_flags;
 } RasPipelineFace;
 
 typedef struct RasPipelineElement {
