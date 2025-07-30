@@ -318,4 +318,5 @@ void core_render_point(
     RasVector4f* screen_space_position,
     int32_t material);
 
+void core_render_line(RenderState* render_state, RasVector4f* p0, RasVector4f* p1);
 #endif

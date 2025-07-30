@@ -1,12 +1,13 @@
 #include "rasgl/core/aabb.h"
 #include "rasgl/core/clip.h"
+#include "rasgl/core/normals.h"
 #include "rasgl/core/repr.h"
 #include "rasgl/core/stages.h"
 
 void core_pipeline_init(RasPipeline* pipeline)
 {
     RasPipeline template = {
-        .num_stages = 9,
+        .num_stages = 10,
         .stages = {
             { .name = "core_sg_setup", core_sg_setup },
             { .name = "core_sg_xform_objects", core_sg_xform_objects },
@@ -16,7 +17,9 @@ void core_pipeline_init(RasPipeline* pipeline)
             { .name = "core_sg_project_verts", core_sg_project_verts },
             { .name = "core_sg_visible_faces", core_sg_visible_faces },
             { .name = "core_sg_xform_normals", core_sg_xform_normals },
-            { .name = "core_sg_lighting", core_sg_lighting } }
+            { .name = "core_sg_lighting", core_sg_lighting },
+            { .name = "core_sg_draw_normals", core_sg_draw_normals },
+        }
     };
 
     memcpy(pipeline, &template, sizeof(RasPipeline));
@@ -338,5 +341,22 @@ void* core_sg_lighting(void* input)
                 &camera_pos,
                 &light_pos);
         }
+    }
+}
+
+void* core_sg_draw_normals(void* input)
+{
+    RasRenderData* render_data = (RasRenderData*)input;
+
+    for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
+        uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
+        RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
+        RasFixed(*model_view_matrix)[4] = render_data->model_view_matrix[i];
+
+        core_draw_mesh_normals(
+            render_data->render_state,
+            mesh,
+            model_view_matrix,
+            render_data->projection_matrix);
     }
 }

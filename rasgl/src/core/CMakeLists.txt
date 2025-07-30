@@ -17,6 +17,7 @@ add_library(core
     matrix.c
     matrix_projection.c
     model.c
+    normals.c
     pipeline.c
     plane.c
     rasterize.c

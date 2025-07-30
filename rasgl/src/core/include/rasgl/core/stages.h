@@ -108,4 +108,6 @@ void* core_sg_xform_normals(void* input);
  * @return void*
  */
 void* core_sg_lighting(void* input);
+
+void* core_sg_draw_normals(void* input);
 #endif
