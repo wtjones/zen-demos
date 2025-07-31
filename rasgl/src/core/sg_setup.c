@@ -163,16 +163,16 @@ void* core_sg_xform_verts(void* input)
         RasPipelineElement* element = render_data->mesh_elements[i].element_ref;
         RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
 
-        RasFixed(*model_world_matrix)[4] = render_data->model_world_matrix[i];
-        RasFixed(*model_view_matrix)[4] = render_data->model_view_matrix[i];
-        RasFixed(*normal_mvt_matrix)[4] = render_data->normal_mvt_matrix[i];
+        RasFixed(*model_world_matrix)[4] = render_data->model_world_matrix[mesh_index];
+        RasFixed(*model_view_matrix)[4] = render_data->model_view_matrix[mesh_index];
+        RasFixed(*normal_mvt_matrix)[4] = render_data->normal_mvt_matrix[mesh_index];
 
         render_data->num_verts_in_frustum[mesh_index] = 0;
         mesh->num_verts = element->num_verts;
 
-        for (uint32_t i = 0; i < element->num_verts; i++) {
-            RasVertex* vertex = &element->verts[i];
-            RasPipelineVertex* pv = &mesh->verts[i];
+        for (uint32_t j = 0; j < element->num_verts; j++) {
+            RasVertex* vertex = &element->verts[j];
+            RasPipelineVertex* pv = &mesh->verts[j];
 
             RasFixed model_space_position[4];
             RasFixed view_space_position[4];
@@ -330,7 +330,7 @@ void* core_sg_xform_normals(void* input)
     for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
         uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
         RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
-        RasFixed(*normal_mvt_matrix)[4] = render_data->normal_mvt_matrix[i];
+        RasFixed(*normal_mvt_matrix)[4] = render_data->normal_mvt_matrix[mesh_index];
 
         for (uint32_t j = 0; j < mesh->num_visible_faces; j++) {
             RasPipelineFace* face = &mesh->visible_faces[j];
@@ -351,7 +351,7 @@ void* core_sg_lighting(void* input)
     for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
         uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
         RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
-        RasFixed(*normal_mvt_matrix)[4] = render_data->normal_mvt_matrix[i];
+        RasFixed(*normal_mvt_matrix)[4] = render_data->normal_mvt_matrix[mesh_index];
 
         for (uint32_t j = 0; j < mesh->num_visible_faces; j++) {
             RasPipelineFace* face = &mesh->visible_faces[j];
@@ -373,7 +373,7 @@ void* core_sg_draw_normals(void* input)
     for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
         uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
         RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
-        RasFixed(*model_view_matrix)[4] = render_data->model_view_matrix[i];
+        RasFixed(*model_view_matrix)[4] = render_data->model_view_matrix[mesh_index];
 
         core_draw_mesh_normals(
             render_data->render_state,
