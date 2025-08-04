@@ -78,7 +78,7 @@
 
 ### Pipeline
 
-- [ ] Fix culled object warping
+- [ ] Clip polygons added during clipping
 
 ## In Progress
 
@@ -168,3 +168,7 @@
 
 - [x] Shade points
 - [x] Cull points outside of frustum.
+
+### Pipeline
+
+- [x] Fix culled object warping

@@ -7,7 +7,7 @@
 void core_pipeline_init(RasPipeline* pipeline)
 {
     RasPipeline template = {
-        .num_stages = 10,
+        .num_stages = 11,
         .stages = {
             { .name = "core_sg_setup", core_sg_setup },
             { .name = "core_sg_xform_objects", core_sg_xform_objects },
@@ -19,7 +19,7 @@ void core_pipeline_init(RasPipeline* pipeline)
             { .name = "core_sg_xform_normals", core_sg_xform_normals },
             { .name = "core_sg_lighting", core_sg_lighting },
             { .name = "core_sg_draw_normals", core_sg_draw_normals },
-        }
+            { .name = "core_sg_clip_faces", core_sg_clip_faces } }
     };
 
     memcpy(pipeline, &template, sizeof(RasPipeline));
@@ -240,6 +240,8 @@ void* core_sg_project_verts(void* input)
 void* core_sg_visible_faces(void* input)
 {
     RasRenderData* render_data = (RasRenderData*)input;
+    size_t* num_faces_to_clip = &render_data->num_faces_to_clip;
+    *num_faces_to_clip = 0;
 
     for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
         uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
@@ -310,16 +312,26 @@ void* core_sg_visible_faces(void* input)
             face->clip_flags = face_clip_flags;
             face->normal = element->faces[current_src_face_index].normal;
             face->material_index = element->faces[current_src_face_index].material_index;
+
+            if (face_clip_flags != 0) {
+                RasMeshFace* mesh_face = &render_data->faces_to_clip[*num_faces_to_clip];
+                mesh_face->mesh_index = mesh_index;
+                mesh_face->face_index = *num_dest_faces;
+                mesh_face->clip_flags = face_clip_flags;
+                (*num_faces_to_clip)++;
+            }
+
             (*num_dest_faces)++;
             current_src_face_index++;
         }
 
         ras_log_buffer(
-            "Faces:\n    In Model: %d. In frustum: %d. Visible: %d. Excluded: %d. ",
+            "Faces:\n    In Model: %d. In frustum: %d. Visible: %d. Excluded: %d. To Clip: %d.",
             element->num_indexes / 3,
             render_data->num_faces_in_frustum[mesh_index],
             mesh->num_visible_indexes / 3,
-            num_faces_excluded);
+            num_faces_excluded,
+            *num_faces_to_clip);
     }
 }
 
@@ -380,5 +392,62 @@ void* core_sg_draw_normals(void* input)
             mesh,
             model_view_matrix,
             render_data->projection_matrix);
+    }
+}
+
+void* core_sg_clip_faces(void* input)
+{
+    RasRenderData* render_data = (RasRenderData*)input;
+
+    // FIXME: modify loop to cover faces adding durring clipping
+    for (size_t i = 0; i < render_data->num_faces_to_clip; i++) {
+        RasMeshFace* mesh_face = &render_data->faces_to_clip[i];
+        RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_face->mesh_index];
+        RasPipelineFace* face = &mesh->visible_faces[mesh_face->face_index];
+        uint32_t material_index = face->material_index;
+
+        ras_log_debug("Clipping face %zu of mesh %u", i, mesh_face->mesh_index);
+
+        uint32_t* indexes = &mesh->visible_indexes[mesh_face->face_index * 3];
+        size_t original_num_verts = mesh->num_verts;
+        core_clip_face(
+            &render_data->frustum,
+            mesh_face->clip_flags,
+            mesh,
+            indexes,
+            material_index,
+            mesh_face->face_index);
+
+        // Set flags and project vertices added during clipping.
+        for (size_t j = original_num_verts; j < mesh->num_verts; j++) {
+
+            RasPipelineVertex* pv = &mesh->verts[j];
+            core_set_pv_clip_flags(
+                &render_data->frustum, pv->aabb_clip_flags, pv);
+
+            RasFixed view_space_position[4];
+            RasFixed screen_space_vec[4];
+            RasFixed projected_vec[4];
+
+            // Project to screen space
+            core_vector3f_to_4x1(&pv->view_space_position, view_space_position);
+            // Screen space in NDC coords
+            mat_mul_project(
+                render_data->projection_matrix,
+                view_space_position,
+                projected_vec);
+
+            core_projected_to_screen_point(
+                render_data->render_state->screen_settings.screen_width,
+                render_data->render_state->screen_settings.screen_height,
+                projected_vec,
+                &pv->screen_space_position);
+
+            static char buffer[255];
+            ras_log_buffer_trace("pipeline screen space pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->screen_space_position));
+        }
+        ras_log_buffer(
+            "Projected %zu vertices added by clipping",
+            mesh->num_verts - original_num_verts);
     }
 }

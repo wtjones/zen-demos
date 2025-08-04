@@ -10,6 +10,16 @@ typedef struct {
     RasPipelineElement* element_ref;
 } RasMeshElement;
 
+/**
+ * @brief Mapping structure to identify faces to work in the pipeline.
+ *
+ */
+typedef struct {
+    uint32_t mesh_index;
+    uint32_t face_index;
+    RasClipFlags clip_flags;
+} RasMeshFace;
+
 typedef struct {
     RenderState* render_state;
     RasScene* scene;
@@ -39,6 +49,9 @@ typedef struct {
      */
     RasMeshElement mesh_elements[RAS_MAX_MESHES];
     size_t num_mesh_elements;
+
+    RasMeshFace faces_to_clip[RAS_MAX_MESHES * 10];
+    size_t num_faces_to_clip;
 
     RasPipelineVertexBuffer vert_buffer; // needed?
     uint32_t num_verts_in_frustum[RAS_MAX_SCENE_OBJECTS];
@@ -110,4 +123,6 @@ void* core_sg_xform_normals(void* input);
 void* core_sg_lighting(void* input);
 
 void* core_sg_draw_normals(void* input);
+
+void* core_sg_clip_faces(void* input);
 #endif

@@ -39,7 +39,7 @@ void pipeline_tests()
     core_pipeline_run(&pipeline, &data);
 }
 
-void pipeline_scene_tests()
+void pipeline_scene_test(const char* scene_path)
 {
     // arrange
     core_renderstates_init(states);
@@ -48,7 +48,7 @@ void pipeline_scene_tests()
     ras_log_info("Render state size: %zu", sizeof(RenderState));
     RasScene* scene = NULL;
 
-    RasResult result = core_load_scene("./tests/data/scene02.lsp", &scene);
+    RasResult result = core_load_scene(scene_path, &scene);
     assert(result == RAS_RESULT_OK);
 
     RasCamera* camera = &scene->cameras[0];
@@ -82,4 +82,10 @@ void pipeline_scene_tests()
 
     core_free_scene(&scene);
     ras_log_flush();
+}
+
+void pipeline_scene_tests()
+{
+    pipeline_scene_test("./tests/data/clip_a.lsp");
+    pipeline_scene_test("./tests/data/clip_b.lsp");
 }
