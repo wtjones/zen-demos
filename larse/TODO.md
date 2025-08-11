@@ -2,7 +2,6 @@
 
 ### Todo
 
-- [ ] Test coverage for decimal
 - [ ] Test coverage for integer
 - [ ] Test coverage for boolean
 - [ ] Add test framework
@@ -22,3 +21,4 @@
 - [x] Shell debug output should be optional
 - [x] Add log config to README
 - [x] Support single-line comments
+- [x] Test coverage for decimal

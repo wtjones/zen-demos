@@ -70,6 +70,25 @@ int test_parse_symbol()
     return 0;
 }
 
+int test_parse_fixed()
+{
+    LarNode* node;
+
+    LarParseResult result;
+    result = lar_parse_single("(vec 1.2 -1.879984)", &node);
+    assert(
+        strcmp(
+            node->list.nodes[0].atom.val_symbol, "vec")
+        == 0);
+    LarNode* fixed_01 = &node->list.nodes[1];
+    LarNode* fixed_02 = &node->list.nodes[2];
+    assert(fixed_01->node_type == LAR_NODE_ATOM_FIXED);
+    assert(fixed_01->atom.val_fixed == 78643);
+    assert(fixed_02->node_type == LAR_NODE_ATOM_FIXED);
+    assert(fixed_02->atom.val_fixed == -123206);
+    lar_free_expression(&node);
+}
+
 int test_parse_script()
 {
     const char* script_in = "(expr1 (howdy))\n"
@@ -228,6 +247,7 @@ TestFn test_fns[] = {
     { "TEST_PARSE_COMMENT", test_parse_comment },
     { "TEST_PARSE_FILE", test_parse_file },
     { "TEST_PARSE_SYMBOL", test_parse_symbol },
+    { "TEST_PARSE_FIXED", test_parse_fixed },
     { "TEST_PARSE_SINGLE", test_parse_single },
     { "TEST_PARSE_SCRIPT", test_parse_script },
     { "TEST_PARSE", test_parse },

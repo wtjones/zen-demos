@@ -92,13 +92,16 @@ LarParseResult parse_token_atom_integer(
     return LAR_PARSE_RESULT_OK;
 }
 
-int32_t decimal_to_fixed(char sign, char* whole, char* frac)
+LarFixed decimal_to_fixed(char sign, char* whole, char* frac)
 {
+    log_info("fractional part: %s, whole part: %s\n", frac, whole);
 
-    int32_t exp = pow(10, (int)strlen(frac));
-    int32_t frac_part = atoi(frac) * 65536 / exp;
-    log_debug("Fractional shifted: %d\n", frac_part);
-    LarFixed result = atoi(whole) * 65536 + frac_part;
+    int64_t exp = pow(10, (int)strlen(frac));
+    int64_t frac_part = (int64_t)atoi(frac) * INT64_C(65536) / exp;
+
+    log_debug("Fractional shifted: %lld\n", frac_part);
+    LarFixed result = (int64_t)atoi(whole) * INT64_C(65536) + frac_part;
+
     result *= (sign == '+' ? 1 : -1);
     return result;
 }
@@ -135,6 +138,7 @@ LarParseResult parse_token_atom_fixed(
     while ('\0' != ch[0] && !is_atom_end_char(ch[0])) {
         num_digits += isdigit(ch[0]) ? 1 : 0;
         num_decimal_points += ch[0] == '.' ? 1 : 0;
+
         // Advance the offset until decimal point found
         decimal_offset = ch[0] == '.' ? token_offset : decimal_offset;
         strcat(token, ch);
