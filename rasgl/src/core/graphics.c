@@ -231,43 +231,43 @@ void core_set_pv_clip_flags_alt(RasFrustum* view_frustum, RasClipFlags aabb_flag
 
     pv->clip_flags = 0;
 
-    if (aabb_flags & (1 << PLANE_NEAR)) {
+    if (aabb_flags & core_to_clip_flag(PLANE_NEAR)) {
         RasPlane* plane = &view_frustum->planes[PLANE_NEAR];
         bool outside = core_plane_vector_side(plane, &pv->view_space_position) == RAS_PLANE_SIDE_A;
         pv->clip_flags |= outside
-            ? (1 << PLANE_NEAR)
+            ? core_to_clip_flag(PLANE_NEAR)
             : 0;
     }
 
-    if (aabb_flags & (1 << PLANE_FAR)) {
+    if (aabb_flags & core_to_clip_flag(PLANE_FAR)) {
         RasPlane* plane = &view_frustum->planes[PLANE_FAR];
         bool outside = core_plane_vector_side(plane, &pv->view_space_position) == RAS_PLANE_SIDE_A;
         pv->clip_flags |= outside
-            ? (1 << PLANE_FAR)
+            ? core_to_clip_flag(PLANE_FAR)
             : 0;
     }
 
-    if (aabb_flags & (1 << PLANE_LEFT)) {
+    if (aabb_flags & core_to_clip_flag(PLANE_LEFT)) {
         pv->clip_flags |= pv->screen_space_position.x <= 0
-            ? (1 << PLANE_LEFT)
+            ? core_to_clip_flag(PLANE_LEFT)
             : 0;
     }
 
-    if (aabb_flags & (1 << PLANE_RIGHT)) {
+    if (aabb_flags & core_to_clip_flag(PLANE_RIGHT)) {
         pv->clip_flags |= pv->screen_space_position.x >= right_x
-            ? (1 << PLANE_RIGHT)
+            ? core_to_clip_flag(PLANE_RIGHT)
             : 0;
     }
 
-    if (aabb_flags & (1 << PLANE_TOP)) {
+    if (aabb_flags & core_to_clip_flag(PLANE_TOP)) {
         pv->clip_flags |= pv->screen_space_position.y <= 0
-            ? (1 << PLANE_TOP)
+            ? core_to_clip_flag(PLANE_TOP)
             : 0;
     }
 
-    if (aabb_flags & (1 << PLANE_BOTTOM)) {
+    if (aabb_flags & core_to_clip_flag(PLANE_BOTTOM)) {
         pv->clip_flags |= pv->screen_space_position.x >= bottom_y
-            ? (1 << PLANE_BOTTOM)
+            ? core_to_clip_flag(PLANE_BOTTOM)
             : 0;
     }
 }
@@ -319,7 +319,7 @@ void core_clip_poly_plane(
     int first_in = -1, second_in = -1;
     for (int i = 0; i < 3; i++) {
         RasPipelineVertex* pv = &pipeline_verts[indexes[i]];
-        bool is_in = !(pv->clip_flags & (1 << side));
+        bool is_in = !(pv->clip_flags & core_to_clip_flag(side));
         num_in += is_in ? 1 : 0;
         first_in = (first_in == -1 && num_in == 1 && is_in) ? i : first_in;
         second_in = (second_in == -1 && num_in == 2 && is_in) ? i : second_in;
@@ -560,8 +560,8 @@ void core_clip_poly(
         RasPipelineVertex* pv3 = &vertex_buffer->verts[indexes[2]];
         face_clip_flags = pv1->clip_flags | pv2->clip_flags | pv3->clip_flags;
 
-        uint8_t mask = 1 << i;
-        if (face_clip_flags & mask) {
+        RasClipFlags plane_flag = core_to_clip_flag((RasFrustumPlane)i);
+        if (face_clip_flags & plane_flag) {
             ras_log_buffer("PV clipping against plane %d\n", i);
             core_clip_poly_plane(
                 frustum, (RasFrustumPlane)i, vertex_buffer, indexes, material_index, face);

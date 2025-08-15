@@ -203,7 +203,9 @@ RasClipFlags core_point_in_frustum_planes(RasFrustum* frustum, RasVector3f* poin
         RasPlane* plane = &frustum->planes[p];
 
         bool outside = core_plane_vector_side(plane, point) == RAS_PLANE_SIDE_A;
-        flags = flags | outside << p;
+        if (outside) {
+            flags |= core_to_clip_flag(p);
+        }
     }
     return flags;
 }

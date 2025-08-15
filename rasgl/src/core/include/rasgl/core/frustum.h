@@ -32,6 +32,11 @@ typedef struct RasFrustum {
  */
 typedef uint8_t RasClipFlags;
 
+static inline RasClipFlags core_to_clip_flag(RasFrustumPlane plane)
+{
+    return 1 << plane;
+}
+
 /**
  * Extract the frustum from the combined view and projection matrices.
  */
