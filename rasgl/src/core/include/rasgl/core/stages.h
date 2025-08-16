@@ -104,6 +104,10 @@ void* core_sg_project_verts(void* input);
  * @param input
  * @return void*
  */
+/**
+ * @brief Set clip flags of projected vertices.
+ */
+void* core_sg_clip_flag_verts(void* input);
 void* core_sg_visible_faces(void* input);
 
 /**

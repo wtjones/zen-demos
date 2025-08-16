@@ -7,7 +7,7 @@
 void core_pipeline_init(RasPipeline* pipeline)
 {
     RasPipeline template = {
-        .num_stages = 11,
+        .num_stages = 12,
         .stages = {
             { .name = "core_sg_setup", core_sg_setup },
             { .name = "core_sg_xform_objects", core_sg_xform_objects },
@@ -15,6 +15,7 @@ void core_pipeline_init(RasPipeline* pipeline)
             { .name = "core_sg_render_aabb", core_sg_render_aabb },
             { .name = "core_sg_xform_verts", core_sg_xform_verts },
             { .name = "core_sg_project_verts", core_sg_project_verts },
+            { .name = "core_sg_clip_flag_verts", core_sg_clip_flag_verts },
             { .name = "core_sg_visible_faces", core_sg_visible_faces },
             { .name = "core_sg_xform_normals", core_sg_xform_normals },
             { .name = "core_sg_lighting", core_sg_lighting },
@@ -157,6 +158,7 @@ void* core_sg_render_aabb(void* input)
 void* core_sg_xform_verts(void* input)
 {
     RasRenderData* render_data = (RasRenderData*)input;
+    size_t xformed_verts = 0;
 
     for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
         uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
@@ -183,23 +185,14 @@ void* core_sg_xform_verts(void* input)
             mat_mul_4x4_4x1(model_view_matrix, model_space_position, view_space_position);
             core_4x1_to_vector3f(view_space_position, &pv->view_space_position);
 
-            core_set_pv_clip_flags(
-                &render_data->frustum,
-                render_data->aabb_clip_flags[mesh_index],
-                pv);
-
-            pv->aabb_clip_flags = render_data->aabb_clip_flags[mesh_index];
-
-            render_data->num_verts_in_frustum[mesh_index] += pv->clip_flags == 0 ? 1 : 0;
-
             pv->color = vertex->color;
             pv->u = vertex->u;
             pv->v = vertex->v;
         }
-        ras_log_debug(
-            "Transformed %d verts in frustum",
-            render_data->num_verts_in_frustum[mesh_index]);
     }
+    ras_log_buffer(
+        "Transformed %d verts",
+        xformed_verts);
 }
 
 void* core_sg_project_verts(void* input)
@@ -234,6 +227,36 @@ void* core_sg_project_verts(void* input)
             static char buffer[255];
             ras_log_buffer_trace("pipeline screen space pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->screen_space_position));
         }
+    }
+}
+
+void* core_sg_clip_flag_verts(void* input)
+{
+    RasRenderData* render_data = (RasRenderData*)input;
+
+    for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
+        uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
+        RasPipelineElement* element = render_data->mesh_elements[i].element_ref;
+        RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
+
+        render_data->num_verts_in_frustum[mesh_index] = 0;
+
+        for (uint32_t j = 0; j < element->num_verts; j++) {
+            RasPipelineVertex* pv = &mesh->verts[j];
+
+            core_set_pv_clip_flags(
+                &render_data->frustum,
+                render_data->aabb_clip_flags[mesh_index],
+                pv);
+
+            pv->aabb_clip_flags = render_data->aabb_clip_flags[mesh_index];
+
+            render_data->num_verts_in_frustum[mesh_index] += pv->clip_flags == 0 ? 1 : 0;
+        }
+        ras_log_buffer(
+            "Mesh id %d has %d verts in frustum",
+            mesh_index,
+            render_data->num_verts_in_frustum[mesh_index]);
     }
 }
 
