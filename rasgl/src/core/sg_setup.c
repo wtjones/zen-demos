@@ -201,7 +201,6 @@ void* core_sg_project_verts(void* input)
 
     for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
         uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
-        RasPipelineElement* element = render_data->mesh_elements[i].element_ref;
         RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
 
         for (size_t j = 0; j < mesh->num_verts; j++) {
@@ -236,12 +235,12 @@ void* core_sg_clip_flag_verts(void* input)
 
     for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
         uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
-        RasPipelineElement* element = render_data->mesh_elements[i].element_ref;
         RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
 
         render_data->num_verts_in_frustum[mesh_index] = 0;
 
-        for (uint32_t j = 0; j < element->num_verts; j++) {
+        for (uint32_t j = 0; j < mesh->num_verts; j++) {
+
             RasPipelineVertex* pv = &mesh->verts[j];
 
             core_set_pv_clip_flags(
