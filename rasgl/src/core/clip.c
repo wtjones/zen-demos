@@ -63,10 +63,6 @@ void core_clip_face_scenario2(
     RasPipelineVertex in_verts[3],
     RasClipFaceScenario* scenario)
 {
-    // RasPipelineVertex* pv0 = in_verts[0];
-    // RasPipelineVertex* pv1 = in_verts[1];
-    // RasPipelineVertex* pv2 = in_verts[2];
-
     char buffer[255];
 
     scenario->num_in = 0;
