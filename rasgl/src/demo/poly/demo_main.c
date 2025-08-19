@@ -203,9 +203,9 @@ void ras_selected_object_update(__attribute__((unused)) InputState* input_state)
     if (!cmp_point3f(model_pos, &model_pos_prev)
         || !cmp_point3f(model_rotation, &model_rot_prev)) {
         char buffer[100];
-        ras_log_info(
+        ras_log_buffer(
             "model_pos: %s", repr_point3f(buffer, sizeof(buffer), model_pos));
-        ras_log_info(
+        ras_log_buffer(
             "model_rot: %s", repr_point3f(buffer, sizeof(buffer), model_rotation));
     }
 }
