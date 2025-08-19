@@ -24,25 +24,27 @@ typedef struct RasClipFaceScenario {
     int second_in;
 } RasClipFaceScenario;
 
-void core_clip_face_scenario(
-    RasFrustum* frustum,
-    RasFrustumPlane side,
-    RasPipelineMesh* mesh,
-    uint32_t indexes[3],
-    // output
-    RasClipFaceScenario* scenario);
-
 void core_set_pv_clip_flags(
     RasFrustum* view_frustum,
     RasClipFlags aabb_flags,
     RasPipelineVertex* pv);
 
+/**
+ * @brief Perform Sutherland–Hodgman clipping.
+ *
+ * @param frustum
+ * @param face_clip_flags
+ * @param in_verts
+ * @param out_verts
+ * @param num_out_verts
+ * @param max_out_verts
+ */
 void core_clip_face(
     RasFrustum* frustum,
     RasClipFlags face_clip_flags,
-    RasPipelineMesh* mesh,
-    uint32_t in_indexes[3],
-    int32_t material_index,
-    uint32_t face_index);
+    RasPipelineVertex* in_verts[3],
+    RasPipelineVertex* out_verts,
+    size_t* num_out_verts,
+    size_t max_out_verts);
 
 #endif

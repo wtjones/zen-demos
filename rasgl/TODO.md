@@ -78,7 +78,7 @@
 
 ### Pipeline
 
-- [ ] Clip polygons added during clipping
+- [ ] Copy materials in new clipping pipeline.
 
 ## In Progress
 
@@ -172,3 +172,4 @@
 ### Pipeline
 
 - [x] Fix culled object warping
+- [x] Clip polygons added during clipping

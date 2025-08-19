@@ -59,24 +59,10 @@ void core_set_pv_clip_flags(
 }
 
 void core_clip_face_scenario(
-    RasFrustum* frustum,
     RasFrustumPlane side,
-    RasPipelineMesh* mesh,
-    uint32_t indexes[3],
+    RasPipelineVertex in_verts[3],
     RasClipFaceScenario* scenario)
 {
-    assert(mesh->num_verts < MAX_PIPELINE_VERTS);
-    RasPlane* plane = &frustum->planes[side];
-    RasPipelineVertex* pipeline_verts = &mesh->verts[0];
-
-    RasPipelineVertex* pv_0 = &pipeline_verts[indexes[0]];
-    RasPipelineVertex* pv_1 = &pipeline_verts[indexes[1]];
-    RasPipelineVertex* pv_2 = &pipeline_verts[indexes[2]];
-
-    RasPipelineVertex* cur_pv = &pipeline_verts[indexes[0]];
-    RasVector3f* cur_vert = &cur_pv->view_space_position;
-    RasPipelineVertex* next_pv = &pipeline_verts[indexes[1]];
-    RasVector3f* next_vert = &next_pv->view_space_position;
     char buffer[255];
 
     scenario->num_in = 0;
@@ -84,15 +70,15 @@ void core_clip_face_scenario(
     scenario->second_in = -1;
 
     for (int i = 0; i < 3; i++) {
-        RasPipelineVertex* pv = &pipeline_verts[indexes[i]];
+        RasPipelineVertex* pv = &in_verts[i];
         bool is_in = !(pv->clip_flags & core_to_clip_flag(side));
         scenario->num_in += is_in ? 1 : 0;
         scenario->first_in = (scenario->first_in == -1 && scenario->num_in == 1 && is_in) ? i : scenario->first_in;
         scenario->second_in = (scenario->second_in == -1 && scenario->num_in == 2 && is_in) ? i : scenario->second_in;
     }
 
-    ras_log_buffer("cpp: num_in: %d\n", scenario->num_in);
-    ras_log_buffer("cpp: first_in: %d, 2nd_in: %d\n", scenario->first_in, scenario->second_in);
+    ras_log_buffer("scenario: num_in: %d\n", scenario->num_in);
+    ras_log_buffer("scenario: first_in: %d, 2nd_in: %d\n", scenario->first_in, scenario->second_in);
 }
 
 /**
@@ -109,9 +95,8 @@ void core_clip_face_scenario(
  */
 void core_clip_face_a(
     RasPlane* plane,
-    RasPipelineVertex* verts,
-    uint32_t* num_verts,
-    uint32_t indexes[3],
+    RasPipelineVertex in_verts[3],
+    RasPipelineVertex out_verts[3],
     RasClipFaceScenario* scenario)
 {
 
@@ -122,19 +107,18 @@ void core_clip_face_a(
 
     ras_log_buffer("clip_a: A = %d, B = %d, C = %d\n", index_a, index_b, index_c);
 
-    int pv_a_index = indexes[index_a];
-    int pv_b_index = indexes[index_b];
-    int pv_c_index = indexes[index_c];
+    RasPipelineVertex* pv_a = &in_verts[index_a];
+    RasPipelineVertex* pv_b = &in_verts[index_b];
+    RasPipelineVertex* pv_c = &in_verts[index_c];
 
-    RasPipelineVertex* pv_a = &verts[indexes[index_a]];
-    RasPipelineVertex* pv_b = &verts[indexes[index_b]];
-    RasPipelineVertex* pv_c = &verts[indexes[index_c]];
+    // Copy pv_a to the first element of the output.
+    memcpy(&out_verts[0], pv_a, sizeof(RasPipelineVertex));
 
-    // Allocate vertices B' and C' on the pv array
-    uint32_t pv_b_alt_index = (*num_verts)++;
-    RasPipelineVertex* pv_b_alt = &verts[pv_b_alt_index];
-    uint32_t pv_c_alt_index = (*num_verts)++;
-    RasPipelineVertex* pv_c_alt = &verts[pv_c_alt_index];
+    // Allocate vertices B' and C' on the output array.
+    uint32_t pv_b_alt_index = 1;
+    RasPipelineVertex* pv_b_alt = &out_verts[pv_b_alt_index];
+    uint32_t pv_c_alt_index = 2;
+    RasPipelineVertex* pv_c_alt = &out_verts[pv_c_alt_index];
 
     pv_b_alt->aabb_clip_flags = pv_b->aabb_clip_flags;
     pv_c_alt->aabb_clip_flags = pv_c->aabb_clip_flags;
@@ -153,15 +137,8 @@ void core_clip_face_a(
         &pv_c_alt->view_space_position);
 
     char buffer[255];
-    ras_log_buffer("clip a: pv_b_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_b_alt->view_space_position));
-    ras_log_buffer("clip a: pv_c_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_c_alt->view_space_position));
-
-    // Connect A -> B'
-    indexes[0] = pv_a_index;
-    indexes[1] = pv_b_alt_index;
-
-    // Connect B' -> C' -> A
-    indexes[2] = pv_c_alt_index;
+    ras_log_buffer("clip a2: pv_b_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_b_alt->view_space_position));
+    ras_log_buffer("clip a2: pv_c_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_c_alt->view_space_position));
 }
 
 /**
@@ -179,14 +156,10 @@ void core_clip_face_a(
  */
 void core_clip_face_b(
     RasPlane* plane,
-    RasPipelineMesh* mesh,
-    uint32_t indexes[3],
-    uint32_t face_index,
+    RasPipelineVertex in_verts[3],
+    RasPipelineVertex out_verts[6],
     RasClipFaceScenario* scenario)
 {
-
-    RasPipelineFace* original_face = &mesh->visible_faces[face_index];
-
     // Identify vertex A
     int index_a = -1, index_b = -1, index_c = -1;
 
@@ -224,21 +197,30 @@ void core_clip_face_b(
         assert(true);
     }
 
-    ras_log_buffer("cpp: A = %d, B = %d, C = %d\n", index_a, index_b, index_c);
+    ras_log_buffer("clip_face_b: A = %d, B = %d, C = %d\n", index_a, index_b, index_c);
 
-    int pv_a_index = indexes[index_a];
-    int pv_b_index = indexes[index_b];
-    int pv_c_index = indexes[index_c];
+    RasPipelineVertex* pv_a = &in_verts[index_a];
+    RasPipelineVertex* pv_b = &in_verts[index_b];
+    RasPipelineVertex* pv_c = &in_verts[index_c];
 
-    RasPipelineVertex* pv_a = &mesh->verts[indexes[index_a]];
-    RasPipelineVertex* pv_b = &mesh->verts[indexes[index_b]];
-    RasPipelineVertex* pv_c = &mesh->verts[indexes[index_c]];
+    // Desired structure of out_verts
+    // Face 0: A -> A' -> B
+    // [0] pv_a
+    // [1] pv_alt_a
+    // [2] pv_b
+    // Face 1: A' -> B' -> B
+    // [3] pv_alt_a
+    // [4] pv_alt_b
+    // [5] pv_b
+
+    // Copy pv_a, pv_b the output.
+    memcpy(&out_verts[0], pv_a, sizeof(RasPipelineVertex));
+    memcpy(&out_verts[2], pv_b, sizeof(RasPipelineVertex));
+    memcpy(&out_verts[5], pv_b, sizeof(RasPipelineVertex));
 
     // Allocate vertices A' and B' on the pv array
-    uint32_t pv_a_alt_index = mesh->num_verts++;
-    RasPipelineVertex* pv_a_alt = &mesh->verts[pv_a_alt_index];
-    uint32_t pv_b_alt_index = mesh->num_verts++;
-    RasPipelineVertex* pv_b_alt = &mesh->verts[pv_b_alt_index];
+    RasPipelineVertex* pv_a_alt = &out_verts[1];
+    RasPipelineVertex* pv_b_alt = &out_verts[4];
 
     pv_a_alt->aabb_clip_flags = pv_a->aabb_clip_flags;
     pv_b_alt->aabb_clip_flags = pv_b->aabb_clip_flags;
@@ -261,77 +243,124 @@ void core_clip_face_b(
     ras_log_buffer("cpp: clip: pv_a_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_a_alt->view_space_position));
     ras_log_buffer("cpp: clip: pv_b_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_b_alt->view_space_position));
 
-    uint32_t* vi = &mesh->num_visible_indexes;
-
-    // The first face is the repurposed face.
-    // Connect A -> A' -> B
-    indexes[0] = pv_a_index;
-    indexes[1] = pv_a_alt_index;
-    indexes[2] = pv_b_index;
-
-    // Connect A' -> B' -> B
-    mesh->visible_indexes[(*vi)++] = pv_a_alt_index;
-    mesh->visible_indexes[(*vi)++] = pv_b_alt_index;
-    mesh->visible_indexes[(*vi)++] = pv_b_index;
-
-    uint32_t* mi = &mesh->num_material_indexes;
-
-    mesh->material_indexes[*mi] = mesh->material_indexes[face_index];
-    (*mi)++;
-
-    // Copy the original face to the new face
-    uint32_t* num_dest_faces = &mesh->num_visible_faces;
-    RasPipelineFace* new_face = &mesh->visible_faces[*num_dest_faces];
-    (*num_dest_faces)++;
-    memcpy(new_face, original_face, sizeof(RasPipelineFace));
-
-    ras_log_buffer("clip_b: new face index: %d\n", *num_dest_faces - 1);
+    // Copy A' vert from first face to 2nd
+    memcpy(&out_verts[3], pv_a_alt, sizeof(RasPipelineVertex));
 }
 
 void core_clip_face(
     RasFrustum* frustum,
     RasClipFlags face_clip_flags,
-    RasPipelineMesh* mesh,
-    uint32_t indexes[3],
-    int32_t material_index,
-    uint32_t face_index)
+    RasPipelineVertex* in_verts[3],
+    RasPipelineVertex* out_verts,
+    size_t* num_out_verts,
+    size_t max_out_verts)
+
 {
+    /**
+     * // Sutherland–Hodgman pseudocode
+     * triangles_in = [original triangle]
+     *
+     *  for each plane in frustum:
+     *      triangles_out = []
+     *
+     *      for each tri in triangles_in:
+     *          clipped = clip_triangle_against_plane(tri, plane)
+     *          for each t in clipped:   // 0, 1, or 2 triangles
+     *              triangles_out.append(t)
+     *
+     *      triangles_in = triangles_out
+     */
+    static RasPipelineVertex work_in_verts[RAS_MAX_MODEL_VERTS];
+    static RasPipelineVertex work_out_verts[RAS_MAX_MODEL_VERTS];
+    memcpy(&work_in_verts[0], in_verts[0], sizeof(RasPipelineVertex));
+    memcpy(&work_in_verts[1], in_verts[1], sizeof(RasPipelineVertex));
+    memcpy(&work_in_verts[2], in_verts[2], sizeof(RasPipelineVertex));
+    size_t num_in_verts = 3;
+
     for (uint8_t i = 0; i < FRUSTUM_PLANES; i++) {
+        RasPlane* plane = &frustum->planes[i];
 
-        // recalc flags as the face may point to new verts
-        RasPipelineVertex* pv1 = &mesh->verts[indexes[0]];
-        RasPipelineVertex* pv2 = &mesh->verts[indexes[1]];
-        RasPipelineVertex* pv3 = &mesh->verts[indexes[2]];
-        face_clip_flags = pv1->clip_flags | pv2->clip_flags | pv3->clip_flags;
+        *num_out_verts = 0;
 
-        RasClipFlags plane_flag = core_to_clip_flag((RasFrustumPlane)i);
-        if (face_clip_flags & plane_flag) {
-            ras_log_buffer("PV clipping against plane %d\n", i);
+        for (size_t j = 0; j < num_in_verts; j += 3) {
+            RasPipelineVertex* pv0 = &work_in_verts[j];
+            RasPipelineVertex* pv1 = &work_in_verts[j + 1];
+            RasPipelineVertex* pv2 = &work_in_verts[j + 2];
 
             RasClipFaceScenario scenario;
-
             core_clip_face_scenario(
-                frustum, (RasFrustumPlane)i, mesh, indexes, &scenario);
+                (RasFrustumPlane)i,
+                &work_in_verts[j],
+                &scenario);
 
             if (scenario.num_in == 1) {
-                core_clip_face_a(
-                    &frustum->planes[i],
-                    mesh->verts,
-                    &mesh->num_verts,
-                    indexes,
-                    &scenario);
-            }
 
-            else if (scenario.num_in == 2) {
-                core_clip_face_b(
-                    &frustum->planes[i],
-                    mesh,
-                    indexes,
-                    face_index,
+                core_clip_face_a(
+                    plane,
+                    &work_in_verts[j],
+                    &work_out_verts[*num_out_verts],
                     &scenario);
-            } else {
-                assert(true);
+
+                *num_out_verts += 3;
+
+                core_set_pv_clip_flags(
+                    frustum,
+                    work_out_verts[1].aabb_clip_flags,
+                    &work_out_verts[1]);
+
+                if (work_out_verts[1].clip_flags & core_to_clip_flag(i)) {
+                    ras_log_buffer("Not expecting clip flag %d to remain.", i);
+                    work_out_verts[1].clip_flags &= ~core_to_clip_flag(i);
+                }
+
+                core_set_pv_clip_flags(
+                    frustum,
+                    work_out_verts[2].aabb_clip_flags,
+                    &work_out_verts[2]);
+
+                if (work_out_verts[2].clip_flags & core_to_clip_flag(i)) {
+                    ras_log_buffer("Not expecting clip flag %d to remain.", i);
+                    work_out_verts[2].clip_flags &= ~core_to_clip_flag(i);
+                }
+
+            } else if (scenario.num_in == 2) {
+
+                core_clip_face_b(
+                    plane,
+                    &work_in_verts[j],
+                    &work_out_verts[*num_out_verts],
+                    &scenario);
+
+                *num_out_verts += 6;
+
+                uint32_t new_verts[] = { 1, 3, 4 };
+
+                for (uint32_t k = 0; k < 3; k++) {
+                    core_set_pv_clip_flags(
+                        frustum,
+                        work_out_verts[new_verts[k]].aabb_clip_flags,
+                        &work_out_verts[new_verts[k]]);
+
+                    if (work_out_verts[new_verts[k]].clip_flags & core_to_clip_flag(i)) {
+                        ras_log_buffer("Not expecting clip flag %d to remain.", i);
+                        work_out_verts[new_verts[k]].clip_flags &= ~core_to_clip_flag(i);
+                    }
+                }
+
+            } else if (scenario.num_in == 3) {
+                ras_log_buffer("clip2: num_in: %d\n", scenario.num_in);
+                ras_log_buffer("clip2: first_in: %d, 2nd_in: %d\n", scenario.first_in, scenario.second_in);
+                memcpy(
+                    &work_out_verts[*num_out_verts],
+                    &work_in_verts[j],
+                    sizeof(RasPipelineVertex) * 3);
+                *num_out_verts += 3;
             }
         }
+
+        memcpy(work_in_verts, work_out_verts, sizeof(RasPipelineVertex) * *num_out_verts);
+        num_in_verts = *num_out_verts;
     }
+
+    memcpy(out_verts, work_in_verts, sizeof(RasPipelineVertex) * num_in_verts);
 }
