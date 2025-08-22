@@ -72,6 +72,17 @@ void ras_camera_update(RasCamera* camera, InputState* input_state)
             ras_log_debug("FOV: %f\n", camera->fov);
         }
     }
+
+    if (input_state->keys[RAS_KEY_LEFTBRACKET] == RAS_KEY_EVENT_DOWN
+        && input_state->mods & RAS_KMOD_CTRL) {
+        camera->far -= (camera->far - RAS_PLANE_SPEED) < RAS_FAR_PLANE_MIN
+            ? camera->far - RAS_FAR_PLANE_MIN
+            : RAS_PLANE_SPEED;
+    }
+    if (input_state->keys[RAS_KEY_RIGHTBRACKET] == RAS_KEY_EVENT_DOWN
+        && input_state->mods & RAS_KMOD_CTRL) {
+        camera->far += RAS_PLANE_SPEED;
+    }
     if (input_state->keys[RAS_KEY_P] == RAS_KEY_EVENT_UP
         && input_state->mods & RAS_KMOD_CTRL) {
         camera->projection_mode = camera->projection_mode == RAS_PERSPECTIVE_MATRIX

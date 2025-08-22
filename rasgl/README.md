@@ -273,13 +273,15 @@ Demonstrates movement controls over world geometry.
 
 #### Controls
 
-| Action             | Key                |
-|--------------------|--------------------|
-| Move camera        | WASD               |
-| Rotate camera      | Q/E                |
-| Move up/down       | Z/C                |
-| Toggle view mode   | TAB                |
-| Adjust FOV         | left/right bracket |
+| Action             | Key                  |
+|--------------------|----------------------|
+| Move camera        | WASD                 |
+| Rotate camera      | Q/E                  |
+| Move up/down       | Z/C                  |
+| Toggle view mode   | TAB                  |
+| Adjust FOV         | left/right bracket   |
+| Decrease far plane | left bracket + ctrl  |
+| Increase far plane | right bracket + ctrl |
 
 ### Demo: poly
 
