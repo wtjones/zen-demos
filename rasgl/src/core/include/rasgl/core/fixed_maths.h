@@ -10,6 +10,7 @@
 #define RAS_FIXED_MIN (-32768 << 16)
 #define RAS_FIXED_ZERO 0
 #define RAS_FIXED_ONE INT_32_TO_FIXED_16_16(1)
+#define RAS_FIXED_TWO INT_32_TO_FIXED_16_16(2)
 
 /**
  * Represents a 16.16 fixed-point value.

@@ -25,9 +25,8 @@
 
 ### Clipping - Polygon
 
-- [ ] Fix assert on certain far plane clip scenarios
-- [ ] Fix assert when a triangle is rotating and clipping on the left side
 - [ ] AABB should remain correct when model rotates
+- [ ] Fix disappearing poly in some near camera clipping cases.
 
 ### Math
 
@@ -117,6 +116,8 @@
 - [x] Clip faces that intersect frustum
 - [x] Recalc clip flags when new PVs added
 - [x] Carry over pipeline face to clipped polys
+- [x] Fix assert on certain far plane clip scenarios
+- [x] Fix assert when a triangle is rotating and clipping on the left side
 
 ### Models
 
