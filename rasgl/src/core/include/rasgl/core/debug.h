@@ -28,26 +28,32 @@
             fprintf(stderr, fmt, __VA_ARGS__); \
     } while (0)
 
-#define ras_log_trace(...) log_log(LOG_TRACE, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_debug(...) log_log(LOG_DEBUG, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_info(...) log_log(LOG_INFO, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_warn(...) log_log(LOG_WARN, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_error(...) log_log(LOG_ERROR, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_fatal(...) log_log(LOG_FATAL, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_buffer(...) core_log_buffer(LOG_INFO, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_buffer_trace(...) core_log_buffer(LOG_TRACE, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_buffer_info(...) core_log_buffer(LOG_INFO, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_trace(...) log_log(LOG_TRACE, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_debug(...) log_log(LOG_DEBUG, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_info(...) log_log(LOG_INFO, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_info_ex(category, ...) log_log(LOG_INFO, category, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_warn(...) log_log(LOG_WARN, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_warn_ex(category, ...) log_log(LOG_WARN, category, __FILE_NAME__, __LINE__, __VA_ARGS__)
+
+#define ras_log_error(...) log_log(LOG_ERROR, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_fatal(...) log_log(LOG_FATAL, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_buffer(...) core_log_buffer(LOG_INFO, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_buffer_ex(category, ...) core_log_buffer(LOG_INFO, category, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_buffer_trace(...) core_log_buffer(LOG_TRACE, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_buffer_info(...) core_log_buffer(LOG_INFO, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
 
 typedef enum RasResult {
     RAS_RESULT_OK,
     RAS_RESULT_ERROR
 } RasResult;
 
-void core_log_buffer(int level, const char* file, int line, const char* fmt, ...);
+void core_log_buffer(int level, int category, const char* file, int line, const char* fmt, ...);
 
 void ras_log_flush();
 
 void ras_log_clear();
+
+void ras_log_summary_flush();
 
 #define RAS_CHECK_RESULT(result)                  \
     if ((result) != RAS_RESULT_OK) {              \

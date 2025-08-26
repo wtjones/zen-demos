@@ -1,0 +1,36 @@
+#ifndef CORE_EVENT_H
+#define CORE_EVENT_H
+
+#include "log.c/src/log.h"
+#include <stddef.h>
+#include <stdint.h>
+
+#define RAS_EVENT_SUMMARY_MESSAGE_MAX 255
+#define RAS_EVENT_SUMMARY_NAME_MAX 24
+#define RAS_EVENT_SUMMARY_ITEMS_MAX 16
+
+typedef enum {
+    RAS_EVENT_NONE = 0,
+    RAS_EVENT_SCENE_OBJECT_CHANGE,
+    RAS_EVENT_TEST_FIXTURE,
+    RAS_EVENT_COUNT
+} RasEventType;
+
+typedef struct {
+    char name[RAS_EVENT_SUMMARY_NAME_MAX];
+    uint32_t occurrences;
+    char last_message[RAS_EVENT_SUMMARY_MESSAGE_MAX];
+} RasEventSummaryItem;
+
+void core_event_summary_init();
+void core_event_summary_output();
+
+void core_event_summary_update(
+    RasEventType event_type,
+    const char* message);
+
+char* core_repr_event_summary(char* buffer, size_t count, RasEventSummaryItem* event);
+
+void core_event_summary_cb(log_Event* log_event);
+
+#endif

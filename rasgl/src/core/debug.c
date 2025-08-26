@@ -1,5 +1,6 @@
 
 #include "rasgl/core/debug.h"
+#include "rasgl/core/event.h"
 #include <assert.h>
 #include <string.h>
 
@@ -29,7 +30,7 @@ void ras_log_flush()
         size_t message_length = strlen(message) + 1;
         offset += message_length;
 
-        log_log(level, file, line, message);
+        log_log(level, 0, file, line, message);
     }
 }
 
@@ -39,7 +40,7 @@ void ras_log_clear()
     log_buffer_offset = 0;
 }
 
-void core_log_buffer(int level, const char* file, int line, const char* fmt, ...)
+void core_log_buffer(int level, int category, const char* file, int line, const char* fmt, ...)
 {
     char buffer[1000];
     va_list args;
@@ -73,4 +74,6 @@ void core_log_buffer(int level, const char* file, int line, const char* fmt, ...
     size_t message_length = strlen(buffer) + 1; // +1 for the null terminator
     memcpy(log_buffer + log_buffer_offset, buffer, message_length);
     log_buffer_offset += message_length;
+
+    core_event_summary_update(category, buffer);
 }
