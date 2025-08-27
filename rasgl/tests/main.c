@@ -1,5 +1,6 @@
 #include "rasgl/core/console.h"
 #include "rasgl/core/debug.h"
+#include "rasgl/core/event.h"
 #include "rasgl/core/fixed_maths.h"
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/line_buffer.h"
@@ -569,6 +570,18 @@ void string_tests()
     assert(!is_whitespace("  Foo Bar "));
 }
 
+void event_summary_tests()
+{
+    ras_log_warn_ex(RAS_EVENT_SC_OBJ_CHANGE, "Event summary tests... num: %zu", 55);
+    ras_log_warn_ex(RAS_EVENT_SC_OBJ_MOVE, "Event summary tests... num: %zu", 57);
+    ras_log_warn_ex(RAS_EVENT_TEST_FIXTURE, "Event summary tests... num: %zu", 58);
+    ras_log_buffer_ex(RAS_EVENT_TEST_FIXTURE, "Test buffer wrap %zu.", 88);
+
+    ras_log_summary_flush();
+
+    return;
+}
+
 int main()
 {
     FILE* log_file = fopen("/tmp/rasgl.log", "w");
@@ -576,6 +589,7 @@ int main()
     log_add_fp(log_file, RAS_LOG_LEVEL_FILE);
     log_set_level(LOG_INFO);
     log_set_quiet(false);
+    ras_log_init();
 
     ras_log_info("rasgl tests...\n");
     ras_log_trace("%s\n", "DEBUG = 1");
@@ -597,5 +611,7 @@ int main()
     interpolate_tests();
     rasterize_tri_tests();
     pipeline_scene_tests();
+    event_summary_tests();
+
     return 0;
 }

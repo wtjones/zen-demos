@@ -7,6 +7,7 @@ add_library(core
     clip.c
     console.c
     debug.c
+    event.c
     frustum.c
     graphics.c
     grid.c

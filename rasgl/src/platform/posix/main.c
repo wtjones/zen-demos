@@ -426,6 +426,7 @@ int main(int argc, const char** argv)
     log_add_fp(log_file, RAS_LOG_LEVEL_FILE);
     log_set_level(RAS_LOG_LEVEL_STRERR);
     log_set_quiet(false);
+    ras_log_init();
     ras_log_info("Set file log level: %s", log_level_string(RAS_LOG_LEVEL_FILE));
 
     ras_log_info("Starting SDL...");
@@ -648,6 +649,7 @@ int main(int argc, const char** argv)
     }
 
     core_console_free(console);
+    ras_log_summary_flush();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(win);
 

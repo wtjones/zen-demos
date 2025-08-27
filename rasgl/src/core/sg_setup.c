@@ -1,5 +1,6 @@
 #include "rasgl/core/aabb.h"
 #include "rasgl/core/clip.h"
+#include "rasgl/core/event.h"
 #include "rasgl/core/normals.h"
 #include "rasgl/core/repr.h"
 #include "rasgl/core/stages.h"
@@ -400,7 +401,8 @@ void* core_sg_visible_faces(void* input)
             current_src_face_index++;
         }
 
-        ras_log_buffer(
+        ras_log_buffer_ex(
+            RAS_EVENT_SG_SUMMARY,
             "Faces:\n    In Model: %d. In frustum: %d. Visible: %d. Excluded: %d. To Clip: %d.",
             element->num_indexes / 3,
             render_data->num_faces_in_frustum[mesh_index],

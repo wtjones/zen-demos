@@ -316,3 +316,11 @@ For each visible face, compute:
 Compute the view-space Z by transforming each vertex of the face with the view matrix and averaging the Z values.
 
 Use a simple sort algorithm (quick sort, radix sort, etc.) on depth, in back-to-front order (larger Z rendered first for transparency).
+
+## Event summary
+
+`ras_log_info("[scene-object] model pos: %s", repr_...);`
+
+| event_name   | level | last_occurred_at | num_occurred |
+| ------------ | ----- | ---------------- | ------------ |
+| scene-object | INFO  | 24234            | 12           |

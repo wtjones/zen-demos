@@ -2,6 +2,7 @@
 #include "rasgl/core/clip.h"
 #include "rasgl/core/color.h"
 #include "rasgl/core/debug.h"
+#include "rasgl/core/event.h"
 #include "rasgl/core/normals.h"
 #include "rasgl/core/repr.h"
 
@@ -290,7 +291,9 @@ void core_get_line_plane_intersect(
 
     // For intersection to be valid, vertices must be on opposite sides
     if ((pv_a_side > 0 && pv_b_side > 0) || (pv_a_side < 0 && pv_b_side < 0)) {
-        ras_log_warn("Warning: both vertices on same side of plane");
+        ras_log_buffer_warn_ex(
+            RAS_EVENT_INVALID_MATH,
+            "Warning: both vertices on same side of plane");
 
         RasVector3f midpoint;
         midpoint.x = div_fixed_16_16_by_fixed_16_16(v1->x + v2->x, RAS_FIXED_TWO);
