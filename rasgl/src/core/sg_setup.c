@@ -311,15 +311,16 @@ void* core_sg_visible_faces(void* input)
              *
              */
             RasClipFlags face_clip_flags = pv1->clip_flags | pv2->clip_flags | pv3->clip_flags;
-            bool exclude = render_data->render_state->clipping_mode == RAS_CLIPPING_EXCLUDE;
+            bool clip_exclude = render_data->render_state->clipping_mode == RAS_CLIPPING_EXCLUDE;
+            bool clip_on = render_data->render_state->clipping_mode == RAS_CLIPPING_ON;
 
-            if (face_clip_flags != 0 && exclude) {
+            if (face_clip_flags != 0 && clip_exclude) {
                 num_faces_excluded++;
                 current_src_face_index++;
                 continue;
             }
 
-            if (face_clip_flags != 0) {
+            if (face_clip_flags != 0 && clip_on) {
                 ras_log_buffer("scenario: face_clip_flags: %d\n", face_clip_flags);
                 RasPipelineVertex* in_verts[3] = { pv1, pv2, pv3 };
                 RasPipelineVertex out_verts[RAS_MAX_MODEL_VERTS];
