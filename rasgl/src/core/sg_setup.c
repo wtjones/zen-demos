@@ -275,6 +275,7 @@ void* core_sg_visible_faces(void* input)
         *num_dest_materials = 0;
 
         render_data->num_faces_in_frustum[mesh_index] = 0;
+        render_data->num_backfaces[mesh_index] = 0;
         uint32_t current_src_face_index = 0;
         uint16_t num_faces_excluded = 0;
 
@@ -295,6 +296,9 @@ void* core_sg_visible_faces(void* input)
                 &pv1->screen_space_position,
                 &pv2->screen_space_position,
                 &pv3->screen_space_position);
+
+            render_data->num_backfaces[mesh_index] += is_backface ? 1 : 0;
+
             bool is_culling = render_data->render_state->backface_culling_mode == RAS_BACKFACE_CULLING_ON;
             if (is_backface && is_culling) {
                 current_src_face_index++;
@@ -403,12 +407,13 @@ void* core_sg_visible_faces(void* input)
 
         ras_log_buffer_ex(
             RAS_EVENT_SG_SUMMARY,
-            "Faces:\n    In Model: %d. In frustum: %d. Visible: %d. Excluded: %d. To Clip: %d.",
+            "Faces:\n    In Model: %d. In frustum: %d. Visible: %d. Excluded: %d. To Clip: %d. Backfaces: %d.",
             element->num_indexes / 3,
             render_data->num_faces_in_frustum[mesh_index],
             mesh->num_visible_indexes / 3,
             num_faces_excluded,
-            *num_faces_to_clip);
+            *num_faces_to_clip,
+            render_data->num_backfaces[mesh_index]);
     }
 }
 

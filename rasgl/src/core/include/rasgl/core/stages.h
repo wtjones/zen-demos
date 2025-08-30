@@ -56,6 +56,7 @@ typedef struct {
     RasPipelineVertexBuffer vert_buffer; // needed?
     uint32_t num_verts_in_frustum[RAS_MAX_SCENE_OBJECTS];
     uint32_t num_faces_in_frustum[RAS_MAX_SCENE_OBJECTS];
+    uint32_t num_backfaces[RAS_MAX_SCENE_OBJECTS];
 
 } RasRenderData;
 
