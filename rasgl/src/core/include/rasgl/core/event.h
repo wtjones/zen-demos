@@ -27,7 +27,6 @@ typedef struct {
 } RasEventSummaryItem;
 
 void core_event_summary_init();
-void core_event_summary_output();
 
 void core_event_summary_update(
     RasEventType event_type,

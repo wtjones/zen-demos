@@ -37,6 +37,7 @@ void ras_log_flush()
 
         log_log(level, file, line, message);
     }
+    ras_log_summary_flush();
 }
 
 void ras_log_clear()
