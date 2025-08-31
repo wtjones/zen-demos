@@ -325,6 +325,7 @@ void* core_sg_visible_faces(void* input)
                 RasPipelineVertex* in_verts[3] = { pv1, pv2, pv3 };
                 RasPipelineVertex out_verts[RAS_MAX_MODEL_VERTS];
                 size_t num_out_verts = 0;
+                (*num_faces_to_clip)++;
 
                 core_clip_face(
                     &render_data->frustum,
@@ -377,7 +378,7 @@ void* core_sg_visible_faces(void* input)
                     (*vi) += 1;
                 }
 
-                (*num_dest_faces)++;
+                (*num_dest_faces) += num_out_verts / 3;
                 current_src_face_index++;
                 continue;
             }
@@ -408,7 +409,7 @@ void* core_sg_visible_faces(void* input)
 
         ras_log_buffer_ex(
             RAS_EVENT_SG_SUMMARY,
-            "Faces:\n    In Model: %d. In frustum: %d. Visible: %d. Excluded: %d. To Clip: %d. Backfaces: %d.",
+            "Element faces:\n    In Model: %d. In frustum: %d. Visible: %d. Excluded: %d. To Clip: %d. Backfaces: %d.",
             element->num_indexes / 3,
             render_data->num_faces_in_frustum[mesh_index],
             mesh->num_visible_indexes / 3,
