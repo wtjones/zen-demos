@@ -378,7 +378,15 @@ void* core_sg_visible_faces(void* input)
                     (*vi) += 1;
                 }
 
-                (*num_dest_faces) += num_out_verts / 3;
+                // Copy material indexes for each new face created from clipping
+                for (size_t j = 0; j < num_out_verts / 3; j++) {
+                    mesh->material_indexes[*num_dest_materials] = element->material_indexes[current_src_face_index];
+                    mesh->visible_faces[*num_dest_faces].normal = element->faces[current_src_face_index].normal;
+                    mesh->visible_faces[*num_dest_faces].material_index = element->faces[current_src_face_index].material_index;
+                    (*num_dest_materials)++;
+                    (*num_dest_faces)++;
+                }
+
                 current_src_face_index++;
                 continue;
             }
