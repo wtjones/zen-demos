@@ -28,13 +28,19 @@ size_t core_interpolate(
 
     if (i0 < i1) {
         for (RasFixed i = i0; i < i1; i += RAS_FIXED_ONE) {
-            assert(count < max_size);
+            if (count >= max_size) {
+                ras_log_flush();
+                assert(count < max_size);
+            }
             dest[count++] = d;
             d = d + a;
         }
     } else {
         for (RasFixed i = i0; i >= i1; i -= RAS_FIXED_ONE) {
-            assert(count < max_size);
+            if (count >= max_size) {
+                ras_log_flush();
+                assert(count < max_size);
+            }
             dest[count++] = d;
             d = d + a;
         }

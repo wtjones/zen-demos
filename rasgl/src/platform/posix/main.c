@@ -3,6 +3,7 @@
 #include "rasgl/core/app.h"
 #include "rasgl/core/console.h"
 #include "rasgl/core/debug.h"
+#include "rasgl/core/event.h"
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/input.h"
 #include "rasgl/core/maths.h"
@@ -223,7 +224,75 @@ void render_polygon_wireframe(RenderState* state)
     }
 }
 
-void render_mesh_solid(RenderState* state) { }
+void render_mesh_solid(RenderState* state)
+{
+
+    RasVector4f* sv;
+    uint32_t material_index = 0;
+    static uint32_t max_lines = 0;
+
+    for (int32_t m = 0; m < state->num_visible_meshes; m++) {
+        RasPipelineMesh* mesh = &state->meshes[state->visible_meshes[m]];
+        RasPipelineFace* face = &mesh->visible_faces[0];
+
+        uint32_t i = 0;
+        uint32_t material_index = 0;
+        size_t num_hlines = 0;
+        RasVector4f* tri[3];
+        RasHorizontalLine hlines[255];
+
+        while (i < mesh->num_visible_indexes) {
+            int32_t material = mesh->material_indexes[material_index];
+            if (material == -1) {
+                ras_log_buffer("Face %d has material = %d", i / 3, material);
+            }
+
+            char buffer[255];
+            RasFixed max_shade = INT_32_TO_FIXED_16_16(7);
+            RasFixed shade_fixed = mul_fixed_16_16_by_fixed_16_16(face->diffuse_intensity, max_shade);
+            ras_log_buffer("diffuse_intensity: %s", repr_fixed_16_16(buffer, sizeof buffer, face->diffuse_intensity));
+            ras_log_buffer("shade_fixed: %s", repr_fixed_16_16(buffer, sizeof buffer, shade_fixed));
+            int shade = FIXED_16_16_TO_INT_32(shade_fixed);
+            shade = shade < 1 ? 1 : shade;
+            assert(shade <= 7);
+
+            int8_t color = material == -1
+                ? shade
+                : (shade + (material * 8));
+
+            RasPipelineVertex* pv0 = &mesh->verts[mesh->visible_indexes[i++]];
+            tri[0] = &pv0->screen_space_position;
+
+            RasPipelineVertex* pv1 = &mesh->verts[mesh->visible_indexes[i++]];
+            tri[1] = &pv1->screen_space_position;
+
+            RasPipelineVertex* pv2 = &mesh->verts[mesh->visible_indexes[i++]];
+            tri[2] = &pv2->screen_space_position;
+            rasterize_tri(tri, hlines, &num_hlines);
+            if (num_hlines > max_lines) {
+                max_lines = num_hlines;
+                ras_log_buffer_ex(
+                    RAS_EVENT_RS_HLINES, "New rasterize_tri() max lines: %d", max_lines);
+            }
+            max_lines = num_hlines > max_lines
+                ? num_hlines
+                : max_lines;
+            for (size_t j = 0; j < num_hlines; j++) {
+                Point2i point0 = {
+                    .x = hlines[j].left.x,
+                    .y = hlines[j].left.y
+                };
+                Point2i point1 = {
+                    .x = hlines[j].right.x,
+                    .y = hlines[j].right.y
+                };
+                ras_draw_line(surface, &point0, &point1, color);
+            }
+            material_index++;
+            face++;
+        }
+    }
+}
 
 void render_polygon_solid(RenderState* state)
 {
