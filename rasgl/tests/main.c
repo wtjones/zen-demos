@@ -605,6 +605,7 @@ int main()
     cross_product_tests();
     dot_product_tests();
     backface_tests();
+    backface_tests2();
     plane_tests();
     mat_ortho_tests();
     model_tests();

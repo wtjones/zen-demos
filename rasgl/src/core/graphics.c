@@ -215,8 +215,8 @@ bool core_is_backface(RasVector4f* sv0, RasVector4f* sv1, RasVector4f* sv2)
 {
     // norm1 = (1.x - 0.x) * (0.y - 2.y)
     // norm2 = (1.y - 0.y) * (0.x - 2.x)
-    int64_t norm1 = mul_fixed_16_16_by_fixed_16_16(sv1->x - sv0->x, sv0->y - sv2->y);
-    int64_t norm2 = mul_fixed_16_16_by_fixed_16_16(sv1->y - sv0->y, sv0->x - sv2->x);
+    int64_t norm1 = mul_fixed_16_16_to_fixed_32_32(sv1->x - sv0->x, sv0->y - sv2->y);
+    int64_t norm2 = mul_fixed_16_16_to_fixed_32_32(sv1->y - sv0->y, sv0->x - sv2->x);
     int64_t norm = norm1 - norm2;
 
     return norm < 0;
