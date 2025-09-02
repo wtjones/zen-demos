@@ -14,6 +14,7 @@ static const char* g_repr_event_type[] = {
     "SC_OBJ_MOVE",
     "SG_SUMMARY",
     "INVALID_MATH",
+    "BUFFER_OVERFLOW",
     "TEST_FIXTURE"
 };
 

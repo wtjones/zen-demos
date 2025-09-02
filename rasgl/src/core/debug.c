@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <string.h>
 
-char log_buffer[RAS_MAX_LOG_BUFFER];
+char log_buffer[RAS_MAX_LOG_BUFFER] = "";
 size_t log_buffer_offset = 0;
 
 void ras_log_init()
@@ -59,7 +59,13 @@ void core_log_buffer(int level, int category, const char* file, int line, const 
     size_t append_size = sizeof(level) + sizeof(line) + strlen(file) + strlen(buffer) + 2;
     // Validate based on size of {level}{line}{file}{\0}{message}{\0}
     if (log_buffer_offset + append_size > RAS_MAX_LOG_BUFFER) {
-        log_error("Log buffer overflow! %d\n", strlen(log_buffer));
+        char err_buffer[255];
+        snprintf(
+            err_buffer,
+            sizeof(err_buffer),
+            "Log buffer overflow!\nCurrent len: %zu Append len: %zu",
+            strlen(log_buffer), append_size);
+        core_event_summary_update(RAS_EVENT_BUFFER_OVERFLOW, err_buffer);
         return;
     }
 
