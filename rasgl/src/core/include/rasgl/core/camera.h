@@ -10,6 +10,7 @@
 #define RAS_ROTATION_SPEED 1
 #define RAS_FOV_SPEED 2.0f
 #define RAS_PLANE_SPEED 0.1f
+#define RAS_NEAR_PLANE_MIN 0.1f
 #define RAS_FAR_PLANE_MIN 1.0f
 #define RAS_VIEWER_SPEED float_to_fixed_16_16(0.025)
 #define RAS_PROJECTION_RATIO -float_to_fixed_16_16(2.0)

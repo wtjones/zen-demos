@@ -246,26 +246,41 @@ example: `./run_dos.sh poly 0 assets/secenes/tri.lsp`
 
 ### Common Controls
 
-| Action                          | Key     |
-|---------------------------------|---------|
-| Help                            | F1      |
-| Toggle UI layer                 | F3      |
-| Toggle projection mode          | ctrl-p  |
-| Toggle backface culling mode    | ctrl-b  |
-| Cycle polygon render modes      | ctrl-o  |
-| Cycle polygon clipping modes    | ctrl-c  |
-| Cycle normal diagnostic modes   | ctrl-n  |
-| Cycle grid output modes         | ctrl-g  |
-| Cycle pipeline modes            | ctrl-l  |
-| Flush per-frame logs            | ctrl-f  |
+| Action                        | Key    |
+| ----------------------------- | ------ |
+| Help                          | F1     |
+| Toggle UI layer               | F3     |
+| Toggle projection mode        | ctrl-p |
+| Toggle backface culling mode  | ctrl-b |
+| Cycle polygon render modes    | ctrl-o |
+| Cycle polygon clipping modes  | ctrl-c |
+| Cycle normal diagnostic modes | ctrl-n |
+| Cycle grid output modes       | ctrl-g |
+| Cycle pipeline modes          | ctrl-l |
+| Flush per-frame logs          | ctrl-f |
 
 ### Console Controls
 
-| Action                          | Key       |
-| ------------------------------- | --------- |
-| Toggle console                  | `` ` ``   |
-| Recall back                     | KEY_UP    |
-| Recall forward                  | KEY_DOWN  |
+| Action         | Key      |
+| -------------- | -------- |
+| Toggle console | `` ` ``  |
+| Recall back    | KEY_UP   |
+| Recall forward | KEY_DOWN |
+
+
+#### Camera Controls
+
+| Action              | Key                          |
+| ------------------- | ---------------------------- |
+| Move camera         | WASD                         |
+| Rotate camera       | Q/E                          |
+| Move up/down        | Z/C                          |
+| Adjust FOV          | left/right bracket           |
+| Decrease far plane  | left bracket + ctrl          |
+| Increase far plane  | right bracket + ctrl         |
+| Decrease near plane | left bracket + ctrl + shift  |
+| Increase near plane | right bracket + ctrl + shift |
+
 
 ### Demo: world
 
@@ -273,15 +288,10 @@ Demonstrates movement controls over world geometry.
 
 #### Controls
 
-| Action             | Key                  |
-|--------------------|----------------------|
-| Move camera        | WASD                 |
-| Rotate camera      | Q/E                  |
-| Move up/down       | Z/C                  |
-| Toggle view mode   | TAB                  |
-| Adjust FOV         | left/right bracket   |
-| Decrease far plane | left bracket + ctrl  |
-| Increase far plane | right bracket + ctrl |
+| Action           | Key |
+| ---------------- | --- |
+| Toggle view mode | TAB |
+
 
 ### Demo: poly
 
@@ -299,20 +309,16 @@ Provide a model obj file as an optional param.
 
 #### Controls
 
-| Action                          | Key                     |
-|---------------------------------|-------------------------|
-| Move camera                     | WASD                    |
-| Rotate camera                   | Q/E                     |
-| Toggle view mode                | TAB                     |
-| Adjust FOV                      | left/right bracket      |
-| Toggle selected model           | j                       |
-| Toggle model animation          | k                       |
-| Move model left/right along X   | key left/right          |
-| Move model up/down along Y      | key up/down             |
-| Move model in/out along Z       | key up/down + shift     |
-| Tilt model around X             | up/down + ctrl + shift  |
-| Rotate model around Y           | left/right + ctrl       |
-| Tilt model around Z             | up/down + ctrl          |
+| Action                        | Key                    |
+| ----------------------------- | ---------------------- |
+| Toggle selected model         | j                      |
+| Toggle model animation        | k                      |
+| Move model left/right along X | key left/right         |
+| Move model up/down along Y    | key up/down            |
+| Move model in/out along Z     | key up/down + shift    |
+| Tilt model around X           | up/down + ctrl + shift |
+| Rotate model around Y         | left/right + ctrl      |
+| Tilt model around Z           | up/down + ctrl         |
 
 ## Debug output
 

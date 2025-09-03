@@ -1,4 +1,5 @@
 #include "rasgl/core/camera.h"
+#include "rasgl/core/event.h"
 #include "rasgl/core/repr.h"
 
 void ras_camera_update(RasCamera* camera, InputState* input_state)
@@ -74,15 +75,31 @@ void ras_camera_update(RasCamera* camera, InputState* input_state)
     }
 
     if (input_state->keys[RAS_KEY_LEFTBRACKET] == RAS_KEY_EVENT_DOWN
-        && input_state->mods & RAS_KMOD_CTRL) {
+        && input_state->mods & RAS_KMOD_CTRL
+        && !(input_state->mods & RAS_KMOD_SHIFT)) {
         camera->far -= (camera->far - RAS_PLANE_SPEED) < RAS_FAR_PLANE_MIN
             ? camera->far - RAS_FAR_PLANE_MIN
             : RAS_PLANE_SPEED;
     }
     if (input_state->keys[RAS_KEY_RIGHTBRACKET] == RAS_KEY_EVENT_DOWN
-        && input_state->mods & RAS_KMOD_CTRL) {
+        && input_state->mods & RAS_KMOD_CTRL
+        && !(input_state->mods & RAS_KMOD_SHIFT)) {
         camera->far += RAS_PLANE_SPEED;
     }
+
+    if (input_state->keys[RAS_KEY_LEFTBRACKET] == RAS_KEY_EVENT_DOWN
+        && input_state->mods & RAS_KMOD_CTRL
+        && (input_state->mods & RAS_KMOD_SHIFT)) {
+        camera->near -= (camera->near - RAS_PLANE_SPEED) < RAS_NEAR_PLANE_MIN
+            ? camera->near - RAS_NEAR_PLANE_MIN
+            : RAS_PLANE_SPEED;
+    }
+    if (input_state->keys[RAS_KEY_RIGHTBRACKET] == RAS_KEY_EVENT_DOWN
+        && input_state->mods & RAS_KMOD_CTRL
+        && (input_state->mods & RAS_KMOD_SHIFT)) {
+        camera->near += RAS_PLANE_SPEED;
+    }
+
     if (input_state->keys[RAS_KEY_P] == RAS_KEY_EVENT_UP
         && input_state->mods & RAS_KMOD_CTRL) {
         camera->projection_mode = camera->projection_mode == RAS_PERSPECTIVE_MATRIX
@@ -95,9 +112,9 @@ void ras_camera_update(RasCamera* camera, InputState* input_state)
         : camera->last_changed_frame;
 
     if (changed) {
-        char buffer[100];
-        ras_log_debug("camera pos: %s\n", repr_point3f(buffer, sizeof buffer, &camera->position));
-        ras_log_debug("camera->angle: %d\n", camera->angle);
+        char buffer[255];
+        ras_log_buffer_ex(
+            RAS_EVENT_CM_CHANGE, "camera: %s", repr_camera(buffer, sizeof buffer, camera));
     }
 }
 

@@ -1,6 +1,7 @@
 #ifndef REPR_H
 #define REPR_H
 
+#include "camera.h"
 #include "fixed_maths.h"
 #include "graphics.h"
 #include "maths.h"
@@ -18,5 +19,6 @@ char* repr_mat_4x1(char* buffer, size_t count, RasFixed s[4]);
 const char* repr_clipping_mode(char* buffer, size_t count, RasClippingMode mode);
 const char* repr_normal_mode(char* buffer, size_t count, RasNormalMode mode);
 const char* repr_grid_mode(char* buffer, size_t count, RasGridMode mode);
+const char* repr_camera(char* buffer, size_t count, RasCamera* camera);
 
 #endif

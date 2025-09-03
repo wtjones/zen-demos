@@ -156,3 +156,19 @@ const char* repr_grid_mode(char* buffer, size_t count, RasGridMode mode)
 
     return buffer;
 }
+
+const char* repr_camera(char* buffer, size_t count, RasCamera* camera)
+{
+    char buffer2[255];
+    snprintf(
+        buffer,
+        count,
+        "[pos: %s, angle: %d, fov: %f, aspect: %f, near: %f, far: %f]",
+        repr_point3f(buffer2, sizeof(buffer2), &camera->position),
+        camera->angle,
+        camera->fov,
+        camera->aspect_ratio,
+        camera->near,
+        camera->far);
+    return buffer;
+}
