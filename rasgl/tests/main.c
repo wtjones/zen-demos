@@ -388,9 +388,8 @@ void rasterize_tri_tests()
 
     RasVector4f* pv[3] = { &p0, &p1, &p2 };
 
-    RasHorizontalLine lines[255];
-    size_t num_lines = 0;
-    rasterize_tri(pv, lines, &num_lines);
+    RasHorizontalLine lines[RAS_HORIZONTAL_LINE_MAX];
+    size_t num_lines = rasterize_tri(pv, lines, sizeof(lines) / sizeof(lines[0]));
 
     ras_log_trace("Rasterize result of %zu lines...", num_lines);
     for (size_t i = 0; i < num_lines; i++) {

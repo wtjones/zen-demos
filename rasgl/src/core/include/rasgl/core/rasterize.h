@@ -5,6 +5,7 @@
 #include "maths.h"
 
 #define RAS_INTERPOLATE_MAX 500
+#define RAS_HORIZONTAL_LINE_MAX 4000
 
 typedef struct {
     Point2i left;
@@ -19,7 +20,9 @@ size_t core_interpolate(
     RasFixed dest[],
     size_t max_size);
 
-void rasterize_tri(
-    RasVector4f* pv[3], RasHorizontalLine* lines, size_t* num_lines);
+size_t rasterize_tri(
+    RasVector4f* pv[3],
+    RasHorizontalLine* lines,
+    size_t max_lines);
 
 #endif

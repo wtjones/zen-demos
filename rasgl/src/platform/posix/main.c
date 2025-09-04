@@ -239,7 +239,7 @@ void render_mesh_solid(RenderState* state)
         uint32_t material_index = 0;
         size_t num_hlines = 0;
         RasVector4f* tri[3];
-        RasHorizontalLine hlines[255];
+        RasHorizontalLine hlines[RAS_HORIZONTAL_LINE_MAX];
 
         while (i < mesh->num_visible_indexes) {
             int32_t material = mesh->material_indexes[material_index];
@@ -268,7 +268,7 @@ void render_mesh_solid(RenderState* state)
 
             RasPipelineVertex* pv2 = &mesh->verts[mesh->visible_indexes[i++]];
             tri[2] = &pv2->screen_space_position;
-            rasterize_tri(tri, hlines, &num_hlines);
+            num_hlines = rasterize_tri(tri, hlines, sizeof(hlines) / sizeof(hlines[0]));
             if (num_hlines > max_lines) {
                 max_lines = num_hlines;
                 ras_log_buffer_ex(
@@ -298,7 +298,7 @@ void render_polygon_solid(RenderState* state)
 {
     uint32_t i = 0;
     RasVector4f* tri[3];
-    RasHorizontalLine hlines[255];
+    RasHorizontalLine hlines[RAS_HORIZONTAL_LINE_MAX];
     size_t num_hlines = 0;
     uint32_t material_index = 0;
 
@@ -332,7 +332,7 @@ void render_polygon_solid(RenderState* state)
 
         RasPipelineVertex* pv2 = &state->pipeline_verts[state->visible_indexes[i++]];
         tri[2] = &pv2->screen_space_position;
-        rasterize_tri(tri, hlines, &num_hlines);
+        num_hlines = rasterize_tri(tri, hlines, sizeof(hlines) / sizeof(hlines[0]));
 
         for (size_t j = 0; j < num_hlines; j++) {
             Point2i point0 = {

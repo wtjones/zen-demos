@@ -9,7 +9,7 @@ size_t core_interpolate(
 {
     char buffer1[255];
     char buffer2[255];
-    ras_log_buffer_trace("Interpolating from %s to %s\n",
+    ras_log_buffer("Interpolating from %s to %s\n",
         repr_fixed_16_16(buffer1, 255, i0),
         repr_fixed_16_16(buffer2, 255, i1));
 
@@ -55,10 +55,10 @@ size_t core_interpolate(
     return count;
 }
 
-void rasterize_tri(
-    RasVector4f* pv[3], RasHorizontalLine* lines, size_t* num_lines)
+size_t rasterize_tri(
+    RasVector4f* pv[3], RasHorizontalLine* lines, size_t max_lines)
 {
-    *num_lines = 0;
+    size_t num_lines = 0;
     RasFixed x01[RAS_INTERPOLATE_MAX];
     RasFixed x12[RAS_INTERPOLATE_MAX];
     RasFixed x02[RAS_INTERPOLATE_MAX];
@@ -105,6 +105,16 @@ void rasterize_tri(
     }
     ras_log_buffer("count of x012: %d", x012_count);
 
+    if (x012_count > max_lines) {
+        ras_log_buffer("Warning: x012_count exceeds max_lines");
+        char buffer[255];
+        ras_log_buffer("tri0: %s", repr_vector4f(buffer, sizeof buffer, pv[0]));
+        ras_log_buffer("tri1: %s", repr_vector4f(buffer, sizeof buffer, pv[1]));
+        ras_log_buffer("tri2: %s", repr_vector4f(buffer, sizeof buffer, pv[2]));
+        ras_log_flush();
+        assert(false);
+    }
+
     size_t m = x02_count / 2;
     ras_log_buffer("m: %d", m);
     RasFixed *x_left, *x_right;
@@ -117,10 +127,12 @@ void rasterize_tri(
     }
 
     for (size_t i = 0; i < x012_count; i++) {
-        lines[*num_lines].left.x = FIXED_16_16_TO_INT_32(x_left[i]);
-        lines[*num_lines].left.y = FIXED_16_16_TO_INT_32(pv[0]->y) + i;
-        lines[*num_lines].right.x = FIXED_16_16_TO_INT_32(x_right[i]);
-        lines[*num_lines].right.y = FIXED_16_16_TO_INT_32(pv[0]->y) + i;
-        (*num_lines)++;
+        lines[num_lines].left.x = FIXED_16_16_TO_INT_32(x_left[i]);
+        lines[num_lines].left.y = FIXED_16_16_TO_INT_32(pv[0]->y) + i;
+        lines[num_lines].right.x = FIXED_16_16_TO_INT_32(x_right[i]);
+        lines[num_lines].right.y = FIXED_16_16_TO_INT_32(pv[0]->y) + i;
+        num_lines++;
     }
+
+    return num_lines;
 }
