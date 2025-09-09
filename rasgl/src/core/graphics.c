@@ -274,7 +274,7 @@ void core_set_pv_clip_flags_alt(RasFrustum* view_frustum, RasClipFlags aabb_flag
     }
 }
 
-void core_get_line_plane_intersect(
+bool core_get_line_plane_intersect(
     RasVector3f* v1, RasVector3f* v2, RasPlane* plane, RasVector3f* dest_vec)
 {
     RasFixed pv_a_side = core_dot_product(v1, &plane->normal) + plane->distance;
@@ -283,11 +283,11 @@ void core_get_line_plane_intersect(
     // Handle edge cases gracefully
     if (pv_a_side == 0) {
         *dest_vec = *v1;
-        return;
+        return true;
     }
     if (pv_b_side == 0) {
         *dest_vec = *v2;
-        return;
+        return true;
     }
 
     // For intersection to be valid, vertices must be on opposite sides
@@ -296,17 +296,7 @@ void core_get_line_plane_intersect(
             RAS_EVENT_INVALID_MATH,
             "Warning: both vertices on same side of plane");
 
-        RasVector3f midpoint;
-        midpoint.x = div_fixed_16_16_by_fixed_16_16(v1->x + v2->x, RAS_FIXED_TWO);
-        midpoint.y = div_fixed_16_16_by_fixed_16_16(v1->y + v2->y, RAS_FIXED_TWO);
-        midpoint.z = div_fixed_16_16_by_fixed_16_16(v1->z + v2->z, RAS_FIXED_TWO);
-
-        // Project midpoint onto plane: point - distance_to_plane * normal
-        RasFixed distance_to_plane = core_dot_product(&midpoint, &plane->normal) + plane->distance;
-        dest_vec->x = midpoint.x - mul_fixed_16_16_by_fixed_16_16(distance_to_plane, plane->normal.x);
-        dest_vec->y = midpoint.y - mul_fixed_16_16_by_fixed_16_16(distance_to_plane, plane->normal.y);
-        dest_vec->z = midpoint.z - mul_fixed_16_16_by_fixed_16_16(distance_to_plane, plane->normal.z);
-        return;
+        return false;
     }
 
     RasFixed scale = div_fixed_16_16_by_fixed_16_16(-pv_a_side, pv_b_side - pv_a_side);
@@ -316,6 +306,7 @@ void core_get_line_plane_intersect(
     dest_vec->x = cur_vert->x + (mul_fixed_16_16_by_fixed_16_16(next_vert->x - cur_vert->x, scale));
     dest_vec->y = cur_vert->y + (mul_fixed_16_16_by_fixed_16_16(next_vert->y - cur_vert->y, scale));
     dest_vec->z = cur_vert->z + (mul_fixed_16_16_by_fixed_16_16(next_vert->z - cur_vert->z, scale));
+    return true;
 }
 
 void core_clip_poly_plane(

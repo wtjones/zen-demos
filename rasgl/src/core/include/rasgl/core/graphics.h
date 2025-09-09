@@ -238,8 +238,9 @@ void core_clip_poly(
  * @param v2 line point inside of plane
  * @param plane
  * @param dest_vec
+ * @returns true if intersection is valid
  */
-void core_get_line_plane_intersect(
+bool core_get_line_plane_intersect(
     RasVector3f* v1, RasVector3f* v2, RasPlane* plane, RasVector3f* dest_vec);
 
 /**

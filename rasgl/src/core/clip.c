@@ -93,7 +93,7 @@ void core_clip_face_scenario(
  * > In this case, we discard ABC, and add a new triangle AB′C′, where B′ and C′
  * > are the intersections of AB and AC with the clipping plane
  */
-void core_clip_face_a(
+int32_t core_clip_face_a(
     RasPlane* plane,
     RasPipelineVertex in_verts[3],
     RasPipelineVertex out_verts[3],
@@ -123,22 +123,27 @@ void core_clip_face_a(
     pv_b_alt->aabb_clip_flags = pv_b->aabb_clip_flags;
     pv_c_alt->aabb_clip_flags = pv_c->aabb_clip_flags;
 
-    core_get_line_plane_intersect(
-        &pv_a->view_space_position,
-        &pv_b->view_space_position,
-        plane,
-        &pv_b_alt->view_space_position);
+    if (!core_get_line_plane_intersect(
+            &pv_a->view_space_position,
+            &pv_b->view_space_position,
+            plane,
+            &pv_b_alt->view_space_position)) {
+        return 0;
+    }
 
     // Find C' to create side AC'
-    core_get_line_plane_intersect(
-        &pv_a->view_space_position,
-        &pv_c->view_space_position,
-        plane,
-        &pv_c_alt->view_space_position);
+    if (!core_get_line_plane_intersect(
+            &pv_a->view_space_position,
+            &pv_c->view_space_position,
+            plane,
+            &pv_c_alt->view_space_position)) {
+        return 0;
+    }
 
     char buffer[255];
     ras_log_buffer("clip a2: pv_b_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_b_alt->view_space_position));
     ras_log_buffer("clip a2: pv_c_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_c_alt->view_space_position));
+    return 3;
 }
 
 /**
@@ -154,7 +159,7 @@ void core_clip_face_a(
  * > where A′ and B′ are the intersections of AC and BC with the clipping plane.
  *
  */
-void core_clip_face_b(
+int32_t core_clip_face_b(
     RasPlane* plane,
     RasPipelineVertex in_verts[3],
     RasPipelineVertex out_verts[6],
@@ -226,18 +231,22 @@ void core_clip_face_b(
     pv_b_alt->aabb_clip_flags = pv_b->aabb_clip_flags;
 
     // Find A' to create side AA'
-    core_get_line_plane_intersect(
-        &pv_a->view_space_position,
-        &pv_c->view_space_position,
-        plane,
-        &pv_a_alt->view_space_position);
+    if (!core_get_line_plane_intersect(
+            &pv_a->view_space_position,
+            &pv_c->view_space_position,
+            plane,
+            &pv_a_alt->view_space_position)) {
+        return 0;
+    }
 
     // Find B' to create side BB'
-    core_get_line_plane_intersect(
-        &pv_b->view_space_position,
-        &pv_c->view_space_position,
-        plane,
-        &pv_b_alt->view_space_position);
+    if (!core_get_line_plane_intersect(
+            &pv_b->view_space_position,
+            &pv_c->view_space_position,
+            plane,
+            &pv_b_alt->view_space_position)) {
+        return 0;
+    }
 
     char buffer[255];
     ras_log_buffer("cpp: clip: pv_a_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_a_alt->view_space_position));
@@ -245,6 +254,7 @@ void core_clip_face_b(
 
     // Copy A' vert from first face to 2nd
     memcpy(&out_verts[3], pv_a_alt, sizeof(RasPipelineVertex));
+    return 6;
 }
 
 void core_clip_face(
@@ -295,13 +305,16 @@ void core_clip_face(
 
             if (scenario.num_in == 1) {
 
-                core_clip_face_a(
+                int32_t result = core_clip_face_a(
                     plane,
                     &work_in_verts[j],
                     &work_out_verts[*num_out_verts],
                     &scenario);
 
-                *num_out_verts += 3;
+                if (result == 0) {
+                    continue;
+                }
+                *num_out_verts += result;
 
                 core_set_pv_clip_flags(
                     frustum,
@@ -325,14 +338,17 @@ void core_clip_face(
 
             } else if (scenario.num_in == 2) {
 
-                core_clip_face_b(
+                int32_t result = core_clip_face_b(
                     plane,
                     &work_in_verts[j],
                     &work_out_verts[*num_out_verts],
                     &scenario);
 
-                *num_out_verts += 6;
+                *num_out_verts += result;
 
+                if (result == 0) {
+                    continue;
+                }
                 uint32_t new_verts[] = { 1, 3, 4 };
 
                 for (uint32_t k = 0; k < 3; k++) {
