@@ -372,6 +372,21 @@ void* core_sg_visible_faces(void* input)
 
                 // Copy out verts to mesh
                 for (size_t j = 0; j < num_out_verts; j++) {
+                    int32_t sx = FIXED_16_16_TO_INT_32(out_verts[j].screen_space_position.x);
+                    int32_t sy = FIXED_16_16_TO_INT_32(out_verts[j].screen_space_position.y);
+
+                    if (sx < -1
+                        || sx > (int32_t)(render_data->render_state->screen_settings.screen_width + 1)
+                        || sy < -1
+                        || sy > (int32_t)(render_data->render_state->screen_settings.screen_height + 1)) {
+                        ras_log_buffer_ex(
+                            RAS_EVENT_RS_OOB,
+                            "Vertex id: %d out of bounds: %s\nsx: %d, sy: %d",
+                            j,
+                            repr_vector4f(buffer, sizeof buffer, &out_verts[j].screen_space_position),
+                            sx,
+                            sy);
+                    }
                     mesh->verts[mesh->num_verts] = out_verts[j];
                     mesh->visible_indexes[*vi] = mesh->num_verts;
                     mesh->num_verts++;
