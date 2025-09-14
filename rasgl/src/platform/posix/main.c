@@ -268,6 +268,22 @@ void render_mesh_solid(RenderState* state)
 
             RasPipelineVertex* pv2 = &mesh->verts[mesh->visible_indexes[i++]];
             tri[2] = &pv2->screen_space_position;
+
+            RasFixed delta0 = abs(tri[0]->y - tri[1]->y);
+            RasFixed delta1 = abs(tri[1]->y - tri[2]->y);
+            RasFixed delta2 = abs(tri[2]->y - tri[0]->y);
+
+            if (delta0 > INT_32_TO_FIXED_16_16(241)
+                || delta1 > INT_32_TO_FIXED_16_16(241)
+                || delta2 > INT_32_TO_FIXED_16_16(241)) {
+                char buffer1[255];
+                char buffer2[255];
+                ras_log_buffer_ex(
+                    RAS_EVENT_RS_TRI_HLINES, "Tri Y delta exeeds screen: %s, %s, %s",
+                    repr_fixed_16_16(buffer1, sizeof buffer1, delta0),
+                    repr_fixed_16_16(buffer2, sizeof buffer2, delta1),
+                    repr_fixed_16_16(buffer, sizeof buffer, delta2));
+            }
             num_hlines = rasterize_tri(tri, hlines, sizeof(hlines) / sizeof(hlines[0]));
             if (num_hlines > max_lines) {
                 max_lines = num_hlines;

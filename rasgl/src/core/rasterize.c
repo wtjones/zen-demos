@@ -46,11 +46,13 @@ size_t core_interpolate(
         }
     }
 
+#ifdef RAS_INTERPOLATE_TRACE
     ras_log_buffer("Interpolate result...");
     for (size_t i = 0; i < count; i++) {
         char buffer3[255];
         ras_log_buffer_trace("Interp: %s", repr_fixed_16_16(buffer3, 255, dest[i]));
     }
+#endif
 
     return count;
 }
