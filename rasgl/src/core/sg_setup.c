@@ -329,6 +329,7 @@ void* core_sg_visible_faces(void* input)
 
                 core_clip_face(
                     &render_data->frustum,
+                    render_data->render_state->clip_side_mode,
                     face_clip_flags,
                     in_verts,
                     out_verts,

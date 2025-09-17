@@ -1,5 +1,6 @@
 #include "rasgl/core/clip.h"
 #include "rasgl/core/debug.h"
+#include "rasgl/core/graphics.h"
 #include "rasgl/core/repr.h"
 
 void core_set_pv_clip_flags(
@@ -257,8 +258,25 @@ int32_t core_clip_face_b(
     return 6;
 }
 
+RasFrustumPlane* get_side_mode_planes(RasClipSideMode side_mode, size_t* len)
+{
+    static RasFrustumPlane side_mode_planes[RAS_CLIP_SIDE_MODE_COUNT][6] = {
+        { PLANE_NEAR, PLANE_FAR },
+        { PLANE_NEAR,
+            PLANE_FAR,
+            PLANE_LEFT,
+            PLANE_RIGHT,
+            PLANE_BOTTOM,
+            PLANE_TOP }
+    };
+
+    *len = side_mode == RAS_CLIP_SIDE_VS ? 6 : 2;
+    return side_mode_planes[side_mode];
+}
+
 void core_clip_face(
     RasFrustum* frustum,
+    RasClipSideMode side_mode,
     RasClipFlags face_clip_flags,
     RasPipelineVertex* in_verts[3],
     RasPipelineVertex* out_verts,
@@ -287,7 +305,10 @@ void core_clip_face(
     memcpy(&work_in_verts[2], in_verts[2], sizeof(RasPipelineVertex));
     size_t num_in_verts = 3;
 
-    for (uint8_t i = 0; i < FRUSTUM_PLANES; i++) {
+    size_t num_frustum_planes = 0;
+    RasFrustumPlane* frustum_planes = get_side_mode_planes(side_mode, &num_frustum_planes);
+    for (int32_t fpi = 0; fpi < num_frustum_planes; fpi++) {
+        int32_t i = frustum_planes[fpi];
         RasPlane* plane = &frustum->planes[i];
 
         *num_out_verts = 0;

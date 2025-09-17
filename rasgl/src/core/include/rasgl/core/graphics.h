@@ -48,6 +48,12 @@ typedef enum {
 } RasClippingMode;
 
 typedef enum {
+    RAS_CLIP_SIDE_SS,
+    RAS_CLIP_SIDE_VS,
+    RAS_CLIP_SIDE_MODE_COUNT
+} RasClipSideMode;
+
+typedef enum {
     RAS_NORMAL_MODE_OFF,
     RAS_NORMAL_MODE_FAUX,
     RAS_NORMAL_MODE_ORTHO,
@@ -217,6 +223,7 @@ typedef struct RenderState {
     RasProjectionMode projection_mode;
     RasBackfaceCullingMode backface_culling_mode;
     RasClippingMode clipping_mode;
+    RasClipSideMode clip_side_mode;
     RasPolygonMode polygon_mode;
     RasNormalMode normal_mode;
     RasGridMode grid_mode;

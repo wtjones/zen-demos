@@ -6,6 +6,11 @@ static const char* g_repr_clipping_mode[] = {
     "RAS_CLIPPING_EXCLUDE"
 };
 
+static const char* g_repr_clip_side_mode[] = {
+    "RAS_CLIP_SIDE_SS",
+    "RAS_CLIP_SIDE_VS"
+};
+
 static const char* g_repr_normal_mode[] = {
     "RAS_NORMAL_MODE_OFF",
     "RAS_NORMAL_MODE_FAUX",
@@ -135,6 +140,11 @@ char* repr_mat_4x1(char* buffer, size_t count, RasFixed s[4])
 const char* repr_clipping_mode(char* buffer, size_t count, RasClippingMode mode)
 {
     return g_repr_clipping_mode[mode];
+}
+
+const char* repr_clip_side_mode(char* buffer, size_t count, RasClipSideMode mode)
+{
+    return g_repr_clip_side_mode[mode];
 }
 
 const char* repr_normal_mode(char* buffer, size_t count, RasNormalMode mode)

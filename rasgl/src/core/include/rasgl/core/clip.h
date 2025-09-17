@@ -1,8 +1,8 @@
 #ifndef CORE_CLIP_H
 #define CORE_CLIP_H
 
-#include "aabb.h"
 #include "frustum.h"
+#include "graphics.h"
 #include "maths.h"
 
 /**
@@ -41,6 +41,7 @@ void core_set_pv_clip_flags(
  */
 void core_clip_face(
     RasFrustum* frustum,
+    RasClipSideMode side_mode,
     RasClipFlags face_clip_flags,
     RasPipelineVertex* in_verts[3],
     RasPipelineVertex* out_verts,

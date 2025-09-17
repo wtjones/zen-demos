@@ -246,18 +246,19 @@ example: `./run_dos.sh poly 0 assets/secenes/tri.lsp`
 
 ### Common Controls
 
-| Action                        | Key    |
-| ----------------------------- | ------ |
-| Help                          | F1     |
-| Toggle UI layer               | F3     |
-| Toggle projection mode        | ctrl-p |
-| Toggle backface culling mode  | ctrl-b |
-| Cycle polygon render modes    | ctrl-o |
-| Cycle polygon clipping modes  | ctrl-c |
-| Cycle normal diagnostic modes | ctrl-n |
-| Cycle grid output modes       | ctrl-g |
-| Cycle pipeline modes          | ctrl-l |
-| Flush per-frame logs          | ctrl-f |
+| Action                        | Key          |
+| ----------------------------- | ------------ |
+| Help                          | F1           |
+| Toggle UI layer               | F3           |
+| Toggle projection mode        | ctrl-p       |
+| Toggle backface culling mode  | ctrl-b       |
+| Cycle polygon render modes    | ctrl-o       |
+| Cycle polygon clipping modes  | ctrl-c       |
+| Cycle polygon clip space      | ctrl-shift-c |
+| Cycle normal diagnostic modes | ctrl-n       |
+| Cycle grid output modes       | ctrl-g       |
+| Cycle pipeline modes          | ctrl-l       |
+| Flush per-frame logs          | ctrl-f       |
 
 ### Console Controls
 
@@ -267,20 +268,18 @@ example: `./run_dos.sh poly 0 assets/secenes/tri.lsp`
 | Recall back    | KEY_UP   |
 | Recall forward | KEY_DOWN |
 
-
 #### Camera Controls
 
-| Action              | Key                          |
-| ------------------- | ---------------------------- |
-| Move camera         | WASD                         |
-| Rotate camera       | Q/E                          |
-| Move up/down        | Z/C                          |
-| Adjust FOV          | left/right bracket           |
-| Decrease far plane  | left bracket + ctrl          |
-| Increase far plane  | right bracket + ctrl         |
-| Decrease near plane | left bracket + ctrl + shift  |
-| Increase near plane | right bracket + ctrl + shift |
-
+| Action              | Key                |
+| ------------------- | ------------------ |
+| Move camera         | WASD               |
+| Rotate camera       | Q/E                |
+| Move up/down        | Z/C                |
+| Adjust FOV          | left/right bracket |
+| Decrease far plane  | ctrl-`[`           |
+| Increase far plane  | ctrl-`]`           |
+| Decrease near plane | ctrl-shift-`[`     |
+| Increase near plane | ctrl-shift-`]`     |
 
 ### Demo: world
 
@@ -291,7 +290,6 @@ Demonstrates movement controls over world geometry.
 | Action           | Key |
 | ---------------- | --- |
 | Toggle view mode | TAB |
-
 
 ### Demo: poly
 

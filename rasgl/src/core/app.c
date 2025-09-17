@@ -25,10 +25,18 @@ void ras_core_update(InputState* input_state, RenderState render_states[RAS_LAYE
         ras_log_info("backface_culling_mode: %s", scene_state->backface_culling_mode == RAS_BACKFACE_CULLING_ON ? "ON" : "OFF");
     }
     if (input_state->keys[RAS_KEY_C] == RAS_KEY_EVENT_UP
-        && input_state->mods & RAS_KMOD_CTRL) {
+        && input_state->mods & RAS_KMOD_CTRL
+        && !(input_state->mods & RAS_KMOD_SHIFT)) {
         scene_state->clipping_mode = (RasClippingMode)((scene_state->clipping_mode + 1) % RAS_CLIPPING_MODE_COUNT);
 
         ras_log_info("clipping_mode: %s", repr_clipping_mode(buffer, sizeof(buffer), scene_state->clipping_mode));
+    }
+    if (input_state->keys[RAS_KEY_C] == RAS_KEY_EVENT_UP
+        && input_state->mods & RAS_KMOD_CTRL
+        && input_state->mods & RAS_KMOD_SHIFT) {
+        scene_state->clip_side_mode = (RasClipSideMode)((scene_state->clip_side_mode + 1) % RAS_CLIP_SIDE_MODE_COUNT);
+
+        ras_log_info("clip_side_mode: %s", repr_clip_side_mode(buffer, sizeof(buffer), scene_state->clip_side_mode));
     }
     if (input_state->keys[RAS_KEY_N] == RAS_KEY_EVENT_UP
         && input_state->mods & RAS_KMOD_CTRL) {
