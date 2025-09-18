@@ -73,9 +73,15 @@ void core_clip_face_scenario(
     for (int i = 0; i < 3; i++) {
         RasPipelineVertex* pv = &in_verts[i];
         bool is_in = !(pv->clip_flags & core_to_clip_flag(side));
-        scenario->num_in += is_in ? 1 : 0;
-        scenario->first_in = (scenario->first_in == -1 && scenario->num_in == 1 && is_in) ? i : scenario->first_in;
-        scenario->second_in = (scenario->second_in == -1 && scenario->num_in == 2 && is_in) ? i : scenario->second_in;
+
+        if (is_in) {
+            if (scenario->first_in == -1) {
+                scenario->first_in = i;
+            } else if (scenario->second_in == -1) {
+                scenario->second_in = i;
+            }
+            scenario->num_in += 1;
+        }
     }
 
     ras_log_buffer("scenario: num_in: %d\n", scenario->num_in);
