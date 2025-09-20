@@ -280,6 +280,178 @@ RasFrustumPlane* get_side_mode_planes(RasClipSideMode side_mode, size_t* len)
     return side_mode_planes[side_mode];
 }
 
+/**
+ * @brief Temp mode for testing new clipping algorithm
+ *
+ * @param side_mode
+ * @param len
+ * @return RasFrustumPlane*
+ */
+RasFrustumPlane* get_side_mode_planes_alt(RasClipSideMode side_mode, size_t* len)
+{
+    static RasFrustumPlane side_mode_planes[RAS_CLIP_SIDE_MODE_COUNT][6] = {
+        { PLANE_NEAR, PLANE_FAR },
+        { PLANE_BOTTOM }
+    };
+
+    *len = side_mode == RAS_CLIP_SIDE_VS ? 1 : 2;
+    return side_mode_planes[side_mode];
+}
+
+void core_clip_face_alt(
+    RasFrustum* frustum,
+    RasClipFlags face_clip_flags,
+    RasPipelineVertex* in_verts[3],
+    RasPipelineVertex* out_verts,
+    size_t* num_out_verts,
+    size_t max_out_verts)
+
+{
+    /**
+     * // Sutherland–Hodgman pseudocode
+     * triangles_in = [original triangle]
+     *
+     *  for each plane in frustum:
+     *      triangles_out = []
+     *
+     *      for each tri in triangles_in:
+     *          clipped = clip_triangle_against_plane(tri, plane)
+     *          for each t in clipped:   // 0, 1, or 2 triangles
+     *              triangles_out.append(t)
+     *
+     *      triangles_in = triangles_out
+     */
+    static RasPipelineVertex work_in_verts[6];
+    static RasPipelineVertex work_out_verts[6];
+    memcpy(&work_in_verts[0], in_verts[0], sizeof(RasPipelineVertex));
+    memcpy(&work_in_verts[1], in_verts[1], sizeof(RasPipelineVertex));
+    memcpy(&work_in_verts[2], in_verts[2], sizeof(RasPipelineVertex));
+    size_t num_in_verts = 3;
+
+    size_t num_frustum_planes = 0;
+    // FIXME: remove alt
+    RasFrustumPlane* frustum_planes = get_side_mode_planes_alt(
+        RAS_CLIP_SIDE_VS, &num_frustum_planes);
+    for (int32_t fpi = 0; fpi < num_frustum_planes; fpi++) {
+        int32_t i = frustum_planes[fpi];
+        RasPlane* plane = &frustum->planes[i];
+
+        *num_out_verts = 0;
+        RasPipelineVertex* dst_pv = NULL;
+
+        for (size_t j = 0; j < num_in_verts; j++) {
+
+            // Source edge verts
+            RasPipelineVertex* src_pv0 = &work_in_verts[j];
+            RasPipelineVertex* src_pv1 = j < num_in_verts - 1
+                ? &work_in_verts[j + 1]
+                : &work_in_verts[0];
+
+            bool src_pv0_is_in = !(src_pv0->clip_flags & core_to_clip_flag(i));
+            bool src_pv1_is_in = !(src_pv1->clip_flags & core_to_clip_flag(i));
+
+            if (!src_pv0_is_in && !src_pv1_is_in) {
+                continue;
+            }
+
+            if (src_pv0_is_in && src_pv1_is_in) {
+                // Edge is fully in, add as-is.
+
+                if (dst_pv == NULL) {
+                    // First in case, need to prime dest
+                    dst_pv = &work_out_verts[0];
+                    memcpy(dst_pv, src_pv0, sizeof(RasPipelineVertex));
+                    (*num_out_verts) = 1;
+                }
+                // Dest pv points to the 2nd vert of the dest edge.
+                dst_pv = &work_out_verts[(*num_out_verts)];
+                (*num_out_verts)++;
+
+                memcpy(dst_pv, src_pv1, sizeof(RasPipelineVertex));
+
+                continue;
+            }
+
+            /**
+             * @brief Edge is one in, one out.
+             *
+             */
+            if (src_pv0_is_in) {
+
+                if (dst_pv == NULL) {
+                    // First in case, need to prime dest
+                    dst_pv = &work_out_verts[0];
+                    memcpy(dst_pv, src_pv0, sizeof(RasPipelineVertex));
+                    (*num_out_verts) = 1;
+                }
+                // Dest pv points to the 2nd vert of the dest edge.
+                dst_pv = &work_out_verts[(*num_out_verts)];
+                (*num_out_verts)++;
+
+                // Copy from a source vert
+                // Does it matter which one?
+                memcpy(dst_pv, src_pv0, sizeof(RasPipelineVertex));
+
+                // Use midpoint for 2nd vert of dest edge
+                bool math_result = core_get_line_plane_intersect(
+                    &src_pv0->view_space_position,
+                    &src_pv1->view_space_position,
+                    plane,
+                    &dst_pv->view_space_position);
+
+                core_set_pv_clip_flags(
+                    frustum,
+                    dst_pv->aabb_clip_flags,
+                    dst_pv);
+
+                if (dst_pv->clip_flags & core_to_clip_flag(i)) {
+                    ras_log_buffer("Not expecting clip flag %d to remain.", i);
+                    dst_pv->clip_flags &= ~core_to_clip_flag(i);
+                }
+
+            } else { // pv1 is in
+
+                if (dst_pv == NULL) {
+                    // First in case, need to prime dest
+                    dst_pv = &work_out_verts[0];
+                    memcpy(dst_pv, src_pv0, sizeof(RasPipelineVertex));
+                    (*num_out_verts) = 1;
+                }
+                // Dest pv points to the 2nd vert of the dest edge.
+                dst_pv = &work_out_verts[(*num_out_verts)];
+                (*num_out_verts)++;
+
+                // Copy from a source vert
+                // Does it matter which one?
+                memcpy(dst_pv, src_pv1, sizeof(RasPipelineVertex));
+
+                // Use midpoint for 1st vert of dest edge
+                bool math_result = core_get_line_plane_intersect(
+                    &src_pv1->view_space_position,
+                    &src_pv0->view_space_position,
+                    plane,
+                    &dst_pv->view_space_position);
+
+                core_set_pv_clip_flags(
+                    frustum,
+                    dst_pv->aabb_clip_flags,
+                    dst_pv);
+
+                if (dst_pv->clip_flags & core_to_clip_flag(i)) {
+                    ras_log_buffer("Not expecting clip flag %d to remain.", i);
+                    dst_pv->clip_flags &= ~core_to_clip_flag(i);
+                }
+            }
+        } // for each edge
+
+        memcpy(work_in_verts, work_out_verts, sizeof(RasPipelineVertex) * *num_out_verts);
+        num_in_verts = *num_out_verts;
+    }
+
+    // TODO: Triangulate if more than 3 verts
+    memcpy(out_verts, work_in_verts, sizeof(RasPipelineVertex) * num_in_verts);
+}
+
 void core_clip_face(
     RasFrustum* frustum,
     RasClipSideMode side_mode,

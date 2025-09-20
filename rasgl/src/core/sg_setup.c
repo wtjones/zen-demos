@@ -312,7 +312,8 @@ void* core_sg_visible_faces(void* input)
              */
             RasClipFlags face_clip_flags = pv1->clip_flags | pv2->clip_flags | pv3->clip_flags;
             bool clip_exclude = render_data->render_state->clipping_mode == RAS_CLIPPING_EXCLUDE;
-            bool clip_on = render_data->render_state->clipping_mode == RAS_CLIPPING_ON;
+            bool clip_on = render_data->render_state->clipping_mode == RAS_CLIPPING_ON
+                || render_data->render_state->clipping_mode == RAS_CLIPPING_ALT;
 
             if (face_clip_flags != 0 && clip_exclude) {
                 num_faces_excluded++;
@@ -327,14 +328,24 @@ void* core_sg_visible_faces(void* input)
                 size_t num_out_verts = 0;
                 (*num_faces_to_clip)++;
 
-                core_clip_face(
-                    &render_data->frustum,
-                    render_data->render_state->clip_side_mode,
-                    face_clip_flags,
-                    in_verts,
-                    out_verts,
-                    &num_out_verts,
-                    RAS_MAX_MODEL_VERTS);
+                if (render_data->render_state->clipping_mode == RAS_CLIPPING_ALT) {
+                    core_clip_face_alt(
+                        &render_data->frustum,
+                        face_clip_flags,
+                        in_verts,
+                        out_verts,
+                        &num_out_verts,
+                        RAS_MAX_MODEL_VERTS);
+                } else {
+                    core_clip_face(
+                        &render_data->frustum,
+                        render_data->render_state->clip_side_mode,
+                        face_clip_flags,
+                        in_verts,
+                        out_verts,
+                        &num_out_verts,
+                        RAS_MAX_MODEL_VERTS);
+                }
 
                 static char buffer[255];
                 ras_log_buffer("clip2: num_out_verts: %d\n", num_out_verts);

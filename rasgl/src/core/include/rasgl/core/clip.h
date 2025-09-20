@@ -48,4 +48,12 @@ void core_clip_face(
     size_t* num_out_verts,
     size_t max_out_verts);
 
+void core_clip_face_alt(
+    RasFrustum* frustum,
+    RasClipFlags face_clip_flags,
+    RasPipelineVertex* in_verts[3],
+    RasPipelineVertex* out_verts,
+    size_t* num_out_verts,
+    size_t max_out_verts);
+
 #endif

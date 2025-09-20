@@ -2,6 +2,7 @@
 
 static const char* g_repr_clipping_mode[] = {
     "RAS_CLIPPING_ON",
+    "RAS_CLIPPING_ALT",
     "RAS_CLIPPING_OFF",
     "RAS_CLIPPING_EXCLUDE"
 };
