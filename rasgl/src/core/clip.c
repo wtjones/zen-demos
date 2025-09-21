@@ -298,6 +298,41 @@ RasFrustumPlane* get_side_mode_planes_alt(RasClipSideMode side_mode, size_t* len
     return side_mode_planes[side_mode];
 }
 
+/**
+ * @brief Create a triangle fan from an n-gon.
+ * Shared verts not currently supported.
+ *
+ * @param in_verts
+ * @param num_in_verts
+ * @param out_verts
+ * @param num_out_verts
+ */
+void core_ngon_to_tris(
+    RasPipelineVertex in_verts[6],
+    size_t num_in_verts,
+    RasPipelineVertex out_verts[12],
+    size_t* num_out_verts)
+{
+    *num_out_verts = 0;
+
+    if (num_in_verts < 3) {
+        return;
+    }
+
+    for (size_t i = 1; i < num_in_verts - 1; i++) {
+        RasPipelineVertex* v0 = &in_verts[0];
+        RasPipelineVertex* v1 = &in_verts[i];
+        RasPipelineVertex* v2 = &in_verts[i + 1];
+
+        memcpy(&out_verts[*num_out_verts], v0, sizeof(RasPipelineVertex));
+        (*num_out_verts)++;
+        memcpy(&out_verts[*num_out_verts], v1, sizeof(RasPipelineVertex));
+        (*num_out_verts)++;
+        memcpy(&out_verts[*num_out_verts], v2, sizeof(RasPipelineVertex));
+        (*num_out_verts)++;
+    }
+}
+
 void core_clip_face_alt(
     RasFrustum* frustum,
     RasClipFlags face_clip_flags,
@@ -447,9 +482,8 @@ void core_clip_face_alt(
         memcpy(work_in_verts, work_out_verts, sizeof(RasPipelineVertex) * *num_out_verts);
         num_in_verts = *num_out_verts;
     }
-
-    // TODO: Triangulate if more than 3 verts
-    memcpy(out_verts, work_in_verts, sizeof(RasPipelineVertex) * num_in_verts);
+    core_ngon_to_tris(work_in_verts, num_in_verts, out_verts, num_out_verts);
+    ras_log_buffer("clipped to n-gon with %d verts fanned to %d", num_in_verts, *num_out_verts);
 }
 
 void core_clip_face(
