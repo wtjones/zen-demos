@@ -374,35 +374,60 @@ void core_clip_face_alt(
         *num_out_verts = 0;
         RasPipelineVertex* dst_pv = NULL;
 
-        for (size_t j = 0; j < num_in_verts; j++) {
+        // To allow for priming the first dest vert, start with first src vertex
+        // that is inside the plane.
+        int32_t si = 0;
+        for (si = 0; si < num_in_verts; si++) {
+            bool is_in = !(work_in_verts[si].clip_flags & core_to_clip_flag(i));
+            if (is_in) {
+                break;
+            }
+        }
+        int32_t si_next = (si + 1) % num_in_verts;
+        RasPipelineVertex* src_pv0 = &work_in_verts[si];
+        RasPipelineVertex* src_pv1 = &work_in_verts[si_next];
 
-            // Source edge verts
-            RasPipelineVertex* src_pv0 = &work_in_verts[j];
-            RasPipelineVertex* src_pv1 = j < num_in_verts - 1
-                ? &work_in_verts[j + 1]
-                : &work_in_verts[0];
+        // Prime first dest vert
+        dst_pv = &work_out_verts[0];
+        memcpy(dst_pv, src_pv0, sizeof(RasPipelineVertex));
+        (*num_out_verts) = 1;
+
+        for (size_t j = 0; j < num_in_verts; j++) {
 
             bool src_pv0_is_in = !(src_pv0->clip_flags & core_to_clip_flag(i));
             bool src_pv1_is_in = !(src_pv1->clip_flags & core_to_clip_flag(i));
 
             if (!src_pv0_is_in && !src_pv1_is_in) {
+
+                si = (si + 1) % num_in_verts;
+                si_next = (si + 1) % num_in_verts;
+                // Source edge verts
+                src_pv0 = &work_in_verts[si];
+                src_pv1 = &work_in_verts[si_next];
+
                 continue;
             }
 
             if (src_pv0_is_in && src_pv1_is_in) {
-                // Edge is fully in, add as-is.
+                // Edge is fully in.
+                // If this is the last edge, add 2nd src vert.
+                // Else: Add 1st src vert.
 
-                if (dst_pv == NULL) {
-                    // First in case, need to prime dest
-                    dst_pv = &work_out_verts[0];
-                    memcpy(dst_pv, src_pv0, sizeof(RasPipelineVertex));
-                    (*num_out_verts) = 1;
-                }
-                // Dest pv points to the 2nd vert of the dest edge.
                 dst_pv = &work_out_verts[(*num_out_verts)];
                 (*num_out_verts)++;
 
-                memcpy(dst_pv, src_pv1, sizeof(RasPipelineVertex));
+                // If last edge, copy first vert to close the loop.
+                if (j == num_in_verts - 1) {
+                    memcpy(dst_pv, src_pv0, sizeof(RasPipelineVertex));
+                } else {
+
+                    memcpy(dst_pv, src_pv1, sizeof(RasPipelineVertex));
+                }
+                si = (si + 1) % num_in_verts;
+                si_next = (si + 1) % num_in_verts;
+                // Source edge verts
+                src_pv0 = &work_in_verts[si];
+                src_pv1 = &work_in_verts[si_next];
 
                 continue;
             }
@@ -413,12 +438,6 @@ void core_clip_face_alt(
              */
             if (src_pv0_is_in) {
 
-                if (dst_pv == NULL) {
-                    // First in case, need to prime dest
-                    dst_pv = &work_out_verts[0];
-                    memcpy(dst_pv, src_pv0, sizeof(RasPipelineVertex));
-                    (*num_out_verts) = 1;
-                }
                 // Dest pv points to the 2nd vert of the dest edge.
                 dst_pv = &work_out_verts[(*num_out_verts)];
                 (*num_out_verts)++;
@@ -446,12 +465,6 @@ void core_clip_face_alt(
 
             } else { // pv1 is in
 
-                if (dst_pv == NULL) {
-                    // First in case, need to prime dest
-                    dst_pv = &work_out_verts[0];
-                    memcpy(dst_pv, src_pv0, sizeof(RasPipelineVertex));
-                    (*num_out_verts) = 1;
-                }
                 // Dest pv points to the 2nd vert of the dest edge.
                 dst_pv = &work_out_verts[(*num_out_verts)];
                 (*num_out_verts)++;
@@ -477,6 +490,13 @@ void core_clip_face_alt(
                     dst_pv->clip_flags &= ~core_to_clip_flag(i);
                 }
             }
+
+            si = (si + 1) % num_in_verts;
+            si_next = (si + 1) % num_in_verts;
+            // Source edge verts
+            src_pv0 = &work_in_verts[si];
+            src_pv1 = &work_in_verts[si_next];
+
         } // for each edge
 
         memcpy(work_in_verts, work_out_verts, sizeof(RasPipelineVertex) * *num_out_verts);
