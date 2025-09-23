@@ -331,6 +331,7 @@ void* core_sg_visible_faces(void* input)
                 if (render_data->render_state->clipping_mode == RAS_CLIPPING_ALT) {
                     core_clip_face_alt(
                         &render_data->frustum,
+                        render_data->render_state->clip_side_mode,
                         face_clip_flags,
                         in_verts,
                         out_verts,

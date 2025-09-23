@@ -50,6 +50,7 @@ void core_clip_face(
 
 void core_clip_face_alt(
     RasFrustum* frustum,
+    RasClipSideMode side_mode,
     RasClipFlags face_clip_flags,
     RasPipelineVertex* in_verts[3],
     RasPipelineVertex* out_verts,

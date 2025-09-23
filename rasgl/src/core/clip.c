@@ -335,6 +335,7 @@ void core_ngon_to_tris(
 
 void core_clip_face_alt(
     RasFrustum* frustum,
+    RasClipSideMode side_mode,
     RasClipFlags face_clip_flags,
     RasPipelineVertex* in_verts[3],
     RasPipelineVertex* out_verts,
@@ -356,8 +357,8 @@ void core_clip_face_alt(
      *
      *      triangles_in = triangles_out
      */
-    static RasPipelineVertex work_in_verts[6];
-    static RasPipelineVertex work_out_verts[6];
+    static RasPipelineVertex work_in_verts[14];
+    static RasPipelineVertex work_out_verts[14];
     memcpy(&work_in_verts[0], in_verts[0], sizeof(RasPipelineVertex));
     memcpy(&work_in_verts[1], in_verts[1], sizeof(RasPipelineVertex));
     memcpy(&work_in_verts[2], in_verts[2], sizeof(RasPipelineVertex));
@@ -365,8 +366,8 @@ void core_clip_face_alt(
 
     size_t num_frustum_planes = 0;
     // FIXME: remove alt
-    RasFrustumPlane* frustum_planes = get_side_mode_planes_alt(
-        RAS_CLIP_SIDE_VS, &num_frustum_planes);
+    RasFrustumPlane* frustum_planes = get_side_mode_planes(
+        side_mode, &num_frustum_planes);
     for (int32_t fpi = 0; fpi < num_frustum_planes; fpi++) {
         int32_t i = frustum_planes[fpi];
         RasPlane* plane = &frustum->planes[i];
@@ -410,19 +411,21 @@ void core_clip_face_alt(
 
             if (src_pv0_is_in && src_pv1_is_in) {
                 // Edge is fully in.
-                // If this is the last edge, add 2nd src vert.
-                // Else: Add 1st src vert.
 
-                dst_pv = &work_out_verts[(*num_out_verts)];
-                (*num_out_verts)++;
+                // src_pv1: If not last src edge, add it.
+                bool is_last_src_edge = (j == num_in_verts - 1);
 
-                // If last edge, copy first vert to close the loop.
-                if (j == num_in_verts - 1) {
-                    memcpy(dst_pv, src_pv0, sizeof(RasPipelineVertex));
-                } else {
-
+                if (!is_last_src_edge) {
+                    dst_pv = &work_out_verts[(*num_out_verts)];
+                    (*num_out_verts)++;
+                    if (*num_out_verts > sizeof(work_out_verts) / sizeof(work_out_verts[0])) {
+                        ras_log_buffer("Exceeded max work_out_verts: %d", *num_out_verts);
+                        ras_log_flush();
+                        assert(false);
+                    }
                     memcpy(dst_pv, src_pv1, sizeof(RasPipelineVertex));
                 }
+
                 si = (si + 1) % num_in_verts;
                 si_next = (si + 1) % num_in_verts;
                 // Source edge verts
@@ -432,15 +435,20 @@ void core_clip_face_alt(
                 continue;
             }
 
+            // Dest pv points to the 2nd vert of the dest edge.
+            dst_pv = &work_out_verts[(*num_out_verts)];
+            (*num_out_verts)++;
+            if (*num_out_verts > sizeof(work_out_verts) / sizeof(work_out_verts[0])) {
+                ras_log_buffer("Exceeded max work_out_verts: %d", *num_out_verts);
+                ras_log_flush();
+                assert(false);
+            }
+
             /**
              * @brief Edge is one in, one out.
              *
              */
             if (src_pv0_is_in) {
-
-                // Dest pv points to the 2nd vert of the dest edge.
-                dst_pv = &work_out_verts[(*num_out_verts)];
-                (*num_out_verts)++;
 
                 // Copy from a source vert
                 // Does it matter which one?
@@ -463,11 +471,10 @@ void core_clip_face_alt(
                     dst_pv->clip_flags &= ~core_to_clip_flag(i);
                 }
 
-            } else { // pv1 is in
-
-                // Dest pv points to the 2nd vert of the dest edge.
-                dst_pv = &work_out_verts[(*num_out_verts)];
-                (*num_out_verts)++;
+            } else {
+                // pv1 is in:
+                // - Add the intersection.
+                // - If not the last src edge, add pv1.
 
                 // Copy from a source vert
                 // Does it matter which one?
@@ -488,6 +495,19 @@ void core_clip_face_alt(
                 if (dst_pv->clip_flags & core_to_clip_flag(i)) {
                     ras_log_buffer("Not expecting clip flag %d to remain.", i);
                     dst_pv->clip_flags &= ~core_to_clip_flag(i);
+                }
+
+                bool is_last_src_edge = (j == num_in_verts - 1);
+
+                if (!is_last_src_edge) {
+                    dst_pv = &work_out_verts[(*num_out_verts)];
+                    (*num_out_verts)++;
+                    if (*num_out_verts > sizeof(work_out_verts) / sizeof(work_out_verts[0])) {
+                        ras_log_buffer("Exceeded max work_out_verts: %d", *num_out_verts);
+                        ras_log_flush();
+                        assert(false);
+                    }
+                    memcpy(dst_pv, src_pv1, sizeof(RasPipelineVertex));
                 }
             }
 
