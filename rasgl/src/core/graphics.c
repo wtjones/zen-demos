@@ -104,17 +104,34 @@ void core_aabb_xform(RasAABB* aabb, RasFixed matrix[4][4], RasAABB* dest)
 
 bool core_aabb_in_frustum(RasAABB* aabb, RasFrustum* frustum, RasClipFlags* flags)
 {
-    bool all_out = true;
     RasVector3f points[RAS_MAX_AABB_POINTS];
+    RasClipFlags point_flags[RAS_MAX_AABB_POINTS];
     *flags = 0;
     core_aabb_to_points(aabb, points);
 
     for (int i = 0; i < RAS_MAX_AABB_POINTS; i++) {
-        RasClipFlags point_flags = core_point_in_frustum_planes(frustum, &points[i]);
-        *flags = *flags | point_flags;
-        all_out = point_flags == 0 ? false : all_out;
+        point_flags[i] = core_point_in_frustum_planes(frustum, &points[i]);
+        *flags = *flags | point_flags[i];
     }
-    return all_out;
+
+    // Check if all AABB points are outside a plane.
+    for (RasFrustumPlane plane = 0; plane < FRUSTUM_PLANES; plane++) {
+        RasClipFlags plane_flag = core_to_clip_flag(plane);
+        bool all_out = true;
+
+        for (int i = 0; i < RAS_MAX_AABB_POINTS; i++) {
+            if (!(point_flags[i] & plane_flag)) {
+                all_out = false;
+                break;
+            }
+        }
+
+        if (all_out) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void core_renderstate_init(RenderState* state)
