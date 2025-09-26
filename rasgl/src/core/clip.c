@@ -10,6 +10,40 @@ void core_set_pv_clip_flags(
 {
     pv->clip_flags = 0;
 
+    RasVector4f* p = &pv->clip_space_position;
+
+    if (p->x < -p->w) {
+        pv->clip_flags |= core_to_clip_flag(PLANE_LEFT);
+    }
+
+    if (p->x > p->w) {
+        pv->clip_flags |= core_to_clip_flag(PLANE_RIGHT);
+    }
+
+    if (p->y > p->w) {
+        pv->clip_flags |= core_to_clip_flag(PLANE_BOTTOM);
+    }
+
+    if (p->y < -p->w) {
+        pv->clip_flags |= core_to_clip_flag(PLANE_TOP);
+    }
+
+    if (p->z < 0) {
+        pv->clip_flags |= core_to_clip_flag(PLANE_NEAR);
+    }
+
+    if (p->z > p->w) {
+        pv->clip_flags |= core_to_clip_flag(PLANE_FAR);
+    }
+}
+
+void core_set_pv_clip_flags_vs(
+    RasFrustum* view_frustum,
+    RasClipFlags aabb_flags,
+    RasPipelineVertex* pv)
+{
+    pv->clip_flags = 0;
+
     if (aabb_flags & core_to_clip_flag(PLANE_NEAR)) {
         RasPlane* plane = &view_frustum->planes[PLANE_NEAR];
         bool outside = core_plane_vector_side(plane, &pv->view_space_position) == RAS_PLANE_SIDE_A;

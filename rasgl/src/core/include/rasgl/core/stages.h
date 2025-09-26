@@ -97,6 +97,7 @@ void* core_sg_xform_aabb(void* input);
 void* core_sg_render_aabb(void* input);
 void* core_sg_xform_verts(void* input);
 void* core_sg_project_verts(void* input);
+void* core_sg_project_to_clip_space(void* input);
 /**
  * @brief Populate visible mesh faces (visible_indexes) by:
  * - backface culling faces
@@ -106,9 +107,10 @@ void* core_sg_project_verts(void* input);
  * @return void*
  */
 /**
- * @brief Set clip flags of projected vertices.
+ * @brief Set clip flags of clip-space vertices.
  */
 void* core_sg_clip_flag_verts(void* input);
+void* core_sg_project_to_screen_space(void* input);
 void* core_sg_visible_faces(void* input);
 
 /**

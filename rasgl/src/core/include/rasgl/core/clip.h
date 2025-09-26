@@ -24,7 +24,20 @@ typedef struct RasClipFaceScenario {
     int second_in;
 } RasClipFaceScenario;
 
+/**
+ * @brief Sets clip flags for the view frustum a vertex lies outside of, based
+ * on its homogeneous clip-space position (x, y, z, w).
+ *
+ * @param view_frustum
+ * @param aabb_flags
+ * @param pv
+ */
 void core_set_pv_clip_flags(
+    RasFrustum* view_frustum,
+    RasClipFlags aabb_flags,
+    RasPipelineVertex* pv);
+
+void core_set_pv_clip_flags_vs(
     RasFrustum* view_frustum,
     RasClipFlags aabb_flags,
     RasPipelineVertex* pv);

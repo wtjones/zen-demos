@@ -119,6 +119,7 @@ typedef struct RasVertex {
 typedef struct RasPipelineVertex {
     RasVector3f view_space_position;
     RasVector3f view_space_normal;
+    RasVector4f clip_space_position;
     RasClipFlags clip_flags;
     RasClipFlags aabb_clip_flags;
     RasVector4f screen_space_position;

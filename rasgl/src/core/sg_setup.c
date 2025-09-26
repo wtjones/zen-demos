@@ -15,8 +15,11 @@ void core_pipeline_init(RasPipeline* pipeline)
             { .name = "core_sg_xform_aabb", core_sg_xform_aabb },
             { .name = "core_sg_render_aabb", core_sg_render_aabb },
             { .name = "core_sg_xform_verts", core_sg_xform_verts },
-            { .name = "core_sg_project_verts", core_sg_project_verts },
+            //{ .name = "core_sg_project_verts", core_sg_project_verts },
+            { .name = "core_sg_project_to_clip_space", core_sg_project_to_clip_space },
             { .name = "core_sg_clip_flag_verts", core_sg_clip_flag_verts },
+            // FIXME: Should be after clipping
+            { .name = "core_sg_project_to_screen_space", core_sg_project_to_screen_space },
             { .name = "core_sg_visible_faces", core_sg_visible_faces },
             { .name = "core_sg_xform_normals", core_sg_xform_normals },
             { .name = "core_sg_lighting", core_sg_lighting },
@@ -229,6 +232,59 @@ void* core_sg_project_verts(void* input)
     }
 }
 
+void* core_sg_project_to_clip_space(void* input)
+{
+    RasRenderData* render_data = (RasRenderData*)input;
+
+    for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
+        uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
+        RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
+
+        for (size_t j = 0; j < mesh->num_verts; j++) {
+            RasPipelineVertex* pv = &mesh->verts[j];
+            RasFixed view_space_position[4];
+            RasFixed screen_space_vec[4];
+            RasFixed projected_vec[4];
+
+            core_view_space_to_clip_space(
+                render_data->projection_matrix,
+                &pv->view_space_position,
+                &pv->clip_space_position);
+        }
+    }
+}
+
+// view space version
+void* core_sg_clip_flag_verts_alt(void* input)
+{
+    RasRenderData* render_data = (RasRenderData*)input;
+
+    for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
+        uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
+        RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
+
+        render_data->num_verts_in_frustum[mesh_index] = 0;
+
+        for (uint32_t j = 0; j < mesh->num_verts; j++) {
+
+            RasPipelineVertex* pv = &mesh->verts[j];
+
+            core_set_pv_clip_flags_vs(
+                &render_data->frustum,
+                render_data->aabb_clip_flags[mesh_index],
+                pv);
+
+            pv->aabb_clip_flags = render_data->aabb_clip_flags[mesh_index];
+
+            render_data->num_verts_in_frustum[mesh_index] += pv->clip_flags == 0 ? 1 : 0;
+        }
+        ras_log_buffer(
+            "Mesh id %d has %d verts in frustum",
+            mesh_index,
+            render_data->num_verts_in_frustum[mesh_index]);
+    }
+}
+
 void* core_sg_clip_flag_verts(void* input)
 {
     RasRenderData* render_data = (RasRenderData*)input;
@@ -256,6 +312,45 @@ void* core_sg_clip_flag_verts(void* input)
             "Mesh id %d has %d verts in frustum",
             mesh_index,
             render_data->num_verts_in_frustum[mesh_index]);
+    }
+}
+
+void* core_sg_project_to_screen_space(void* input)
+{
+    RasRenderData* render_data = (RasRenderData*)input;
+
+    for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
+        uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
+        RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
+
+        render_data->num_verts_in_frustum[mesh_index] = 0;
+
+        for (uint32_t j = 0; j < mesh->num_verts; j++) {
+
+            RasPipelineVertex* pv = &mesh->verts[j];
+
+            RasFixed clip_space_position[4];
+            RasFixed ndc_space_vec[4];
+
+            core_vector4f_to_4x1(&pv->clip_space_position, clip_space_position);
+
+            // Perform perspective divide to get NDC coords.
+            core_clip_space_to_ndc(
+                clip_space_position,
+                ndc_space_vec);
+
+            RasVector4f ndc;
+            core_4x1_to_vector4f(ndc_space_vec, &ndc);
+
+            static char buffer[255];
+            ras_log_buffer("ndc pos: %s\n", repr_vector4f(buffer, sizeof buffer, &ndc));
+
+            core_projected_to_screen_point(
+                render_data->render_state->screen_settings.screen_width,
+                render_data->render_state->screen_settings.screen_height,
+                ndc_space_vec,
+                &pv->screen_space_position);
+        }
     }
 }
 
@@ -388,10 +483,10 @@ void* core_sg_visible_faces(void* input)
                     int32_t sx = FIXED_16_16_TO_INT_32(out_verts[j].screen_space_position.x);
                     int32_t sy = FIXED_16_16_TO_INT_32(out_verts[j].screen_space_position.y);
 
-                    if (sx < -1
-                        || sx > (int32_t)(render_data->render_state->screen_settings.screen_width + 1)
-                        || sy < -1
-                        || sy > (int32_t)(render_data->render_state->screen_settings.screen_height + 1)) {
+                    if (sx < 0
+                        || sx > (int32_t)(render_data->render_state->screen_settings.screen_width - 1)
+                        || sy < 0
+                        || sy > (int32_t)(render_data->render_state->screen_settings.screen_height - 1)) {
                         ras_log_buffer_ex(
                             RAS_EVENT_RS_OOB,
                             "Vertex id: %d out of bounds: %s\nsx: %d, sy: %d",
