@@ -148,7 +148,7 @@ void core_renderstate_init(RenderState* state)
     state->max_frames = UINT32_MAX;
 
     state->backface_culling_mode = RAS_BACKFACE_CULLING_ON;
-    state->clipping_mode = RAS_CLIPPING_ON;
+    state->clipping_mode = RAS_CLIPPING_ALT;
     state->clip_side_mode = RAS_CLIP_SIDE_VS;
     state->normal_mode = RAS_NORMAL_MODE_OFF;
     state->grid_mode = RAS_GRID_MODE_OFF;
@@ -229,12 +229,44 @@ void projected_to_screen_point(RasFixed screen_width, RasFixed screen_height, Ra
         mul_fixed_16_16_by_fixed_16_16(half_screen_height, projected_point[1]) + half_screen_height);
 }
 
-bool core_is_backface(RasVector4f* sv0, RasVector4f* sv1, RasVector4f* sv2)
+bool core_is_backface_ss(RasVector4f* sv0, RasVector4f* sv1, RasVector4f* sv2)
 {
     // norm1 = (1.x - 0.x) * (0.y - 2.y)
     // norm2 = (1.y - 0.y) * (0.x - 2.x)
     int64_t norm1 = mul_fixed_16_16_to_fixed_32_32(sv1->x - sv0->x, sv0->y - sv2->y);
     int64_t norm2 = mul_fixed_16_16_to_fixed_32_32(sv1->y - sv0->y, sv0->x - sv2->x);
+    int64_t norm = norm1 - norm2;
+
+    return norm < 0;
+}
+
+bool core_is_backface(const RasVector4f* cv0,
+    const RasVector4f* cv1,
+    const RasVector4f* cv2)
+{
+    // In clip space, we need to account for the homogeneous w coordinate
+    // Convert to normalized device coordinates by dividing by w, then do cross product
+    // norm1 = (v1.x/v1.w - v0.x/v0.w) * (v0.y/v0.w - v2.y/v2.w)
+    // norm2 = (v1.y/v1.w - v0.y/v0.w) * (v0.x/v0.w - v2.x/v2.w)
+    //
+    // Rearranging to avoid division:
+    // norm1 = (v1.x*v0.w - v0.x*v1.w) * (v0.y*v2.w - v2.y*v0.w) / (v0.w*v1.w*v2.w)
+    // norm2 = (v1.y*v0.w - v0.y*v1.w) * (v0.x*v2.w - v2.x*v0.w) / (v0.w*v1.w*v2.w)
+
+    int64_t x1w0_minus_x0w1 = mul_fixed_16_16_to_fixed_32_32(cv1->x, cv0->w) - mul_fixed_16_16_to_fixed_32_32(cv0->x, cv1->w);
+    int64_t y0w2_minus_y2w0 = mul_fixed_16_16_to_fixed_32_32(cv0->y, cv2->w) - mul_fixed_16_16_to_fixed_32_32(cv2->y, cv0->w);
+    int64_t y1w0_minus_y0w1 = mul_fixed_16_16_to_fixed_32_32(cv1->y, cv0->w) - mul_fixed_16_16_to_fixed_32_32(cv0->y, cv1->w);
+    int64_t x0w2_minus_x2w0 = mul_fixed_16_16_to_fixed_32_32(cv0->x, cv2->w) - mul_fixed_16_16_to_fixed_32_32(cv2->x, cv0->w);
+
+    // Scale back to 16.16 to keep final multiply safe on 32-bit.
+    // This is OK because we only need the sign of the cross product for backface culling.
+    int32_t t1 = (int32_t)(x1w0_minus_x0w1 >> 16);
+    int32_t t2 = (int32_t)(y0w2_minus_y2w0 >> 16);
+    int32_t t3 = (int32_t)(y1w0_minus_y0w1 >> 16);
+    int32_t t4 = (int32_t)(x0w2_minus_x2w0 >> 16);
+
+    int64_t norm1 = mul_fixed_16_16_to_fixed_32_32(t1, t2);
+    int64_t norm2 = mul_fixed_16_16_to_fixed_32_32(t3, t4);
     int64_t norm = norm1 - norm2;
 
     return norm < 0;
@@ -885,7 +917,7 @@ void core_draw_element(
             continue; // face is all out
         }
         num_faces_in_frustum += 1;
-        bool is_backface = core_is_backface(
+        bool is_backface = core_is_backface_ss(
             &pv1->screen_space_position,
             &pv2->screen_space_position,
             &pv3->screen_space_position);

@@ -112,6 +112,13 @@ void mat_projection_init(RasFixed projection_matrix[4][4], float fov, float aspe
  */
 void mat_mul_project(RasFixed projection_matrix[4][4], RasFixed v[4], RasFixed dest[4]);
 
+void core_view_space_to_clip_space(
+    RasFixed projection_matrix[4][4],
+    RasVector3f* view_space,
+    RasVector4f* dest);
+
+void core_clip_space_to_ndc(RasFixed clip_space[4], RasFixed ndc_space[4]);
+
 /**
  * @brief Create a normal matrix from a model view matrix by omitting the translation. Scaling tranforms are not supported with this method.
  *
@@ -121,8 +128,10 @@ void mat_mul_project(RasFixed projection_matrix[4][4], RasFixed v[4], RasFixed d
 void core_mat_normal_init(RasFixed mvt[4][4], RasFixed dest[4][4]);
 
 void core_vector3f_to_4x1(RasVector3f* vec, RasFixed m[4]);
+void core_vector4f_to_4x1(RasVector4f* vec, RasFixed m[4]);
 void core_vector4f_to_vector2f(RasVector4f* vec4f, Point2f* vec2f);
 void core_4x1_to_vector3f(RasFixed m[4], RasVector3f* vec);
+void core_4x1_to_vector4f(RasFixed m[4], RasVector4f* vec);
 
 /**
  * @brief Perform memberwise comparison of Point3f

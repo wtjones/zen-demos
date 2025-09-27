@@ -76,20 +76,30 @@ Platform support progress:
 
 ## Render Pipeline
 
-Transform object AABB points to view space
-Construct view AABB from transformed points
-Transform frustum to view space
-Test AABB points against frustum
-    - could be optimized
-Test object view space AABB against view-space frustum
-Transform object vertices to world vertices
-Transform world vertices to view vertices
-Transform view vertices to screen vertices
+1. **Object bounds culling**
 
-Push vertex to render array, get index.
+   * Transform object AABB corners into view space.
+   * Build a view-space AABB from the transformed corners.
+   * Transform the frustum into view space.
+   * Test the object’s AABB against the frustum (can be optimized).
+   * If the AABB is completely outside, reject the object early.
 
-For each triangle:
-    Push the 3 vertex indices.
+2. **Vertex transformation**
+
+   * Transform object vertices → world space.
+   * Transform world vertices → view space.
+   * Transform view vertices → clip space (projection matrix).
+   * Perform backface removal.
+   * Clip vertices/triangles against the view frustum in clip space.
+   * Perform perspective divide → NDC.
+   * Map NDC → screen coordinates.
+   * Transform face normals from model space to view space.
+   * Calculate lighting from view space normals.
+
+3. **Geometry setup**
+
+   * Push each final screen-space vertex into the render array and record its index.
+   * For each triangle, push the 3 vertex indices.
 
 ### Map render
 

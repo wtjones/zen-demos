@@ -24,10 +24,50 @@ typedef struct RasClipFaceScenario {
     int second_in;
 } RasClipFaceScenario;
 
+/**
+ * @brief Sets clip flags for the view frustum a vertex lies outside of, based
+ * on its homogeneous clip-space position (x, y, z, w).
+ *
+ * @param view_frustum
+ * @param aabb_flags
+ * @param pv
+ */
 void core_set_pv_clip_flags(
     RasFrustum* view_frustum,
     RasClipFlags aabb_flags,
     RasPipelineVertex* pv);
+
+void core_set_pv_clip_flags_vs(
+    RasFrustum* view_frustum,
+    RasClipFlags aabb_flags,
+    RasPipelineVertex* pv);
+
+/**
+ * @brief Gets the signed distance to one of the canonical clip planes.
+ * Allows for clipping in homogeneous coordinates.
+ *
+ * If val > 0 → the point is inside the clip volume.
+ * If val == 0 → point is exactly on the clipping boundary.
+ * If val < 0 → the point is outside the clip volume.
+ *
+ * @param v
+ * @param plane
+ * @return RasFixed
+ */
+RasFixed core_eval_clip_plane(RasVector4f* v, RasFrustumPlane plane);
+
+/**
+ * @brief Sets a vector at the intersection of the given line and clip plane.
+ * Uses homogeneous coordinates.
+ *
+ * @param v1 line point outside of plane
+ * @param v2 line point inside of plane
+ * @param plane
+ * @param dest_vec
+ * @returns true if intersection is valid
+ */
+bool core_get_line_clip_intersect(
+    RasVector4f* v1, RasVector4f* v2, RasFrustumPlane plane, RasVector4f* dest_vec);
 
 /**
  * @brief Perform Sutherland–Hodgman clipping.

@@ -217,6 +217,28 @@ void mat_mul_project(RasFixed projection_matrix[4][4], RasFixed v[4], RasFixed d
     };
 }
 
+void core_view_space_to_clip_space(
+    RasFixed projection_matrix[4][4],
+    RasVector3f* view_space,
+    RasVector4f* dest)
+{
+    RasFixed view_space_vec[4];
+    RasFixed projected_vec[4];
+
+    core_vector3f_to_4x1(view_space, view_space_vec);
+    mat_mul_4x4_4x1(projection_matrix, view_space_vec, projected_vec);
+    core_4x1_to_vector4f(projected_vec, dest);
+}
+
+void core_clip_space_to_ndc(RasFixed clip_space[4], RasFixed ndc_space[4])
+{
+    // Convert clip space coordinates to NDC by perspective divide.
+    ndc_space[0] = div_fixed_16_16_by_fixed_16_16(clip_space[0], clip_space[3]);
+    ndc_space[1] = div_fixed_16_16_by_fixed_16_16(clip_space[1], clip_space[3]);
+    ndc_space[2] = div_fixed_16_16_by_fixed_16_16(clip_space[2], clip_space[3]);
+    ndc_space[3] = RAS_FIXED_ONE;
+}
+
 void core_mat_normal_init(RasFixed mvt[4][4], RasFixed dest[4][4])
 {
     mat_set_identity_4x4(dest);
@@ -271,6 +293,14 @@ void core_vector3f_to_4x1(RasVector3f* vec, RasFixed m[4])
     m[3] = INT_32_TO_FIXED_16_16(1);
 }
 
+void core_vector4f_to_4x1(RasVector4f* vec, RasFixed m[4])
+{
+    m[0] = vec->x;
+    m[1] = vec->y;
+    m[2] = vec->z;
+    m[3] = vec->w;
+}
+
 void core_vector4f_to_vector2f(RasVector4f* vec4f, Point2f* vec2f)
 {
     vec2f->x = vec4f->x;
@@ -282,6 +312,14 @@ void core_4x1_to_vector3f(RasFixed m[4], RasVector3f* vec)
     vec->x = m[0];
     vec->y = m[1];
     vec->z = m[2];
+}
+
+void core_4x1_to_vector4f(RasFixed m[4], RasVector4f* vec)
+{
+    vec->x = m[0];
+    vec->y = m[1];
+    vec->z = m[2];
+    vec->w = m[3];
 }
 
 bool cmp_point3f(Point3f* p1, Point3f* p2)

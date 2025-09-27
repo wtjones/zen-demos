@@ -52,6 +52,23 @@ RasPlaneSideResult core_plane_vector_side(RasPlane* plane, Point3f* v1)
         return RAS_PLANE_SIDE_EQUAL;
 }
 
+RasPlaneSideResult core_plane_vector4f_side(RasPlane* plane, RasVector4f* v1)
+{
+    RasFixed v1pos;
+
+    v1pos = mul_fixed_16_16_by_fixed_16_16(plane->normal.x, v1->x)
+        + mul_fixed_16_16_by_fixed_16_16(plane->normal.y, v1->y)
+        + mul_fixed_16_16_by_fixed_16_16(plane->normal.z, v1->z)
+        + plane->distance;
+
+    if (v1pos > 0)
+        return RAS_PLANE_SIDE_B;
+    else if (v1pos < 0)
+        return RAS_PLANE_SIDE_A;
+    else
+        return RAS_PLANE_SIDE_EQUAL;
+}
+
 /**
  *
  * v = ( a.n.Cross ( b.n ) * -d - b.n.Cross ( n )  * a.d - n.Cross ( a.n ) * b.d ) / denom;

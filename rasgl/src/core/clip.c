@@ -1,9 +1,63 @@
 #include "rasgl/core/clip.h"
 #include "rasgl/core/debug.h"
+#include "rasgl/core/event.h"
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/repr.h"
 
 void core_set_pv_clip_flags(
+    RasFrustum* view_frustum,
+    RasClipFlags aabb_flags,
+    RasPipelineVertex* pv)
+{
+    pv->clip_flags = 0;
+
+    RasVector4f* p = &pv->clip_space_position;
+
+    if (p->x < -p->w) {
+        pv->clip_flags |= core_to_clip_flag(PLANE_LEFT);
+    }
+
+    if (p->x > p->w) {
+        pv->clip_flags |= core_to_clip_flag(PLANE_RIGHT);
+    }
+
+    if (p->y > p->w) {
+        pv->clip_flags |= core_to_clip_flag(PLANE_BOTTOM);
+    }
+
+    if (p->y < -p->w) {
+        pv->clip_flags |= core_to_clip_flag(PLANE_TOP);
+    }
+
+    if (p->z < 0) {
+        pv->clip_flags |= core_to_clip_flag(PLANE_NEAR);
+    }
+
+    if (p->z > p->w) {
+        pv->clip_flags |= core_to_clip_flag(PLANE_FAR);
+    }
+}
+
+RasFixed core_eval_clip_plane(RasVector4f* v, RasFrustumPlane plane)
+{
+    switch (plane) {
+    case PLANE_LEFT:
+        return v->x + v->w;
+    case PLANE_RIGHT:
+        return v->w - v->x;
+    case PLANE_BOTTOM:
+        return v->w - v->y;
+    case PLANE_TOP:
+        return v->y + v->w;
+    case PLANE_NEAR:
+        return v->z;
+    case PLANE_FAR:
+        return v->w - v->z;
+    }
+    return 0;
+}
+
+void core_set_pv_clip_flags_vs(
     RasFrustum* view_frustum,
     RasClipFlags aabb_flags,
     RasPipelineVertex* pv)
@@ -57,6 +111,38 @@ void core_set_pv_clip_flags(
             ? core_to_clip_flag(PLANE_BOTTOM)
             : 0;
     }
+}
+
+bool core_get_line_clip_intersect(
+    RasVector4f* v1, RasVector4f* v2, RasFrustumPlane plane, RasVector4f* dest_vec)
+{
+    RasFixed side1 = core_eval_clip_plane(v1, plane);
+    RasFixed side2 = core_eval_clip_plane(v2, plane);
+
+    if (side1 == 0) {
+        *dest_vec = *v1;
+        return true;
+    }
+    if (side2 == 0) {
+        *dest_vec = *v2;
+        return true;
+    }
+
+    // For intersection to be valid, vertices must be on opposite sides
+    if ((side1 > 0 && side2 > 0) || (side1 < 0 && side2 < 0)) {
+        ras_log_buffer_warn_ex(
+            RAS_EVENT_INVALID_MATH,
+            "Warning: both vertices on same side of clip plane");
+        return false;
+    }
+
+    RasFixed scale = div_fixed_16_16_by_fixed_16_16(-side1, side2 - side1);
+
+    dest_vec->x = v1->x + mul_fixed_16_16_by_fixed_16_16(v2->x - v1->x, scale);
+    dest_vec->y = v1->y + mul_fixed_16_16_by_fixed_16_16(v2->y - v1->y, scale);
+    dest_vec->z = v1->z + mul_fixed_16_16_by_fixed_16_16(v2->z - v1->z, scale);
+    dest_vec->w = v1->w + mul_fixed_16_16_by_fixed_16_16(v2->w - v1->w, scale);
+    return true;
 }
 
 void core_clip_face_scenario(
@@ -455,11 +541,11 @@ void core_clip_face_alt(
                 memcpy(dst_pv, src_pv0, sizeof(RasPipelineVertex));
 
                 // Use midpoint for 2nd vert of dest edge
-                bool math_result = core_get_line_plane_intersect(
-                    &src_pv0->view_space_position,
-                    &src_pv1->view_space_position,
-                    plane,
-                    &dst_pv->view_space_position);
+                bool math_result = core_get_line_clip_intersect(
+                    &src_pv0->clip_space_position,
+                    &src_pv1->clip_space_position,
+                    i,
+                    &dst_pv->clip_space_position);
 
                 core_set_pv_clip_flags(
                     frustum,
@@ -481,11 +567,11 @@ void core_clip_face_alt(
                 memcpy(dst_pv, src_pv1, sizeof(RasPipelineVertex));
 
                 // Use midpoint for 1st vert of dest edge
-                bool math_result = core_get_line_plane_intersect(
-                    &src_pv1->view_space_position,
-                    &src_pv0->view_space_position,
-                    plane,
-                    &dst_pv->view_space_position);
+                bool math_result = core_get_line_clip_intersect(
+                    &src_pv1->clip_space_position,
+                    &src_pv0->clip_space_position,
+                    i,
+                    &dst_pv->clip_space_position);
 
                 core_set_pv_clip_flags(
                     frustum,
