@@ -21,11 +21,11 @@ void core_set_pv_clip_flags(
         pv->clip_flags |= core_to_clip_flag(PLANE_RIGHT);
     }
 
-    if (p->y > p->w) {
+    if (p->y < -p->w) {
         pv->clip_flags |= core_to_clip_flag(PLANE_BOTTOM);
     }
 
-    if (p->y < -p->w) {
+    if (p->y > p->w) {
         pv->clip_flags |= core_to_clip_flag(PLANE_TOP);
     }
 
@@ -40,15 +40,16 @@ void core_set_pv_clip_flags(
 
 RasFixed core_eval_clip_plane(RasVector4f* v, RasFrustumPlane plane)
 {
+    // >= 0 means inside the clip volume
     switch (plane) {
     case PLANE_LEFT:
         return v->x + v->w;
     case PLANE_RIGHT:
         return v->w - v->x;
     case PLANE_BOTTOM:
-        return v->w - v->y;
-    case PLANE_TOP:
         return v->y + v->w;
+    case PLANE_TOP:
+        return v->w - v->y;
     case PLANE_NEAR:
         return v->z;
     case PLANE_FAR:

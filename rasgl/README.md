@@ -130,6 +130,12 @@ p6-------p7-------p8
 
 A [right-handed system](https://learnopengl.com/Getting-started/Coordinate-Systems) is used.
 
+* Right-handed camera, looking down −Z
+* +Y is up
+* Clip space: −w ≤ x ≤ w, −w ≤ y ≤ w, 0 ≤ z ≤ w
+* Perspective divide → NDC: x,y ∈ [−1,1], z ∈ [0,1]
+* Triangle winding order is counter-clockwise when viewed from the front.
+
 ```text
             +Y
             |
@@ -143,8 +149,6 @@ A [right-handed system](https://learnopengl.com/Getting-started/Coordinate-Syste
     +Z      |
            -Y
 ```
-
-Triangle winding order is counter-clockwise when viewed from the front.
 
 ## Build and Run
 

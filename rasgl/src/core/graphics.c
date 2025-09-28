@@ -269,7 +269,7 @@ bool core_is_backface(const RasVector4f* cv0,
     int64_t norm2 = mul_fixed_16_16_to_fixed_32_32(t3, t4);
     int64_t norm = norm1 - norm2;
 
-    return norm < 0;
+    return norm >= 0;
 }
 
 /**
@@ -693,7 +693,7 @@ void core_projected_to_screen_point(int32_t screen_width, int32_t screen_height,
     RasFixed half_screen_height = INT_32_TO_FIXED_16_16(screen_height / 2);
 
     screen_point->x = mul_fixed_16_16_by_fixed_16_16(half_screen_width, projected_point[0]) + half_screen_width;
-    screen_point->y = mul_fixed_16_16_by_fixed_16_16(half_screen_height, projected_point[1]) + half_screen_height;
+    screen_point->y = -mul_fixed_16_16_by_fixed_16_16(half_screen_height, projected_point[1]) + half_screen_height;
     screen_point->z = projected_point[2];
     screen_point->w = projected_point[3];
 }
