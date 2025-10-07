@@ -129,6 +129,9 @@ void* core_sg_xform_aabb(void* input)
 
         ras_log_buffer("AABB flags: %hhu, all_out: %s\n", render_data->aabb_clip_flags[i], all_out ? "true" : "false");
         if (!all_out) {
+            assert(render_data->num_visible_objects < RAS_MAX_SCENE_OBJECTS);
+            assert(render_data->render_state->num_visible_meshes < RAS_MAX_MESHES);
+
             render_data->visible_objects[render_data->num_visible_objects++] = i;
             render_data->mesh_elements[render_data->num_mesh_elements].mesh_index = i;
             render_data->mesh_elements[render_data->num_mesh_elements].element_ref = element;
