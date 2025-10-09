@@ -268,11 +268,14 @@ example: `./run_dos.sh poly 0 assets/secenes/tri.lsp`
 | Toggle backface culling mode  | ctrl-b       |
 | Cycle polygon render modes    | ctrl-o       |
 | Cycle polygon clipping modes  | ctrl-c       |
-| Cycle polygon clip space      | ctrl-shift-c |
+| Cycle polygon clip sides[^1]  | ctrl-shift-c |
 | Cycle normal diagnostic modes | ctrl-n       |
 | Cycle grid output modes       | ctrl-g       |
 | Cycle pipeline modes          | ctrl-l       |
 | Flush per-frame logs          | ctrl-f       |
+
+[^1]: Far plane off (default), far plane on, near plane only
+
 
 ### Console Controls
 

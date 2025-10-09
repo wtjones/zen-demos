@@ -49,8 +49,9 @@ typedef enum {
 } RasClippingMode;
 
 typedef enum {
-    RAS_CLIP_SIDE_SS,
-    RAS_CLIP_SIDE_VS,
+    RAS_CLIP_SIDE_DEFAULT,
+    RAS_CLIP_SIDE_ALL,
+    RAS_CLIP_SIDE_NEAR_ONLY,
     RAS_CLIP_SIDE_MODE_COUNT
 } RasClipSideMode;
 

@@ -8,8 +8,9 @@ static const char* g_repr_clipping_mode[] = {
 };
 
 static const char* g_repr_clip_side_mode[] = {
-    "RAS_CLIP_SIDE_SS",
-    "RAS_CLIP_SIDE_VS"
+    "RAS_CLIP_SIDE_DEFAULT",
+    "RAS_CLIP_SIDE_ALL",
+    "RAS_CLIP_SIDE_NEAR_ONLY"
 };
 
 static const char* g_repr_normal_mode[] = {

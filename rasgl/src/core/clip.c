@@ -354,34 +354,25 @@ int32_t core_clip_face_b(
 RasFrustumPlane* get_side_mode_planes(RasClipSideMode side_mode, size_t* len)
 {
     static RasFrustumPlane side_mode_planes[RAS_CLIP_SIDE_MODE_COUNT][6] = {
-        { PLANE_NEAR, PLANE_FAR },
+        { PLANE_NEAR,
+            PLANE_LEFT,
+            PLANE_RIGHT,
+            PLANE_BOTTOM,
+            PLANE_TOP },
         { PLANE_NEAR,
             PLANE_FAR,
             PLANE_LEFT,
             PLANE_RIGHT,
             PLANE_BOTTOM,
-            PLANE_TOP }
+            PLANE_TOP },
+        { PLANE_NEAR }
     };
 
-    *len = side_mode == RAS_CLIP_SIDE_VS ? 6 : 2;
-    return side_mode_planes[side_mode];
-}
-
-/**
- * @brief Temp mode for testing new clipping algorithm
- *
- * @param side_mode
- * @param len
- * @return RasFrustumPlane*
- */
-RasFrustumPlane* get_side_mode_planes_alt(RasClipSideMode side_mode, size_t* len)
-{
-    static RasFrustumPlane side_mode_planes[RAS_CLIP_SIDE_MODE_COUNT][6] = {
-        { PLANE_NEAR, PLANE_FAR },
-        { PLANE_BOTTOM }
+    static size_t sizes[RAS_CLIP_SIDE_MODE_COUNT + 1] = {
+        5, 6, 1, 0
     };
 
-    *len = side_mode == RAS_CLIP_SIDE_VS ? 1 : 2;
+    *len = sizes[side_mode];
     return side_mode_planes[side_mode];
 }
 
