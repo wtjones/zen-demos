@@ -281,10 +281,27 @@ void core_aabb_init(RasAABB* aabb);
 void core_aabb_xform(RasAABB* aabb, RasFixed matrix[4][4], RasAABB* dest);
 
 /**
+ * @brief Set bitmask of planes with an outside AABB point.
+ * Returns true if all points are outside.
+ *
+ * @param view_aabb
+ * @param frustum
+ * @param use_far_plane Prevent an all-out return if far plane is disabled.
+ * @param flags Destination aabb clip flags of object.
+ * @return true
+ * @return false
+ */
+bool core_aabb_in_frustum(
+    RasAABB* view_aabb,
+    RasFrustum* frustum,
+    bool use_far_plane,
+    RasClipFlags* flags);
+
+/**
  * Sets bitmask of planes with an ouside AABB point.
  * Returns true if all points are outside.
  */
-bool core_aabb_in_frustum(RasAABB* view_aabb, RasFrustum* frustum, RasClipFlags* flags);
+bool core_aabb_in_frustum_alt(RasAABB* view_aabb, RasFrustum* frustum, RasClipFlags* flags);
 
 /**
  * Determine if poly is backfacing based on the normal's angle to the viewer

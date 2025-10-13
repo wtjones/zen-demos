@@ -97,4 +97,6 @@ void core_clip_face_alt(
     size_t* num_out_verts,
     size_t max_out_verts);
 
+RasFrustumPlane* get_side_mode_planes(RasClipSideMode side_mode, size_t* len);
+
 #endif

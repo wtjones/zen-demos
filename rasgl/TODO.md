@@ -27,6 +27,7 @@
 
 - [ ] AABB should remain correct when model rotates
 - [ ] Fix disappearing poly in some near camera clipping cases.
+- [ ] Consider a bitmask for planes to simplify cases such as `core_sg_visible_faces()`.
 
 ### Math
 

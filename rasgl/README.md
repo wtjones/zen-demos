@@ -82,6 +82,7 @@ Platform support progress:
    * Build a view-space AABB from the transformed corners.
    * Transform the frustum into view space.
    * Test the object’s AABB against the frustum (can be optimized).
+     * Far plane is ignored based on `RasClipSideMode`.
    * If the AABB is completely outside, reject the object early.
 
 2. **Vertex transformation**
@@ -89,6 +90,8 @@ Platform support progress:
    * Transform object vertices → world space.
    * Transform world vertices → view space.
    * Transform view vertices → clip space (projection matrix).
+   * Cull faces outside of at least one frustum plane.
+     * Foar plane is ignored based on `RasClipSideMode`.
    * Perform backface removal.
    * Clip vertices/triangles against the view frustum in clip space.
    * Perform perspective divide → NDC.

@@ -102,7 +102,45 @@ void core_aabb_xform(RasAABB* aabb, RasFixed matrix[4][4], RasAABB* dest)
     }
 }
 
-bool core_aabb_in_frustum(RasAABB* aabb, RasFrustum* frustum, RasClipFlags* flags)
+bool core_aabb_in_frustum(
+    RasAABB* aabb,
+    RasFrustum* frustum,
+    bool use_far_plane,
+    RasClipFlags* flags)
+{
+    RasVector3f points[RAS_MAX_AABB_POINTS];
+    RasClipFlags point_flags[RAS_MAX_AABB_POINTS];
+    *flags = 0;
+    core_aabb_to_points(aabb, points);
+
+    for (int i = 0; i < RAS_MAX_AABB_POINTS; i++) {
+        point_flags[i] = core_point_in_frustum_planes(frustum, &points[i]);
+        *flags = *flags | point_flags[i];
+    }
+
+    // Check if all AABB points are outside a plane.
+    int32_t num_frustum_planes = (use_far_plane == true ? FRUSTUM_PLANES : FRUSTUM_PLANES - 1);
+    for (RasFrustumPlane fpi = 0; fpi < num_frustum_planes; fpi++) {
+
+        RasClipFlags plane_flag = core_to_clip_flag(fpi);
+        bool all_out = true;
+
+        for (int i = 0; i < RAS_MAX_AABB_POINTS; i++) {
+            if (!(point_flags[i] & plane_flag)) {
+                all_out = false;
+                break;
+            }
+        }
+
+        if (all_out) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool core_aabb_in_frustum_alt(RasAABB* aabb, RasFrustum* frustum, RasClipFlags* flags)
 {
     RasVector3f points[RAS_MAX_AABB_POINTS];
     RasClipFlags point_flags[RAS_MAX_AABB_POINTS];
@@ -832,7 +870,7 @@ void core_draw_element(
     ras_log_buffer("AABB view max: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb.max));
 
     RasClipFlags aabb_clip_flags = 0;
-    bool all_out = core_aabb_in_frustum(&view_aabb, frustum, &aabb_clip_flags);
+    bool all_out = core_aabb_in_frustum_alt(&view_aabb, frustum, &aabb_clip_flags);
 
     ras_log_buffer("AABB flags: %hhu, all_out: %s\n", aabb_clip_flags, all_out ? "true" : "false");
 

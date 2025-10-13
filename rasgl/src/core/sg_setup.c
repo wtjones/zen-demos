@@ -111,6 +111,18 @@ void* core_sg_xform_aabb(void* input)
     char buffer[1000];
     RasRenderData* render_data = (RasRenderData*)input;
 
+    size_t num_frustum_planes = 0;
+    RasFrustumPlane* frustum_planes = get_side_mode_planes(
+        render_data->render_state->clip_side_mode,
+        &num_frustum_planes);
+    bool use_far_plane = false;
+    for (size_t i = 0; i < num_frustum_planes; i++) {
+        if (frustum_planes[i] == PLANE_FAR) {
+            use_far_plane = true;
+            break;
+        }
+    }
+
     for (size_t i = 0; i < render_data->scene->num_objects; i++) {
         RasSceneObject* current_object = &render_data->scene->objects[i];
         RasPipelineElement* element = current_object->element_ref;
@@ -125,6 +137,7 @@ void* core_sg_xform_aabb(void* input)
         bool all_out = core_aabb_in_frustum(
             view_aabb,
             &render_data->frustum,
+            use_far_plane,
             &render_data->aabb_clip_flags[i]);
 
         ras_log_buffer("AABB flags: %hhu, all_out: %s\n", render_data->aabb_clip_flags[i], all_out ? "true" : "false");
@@ -557,6 +570,18 @@ void* core_sg_visible_faces(void* input)
     size_t* num_faces_to_clip = &render_data->num_faces_to_clip;
     *num_faces_to_clip = 0;
 
+    size_t num_frustum_planes = 0;
+    RasFrustumPlane* frustum_planes = get_side_mode_planes(
+        render_data->render_state->clip_side_mode,
+        &num_frustum_planes);
+    bool use_far_plane = false;
+    for (size_t i = 0; i < num_frustum_planes; i++) {
+        if (frustum_planes[i] == PLANE_FAR) {
+            use_far_plane = true;
+            break;
+        }
+    }
+
     for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
         uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
         RasPipelineElement* element = render_data->mesh_elements[i].element_ref;
@@ -576,8 +601,13 @@ void* core_sg_visible_faces(void* input)
             RasPipelineVertex* pv2 = &mesh->verts[element->indexes[i + 1]];
             RasPipelineVertex* pv3 = &mesh->verts[element->indexes[i + 2]];
 
-            if (pv1->clip_flags & pv2->clip_flags & pv3->clip_flags) {
+            bool all_out = use_far_plane
+                ? pv1->clip_flags & pv2->clip_flags & pv3->clip_flags
+                : (pv1->clip_flags & ~core_to_clip_flag(PLANE_FAR))
+                    & (pv2->clip_flags & ~core_to_clip_flag(PLANE_FAR))
+                    & (pv3->clip_flags & ~core_to_clip_flag(PLANE_FAR));
 
+            if (all_out) {
                 current_src_face_index++;
 
                 continue; // face is all out
