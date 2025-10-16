@@ -25,8 +25,9 @@
 
 ### Clipping - Polygon
 
-- [ ] AABB should remain correct when model rotates
+- [ ] AABB should remain correct when model rotates.
 - [ ] Fix disappearing poly in some near camera clipping cases.
+  - Proposed fix is to perform backface culling in NDC after clipping.
 - [ ] Consider a bitmask for planes to simplify cases such as `core_sg_visible_faces()`.
 
 ### Math
