@@ -33,13 +33,6 @@ typedef struct RasClipFaceScenario {
  * @param pv
  */
 void core_set_pv_clip_flags(
-    RasFrustum* view_frustum,
-    RasClipFlags aabb_flags,
-    RasPipelineVertex* pv);
-
-void core_set_pv_clip_flags_vs(
-    RasFrustum* view_frustum,
-    RasClipFlags aabb_flags,
     RasPipelineVertex* pv);
 
 /**
@@ -80,18 +73,7 @@ bool core_get_line_clip_intersect(
  * @param max_out_verts
  */
 void core_clip_face(
-    RasFrustum* frustum,
     RasClipSideMode side_mode,
-    RasClipFlags face_clip_flags,
-    RasPipelineVertex* in_verts[3],
-    RasPipelineVertex* out_verts,
-    size_t* num_out_verts,
-    size_t max_out_verts);
-
-void core_clip_face_alt(
-    RasFrustum* frustum,
-    RasClipSideMode side_mode,
-    RasClipFlags face_clip_flags,
     RasPipelineVertex* in_verts[3],
     RasPipelineVertex* out_verts,
     size_t* num_out_verts,

@@ -42,7 +42,6 @@ typedef enum {
 
 typedef enum {
     RAS_CLIPPING_ON,
-    RAS_CLIPPING_ALT,
     RAS_CLIPPING_OFF,
     RAS_CLIPPING_EXCLUDE,
     RAS_CLIPPING_MODE_COUNT

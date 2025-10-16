@@ -268,37 +268,6 @@ void* core_sg_project_to_clip_space(void* input)
     }
 }
 
-// view space version
-void* core_sg_clip_flag_verts_alt(void* input)
-{
-    RasRenderData* render_data = (RasRenderData*)input;
-
-    for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
-        uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
-        RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
-
-        render_data->num_verts_in_frustum[mesh_index] = 0;
-
-        for (uint32_t j = 0; j < mesh->num_verts; j++) {
-
-            RasPipelineVertex* pv = &mesh->verts[j];
-
-            core_set_pv_clip_flags_vs(
-                &render_data->frustum,
-                render_data->aabb_clip_flags[mesh_index],
-                pv);
-
-            pv->aabb_clip_flags = render_data->aabb_clip_flags[mesh_index];
-
-            render_data->num_verts_in_frustum[mesh_index] += pv->clip_flags == 0 ? 1 : 0;
-        }
-        ras_log_buffer(
-            "Mesh id %d has %d verts in frustum",
-            mesh_index,
-            render_data->num_verts_in_frustum[mesh_index]);
-    }
-}
-
 void* core_sg_clip_flag_verts(void* input)
 {
     RasRenderData* render_data = (RasRenderData*)input;
@@ -314,8 +283,6 @@ void* core_sg_clip_flag_verts(void* input)
             RasPipelineVertex* pv = &mesh->verts[j];
 
             core_set_pv_clip_flags(
-                &render_data->frustum,
-                render_data->aabb_clip_flags[mesh_index],
                 pv);
 
             pv->aabb_clip_flags = render_data->aabb_clip_flags[mesh_index];
@@ -365,202 +332,6 @@ void* core_sg_project_to_screen_space(void* input)
                 ndc_space_vec,
                 &pv->screen_space_position);
         }
-    }
-}
-
-void* core_sg_visible_faces_vs(void* input)
-{
-    RasRenderData* render_data = (RasRenderData*)input;
-    size_t* num_faces_to_clip = &render_data->num_faces_to_clip;
-    *num_faces_to_clip = 0;
-
-    for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
-        uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
-        RasPipelineElement* element = render_data->mesh_elements[i].element_ref;
-        RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
-        uint32_t* num_dest_faces = &mesh->num_visible_faces;
-        uint32_t* vi = &mesh->num_visible_indexes;
-        uint32_t* num_dest_materials = &mesh->num_material_indexes;
-        *num_dest_materials = 0;
-
-        render_data->num_faces_in_frustum[mesh_index] = 0;
-        render_data->num_backfaces[mesh_index] = 0;
-        uint32_t current_src_face_index = 0;
-        uint16_t num_faces_excluded = 0;
-
-        for (uint32_t i = 0; i < element->num_indexes; i += 3) {
-            RasPipelineVertex* pv1 = &mesh->verts[element->indexes[i]];
-            RasPipelineVertex* pv2 = &mesh->verts[element->indexes[i + 1]];
-            RasPipelineVertex* pv3 = &mesh->verts[element->indexes[i + 2]];
-
-            if (pv1->clip_flags & pv2->clip_flags & pv3->clip_flags) {
-
-                current_src_face_index++;
-
-                continue; // face is all out
-            }
-            render_data->num_faces_in_frustum[mesh_index] += 1;
-
-            bool is_backface = core_is_backface_ss(
-                &pv1->screen_space_position,
-                &pv2->screen_space_position,
-                &pv3->screen_space_position);
-
-            render_data->num_backfaces[mesh_index] += is_backface ? 1 : 0;
-
-            bool is_culling = render_data->render_state->backface_culling_mode == RAS_BACKFACE_CULLING_ON;
-            if (is_backface && is_culling) {
-                current_src_face_index++;
-                continue;
-            }
-
-            /**
-             * @brief If dropped due to clipping exclusion, skip out to avoid
-             * adding the face to the visible faces list.
-             *
-             */
-            RasClipFlags face_clip_flags = pv1->clip_flags | pv2->clip_flags | pv3->clip_flags;
-            bool clip_exclude = render_data->render_state->clipping_mode == RAS_CLIPPING_EXCLUDE;
-            bool clip_on = render_data->render_state->clipping_mode == RAS_CLIPPING_ON
-                || render_data->render_state->clipping_mode == RAS_CLIPPING_ALT;
-
-            if (face_clip_flags != 0 && clip_exclude) {
-                num_faces_excluded++;
-                current_src_face_index++;
-                continue;
-            }
-
-            if (face_clip_flags != 0 && clip_on) {
-                ras_log_buffer("scenario: face_clip_flags: %d\n", face_clip_flags);
-                RasPipelineVertex* in_verts[3] = { pv1, pv2, pv3 };
-                RasPipelineVertex out_verts[RAS_MAX_MODEL_VERTS];
-                size_t num_out_verts = 0;
-                (*num_faces_to_clip)++;
-
-                if (render_data->render_state->clipping_mode == RAS_CLIPPING_ALT) {
-                    core_clip_face_alt(
-                        &render_data->frustum,
-                        render_data->render_state->clip_side_mode,
-                        face_clip_flags,
-                        in_verts,
-                        out_verts,
-                        &num_out_verts,
-                        RAS_MAX_MODEL_VERTS);
-                } else {
-                    core_clip_face(
-                        &render_data->frustum,
-                        render_data->render_state->clip_side_mode,
-                        face_clip_flags,
-                        in_verts,
-                        out_verts,
-                        &num_out_verts,
-                        RAS_MAX_MODEL_VERTS);
-                }
-
-                static char buffer[255];
-                ras_log_buffer("clip2: num_out_verts: %d\n", num_out_verts);
-                for (size_t j = 0; j < num_out_verts; j++) {
-                    ras_log_buffer("clip2: out_verts[%zu]: %s\n", j, repr_point3f(buffer, sizeof buffer, &out_verts[j].view_space_position));
-                }
-
-                // Set flags and project vertices added during clipping.
-                for (size_t j = 0; j < num_out_verts; j++) {
-
-                    RasPipelineVertex* pv = &out_verts[j];
-                    core_set_pv_clip_flags(
-                        &render_data->frustum, pv->aabb_clip_flags, pv);
-
-                    RasFixed view_space_position[4];
-                    RasFixed screen_space_vec[4];
-                    RasFixed projected_vec[4];
-
-                    // Project to screen space
-                    core_vector3f_to_4x1(&pv->view_space_position, view_space_position);
-                    // Screen space in NDC coords
-                    mat_mul_project(
-                        render_data->projection_matrix,
-                        view_space_position,
-                        projected_vec);
-
-                    core_projected_to_screen_point(
-                        render_data->render_state->screen_settings.screen_width,
-                        render_data->render_state->screen_settings.screen_height,
-                        projected_vec,
-                        &pv->screen_space_position);
-
-                    static char buffer[255];
-                    ras_log_buffer_trace("pipeline screen space pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->screen_space_position));
-                }
-
-                // Copy out verts to mesh
-                for (size_t j = 0; j < num_out_verts; j++) {
-                    int32_t sx = FIXED_16_16_TO_INT_32(out_verts[j].screen_space_position.x);
-                    int32_t sy = FIXED_16_16_TO_INT_32(out_verts[j].screen_space_position.y);
-
-                    if (sx < 0
-                        || sx > (int32_t)(render_data->render_state->screen_settings.screen_width - 1)
-                        || sy < 0
-                        || sy > (int32_t)(render_data->render_state->screen_settings.screen_height - 1)) {
-                        ras_log_buffer_ex(
-                            RAS_EVENT_RS_OOB,
-                            "Vertex id: %d out of bounds: %s\nsx: %d, sy: %d",
-                            j,
-                            repr_vector4f(buffer, sizeof buffer, &out_verts[j].screen_space_position),
-                            sx,
-                            sy);
-                    }
-                    mesh->verts[mesh->num_verts] = out_verts[j];
-                    mesh->visible_indexes[*vi] = mesh->num_verts;
-                    mesh->num_verts++;
-                    (*vi) += 1;
-                }
-
-                // Copy material indexes for each new face created from clipping
-                for (size_t j = 0; j < num_out_verts / 3; j++) {
-                    mesh->material_indexes[*num_dest_materials] = element->material_indexes[current_src_face_index];
-                    mesh->visible_faces[*num_dest_faces].normal = element->faces[current_src_face_index].normal;
-                    mesh->visible_faces[*num_dest_faces].material_index = element->faces[current_src_face_index].material_index;
-                    (*num_dest_materials)++;
-                    (*num_dest_faces)++;
-                }
-
-                current_src_face_index++;
-                continue;
-            }
-
-            // The face will be added to:
-            // - visible indexes
-            // - visible faces
-            // - material indexes
-            mesh->visible_indexes[*vi] = element->indexes[i];
-            mesh->visible_indexes[*vi + 1] = element->indexes[i + 1];
-            mesh->visible_indexes[*vi + 2] = element->indexes[i + 2];
-            (*vi) += 3;
-
-            // copy material
-            mesh->material_indexes[*num_dest_materials]
-                = element->material_indexes[current_src_face_index];
-            (*num_dest_materials)++;
-
-            // Copy face
-            RasPipelineFace* face = &mesh->visible_faces[*num_dest_faces];
-            face->clip_flags = face_clip_flags;
-            face->normal = element->faces[current_src_face_index].normal;
-            face->material_index = element->faces[current_src_face_index].material_index;
-
-            (*num_dest_faces)++;
-            current_src_face_index++;
-        }
-
-        ras_log_buffer_ex(
-            RAS_EVENT_SG_SUMMARY,
-            "Element faces:\n    In Model: %d. In frustum: %d. Visible: %d. Excluded: %d. To Clip: %d. Backfaces: %d.",
-            element->num_indexes / 3,
-            render_data->num_faces_in_frustum[mesh_index],
-            mesh->num_visible_indexes / 3,
-            num_faces_excluded,
-            *num_faces_to_clip,
-            render_data->num_backfaces[mesh_index]);
     }
 }
 
@@ -634,8 +405,7 @@ void* core_sg_visible_faces(void* input)
              */
             RasClipFlags face_clip_flags = pv1->clip_flags | pv2->clip_flags | pv3->clip_flags;
             bool clip_exclude = render_data->render_state->clipping_mode == RAS_CLIPPING_EXCLUDE;
-            bool clip_on = render_data->render_state->clipping_mode == RAS_CLIPPING_ON
-                || render_data->render_state->clipping_mode == RAS_CLIPPING_ALT;
+            bool clip_on = render_data->render_state->clipping_mode == RAS_CLIPPING_ON;
 
             if (face_clip_flags != 0 && clip_exclude) {
                 num_faces_excluded++;
@@ -650,10 +420,8 @@ void* core_sg_visible_faces(void* input)
                 size_t num_out_verts = 0;
                 (*num_faces_to_clip)++;
 
-                core_clip_face_alt(
-                    &render_data->frustum,
+                core_clip_face(
                     render_data->render_state->clip_side_mode,
-                    face_clip_flags,
                     in_verts,
                     out_verts,
                     &num_out_verts,

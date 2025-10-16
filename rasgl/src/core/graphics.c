@@ -186,7 +186,7 @@ void core_renderstate_init(RenderState* state)
     state->max_frames = UINT32_MAX;
 
     state->backface_culling_mode = RAS_BACKFACE_CULLING_ON;
-    state->clipping_mode = RAS_CLIPPING_ALT;
+    state->clipping_mode = RAS_CLIPPING_ON;
     state->clip_side_mode = RAS_CLIP_SIDE_DEFAULT;
     state->normal_mode = RAS_NORMAL_MODE_OFF;
     state->grid_mode = RAS_GRID_MODE_OFF;
@@ -481,7 +481,7 @@ void core_clip_poly_plane(
             plane,
             &pv_b_alt->view_space_position);
 
-        core_set_pv_clip_flags(frustum, pv_b_alt->aabb_clip_flags, pv_b_alt);
+        core_set_pv_clip_flags_alt(frustum, pv_b_alt->aabb_clip_flags, pv_b_alt);
 
         // Find C' to create side AC'
         core_get_line_plane_intersect(
@@ -490,7 +490,7 @@ void core_clip_poly_plane(
             plane,
             &pv_c_alt->view_space_position);
 
-        core_set_pv_clip_flags(frustum, pv_c_alt->aabb_clip_flags, pv_c_alt);
+        core_set_pv_clip_flags_alt(frustum, pv_c_alt->aabb_clip_flags, pv_c_alt);
 
         ras_log_buffer("cpp: clip: pv_b_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_b_alt->view_space_position));
 
@@ -592,7 +592,7 @@ void core_clip_poly_plane(
             plane,
             &pv_a_alt->view_space_position);
 
-        core_set_pv_clip_flags(frustum, pv_a_alt->aabb_clip_flags, pv_a_alt);
+        core_set_pv_clip_flags_alt(frustum, pv_a_alt->aabb_clip_flags, pv_a_alt);
 
         // Find B' to create side BB'
         core_get_line_plane_intersect(
@@ -601,7 +601,7 @@ void core_clip_poly_plane(
             plane,
             &pv_b_alt->view_space_position);
 
-        core_set_pv_clip_flags(frustum, pv_b_alt->aabb_clip_flags, pv_b_alt);
+        core_set_pv_clip_flags_alt(frustum, pv_b_alt->aabb_clip_flags, pv_b_alt);
 
         ras_log_buffer("cpp: clip: pv_a_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_b_alt->view_space_position));
         ras_log_buffer("cpp: clip: pv_b_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_b_alt->view_space_position));
@@ -903,7 +903,7 @@ void core_draw_element(
         mat_mul_4x4_4x1(model_view_matrix, model_space_position, view_space_position);
         core_4x1_to_vector3f(view_space_position, &pv->view_space_position);
 
-        core_set_pv_clip_flags(frustum, aabb_clip_flags, pv);
+        core_set_pv_clip_flags_alt(frustum, aabb_clip_flags, pv);
         pv->aabb_clip_flags = aabb_clip_flags;
         num_verts_in_frustum
             += pv->clip_flags == 0 ? 1 : 0;
@@ -1005,6 +1005,7 @@ void core_draw_element(
 
         num_faces_must_clip += face_clip_flags == 0 ? 0 : 1;
         if (face_clip_flags != 0) {
+            // Note: Legacy pipeline is deprecated. Clipping is broken.
             core_clip_poly(
                 frustum,
                 face_clip_flags,

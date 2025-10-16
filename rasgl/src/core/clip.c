@@ -5,8 +5,6 @@
 #include "rasgl/core/repr.h"
 
 void core_set_pv_clip_flags(
-    RasFrustum* view_frustum,
-    RasClipFlags aabb_flags,
     RasPipelineVertex* pv)
 {
     pv->clip_flags = 0;
@@ -56,62 +54,6 @@ RasFixed core_eval_clip_plane(RasVector4f* v, RasFrustumPlane plane)
         return v->w - v->z;
     }
     return 0;
-}
-
-void core_set_pv_clip_flags_vs(
-    RasFrustum* view_frustum,
-    RasClipFlags aabb_flags,
-    RasPipelineVertex* pv)
-{
-    pv->clip_flags = 0;
-
-    if (aabb_flags & core_to_clip_flag(PLANE_NEAR)) {
-        RasPlane* plane = &view_frustum->planes[PLANE_NEAR];
-        bool outside = core_plane_vector_side(plane, &pv->view_space_position) == RAS_PLANE_SIDE_A;
-        pv->clip_flags |= outside
-            ? core_to_clip_flag(PLANE_NEAR)
-            : 0;
-    }
-
-    if (aabb_flags & core_to_clip_flag(PLANE_FAR)) {
-        RasPlane* plane = &view_frustum->planes[PLANE_FAR];
-        bool outside = core_plane_vector_side(plane, &pv->view_space_position) == RAS_PLANE_SIDE_A;
-        pv->clip_flags |= outside
-            ? core_to_clip_flag(PLANE_FAR)
-            : 0;
-    }
-
-    if (aabb_flags & core_to_clip_flag(PLANE_LEFT)) {
-        RasPlane* plane = &view_frustum->planes[PLANE_LEFT];
-        bool outside = core_plane_vector_side(plane, &pv->view_space_position) == RAS_PLANE_SIDE_A;
-        pv->clip_flags |= outside
-            ? core_to_clip_flag(PLANE_LEFT)
-            : 0;
-    }
-
-    if (aabb_flags & core_to_clip_flag(PLANE_RIGHT)) {
-        RasPlane* plane = &view_frustum->planes[PLANE_RIGHT];
-        bool outside = core_plane_vector_side(plane, &pv->view_space_position) == RAS_PLANE_SIDE_A;
-        pv->clip_flags |= outside
-            ? core_to_clip_flag(PLANE_RIGHT)
-            : 0;
-    }
-
-    if (aabb_flags & core_to_clip_flag(PLANE_TOP)) {
-        RasPlane* plane = &view_frustum->planes[PLANE_TOP];
-        bool outside = core_plane_vector_side(plane, &pv->view_space_position) == RAS_PLANE_SIDE_A;
-        pv->clip_flags |= outside
-            ? core_to_clip_flag(PLANE_TOP)
-            : 0;
-    }
-
-    if (aabb_flags & core_to_clip_flag(PLANE_BOTTOM)) {
-        RasPlane* plane = &view_frustum->planes[PLANE_BOTTOM];
-        bool outside = core_plane_vector_side(plane, &pv->view_space_position) == RAS_PLANE_SIDE_A;
-        pv->clip_flags |= outside
-            ? core_to_clip_flag(PLANE_BOTTOM)
-            : 0;
-    }
 }
 
 bool core_get_line_clip_intersect(
@@ -411,10 +353,8 @@ void core_ngon_to_tris(
     }
 }
 
-void core_clip_face_alt(
-    RasFrustum* frustum,
+void core_clip_face(
     RasClipSideMode side_mode,
-    RasClipFlags face_clip_flags,
     RasPipelineVertex* in_verts[3],
     RasPipelineVertex* out_verts,
     size_t* num_out_verts,
@@ -435,11 +375,10 @@ void core_clip_face_alt(
         side_mode, &num_frustum_planes);
     for (int32_t fpi = 0; fpi < num_frustum_planes; fpi++) {
         int32_t i = frustum_planes[fpi];
-        RasPlane* plane = &frustum->planes[i];
 
         // Sutherland–Hodgman pseudocode
         //
-        //  List inputList = outputList;
+        // List inputList = outputList;
         memcpy(work_in_verts, work_out_verts, sizeof(RasPipelineVertex) * *num_out_verts);
         num_in_verts = *num_out_verts;
         // outputList.clear();
@@ -469,8 +408,6 @@ void core_clip_face_alt(
                 &intersect_pv.clip_space_position);
 
             core_set_pv_clip_flags(
-                frustum,
-                intersect_pv.aabb_clip_flags,
                 &intersect_pv);
 
             if (intersect_pv.clip_flags & core_to_clip_flag(i)) {
@@ -519,132 +456,4 @@ void core_clip_face_alt(
     core_ngon_to_tris(work_out_verts, *num_out_verts, out_verts, num_out_verts);
 
     ras_log_buffer("clipped to n-gon with %d verts fanned to %d", num_in_verts, *num_out_verts);
-}
-
-void core_clip_face(
-    RasFrustum* frustum,
-    RasClipSideMode side_mode,
-    RasClipFlags face_clip_flags,
-    RasPipelineVertex* in_verts[3],
-    RasPipelineVertex* out_verts,
-    size_t* num_out_verts,
-    size_t max_out_verts)
-
-{
-    /**
-     * // Sutherland–Hodgman pseudocode
-     * triangles_in = [original triangle]
-     *
-     *  for each plane in frustum:
-     *      triangles_out = []
-     *
-     *      for each tri in triangles_in:
-     *          clipped = clip_triangle_against_plane(tri, plane)
-     *          for each t in clipped:   // 0, 1, or 2 triangles
-     *              triangles_out.append(t)
-     *
-     *      triangles_in = triangles_out
-     */
-    static RasPipelineVertex work_in_verts[RAS_MAX_MODEL_VERTS];
-    static RasPipelineVertex work_out_verts[RAS_MAX_MODEL_VERTS];
-    memcpy(&work_in_verts[0], in_verts[0], sizeof(RasPipelineVertex));
-    memcpy(&work_in_verts[1], in_verts[1], sizeof(RasPipelineVertex));
-    memcpy(&work_in_verts[2], in_verts[2], sizeof(RasPipelineVertex));
-    size_t num_in_verts = 3;
-
-    size_t num_frustum_planes = 0;
-    RasFrustumPlane* frustum_planes = get_side_mode_planes(side_mode, &num_frustum_planes);
-    for (int32_t fpi = 0; fpi < num_frustum_planes; fpi++) {
-        int32_t i = frustum_planes[fpi];
-        RasPlane* plane = &frustum->planes[i];
-
-        *num_out_verts = 0;
-
-        for (size_t j = 0; j < num_in_verts; j += 3) {
-            RasPipelineVertex* pv0 = &work_in_verts[j];
-            RasPipelineVertex* pv1 = &work_in_verts[j + 1];
-            RasPipelineVertex* pv2 = &work_in_verts[j + 2];
-
-            RasClipFaceScenario scenario;
-            core_clip_face_scenario(
-                (RasFrustumPlane)i,
-                &work_in_verts[j],
-                &scenario);
-
-            if (scenario.num_in == 1) {
-
-                int32_t result = core_clip_face_a(
-                    plane,
-                    &work_in_verts[j],
-                    &work_out_verts[*num_out_verts],
-                    &scenario);
-
-                if (result == 0) {
-                    continue;
-                }
-                *num_out_verts += result;
-
-                core_set_pv_clip_flags(
-                    frustum,
-                    work_out_verts[1].aabb_clip_flags,
-                    &work_out_verts[1]);
-
-                if (work_out_verts[1].clip_flags & core_to_clip_flag(i)) {
-                    ras_log_buffer("Not expecting clip flag %d to remain.", i);
-                    work_out_verts[1].clip_flags &= ~core_to_clip_flag(i);
-                }
-
-                core_set_pv_clip_flags(
-                    frustum,
-                    work_out_verts[2].aabb_clip_flags,
-                    &work_out_verts[2]);
-
-                if (work_out_verts[2].clip_flags & core_to_clip_flag(i)) {
-                    ras_log_buffer("Not expecting clip flag %d to remain.", i);
-                    work_out_verts[2].clip_flags &= ~core_to_clip_flag(i);
-                }
-
-            } else if (scenario.num_in == 2) {
-
-                int32_t result = core_clip_face_b(
-                    plane,
-                    &work_in_verts[j],
-                    &work_out_verts[*num_out_verts],
-                    &scenario);
-
-                *num_out_verts += result;
-
-                if (result == 0) {
-                    continue;
-                }
-                uint32_t new_verts[] = { 1, 3, 4 };
-
-                for (uint32_t k = 0; k < 3; k++) {
-                    core_set_pv_clip_flags(
-                        frustum,
-                        work_out_verts[new_verts[k]].aabb_clip_flags,
-                        &work_out_verts[new_verts[k]]);
-
-                    if (work_out_verts[new_verts[k]].clip_flags & core_to_clip_flag(i)) {
-                        ras_log_buffer("Not expecting clip flag %d to remain.", i);
-                        work_out_verts[new_verts[k]].clip_flags &= ~core_to_clip_flag(i);
-                    }
-                }
-
-            } else if (scenario.num_in == 3) {
-                ras_log_buffer("clip2: num_in: %d\n", scenario.num_in);
-                ras_log_buffer("clip2: first_in: %d, 2nd_in: %d\n", scenario.first_in, scenario.second_in);
-                memcpy(
-                    &work_out_verts[*num_out_verts],
-                    &work_in_verts[j],
-                    sizeof(RasPipelineVertex) * 3);
-                *num_out_verts += 3;
-            }
-        }
-
-        memcpy(work_in_verts, work_out_verts, sizeof(RasPipelineVertex) * *num_out_verts);
-        num_in_verts = *num_out_verts;
-    }
-
-    memcpy(out_verts, work_in_verts, sizeof(RasPipelineVertex) * num_in_verts);
 }
