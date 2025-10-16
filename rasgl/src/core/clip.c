@@ -421,26 +421,13 @@ void core_clip_face_alt(
     size_t max_out_verts)
 
 {
-    /**
-     * // Sutherland–Hodgman pseudocode
-     * triangles_in = [original triangle]
-     *
-     *  for each plane in frustum:
-     *      triangles_out = []
-     *
-     *      for each tri in triangles_in:
-     *          clipped = clip_triangle_against_plane(tri, plane)
-     *          for each t in clipped:   // 0, 1, or 2 triangles
-     *              triangles_out.append(t)
-     *
-     *      triangles_in = triangles_out
-     */
     static RasPipelineVertex work_in_verts[14];
     static RasPipelineVertex work_out_verts[14];
-    memcpy(&work_in_verts[0], in_verts[0], sizeof(RasPipelineVertex));
-    memcpy(&work_in_verts[1], in_verts[1], sizeof(RasPipelineVertex));
-    memcpy(&work_in_verts[2], in_verts[2], sizeof(RasPipelineVertex));
-    size_t num_in_verts = 3;
+    memcpy(&work_out_verts[0], in_verts[0], sizeof(RasPipelineVertex));
+    memcpy(&work_out_verts[1], in_verts[1], sizeof(RasPipelineVertex));
+    memcpy(&work_out_verts[2], in_verts[2], sizeof(RasPipelineVertex));
+    *num_out_verts = 3;
+    size_t num_in_verts = 0;
 
     size_t num_frustum_planes = 0;
     // FIXME: remove alt
@@ -450,157 +437,87 @@ void core_clip_face_alt(
         int32_t i = frustum_planes[fpi];
         RasPlane* plane = &frustum->planes[i];
 
+        // Sutherland–Hodgman pseudocode
+        //
+        //  List inputList = outputList;
+        memcpy(work_in_verts, work_out_verts, sizeof(RasPipelineVertex) * *num_out_verts);
+        num_in_verts = *num_out_verts;
+        // outputList.clear();
         *num_out_verts = 0;
-        RasPipelineVertex* dst_pv = NULL;
-
-        // To allow for priming the first dest vert, start with first src vertex
-        // that is inside the plane.
-        int32_t si = 0;
-        for (si = 0; si < num_in_verts; si++) {
-            bool is_in = !(work_in_verts[si].clip_flags & core_to_clip_flag(i));
-            if (is_in) {
-                break;
-            }
-        }
-        int32_t si_next = (si + 1) % num_in_verts;
-        RasPipelineVertex* src_pv0 = &work_in_verts[si];
-        RasPipelineVertex* src_pv1 = &work_in_verts[si_next];
-
-        // Prime first dest vert
-        dst_pv = &work_out_verts[0];
-        memcpy(dst_pv, src_pv0, sizeof(RasPipelineVertex));
-        (*num_out_verts) = 1;
 
         for (size_t j = 0; j < num_in_verts; j++) {
 
-            bool src_pv0_is_in = !(src_pv0->clip_flags & core_to_clip_flag(i));
-            bool src_pv1_is_in = !(src_pv1->clip_flags & core_to_clip_flag(i));
+            // Sutherland–Hodgman pseudocode
+            //
+            // Point current_point = inputList[i];
+            RasPipelineVertex* current_pv = &work_in_verts[j];
 
-            if (!src_pv0_is_in && !src_pv1_is_in) {
+            // Point prev_point = inputList[(i − 1) % inputList.count];
+            RasPipelineVertex* prev_pv = &work_in_verts[(j + num_in_verts - 1) % num_in_verts];
 
-                si = (si + 1) % num_in_verts;
-                si_next = (si + 1) % num_in_verts;
-                // Source edge verts
-                src_pv0 = &work_in_verts[si];
-                src_pv1 = &work_in_verts[si_next];
+            // Point Intersecting_point = ComputeIntersection(prev_point, current_point, clipEdge)
+            RasPipelineVertex intersect_pv;
 
-                continue;
+            // Copy from a source vert
+            // Does it matter which one?
+            memcpy(&intersect_pv, current_pv, sizeof(RasPipelineVertex));
+
+            bool math_result = core_get_line_clip_intersect(
+                &prev_pv->clip_space_position,
+                &current_pv->clip_space_position,
+                i,
+                &intersect_pv.clip_space_position);
+
+            core_set_pv_clip_flags(
+                frustum,
+                intersect_pv.aabb_clip_flags,
+                &intersect_pv);
+
+            if (intersect_pv.clip_flags & core_to_clip_flag(i)) {
+                ras_log_buffer("Not expecting clip flag %d to remain.", i);
+                intersect_pv.clip_flags &= ~core_to_clip_flag(i);
             }
 
-            if (src_pv0_is_in && src_pv1_is_in) {
-                // Edge is fully in.
+            RasFixed side_eval = core_eval_clip_plane(&current_pv->clip_space_position, i);
+            bool current_is_in = side_eval >= 0;
+            side_eval = core_eval_clip_plane(&prev_pv->clip_space_position, i);
+            bool prev_is_in = side_eval >= 0;
 
-                // src_pv1: If not last src edge, add it.
-                bool is_last_src_edge = (j == num_in_verts - 1);
+            // Sutherland–Hodgman pseudocode
+            //
+            //  if (current_point inside clipEdge) then
+            //      if (prev_point not inside clipEdge) then
+            //          outputList.add(Intersecting_point);
+            //      end if
+            //      outputList.add(current_point);
 
-                if (!is_last_src_edge) {
-                    dst_pv = &work_out_verts[(*num_out_verts)];
+            // else if (prev_point inside clipEdge) then
+            //     outputList.add(Intersecting_point);
+            // end if
+
+            if (current_is_in) {
+                if (prev_is_in == false) {
+
+                    memcpy(&work_out_verts[*num_out_verts], &intersect_pv, sizeof(RasPipelineVertex));
                     (*num_out_verts)++;
-                    if (*num_out_verts > sizeof(work_out_verts) / sizeof(work_out_verts[0])) {
-                        ras_log_buffer("Exceeded max work_out_verts: %d", *num_out_verts);
-                        ras_log_flush();
-                        assert(false);
-                    }
-                    memcpy(dst_pv, src_pv1, sizeof(RasPipelineVertex));
                 }
+                memcpy(&work_out_verts[*num_out_verts], current_pv, sizeof(RasPipelineVertex));
+                (*num_out_verts)++;
+            } else if (prev_is_in) {
 
-                si = (si + 1) % num_in_verts;
-                si_next = (si + 1) % num_in_verts;
-                // Source edge verts
-                src_pv0 = &work_in_verts[si];
-                src_pv1 = &work_in_verts[si_next];
-
-                continue;
+                memcpy(&work_out_verts[*num_out_verts], &intersect_pv, sizeof(RasPipelineVertex));
+                (*num_out_verts)++;
             }
-
-            // Dest pv points to the 2nd vert of the dest edge.
-            dst_pv = &work_out_verts[(*num_out_verts)];
-            (*num_out_verts)++;
-            if (*num_out_verts > sizeof(work_out_verts) / sizeof(work_out_verts[0])) {
-                ras_log_buffer("Exceeded max work_out_verts: %d", *num_out_verts);
+            if (*num_out_verts >= max_out_verts) {
+                ras_log_buffer("Exceeded max_out_verts: %d", *num_out_verts);
                 ras_log_flush();
                 assert(false);
             }
-
-            /**
-             * @brief Edge is one in, one out.
-             *
-             */
-            if (src_pv0_is_in) {
-
-                // Copy from a source vert
-                // Does it matter which one?
-                memcpy(dst_pv, src_pv0, sizeof(RasPipelineVertex));
-
-                // Use midpoint for 2nd vert of dest edge
-                bool math_result = core_get_line_clip_intersect(
-                    &src_pv0->clip_space_position,
-                    &src_pv1->clip_space_position,
-                    i,
-                    &dst_pv->clip_space_position);
-
-                core_set_pv_clip_flags(
-                    frustum,
-                    dst_pv->aabb_clip_flags,
-                    dst_pv);
-
-                if (dst_pv->clip_flags & core_to_clip_flag(i)) {
-                    ras_log_buffer("Not expecting clip flag %d to remain.", i);
-                    dst_pv->clip_flags &= ~core_to_clip_flag(i);
-                }
-
-            } else {
-                // pv1 is in:
-                // - Add the intersection.
-                // - If not the last src edge, add pv1.
-
-                // Copy from a source vert
-                // Does it matter which one?
-                memcpy(dst_pv, src_pv1, sizeof(RasPipelineVertex));
-
-                // Use midpoint for 1st vert of dest edge
-                bool math_result = core_get_line_clip_intersect(
-                    &src_pv1->clip_space_position,
-                    &src_pv0->clip_space_position,
-                    i,
-                    &dst_pv->clip_space_position);
-
-                core_set_pv_clip_flags(
-                    frustum,
-                    dst_pv->aabb_clip_flags,
-                    dst_pv);
-
-                if (dst_pv->clip_flags & core_to_clip_flag(i)) {
-                    ras_log_buffer("Not expecting clip flag %d to remain.", i);
-                    dst_pv->clip_flags &= ~core_to_clip_flag(i);
-                }
-
-                bool is_last_src_edge = (j == num_in_verts - 1);
-
-                if (!is_last_src_edge) {
-                    dst_pv = &work_out_verts[(*num_out_verts)];
-                    (*num_out_verts)++;
-                    if (*num_out_verts > sizeof(work_out_verts) / sizeof(work_out_verts[0])) {
-                        ras_log_buffer("Exceeded max work_out_verts: %d", *num_out_verts);
-                        ras_log_flush();
-                        assert(false);
-                    }
-                    memcpy(dst_pv, src_pv1, sizeof(RasPipelineVertex));
-                }
-            }
-
-            si = (si + 1) % num_in_verts;
-            si_next = (si + 1) % num_in_verts;
-            // Source edge verts
-            src_pv0 = &work_in_verts[si];
-            src_pv1 = &work_in_verts[si_next];
-
         } // for each edge
-
-        memcpy(work_in_verts, work_out_verts, sizeof(RasPipelineVertex) * *num_out_verts);
-        num_in_verts = *num_out_verts;
     }
-    core_ngon_to_tris(work_in_verts, num_in_verts, out_verts, num_out_verts);
+
+    core_ngon_to_tris(work_out_verts, *num_out_verts, out_verts, num_out_verts);
+
     ras_log_buffer("clipped to n-gon with %d verts fanned to %d", num_in_verts, *num_out_verts);
 }
 
