@@ -8,7 +8,7 @@
 void core_pipeline_init(RasPipeline* pipeline)
 {
     RasPipeline template = {
-        .num_stages = 11,
+        .num_stages = 12,
         .stages = {
             { .name = "core_sg_setup", core_sg_setup },
             { .name = "core_sg_xform_objects", core_sg_xform_objects },
@@ -19,6 +19,7 @@ void core_pipeline_init(RasPipeline* pipeline)
             { .name = "core_sg_clip_flag_verts", core_sg_clip_flag_verts },
             { .name = "core_sg_visible_faces", core_sg_visible_faces },
             { .name = "core_sg_project_to_screen_space", core_sg_project_to_screen_space },
+            { .name = "core_sg_cull_backfaces", core_sg_cull_backfaces },
             { .name = "core_sg_xform_normals", core_sg_xform_normals },
             { .name = "core_sg_lighting", core_sg_lighting },
             { .name = "core_sg_draw_normals", core_sg_draw_normals } }
@@ -320,11 +321,10 @@ void* core_sg_project_to_screen_space(void* input)
                 clip_space_position,
                 ndc_space_vec);
 
-            RasVector4f ndc;
-            core_4x1_to_vector4f(ndc_space_vec, &ndc);
+            core_4x1_to_vector4f(ndc_space_vec, &pv->ndc_space_position);
 
             static char buffer[255];
-            ras_log_buffer("ndc pos: %s\n", repr_vector4f(buffer, sizeof buffer, &ndc));
+            ras_log_buffer("ndc pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->ndc_space_position));
 
             core_projected_to_screen_point(
                 render_data->render_state->screen_settings.screen_width,
@@ -384,19 +384,6 @@ void* core_sg_visible_faces(void* input)
                 continue; // face is all out
             }
             render_data->num_faces_in_frustum[mesh_index] += 1;
-
-            bool is_backface = core_is_backface(
-                &pv1->clip_space_position,
-                &pv2->clip_space_position,
-                &pv3->clip_space_position);
-
-            render_data->num_backfaces[mesh_index] += is_backface ? 1 : 0;
-
-            bool is_culling = render_data->render_state->backface_culling_mode == RAS_BACKFACE_CULLING_ON;
-            if (is_backface && is_culling) {
-                current_src_face_index++;
-                continue;
-            }
 
             /**
              * @brief If dropped due to clipping exclusion, skip out to avoid
@@ -502,6 +489,59 @@ void* core_sg_visible_faces(void* input)
             num_faces_excluded,
             *num_faces_to_clip,
             render_data->num_backfaces[mesh_index]);
+    }
+}
+
+void* core_sg_cull_backfaces(void* input)
+{
+    RasRenderData* render_data = (RasRenderData*)input;
+
+    bool is_culling = render_data->render_state->backface_culling_mode == RAS_BACKFACE_CULLING_ON;
+
+    if (!is_culling) {
+        return NULL;
+    }
+
+    for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
+        uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
+        RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
+        uint32_t* vi = &mesh->num_visible_indexes;
+
+        render_data->num_backfaces[mesh_index] = 0;
+        size_t new_num_visible_indexes = 0;
+        uint32_t* num_dest_materials = &mesh->num_material_indexes;
+        *num_dest_materials = 0;
+        uint32_t* num_dest_faces = &mesh->num_visible_faces;
+        *num_dest_faces = 0;
+
+        for (uint32_t i = 0; i < mesh->num_visible_indexes; i += 3) {
+            RasPipelineVertex* pv1 = &mesh->verts[mesh->visible_indexes[i]];
+            RasPipelineVertex* pv2 = &mesh->verts[mesh->visible_indexes[i + 1]];
+            RasPipelineVertex* pv3 = &mesh->verts[mesh->visible_indexes[i + 2]];
+
+            bool is_backface = core_is_backface(
+                &pv1->ndc_space_position,
+                &pv2->ndc_space_position,
+                &pv3->ndc_space_position);
+
+            if (is_backface) {
+                render_data->num_backfaces[mesh_index] += 1;
+            } else {
+                mesh->visible_indexes[new_num_visible_indexes] = mesh->visible_indexes[i];
+                mesh->visible_indexes[new_num_visible_indexes + 1] = mesh->visible_indexes[i + 1];
+                mesh->visible_indexes[new_num_visible_indexes + 2] = mesh->visible_indexes[i + 2];
+                new_num_visible_indexes += 3;
+
+                mesh->material_indexes[*num_dest_materials]
+                    = mesh->material_indexes[i / 3];
+                (*num_dest_materials)++;
+
+                RasPipelineFace* face = &mesh->visible_faces[*num_dest_faces];
+                memcpy(face, &mesh->visible_faces[i / 3], sizeof(RasPipelineFace));
+                (*num_dest_faces)++;
+            }
+        }
+        mesh->num_visible_indexes = new_num_visible_indexes;
     }
 }
 

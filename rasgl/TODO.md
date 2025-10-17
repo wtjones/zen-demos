@@ -26,8 +26,6 @@
 ### Clipping - Polygon
 
 - [ ] AABB should remain correct when model rotates.
-- [ ] Fix disappearing poly in some near camera clipping cases.
-  - Proposed fix is to perform backface culling in NDC after clipping.
 - [ ] Consider a bitmask for planes to simplify cases such as `core_sg_visible_faces()`.
 
 ### Math
@@ -79,7 +77,7 @@
 
 ### Pipeline
 
-- [ ] Copy materials in new clipping pipeline.
+- [x] Copy materials in new clipping pipeline.
 
 ## In Progress
 
@@ -124,6 +122,9 @@
 - [x] Carry over pipeline face to clipped polys
 - [x] Fix assert on certain far plane clip scenarios
 - [x] Fix assert when a triangle is rotating and clipping on the left side
+- [x] Fix disappearing poly in some near camera clipping cases.
+  - Proposed fix is to perform backface culling in NDC after clipping.
+
 
 ### Models
 

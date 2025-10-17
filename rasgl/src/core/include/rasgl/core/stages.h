@@ -112,6 +112,7 @@ void* core_sg_project_to_clip_space(void* input);
 void* core_sg_clip_flag_verts(void* input);
 void* core_sg_project_to_screen_space(void* input);
 void* core_sg_visible_faces(void* input);
+void* core_sg_cull_backfaces(void* input);
 
 /**
  * @brief Transform face normals for lighting calculations.

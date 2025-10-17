@@ -92,10 +92,10 @@ Platform support progress:
    * Transform view vertices → clip space (projection matrix).
    * Cull faces outside of at least one frustum plane.
      * Foar plane is ignored based on `RasClipSideMode`.
-   * Perform backface removal.
    * Clip vertices/triangles against the view frustum in clip space.
    * Perform perspective divide → NDC.
    * Map NDC → screen coordinates.
+   * Perform backface removal.
    * Transform face normals from model space to view space.
    * Calculate lighting from view space normals.
 

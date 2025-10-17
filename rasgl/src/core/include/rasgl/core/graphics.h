@@ -120,6 +120,7 @@ typedef struct RasPipelineVertex {
     RasVector3f view_space_position;
     RasVector3f view_space_normal;
     RasVector4f clip_space_position;
+    RasVector4f ndc_space_position;
     RasClipFlags clip_flags;
     RasClipFlags aabb_clip_flags;
     RasVector4f screen_space_position;
@@ -301,13 +302,6 @@ bool core_aabb_in_frustum(
  * Returns true if all points are outside.
  */
 bool core_aabb_in_frustum_alt(RasAABB* view_aabb, RasFrustum* frustum, RasClipFlags* flags);
-
-/**
- * Determine if poly is backfacing based on the normal's angle to the viewer
- * in screen space. Assumes vertices are counter-clockwise.
- * Based on https://github.com/wtjones/qbasic/blob/master/POLY3D.BAS
- */
-bool core_is_backface_ss(RasVector4f* sv0, RasVector4f* sv1, RasVector4f* sv2);
 
 /**
  * Determine if poly is backfacing based on the normal's angle to the viewer
