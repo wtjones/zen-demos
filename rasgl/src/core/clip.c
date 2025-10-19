@@ -394,31 +394,8 @@ void core_clip_face(
             // Point prev_point = inputList[(i − 1) % inputList.count];
             RasPipelineVertex* prev_pv = &work_in_verts[(j + num_in_verts - 1) % num_in_verts];
 
-            // Point Intersecting_point = ComputeIntersection(prev_point, current_point, clipEdge)
-            RasPipelineVertex intersect_pv;
-
-            // Copy from a source vert
-            // Does it matter which one?
-            memcpy(&intersect_pv, current_pv, sizeof(RasPipelineVertex));
-
-            bool math_result = core_get_line_clip_intersect(
-                &prev_pv->clip_space_position,
-                &current_pv->clip_space_position,
-                i,
-                &intersect_pv.clip_space_position);
-
-            core_set_pv_clip_flags(
-                &intersect_pv);
-
-            if (intersect_pv.clip_flags & core_to_clip_flag(i)) {
-                ras_log_buffer("Not expecting clip flag %d to remain.", i);
-                intersect_pv.clip_flags &= ~core_to_clip_flag(i);
-            }
-
-            RasFixed side_eval = core_eval_clip_plane(&current_pv->clip_space_position, i);
-            bool current_is_in = side_eval >= 0;
-            side_eval = core_eval_clip_plane(&prev_pv->clip_space_position, i);
-            bool prev_is_in = side_eval >= 0;
+            bool current_is_in = core_eval_clip_plane(&current_pv->clip_space_position, i) >= 0;
+            bool prev_is_in = core_eval_clip_plane(&prev_pv->clip_space_position, i) >= 0;
 
             // Sutherland–Hodgman pseudocode
             //
@@ -434,14 +411,36 @@ void core_clip_face(
 
             if (current_is_in) {
                 if (prev_is_in == false) {
-
+                    RasPipelineVertex intersect_pv;
+                    memcpy(&intersect_pv, current_pv, sizeof(RasPipelineVertex));
+                    core_get_line_clip_intersect(
+                        &prev_pv->clip_space_position,
+                        &current_pv->clip_space_position,
+                        i,
+                        &intersect_pv.clip_space_position);
+                    core_set_pv_clip_flags(&intersect_pv);
+                    if (intersect_pv.clip_flags & core_to_clip_flag(i)) {
+                        ras_log_buffer("Not expecting clip flag %d to remain.", i);
+                        intersect_pv.clip_flags &= ~core_to_clip_flag(i);
+                    }
                     memcpy(&work_out_verts[*num_out_verts], &intersect_pv, sizeof(RasPipelineVertex));
                     (*num_out_verts)++;
                 }
                 memcpy(&work_out_verts[*num_out_verts], current_pv, sizeof(RasPipelineVertex));
                 (*num_out_verts)++;
             } else if (prev_is_in) {
-
+                RasPipelineVertex intersect_pv;
+                memcpy(&intersect_pv, current_pv, sizeof(RasPipelineVertex));
+                core_get_line_clip_intersect(
+                    &prev_pv->clip_space_position,
+                    &current_pv->clip_space_position,
+                    i,
+                    &intersect_pv.clip_space_position);
+                core_set_pv_clip_flags(&intersect_pv);
+                if (intersect_pv.clip_flags & core_to_clip_flag(i)) {
+                    ras_log_buffer("Not expecting clip flag %d to remain.", i);
+                    intersect_pv.clip_flags &= ~core_to_clip_flag(i);
+                }
                 memcpy(&work_out_verts[*num_out_verts], &intersect_pv, sizeof(RasPipelineVertex));
                 (*num_out_verts)++;
             }
