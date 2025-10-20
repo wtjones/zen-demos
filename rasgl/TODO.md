@@ -18,10 +18,13 @@
 - [ ] Support DOS poly fill
 - [ ] Support color ramps
 - [ ] Tidy diagnosic rendering to another module
-- [ ] Add flat shading toggle
 - [ ] Support render layers in DOS
 - [ ] Toggle UI layer
 - [ ] Fix naming or consolidate *projected_to_screen_point()
+
+### Lighting
+
+- [ ] Add gamma adjustment
 
 ### Clipping - Polygon
 
@@ -77,7 +80,6 @@
 
 ### Pipeline
 
-- [x] Copy materials in new clipping pipeline.
 
 ## In Progress
 
@@ -138,6 +140,8 @@
 - [x] Filled polygon mode
 - [x] Material colors in filled polygon mode
 - [x] Shaded polygon mode
+- [x] Add flat shading toggle
+
 
 ### Scene Loading
 
@@ -181,3 +185,4 @@
 
 - [x] Fix culled object warping
 - [x] Clip polygons added during clipping
+- [x] Copy materials in new clipping pipeline.
