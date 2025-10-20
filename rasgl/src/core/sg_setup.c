@@ -8,7 +8,7 @@
 void core_pipeline_init(RasPipeline* pipeline)
 {
     RasPipeline template = {
-        .num_stages = 12,
+        .num_stages = 13,
         .stages = {
             { .name = "core_sg_setup", core_sg_setup },
             { .name = "core_sg_xform_objects", core_sg_xform_objects },

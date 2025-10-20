@@ -1,6 +1,7 @@
 #include "font8x8/font8x8_basic.h"
 #include "font8x8/font8x8_block.h"
 #include "rasgl/core/app.h"
+#include "rasgl/core/color.h"
 #include "rasgl/core/console.h"
 #include "rasgl/core/debug.h"
 #include "rasgl/core/event.h"
@@ -253,7 +254,7 @@ void render_mesh_solid(RenderState* state)
             ras_log_buffer("diffuse_intensity: %s", repr_fixed_16_16(buffer, sizeof buffer, face->diffuse_intensity));
             ras_log_buffer("shade_fixed: %s", repr_fixed_16_16(buffer, sizeof buffer, shade_fixed));
             int shade = FIXED_16_16_TO_INT_32(shade_fixed);
-            shade = shade < 1 ? 1 : shade;
+            shade = shade < RAS_COLOR_RAMP_MIN_SHADE ? RAS_COLOR_RAMP_MIN_SHADE : shade;
             assert(shade <= 7);
 
             int8_t color = material == -1
@@ -333,7 +334,7 @@ void render_polygon_solid(RenderState* state)
         ras_log_buffer("diffuse_intensity: %s", repr_fixed_16_16(buffer, sizeof buffer, face->diffuse_intensity));
         ras_log_buffer("shade_fixed: %s", repr_fixed_16_16(buffer, sizeof buffer, shade_fixed));
         int shade = FIXED_16_16_TO_INT_32(shade_fixed);
-        shade = shade < 1 ? 1 : shade;
+        shade = shade < RAS_COLOR_RAMP_MIN_SHADE ? RAS_COLOR_RAMP_MIN_SHADE : shade;
         assert(shade <= 7);
 
         int8_t color = material == -1
