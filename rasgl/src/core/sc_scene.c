@@ -25,12 +25,18 @@ void core_free_scene_cameras(RasScene* scene)
     free(scene->cameras);
 }
 
+void core_free_scene_gridmaps(RasScene* scene)
+{
+    free(scene->gridmaps);
+}
+
 void core_free_scene(RasScene** scene)
 {
     RasScene* s = *scene;
     core_free_scene_models(s);
     core_free_scene_objects(s);
     core_free_scene_cameras(s);
+    core_free_scene_gridmaps(s);
     free(s);
     *scene = NULL;
 }

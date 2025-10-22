@@ -7,5 +7,6 @@ void backface_tests();
 void backface_tests2();
 void pipeline_tests();
 void pipeline_scene_tests();
+void gridmap_scene_test();
 
 #endif

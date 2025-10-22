@@ -4,6 +4,7 @@
 #include "camera.h"
 #include "debug.h"
 #include "graphics.h"
+#include "gridmap.h"
 #include "maths.h"
 #include "model.h"
 
@@ -87,6 +88,8 @@ typedef struct {
     size_t num_models;
     RasSceneObject* objects;
     size_t num_objects;
+    RasSceneGridMap* gridmaps;
+    size_t num_gridmaps;
     RasSceneMap* maps;
     size_t num_maps;
     RasCamera* cameras;

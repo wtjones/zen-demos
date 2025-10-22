@@ -1,6 +1,7 @@
 add_executable(tests
     main.c
     backface_tests.c
+    gridmap_tests.c
     pipeline_tests.c)
 
 include(${CMAKE_SOURCE_DIR}/cmake/FindLarse.cmake)

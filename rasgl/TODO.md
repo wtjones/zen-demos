@@ -47,8 +47,11 @@
 - [ ] Add scene explanation to README
 - [ ] Support parameterized scene loading
 - [ ] Configurable background color
+- [ ] Objects should not be mandatory.
 
 ### Scene management
+
+- [ ] Add scene reset operation.
 
 ### Map
 

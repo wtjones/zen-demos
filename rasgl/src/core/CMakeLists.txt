@@ -25,6 +25,7 @@ add_library(core
     repr.c
     sg_setup.c
     sc_animation.c
+    sc_gridmap.c
     sc_load.c
     sc_scene.c
     text.c
