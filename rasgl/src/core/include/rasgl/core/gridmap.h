@@ -23,19 +23,27 @@
 #define SCRIPT_SYMBOL_GRIDMAP_CELLS ":cells"
 
 typedef enum {
-    RAS_GRIDMAP_UP = 1 << 0,
-    RAS_GRIDMAP_DOWN = 1 << 1,
-    RAS_GRIDMAP_LEFT = 1 << 2,
-    RAS_GRIDMAP_RIGHT = 1 << 3
-} RasGridMapSpacialFlags;
+    // UP
+    RAS_GRIDMAP_Z_MINUS_1 = 1 << 0,
+    // DOWN
+    RAS_GRIDMAP_Z_PLUS_1 = 1 << 1,
+    // LEFT
+    RAS_GRIDMAP_X_MINUS_1 = 1 << 2,
+    // RIGHT
+    RAS_GRIDMAP_X_PLUS_1 = 1 << 3
+} RasGridMapSpatialFlags;
+
+typedef struct {
+    int32_t material;
+    uint8_t spatial_flags;
+} RasGridMapCell;
 
 typedef struct {
     char name[MAX_GRIDMAP_NAME];
     size_t width;
     size_t height;
     RasFixed cell_size;
-    int cells[RAS_MAX_GRIDMAP_WIDTH * RAS_MAX_GRIDMAP_HEIGHT];
-    uint8_t spacial_flags;
+    RasGridMapCell cells[RAS_MAX_GRIDMAP_WIDTH * RAS_MAX_GRIDMAP_HEIGHT];
 } RasSceneGridMap;
 
 /**

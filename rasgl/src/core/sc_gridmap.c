@@ -1,6 +1,41 @@
 #include "rasgl/core/debug.h"
 #include "rasgl/core/gridmap.h"
 
+void set_gridmap_cell_flags(RasSceneGridMap* gridmap)
+{
+    for (size_t r = 0; r < gridmap->height; r++) {
+        for (size_t c = 0; c < gridmap->width; c++) {
+            size_t cell_index = (r * gridmap->width) + c;
+            RasGridMapCell* cell = &gridmap->cells[cell_index];
+            RasGridMapCell* cell_z_minus = r == 0
+                ? NULL
+                : &gridmap->cells[((r - 1) * gridmap->width) + c];
+            RasGridMapCell* cell_z_plus = r == gridmap->height - 1
+                ? NULL
+                : &gridmap->cells[((r + 1) * gridmap->width) + c];
+            RasGridMapCell* cell_x_minus = c == 0
+                ? NULL
+                : &gridmap->cells[(r * gridmap->width) + (c - 1)];
+            RasGridMapCell* cell_x_plus = c == gridmap->width - 1
+                ? NULL
+                : &gridmap->cells[(r * gridmap->width) + (c + 1)];
+
+            cell->spatial_flags = cell_z_minus != NULL && cell_z_minus->material > 0
+                ? RAS_GRIDMAP_Z_MINUS_1
+                : 0;
+            cell->spatial_flags |= cell_z_plus != NULL && cell_z_plus->material > 0
+                ? RAS_GRIDMAP_Z_PLUS_1
+                : 0;
+            cell->spatial_flags |= cell_x_minus != NULL && cell_x_minus->material > 0
+                ? RAS_GRIDMAP_X_MINUS_1
+                : 0;
+            cell->spatial_flags |= cell_x_plus != NULL && cell_x_plus->material > 0
+                ? RAS_GRIDMAP_X_PLUS_1
+                : 0;
+        }
+    }
+}
+
 RasResult core_script_map_gridmap(LarNode* gridmap_exp, RasSceneGridMap* gridmap)
 {
 
@@ -44,9 +79,11 @@ RasResult core_script_map_gridmap(LarNode* gridmap_exp, RasSceneGridMap* gridmap
         for (size_t c = 0; c < gridmap->width; c++) {
             size_t dst_index = (r * gridmap->width) + c;
             LarNode* cell_node = &row_node->list.nodes[c];
-            gridmap->cells[dst_index] = cell_node->atom.val_integer;
+            gridmap->cells[dst_index].material = cell_node->atom.val_integer;
         }
     }
+
+    set_gridmap_cell_flags(gridmap);
 
     return RAS_RESULT_OK;
 }
