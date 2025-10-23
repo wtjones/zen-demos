@@ -3,22 +3,22 @@
 
 void set_gridmap_cell_flags(RasSceneGridMap* gridmap)
 {
-    for (size_t r = 0; r < gridmap->height; r++) {
-        for (size_t c = 0; c < gridmap->width; c++) {
-            size_t cell_index = (r * gridmap->width) + c;
+    for (size_t z = 0; z < gridmap->depth; z++) {
+        for (size_t x = 0; x < gridmap->width; x++) {
+            size_t cell_index = (z * gridmap->width) + x;
             RasGridMapCell* cell = &gridmap->cells[cell_index];
-            RasGridMapCell* cell_z_minus = r == 0
+            RasGridMapCell* cell_z_minus = z == 0
                 ? NULL
-                : &gridmap->cells[((r - 1) * gridmap->width) + c];
-            RasGridMapCell* cell_z_plus = r == gridmap->height - 1
+                : &gridmap->cells[((z - 1) * gridmap->width) + x];
+            RasGridMapCell* cell_z_plus = z == gridmap->depth - 1
                 ? NULL
-                : &gridmap->cells[((r + 1) * gridmap->width) + c];
-            RasGridMapCell* cell_x_minus = c == 0
+                : &gridmap->cells[((z + 1) * gridmap->width) + x];
+            RasGridMapCell* cell_x_minus = x == 0
                 ? NULL
-                : &gridmap->cells[(r * gridmap->width) + (c - 1)];
-            RasGridMapCell* cell_x_plus = c == gridmap->width - 1
+                : &gridmap->cells[(z * gridmap->width) + (x - 1)];
+            RasGridMapCell* cell_x_plus = x == gridmap->width - 1
                 ? NULL
-                : &gridmap->cells[(r * gridmap->width) + (c + 1)];
+                : &gridmap->cells[(z * gridmap->width) + (x + 1)];
 
             cell->spatial_flags = cell_z_minus != NULL && cell_z_minus->material > 0
                 ? RAS_GRIDMAP_Z_MINUS_1
@@ -40,6 +40,7 @@ RasResult core_script_map_gridmap(LarNode* gridmap_exp, RasSceneGridMap* gridmap
 {
 
     memset(gridmap, 0, sizeof(RasSceneGridMap));
+    gridmap->height = 1;
 
     LarNode* name_node = lar_get_property_by_type(
         gridmap_exp, SCRIPT_SYMBOL_GRIDMAP_NAME, LAR_NODE_ATOM_STRING);
@@ -60,12 +61,12 @@ RasResult core_script_map_gridmap(LarNode* gridmap_exp, RasSceneGridMap* gridmap
     gridmap->width = sz_node->atom.val_integer;
 
     sz_node = lar_get_property_by_type(
-        gridmap_exp, SCRIPT_SYMBOL_GRIDMAP_HEIGHT, LAR_NODE_ATOM_INTEGER);
+        gridmap_exp, SCRIPT_SYMBOL_GRIDMAP_DEPTH, LAR_NODE_ATOM_INTEGER);
 
     RAS_CHECK_AND_LOG(sz_node == NULL,
-        "Failed to find property %s", SCRIPT_SYMBOL_GRIDMAP_HEIGHT);
+        "Failed to find property %s", SCRIPT_SYMBOL_GRIDMAP_DEPTH);
 
-    gridmap->height = sz_node->atom.val_integer;
+    gridmap->depth = sz_node->atom.val_integer;
 
     LarNode* cells_node = lar_get_property_by_type(
         gridmap_exp, SCRIPT_SYMBOL_GRIDMAP_CELLS, LAR_NODE_LIST);

@@ -10,7 +10,7 @@
     (gridmap
     :name "gmap01"
     :width 10
-    :height 10
+    :depth 10
     :cell_size 1.0
     :cells
       ((1 1 1 1 1 1 1 1 1 1)

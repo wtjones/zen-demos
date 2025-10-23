@@ -11,7 +11,8 @@
 #pragma GCC diagnostic pop
 
 #define RAS_MAX_GRIDMAP_WIDTH 128
-#define RAS_MAX_GRIDMAP_HEIGHT 128
+#define RAS_MAX_GRIDMAP_HEIGHT 1
+#define RAS_MAX_GRIDMAP_DEPTH 128
 #define MAX_GRIDMAP_NAME 50
 #define MAX_FILE_PATH 50
 #define SCRIPT_SYMBOL_GRIDMAPS "gridmaps"
@@ -19,6 +20,7 @@
 #define SCRIPT_SYMBOL_GRIDMAP_NAME ":name"
 #define SCRIPT_SYMBOL_GRIDMAP_WIDTH ":width"
 #define SCRIPT_SYMBOL_GRIDMAP_HEIGHT ":height"
+#define SCRIPT_SYMBOL_GRIDMAP_DEPTH ":depth"
 #define SCRIPT_SYMBOL_GRIDMAP_CELL_SIZE ":cell_size"
 #define SCRIPT_SYMBOL_GRIDMAP_CELLS ":cells"
 
@@ -42,8 +44,9 @@ typedef struct {
     char name[MAX_GRIDMAP_NAME];
     size_t width;
     size_t height;
+    size_t depth;
     RasFixed cell_size;
-    RasGridMapCell cells[RAS_MAX_GRIDMAP_WIDTH * RAS_MAX_GRIDMAP_HEIGHT];
+    RasGridMapCell cells[RAS_MAX_GRIDMAP_WIDTH * RAS_MAX_GRIDMAP_HEIGHT * RAS_MAX_GRIDMAP_DEPTH];
 } RasSceneGridMap;
 
 /**
