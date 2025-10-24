@@ -13,6 +13,6 @@ void gridmap_scene_test()
     assert(scene->num_gridmaps == 1);
     RasSceneGridMap* gridmap = &scene->gridmaps[0];
     assert(strcmp(gridmap->name, "gmap01") == 0);
-
+    assert(gridmap->element.num_verts > 0);
     core_free_scene(&scene);
 }

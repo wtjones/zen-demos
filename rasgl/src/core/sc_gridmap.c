@@ -1,7 +1,39 @@
 #include "rasgl/core/debug.h"
 #include "rasgl/core/gridmap.h"
 
-void set_gridmap_cell_flags(RasSceneGridMap* gridmap)
+RasResult core_gridmap_to_pipeline_element(
+    RasSceneGridMap* gridmap,
+    RasPipelineElement* element)
+{
+    if (gridmap->height != 1) {
+        ras_log_error("Only gridmaps with height 1 are supported.");
+        return RAS_RESULT_ERROR;
+    }
+    memset(element, 0, sizeof(RasPipelineElement));
+
+    for (size_t y = 0; y <= gridmap->height; y++) {
+        for (size_t z = 0; z <= gridmap->depth; z++) {
+            for (size_t x = 0; x <= gridmap->width; x++) {
+                RasVector3f* v = &element->verts[element->num_verts].position;
+                element->num_verts++;
+
+                v->x = mul_fixed_16_16_by_fixed_16_16(
+                    INT_32_TO_FIXED_16_16(x),
+                    gridmap->cell_size);
+                v->y = mul_fixed_16_16_by_fixed_16_16(
+                    INT_32_TO_FIXED_16_16(y),
+                    gridmap->cell_size);
+                v->z = mul_fixed_16_16_by_fixed_16_16(
+                    INT_32_TO_FIXED_16_16(z),
+                    gridmap->cell_size);
+            }
+        }
+    }
+
+    return RAS_RESULT_OK;
+}
+
+void core_set_gridmap_cell_flags(RasSceneGridMap* gridmap)
 {
     for (size_t z = 0; z < gridmap->depth; z++) {
         for (size_t x = 0; x < gridmap->width; x++) {
@@ -61,6 +93,14 @@ RasResult core_script_map_gridmap(LarNode* gridmap_exp, RasSceneGridMap* gridmap
     gridmap->width = sz_node->atom.val_integer;
 
     sz_node = lar_get_property_by_type(
+        gridmap_exp, SCRIPT_SYMBOL_GRIDMAP_CELL_SIZE, LAR_NODE_ATOM_FIXED);
+
+    RAS_CHECK_AND_LOG(sz_node == NULL,
+        "Failed to find property %s", SCRIPT_SYMBOL_GRIDMAP_CELL_SIZE);
+
+    gridmap->cell_size = sz_node->atom.val_fixed;
+
+    sz_node = lar_get_property_by_type(
         gridmap_exp, SCRIPT_SYMBOL_GRIDMAP_DEPTH, LAR_NODE_ATOM_INTEGER);
 
     RAS_CHECK_AND_LOG(sz_node == NULL,
@@ -84,7 +124,12 @@ RasResult core_script_map_gridmap(LarNode* gridmap_exp, RasSceneGridMap* gridmap
         }
     }
 
-    set_gridmap_cell_flags(gridmap);
+    core_set_gridmap_cell_flags(gridmap);
+
+    if (core_gridmap_to_pipeline_element(gridmap, &gridmap->element) != RAS_RESULT_OK) {
+        ras_log_error("Failed to convert gridmap to pipeline element.");
+        return RAS_RESULT_ERROR;
+    }
 
     return RAS_RESULT_OK;
 }

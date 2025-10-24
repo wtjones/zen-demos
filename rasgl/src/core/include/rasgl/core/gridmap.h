@@ -1,6 +1,7 @@
 #ifndef GRIDMAP_H
 #define GRIDMAP_H
 
+#include "graphics.h"
 #include "maths.h"
 
 #pragma GCC diagnostic push
@@ -47,6 +48,7 @@ typedef struct {
     size_t depth;
     RasFixed cell_size;
     RasGridMapCell cells[RAS_MAX_GRIDMAP_WIDTH * RAS_MAX_GRIDMAP_HEIGHT * RAS_MAX_GRIDMAP_DEPTH];
+    RasPipelineElement element;
 } RasSceneGridMap;
 
 /**
