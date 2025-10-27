@@ -330,6 +330,8 @@ void projected_to_screen_point(
     RasFixed projected_point[4],
     Point2i* screen_point);
 
+void core_get_element_aabb(RasPipelineElement* element, RasAABB* aabb);
+
 void core_draw_element(
     RenderState* render_state,
     RasPipelineElement* element,
