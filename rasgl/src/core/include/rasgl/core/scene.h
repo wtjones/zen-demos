@@ -16,6 +16,7 @@
 #pragma GCC diagnostic pop
 
 #define RAS_MAX_SCENE_OBJECTS 100
+#define RAS_MAX_SCENE_GRIDMAPS 1
 #define MAX_SCENE_NAME 50
 #define MAX_FILE_PATH 50
 #define SCRIPT_SYMBOL_SCENE "scene"
@@ -71,6 +72,7 @@ typedef struct {
     RasVector3f rotation;       // Intialized from :orientation in scene script
     RasVector3f rotation_delta; // Rotation speed
     RasSceneObjectAnimation* animation;
+    uint32_t mesh_index;
 } RasSceneObject;
 
 typedef struct {

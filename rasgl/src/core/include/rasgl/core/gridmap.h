@@ -49,6 +49,7 @@ typedef struct {
     RasFixed cell_size;
     RasGridMapCell cells[RAS_MAX_GRIDMAP_WIDTH * RAS_MAX_GRIDMAP_HEIGHT * RAS_MAX_GRIDMAP_DEPTH];
     RasPipelineElement element;
+    uint32_t mesh_index;
 } RasSceneGridMap;
 
 /**

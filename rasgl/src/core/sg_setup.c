@@ -8,10 +8,12 @@
 void core_pipeline_init(RasPipeline* pipeline)
 {
     RasPipeline template = {
-        .num_stages = 13,
+        .num_stages = 15,
         .stages = {
             { .name = "core_sg_setup", core_sg_setup },
+            { .name = "core_sg_xform_gridmaps", core_sg_xform_gridmaps },
             { .name = "core_sg_xform_objects", core_sg_xform_objects },
+            { .name = "core_sg_xform_gridmap_aabb", core_sg_xform_gridmap_aabb },
             { .name = "core_sg_xform_aabb", core_sg_xform_aabb },
             { .name = "core_sg_render_aabb", core_sg_render_aabb },
             { .name = "core_sg_xform_verts", core_sg_xform_verts },
@@ -40,19 +42,20 @@ void core_renderdata_init(
     render_data->camera = camera;
     mat_set_identity_4x4(render_data->world_view_matrix);
     mat_set_identity_4x4(render_data->projection_matrix);
+    render_data->num_visible_gridmaps = 0;
     render_data->num_visible_objects = 0;
     render_data->vert_buffer.num_verts = 0;
     render_data->num_mesh_elements = 0;
     render_data->render_state->num_visible_meshes = 0;
 
-    for (size_t i = 0; i < RAS_MAX_SCENE_OBJECTS; i++) {
+    for (size_t i = 0; i < RAS_MAX_MESHES; i++) {
         mat_set_identity_4x4(render_data->model_world_matrix[i]);
         mat_set_identity_4x4(render_data->model_view_matrix[i]);
         mat_set_identity_4x4(render_data->normal_mvt_matrix[i]);
         render_data->aabb_clip_flags[i] = 0;
     }
 
-    render_state->num_meshes = scene->num_objects;
+    render_state->num_meshes = 0;
 }
 
 void* core_sg_setup(void* input)
@@ -70,6 +73,30 @@ void* core_sg_setup(void* input)
     return render_data;
 }
 
+void* core_sg_xform_gridmaps(void* input)
+{
+    char buffer[1000];
+    RasRenderData* render_data = (RasRenderData*)input;
+
+    for (size_t i = 0; i < render_data->scene->num_gridmaps; i++) {
+        RasSceneGridMap* current_gridmap = &render_data->scene->gridmaps[i];
+
+        uint32_t mesh_index = current_gridmap->mesh_index = render_data->render_state->num_meshes++;
+        RasFixed(*model_world_matrix)[4] = render_data->model_world_matrix[mesh_index];
+        RasFixed(*model_view_matrix)[4] = render_data->model_view_matrix[mesh_index];
+        RasFixed(*normal_mvt_matrix)[4] = render_data->normal_mvt_matrix[mesh_index];
+
+        // Gridmap isn't transformed from object space, so use default model_view_matrix.
+        mat_mul_4x4_4x4(
+            render_data->world_view_matrix,
+            model_world_matrix, model_view_matrix);
+        ras_log_buffer("Gridmap Model world matrix: %s", repr_mat_4x4(buffer, sizeof buffer, model_world_matrix));
+        ras_log_buffer("Gridmap Model view matrix: %s", repr_mat_4x4(buffer, sizeof buffer, model_view_matrix));
+        core_mat_normal_init(model_view_matrix, normal_mvt_matrix);
+        ras_log_buffer("Gridmap normal mvt: %s", repr_mat_4x4(buffer, sizeof buffer, normal_mvt_matrix));
+    }
+}
+
 void* core_sg_xform_objects(void* input)
 {
     char buffer[1000];
@@ -77,11 +104,13 @@ void* core_sg_xform_objects(void* input)
 
     for (size_t i = 0; i < render_data->scene->num_objects; i++) {
         RasSceneObject* current_object = &render_data->scene->objects[i];
+        uint32_t mesh_index = current_object->mesh_index = render_data->render_state->num_meshes++;
         RasVector3f* model_pos = &current_object->position;
         RasVector3f* model_rotation = &current_object->rotation;
-        RasFixed(*model_world_matrix)[4] = render_data->model_world_matrix[i];
-        RasFixed(*model_view_matrix)[4] = render_data->model_view_matrix[i];
-        RasFixed(*normal_mvt_matrix)[4] = render_data->normal_mvt_matrix[i];
+        RasFixed(*model_world_matrix)[4] = render_data->model_world_matrix[mesh_index];
+        RasFixed(*model_view_matrix)[4] = render_data->model_view_matrix[mesh_index];
+        RasFixed(*normal_mvt_matrix)[4] = render_data->normal_mvt_matrix[mesh_index];
+
         RasFixed model_world1[4][4];
         RasFixed model_world2[4][4];
         RasFixed model_world3[4][4];
@@ -107,6 +136,59 @@ void* core_sg_xform_objects(void* input)
     }
 }
 
+void* core_sg_xform_gridmap_aabb(void* input)
+{
+    char buffer[1000];
+    RasRenderData* render_data = (RasRenderData*)input;
+
+    if (render_data->scene->num_gridmaps == 0) {
+        return NULL;
+    }
+
+    size_t num_frustum_planes = 0;
+    RasFrustumPlane* frustum_planes = get_side_mode_planes(
+        render_data->render_state->clip_side_mode,
+        &num_frustum_planes);
+    bool use_far_plane = false;
+    for (size_t i = 0; i < num_frustum_planes; i++) {
+        if (frustum_planes[i] == PLANE_FAR) {
+            use_far_plane = true;
+            break;
+        }
+    }
+
+    RasSceneGridMap* current_gridmap = &render_data->scene->gridmaps[0];
+    RasPipelineElement* element = &current_gridmap->element;
+    const uint32_t mesh_index = current_gridmap->mesh_index;
+    RasAABB* view_aabb = &render_data->aabbs[mesh_index];
+
+    core_aabb_xform(&element->aabb, render_data->model_view_matrix[mesh_index], view_aabb);
+
+    ras_log_buffer("Gridmap AABB orig min: %s\n", repr_point3f(buffer, sizeof buffer, &element->aabb.min));
+    ras_log_buffer("Gridmap AABB view min: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb->min));
+    ras_log_buffer("Gridmap AABB view max: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb->max));
+
+    bool all_out = core_aabb_in_frustum(
+        view_aabb,
+        &render_data->frustum,
+        use_far_plane,
+        &render_data->aabb_clip_flags[mesh_index]);
+
+    ras_log_buffer(
+        "Gridmap AABB flags: %hhu, all_out: %s\n",
+        render_data->aabb_clip_flags[mesh_index],
+        all_out ? "true" : "false");
+    if (!all_out) {
+
+        render_data->mesh_elements[render_data->num_mesh_elements].mesh_index = mesh_index;
+        render_data->mesh_elements[render_data->num_mesh_elements].element_ref = element;
+        render_data->num_mesh_elements++;
+
+        render_data->render_state->visible_meshes[render_data->render_state->num_visible_meshes] = mesh_index;
+        render_data->render_state->num_visible_meshes++;
+    }
+}
+
 void* core_sg_xform_aabb(void* input)
 {
     char buffer[1000];
@@ -127,9 +209,10 @@ void* core_sg_xform_aabb(void* input)
     for (size_t i = 0; i < render_data->scene->num_objects; i++) {
         RasSceneObject* current_object = &render_data->scene->objects[i];
         RasPipelineElement* element = current_object->element_ref;
-        RasAABB* view_aabb = &render_data->aabbs[i];
+        const uint32_t mesh_index = current_object->mesh_index;
+        RasAABB* view_aabb = &render_data->aabbs[mesh_index];
 
-        core_aabb_xform(&element->aabb, render_data->model_view_matrix[i], view_aabb);
+        core_aabb_xform(&element->aabb, render_data->model_view_matrix[mesh_index], view_aabb);
 
         ras_log_buffer("AABB orig min: %s\n", repr_point3f(buffer, sizeof buffer, &element->aabb.min));
         ras_log_buffer("AABB view min: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb->min));
@@ -139,19 +222,19 @@ void* core_sg_xform_aabb(void* input)
             view_aabb,
             &render_data->frustum,
             use_far_plane,
-            &render_data->aabb_clip_flags[i]);
+            &render_data->aabb_clip_flags[mesh_index]);
 
-        ras_log_buffer("AABB flags: %hhu, all_out: %s\n", render_data->aabb_clip_flags[i], all_out ? "true" : "false");
+        ras_log_buffer("AABB flags: %hhu, all_out: %s\n", render_data->aabb_clip_flags[mesh_index], all_out ? "true" : "false");
         if (!all_out) {
             assert(render_data->num_visible_objects < RAS_MAX_SCENE_OBJECTS);
             assert(render_data->render_state->num_visible_meshes < RAS_MAX_MESHES);
 
             render_data->visible_objects[render_data->num_visible_objects++] = i;
-            render_data->mesh_elements[render_data->num_mesh_elements].mesh_index = i;
+            render_data->mesh_elements[render_data->num_mesh_elements].mesh_index = mesh_index;
             render_data->mesh_elements[render_data->num_mesh_elements].element_ref = element;
             render_data->num_mesh_elements++;
-            // Mesh indices match scene objects by convention.
-            render_data->render_state->visible_meshes[render_data->render_state->num_visible_meshes] = i;
+
+            render_data->render_state->visible_meshes[render_data->render_state->num_visible_meshes] = mesh_index;
             render_data->render_state->num_visible_meshes++;
         }
     }

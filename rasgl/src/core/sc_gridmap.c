@@ -1,4 +1,5 @@
 #include "rasgl/core/debug.h"
+#include "rasgl/core/graphics.h"
 #include "rasgl/core/gridmap.h"
 
 RasResult core_gridmap_to_pipeline_element(
