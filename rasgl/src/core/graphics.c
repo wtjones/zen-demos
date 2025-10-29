@@ -655,6 +655,11 @@ void core_render_point(
     uint32_t* num_commands = &render_state->num_commands;
     Point2i* screen_pos;
 
+    if (*num_points >= MAX_RENDER_POINTS || *num_commands >= MAX_RENDER_COMMANDS) {
+        ras_log_error("Render state full, cannot render more points.");
+        assert(false);
+        return;
+    }
     screen_pos = &render_state->points[*num_points];
     screen_pos->x = FIXED_16_16_TO_INT_32(screen_space_position->x);
     screen_pos->y = FIXED_16_16_TO_INT_32(screen_space_position->y);

@@ -1,6 +1,7 @@
 #include "rasgl/core/aabb.h"
 #include "rasgl/core/clip.h"
 #include "rasgl/core/event.h"
+#include "rasgl/core/grid.h"
 #include "rasgl/core/normals.h"
 #include "rasgl/core/repr.h"
 #include "rasgl/core/stages.h"
@@ -8,7 +9,7 @@
 void core_pipeline_init(RasPipeline* pipeline)
 {
     RasPipeline template = {
-        .num_stages = 15,
+        .num_stages = 16,
         .stages = {
             { .name = "core_sg_setup", core_sg_setup },
             { .name = "core_sg_xform_gridmaps", core_sg_xform_gridmaps },
@@ -24,7 +25,8 @@ void core_pipeline_init(RasPipeline* pipeline)
             { .name = "core_sg_cull_backfaces", core_sg_cull_backfaces },
             { .name = "core_sg_xform_normals", core_sg_xform_normals },
             { .name = "core_sg_lighting", core_sg_lighting },
-            { .name = "core_sg_draw_normals", core_sg_draw_normals } }
+            { .name = "core_sg_draw_normals", core_sg_draw_normals },
+            { .name = "core_sg_draw_grid", core_sg_draw_grid } }
     };
 
     memcpy(pipeline, &template, sizeof(RasPipeline));
@@ -686,4 +688,14 @@ void* core_sg_draw_normals(void* input)
             model_view_matrix,
             render_data->projection_matrix);
     }
+}
+
+void* core_sg_draw_grid(void* input)
+{
+    RasRenderData* render_data = (RasRenderData*)input;
+
+    core_draw_grid(
+        render_data->render_state,
+        render_data->world_view_matrix,
+        render_data->projection_matrix);
 }

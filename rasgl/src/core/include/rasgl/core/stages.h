@@ -148,6 +148,7 @@ void* core_sg_xform_normals(void* input);
 void* core_sg_lighting(void* input);
 
 void* core_sg_draw_normals(void* input);
+void* core_sg_draw_grid(void* input);
 
 void* core_sg_clip_faces(void* input);
 #endif
