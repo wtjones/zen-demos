@@ -111,6 +111,7 @@ RasResult core_gridmap_to_pipeline_element(
 
             fbl_index++;
         }
+        fbl_index++;
     }
 
     return RAS_RESULT_OK;
