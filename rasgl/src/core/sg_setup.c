@@ -396,6 +396,10 @@ void* core_sg_project_to_screen_space(void* input)
 
             RasPipelineVertex* pv = &mesh->verts[j];
 
+            if (pv->clip_space_position.w <= 0) {
+                continue;
+            }
+            render_data->num_verts_in_frustum[mesh_index]++;
             RasFixed clip_space_position[4];
             RasFixed ndc_space_vec[4];
 
@@ -409,7 +413,7 @@ void* core_sg_project_to_screen_space(void* input)
             core_4x1_to_vector4f(ndc_space_vec, &pv->ndc_space_position);
 
             static char buffer[255];
-            ras_log_buffer("ndc pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->ndc_space_position));
+            ras_log_buffer_trace("ndc pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->ndc_space_position));
 
             core_projected_to_screen_point(
                 render_data->render_state->screen_settings.screen_width,

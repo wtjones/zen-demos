@@ -30,6 +30,8 @@
 
 - [ ] AABB should remain correct when model rotates.
 - [ ] Consider a bitmask for planes to simplify cases such as `core_sg_visible_faces()`.
+- [ ] Clipping plane flag sometimes remains on pv.
+- [ ] NDC transform should be able to skip vertices based on clip flags.
 
 ### Math
 

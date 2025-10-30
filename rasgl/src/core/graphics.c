@@ -807,7 +807,7 @@ void core_light_poly(
 
     face->diffuse_intensity = face->diffuse_intensity < 0 ? 0 : face->diffuse_intensity;
     char buffer[255];
-    ras_log_buffer("diffuse_intensity: %s", repr_fixed_16_16(buffer, sizeof buffer, face->diffuse_intensity));
+    ras_log_buffer_trace("diffuse_intensity: %s", repr_fixed_16_16(buffer, sizeof buffer, face->diffuse_intensity));
 }
 
 void core_draw_element(
