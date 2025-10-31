@@ -151,4 +151,6 @@ void core_sub_vector3f(RasVector3f* v1, RasVector3f* v2, RasVector3f* dest);
 
 bool core_point_in_rect(Point2f* p, Point2f* top_left, Point2f* bottom_right);
 
+void core_face_normal(RasVector3f* v1, RasVector3f* v2, RasVector3f* v3, RasVector3f* normal);
+
 #endif

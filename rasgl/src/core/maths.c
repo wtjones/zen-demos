@@ -355,3 +355,12 @@ bool core_point_in_rect(Point2f* p, Point2f* top_left, Point2f* bottom_right)
         && p->y >= top_left->y
         && p->y <= bottom_right->y;
 }
+
+void core_face_normal(RasVector3f* v1, RasVector3f* v2, RasVector3f* v3, RasVector3f* normal)
+{
+    RasVector3f edge1, edge2;
+    core_sub_vector3f(v2, v1, &edge1);
+    core_sub_vector3f(v3, v1, &edge2);
+    core_cross_product(&edge1, &edge2, normal);
+    core_normalize(normal);
+}

@@ -2,6 +2,27 @@
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/gridmap.h"
 
+static inline void add_cell_face(
+    RasPipelineElement* element,
+    uint32_t v0i,
+    uint32_t v1i,
+    uint32_t v2i,
+    uint32_t material_index)
+{
+    element->indexes[element->num_indexes++] = v0i;
+    element->indexes[element->num_indexes++] = v1i;
+    element->indexes[element->num_indexes++] = v2i;
+    element->material_indexes[element->num_material_indexes++] = material_index;
+
+    element->faces[element->num_faces].material_index = material_index;
+    core_face_normal(
+        &element->verts[v0i].position,
+        &element->verts[v1i].position,
+        &element->verts[v2i].position,
+        &element->faces[element->num_faces].normal);
+    element->num_faces++;
+}
+
 RasResult core_gridmap_to_pipeline_element(
     RasSceneGridMap* gridmap,
     RasPipelineElement* element)
@@ -68,20 +89,8 @@ RasResult core_gridmap_to_pipeline_element(
             // NBL -- NBR
             // Order: (FBR, FBL, NBL), (FBR, NBL, NBR)
 
-            element->indexes[element->num_indexes++] = fbr_index;
-            element->indexes[element->num_indexes++] = fbl_index;
-            element->indexes[element->num_indexes++] = nbl_index;
-
-            element->indexes[element->num_indexes++] = fbr_index;
-            element->indexes[element->num_indexes++] = nbl_index;
-            element->indexes[element->num_indexes++] = nbr_index;
-            element->material_indexes[element->num_material_indexes++] = cell->material;
-
-            element->faces[element->num_faces].material_index = cell->material;
-            element->faces[element->num_faces].normal.x = 0;
-            element->faces[element->num_faces].normal.y = INT_32_TO_FIXED_16_16(1);
-            element->faces[element->num_faces].normal.z = 0;
-            element->num_faces++;
+            add_cell_face(element, fbr_index, fbl_index, nbl_index, cell->material);
+            add_cell_face(element, fbr_index, nbl_index, nbr_index, cell->material);
 
             // Create interior ceiling face in CCW order.
             // Looking up:
@@ -91,24 +100,21 @@ RasResult core_gridmap_to_pipeline_element(
             // FTL -- FTR
             // Order: (NTR, NTL, FTL), (NTR, FTL, FTR)
 
-            element->indexes[element->num_indexes++] = ntr_index;
-            element->indexes[element->num_indexes++] = ntl_index;
-            element->indexes[element->num_indexes++] = ftl_index;
+            add_cell_face(element, ntr_index, ntl_index, ftl_index, cell->material);
+            add_cell_face(element, ntr_index, ftl_index, ftr_index, cell->material);
 
-            element->indexes[element->num_indexes++] = ntr_index;
-            element->indexes[element->num_indexes++] = ftl_index;
-            element->indexes[element->num_indexes++] = ftr_index;
+            if (cell->spatial_flags & RAS_GRIDMAP_Z_MINUS_1) {
+                // Create interior far face in CCW order.
+                // Looking far:
+                // FTL -- FTR
+                // |       |
+                // |       |
+                // FBL -- FBR
+                // Order: (FTR, FTL, FBL), (FTR, FBL, FBR)
 
-            element->material_indexes[element->num_material_indexes++] = cell->material;
-
-            element->faces[element->num_faces].material_index = cell->material;
-            element->faces[element->num_faces].normal.x = 0;
-            element->faces[element->num_faces].normal.y = INT_32_TO_FIXED_16_16(-1);
-            element->faces[element->num_faces].normal.z = 0;
-            element->num_faces++;
-
-            // TODO: Create interior wall faces in CCW order where cell touches a wall.
-
+                add_cell_face(element, ftr_index, ftl_index, fbl_index, cell->material);
+                add_cell_face(element, ftr_index, fbl_index, fbr_index, cell->material);
+            }
             fbl_index++;
         }
         fbl_index++;
@@ -156,7 +162,7 @@ RasResult core_script_map_gridmap(LarNode* gridmap_exp, RasSceneGridMap* gridmap
 {
 
     memset(gridmap, 0, sizeof(RasSceneGridMap));
-    gridmap->height = 1;
+    gridmap->height = 1; // Currently only 2d gridmaps supported.
 
     LarNode* name_node = lar_get_property_by_type(
         gridmap_exp, SCRIPT_SYMBOL_GRIDMAP_NAME, LAR_NODE_ATOM_STRING);
@@ -198,9 +204,13 @@ RasResult core_script_map_gridmap(LarNode* gridmap_exp, RasSceneGridMap* gridmap
     RAS_CHECK_AND_LOG(cells_node == NULL,
         "Failed to find property %s", SCRIPT_SYMBOL_GRIDMAP_CELLS);
 
-    for (size_t r = 0; r < gridmap->height; r++) {
-        LarNode* row_node = &cells_node->list.nodes[r];
+    RAS_CHECK_AND_LOG(cells_node->list.length != gridmap->depth,
+        "Gridmap cells row count does not match depth");
 
+    for (size_t r = 0; r < gridmap->depth; r++) {
+        LarNode* row_node = &cells_node->list.nodes[r];
+        RAS_CHECK_AND_LOG(row_node->list.length != gridmap->width,
+            "Gridmap cells column count does not match width");
         for (size_t c = 0; c < gridmap->width; c++) {
             size_t dst_index = (r * gridmap->width) + c;
             LarNode* cell_node = &row_node->list.nodes[c];
