@@ -454,5 +454,5 @@ void core_clip_face(
 
     core_ngon_to_tris(work_out_verts, *num_out_verts, out_verts, num_out_verts);
 
-    ras_log_buffer("clipped to n-gon with %d verts fanned to %d", num_in_verts, *num_out_verts);
+    ras_log_buffer_trace("clipped to n-gon with %d verts fanned to %d", num_in_verts, *num_out_verts);
 }
