@@ -76,7 +76,7 @@ RasResult core_gridmap_to_pipeline_element(
             size_t ftr_index = ftl_index + 1;
             size_t ntl_index = ftl_index + (gridmap->width + 1);
             size_t ntr_index = ntl_index + 1;
-            if (cell->material == 1) {
+            if (cell->material > 0) {
                 fbl_index++;
                 continue; // wall
             }
@@ -103,7 +103,7 @@ RasResult core_gridmap_to_pipeline_element(
             add_cell_face(element, ntr_index, ntl_index, ftl_index, cell->material);
             add_cell_face(element, ntr_index, ftl_index, ftr_index, cell->material);
 
-            if (cell->spatial_flags & RAS_GRIDMAP_Z_MINUS_1) {
+            if (cell->spatial_flags & (1 << RAS_GRIDMAP_Z_MINUS_1)) {
                 // Create interior far face in CCW order.
                 // Looking far:
                 // FTL -- FTR
@@ -112,8 +112,8 @@ RasResult core_gridmap_to_pipeline_element(
                 // FBL -- FBR
                 // Order: (FTR, FTL, FBL), (FTR, FBL, FBR)
 
-                add_cell_face(element, ftr_index, ftl_index, fbl_index, cell->material);
-                add_cell_face(element, ftr_index, fbl_index, fbr_index, cell->material);
+                add_cell_face(element, ftr_index, ftl_index, fbl_index, cell->spatial_materials[RAS_GRIDMAP_Z_MINUS_1]);
+                add_cell_face(element, ftr_index, fbl_index, fbr_index, cell->spatial_materials[RAS_GRIDMAP_Z_MINUS_1]);
             }
             fbl_index++;
         }
@@ -142,17 +142,22 @@ void core_set_gridmap_cell_flags(RasSceneGridMap* gridmap)
                 ? NULL
                 : &gridmap->cells[(z * gridmap->width) + (x + 1)];
 
+            cell->spatial_materials[RAS_GRIDMAP_Z_MINUS_1] = cell_z_minus != NULL ? cell_z_minus->material : -1;
+            cell->spatial_materials[RAS_GRIDMAP_Z_PLUS_1] = cell_z_plus != NULL ? cell_z_plus->material : -1;
+            cell->spatial_materials[RAS_GRIDMAP_X_MINUS_1] = cell_x_minus != NULL ? cell_x_minus->material : -1;
+            cell->spatial_materials[RAS_GRIDMAP_X_PLUS_1] = cell_x_plus != NULL ? cell_x_plus->material : -1;
+
             cell->spatial_flags = cell_z_minus != NULL && cell_z_minus->material > 0
-                ? RAS_GRIDMAP_Z_MINUS_1
+                ? 1 << RAS_GRIDMAP_Z_MINUS_1
                 : 0;
             cell->spatial_flags |= cell_z_plus != NULL && cell_z_plus->material > 0
-                ? RAS_GRIDMAP_Z_PLUS_1
+                ? 1 << RAS_GRIDMAP_Z_PLUS_1
                 : 0;
             cell->spatial_flags |= cell_x_minus != NULL && cell_x_minus->material > 0
-                ? RAS_GRIDMAP_X_MINUS_1
+                ? 1 << RAS_GRIDMAP_X_MINUS_1
                 : 0;
             cell->spatial_flags |= cell_x_plus != NULL && cell_x_plus->material > 0
-                ? RAS_GRIDMAP_X_PLUS_1
+                ? 1 << RAS_GRIDMAP_X_PLUS_1
                 : 0;
         }
     }

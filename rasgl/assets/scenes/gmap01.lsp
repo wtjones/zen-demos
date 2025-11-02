@@ -13,15 +13,15 @@
     :depth 5
     :cell_size 1.0
     :cells
-      ((1 1 1 1 1 1 )
+      ((1 2 3 1 2 1 )
        (1 0 0 0 0 1)
-       (1 0 1 0 0 1)
+       (1 0 1 0 3 1)
        (1 0 1 0 0 1)
        (1 1 1 1 1 1 ))))
   (cameras
     (camera
       :name "main"
-      :position (vec 0.0 0.5 2.5)
+      :position (vec 3.0 0.5 4.5)
       :angle 180
       :fov 45.0
       :near 0.1

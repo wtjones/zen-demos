@@ -27,18 +27,19 @@
 
 typedef enum {
     // UP
-    RAS_GRIDMAP_Z_MINUS_1 = 1 << 0,
+    RAS_GRIDMAP_Z_MINUS_1 = 0,
     // DOWN
-    RAS_GRIDMAP_Z_PLUS_1 = 1 << 1,
+    RAS_GRIDMAP_Z_PLUS_1 = 1,
     // LEFT
-    RAS_GRIDMAP_X_MINUS_1 = 1 << 2,
+    RAS_GRIDMAP_X_MINUS_1 = 2,
     // RIGHT
-    RAS_GRIDMAP_X_PLUS_1 = 1 << 3
-} RasGridMapSpatialFlags;
+    RAS_GRIDMAP_X_PLUS_1 = 3
+} RasGridMapSpatial;
 
 typedef struct {
     int32_t material;
     uint8_t spatial_flags;
+    int32_t spatial_materials[4];
 } RasGridMapCell;
 
 typedef struct {
