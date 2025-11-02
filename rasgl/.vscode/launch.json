@@ -42,7 +42,8 @@
                 "./assets/scenes/tri.lsp",
                 "./assets/scenes/cube.lsp",
                 "./assets/scenes/multi01.lsp",
-                "./assets/scenes/map01.lsp"
+                "./assets/scenes/gmap01.lsp",
+                "./assets/scenes/scratch.lsp"
             ]
         }
     ]

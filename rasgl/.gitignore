@@ -7,3 +7,4 @@
 !.vscode/extensions.json
 !.vscode/cmake-variants.yaml
 tools/dosbox.conf
+assets/scenes/scratch.lsp
