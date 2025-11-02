@@ -112,8 +112,83 @@ RasResult core_gridmap_to_pipeline_element(
                 // FBL -- FBR
                 // Order: (FTR, FTL, FBL), (FTR, FBL, FBR)
 
-                add_cell_face(element, ftr_index, ftl_index, fbl_index, cell->spatial_materials[RAS_GRIDMAP_Z_MINUS_1]);
-                add_cell_face(element, ftr_index, fbl_index, fbr_index, cell->spatial_materials[RAS_GRIDMAP_Z_MINUS_1]);
+                add_cell_face(element,
+                    ftr_index,
+                    ftl_index,
+                    fbl_index,
+                    cell->spatial_materials[RAS_GRIDMAP_Z_MINUS_1]);
+                add_cell_face(element,
+                    ftr_index,
+                    fbl_index,
+                    fbr_index,
+                    cell->spatial_materials[RAS_GRIDMAP_Z_MINUS_1]);
+            }
+
+            if (cell->spatial_flags & (1 << RAS_GRIDMAP_X_MINUS_1)) {
+                // Create interior left face in CCW order.
+                // Looking left:
+                // NTL -- FTL
+                // |       |
+                // |       |
+                // NBL -- FBL
+                // Order: (FTL, NTL, NBL), (FTL, NBL, FBL)
+
+                add_cell_face(
+                    element,
+                    ftl_index,
+                    ntl_index,
+                    nbl_index,
+                    cell->spatial_materials[RAS_GRIDMAP_X_MINUS_1]);
+                add_cell_face(
+                    element,
+                    ftl_index,
+                    nbl_index,
+                    fbl_index,
+                    cell->spatial_materials[RAS_GRIDMAP_X_MINUS_1]);
+            }
+
+            if (cell->spatial_flags & (1 << RAS_GRIDMAP_Z_PLUS_1)) {
+                // Create interior near face in CCW order.
+                // Looking near:
+                // NTR -- NTL
+                // |       |
+                // |       |
+                // NBR -- NBL
+                // Order: (NTL, NTR, NBR), (NTL, NBR, NBL)
+
+                add_cell_face(element,
+                    ntl_index,
+                    ntr_index,
+                    nbr_index,
+                    cell->spatial_materials[RAS_GRIDMAP_Z_PLUS_1]);
+                add_cell_face(element,
+                    ntl_index,
+                    nbr_index,
+                    nbl_index,
+                    cell->spatial_materials[RAS_GRIDMAP_Z_PLUS_1]);
+            }
+
+            if (cell->spatial_flags & (1 << RAS_GRIDMAP_X_PLUS_1)) {
+                // Create interior right face in CCW order.
+                // Looking right:
+                // FTR -- NTR
+                // |       |
+                // |       |
+                // FBR -- NBR
+                // Order: (NTR, FTR, FBR), (NTR, FBR, NBR)
+
+                add_cell_face(
+                    element,
+                    ntr_index,
+                    ftr_index,
+                    fbr_index,
+                    cell->spatial_materials[RAS_GRIDMAP_X_PLUS_1]);
+                add_cell_face(
+                    element,
+                    ntr_index,
+                    fbr_index,
+                    nbr_index,
+                    cell->spatial_materials[RAS_GRIDMAP_X_PLUS_1]);
             }
             fbl_index++;
         }
