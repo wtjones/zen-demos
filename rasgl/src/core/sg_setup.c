@@ -92,8 +92,6 @@ void* core_sg_xform_gridmaps(void* input)
         mat_mul_4x4_4x4(
             render_data->world_view_matrix,
             model_world_matrix, model_view_matrix);
-        ras_log_buffer("Gridmap Model world matrix: %s", repr_mat_4x4(buffer, sizeof buffer, model_world_matrix));
-        ras_log_buffer("Gridmap Model view matrix: %s", repr_mat_4x4(buffer, sizeof buffer, model_view_matrix));
         core_mat_normal_init(model_view_matrix, normal_mvt_matrix);
         ras_log_buffer("Gridmap normal mvt: %s", repr_mat_4x4(buffer, sizeof buffer, normal_mvt_matrix));
     }
@@ -131,10 +129,10 @@ void* core_sg_xform_objects(void* input)
         mat_mul_4x4_4x4(
             render_data->world_view_matrix,
             model_world_matrix, model_view_matrix);
-        ras_log_buffer("Model world matrix: %s", repr_mat_4x4(buffer, sizeof buffer, model_world_matrix));
-        ras_log_buffer("Model view matrix: %s", repr_mat_4x4(buffer, sizeof buffer, model_view_matrix));
+        ras_log_buffer_trace("Model world matrix: %s", repr_mat_4x4(buffer, sizeof buffer, model_world_matrix));
+        ras_log_buffer_trace("Model view matrix: %s", repr_mat_4x4(buffer, sizeof buffer, model_view_matrix));
         core_mat_normal_init(model_view_matrix, normal_mvt_matrix);
-        ras_log_buffer("normal mvt: %s", repr_mat_4x4(buffer, sizeof buffer, normal_mvt_matrix));
+        ras_log_buffer_trace("normal mvt: %s", repr_mat_4x4(buffer, sizeof buffer, normal_mvt_matrix));
     }
 }
 

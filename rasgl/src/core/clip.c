@@ -420,7 +420,7 @@ void core_clip_face(
                         &intersect_pv.clip_space_position);
                     core_set_pv_clip_flags(&intersect_pv);
                     if (intersect_pv.clip_flags & core_to_clip_flag(i)) {
-                        ras_log_buffer("Not expecting clip flag %d to remain.", i);
+                        ras_log_buffer_trace("Not expecting clip flag %d to remain.", i);
                         intersect_pv.clip_flags &= ~core_to_clip_flag(i);
                     }
                     memcpy(&work_out_verts[*num_out_verts], &intersect_pv, sizeof(RasPipelineVertex));
@@ -438,7 +438,7 @@ void core_clip_face(
                     &intersect_pv.clip_space_position);
                 core_set_pv_clip_flags(&intersect_pv);
                 if (intersect_pv.clip_flags & core_to_clip_flag(i)) {
-                    ras_log_buffer("Not expecting clip flag %d to remain.", i);
+                    ras_log_buffer_trace("Not expecting clip flag %d to remain.", i);
                     intersect_pv.clip_flags &= ~core_to_clip_flag(i);
                 }
                 memcpy(&work_out_verts[*num_out_verts], &intersect_pv, sizeof(RasPipelineVertex));
