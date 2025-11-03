@@ -2,6 +2,7 @@
 #include "rasgl/core/clip.h"
 #include "rasgl/core/event.h"
 #include "rasgl/core/grid.h"
+#include "rasgl/core/gridmap.h"
 #include "rasgl/core/normals.h"
 #include "rasgl/core/repr.h"
 #include "rasgl/core/stages.h"
@@ -93,7 +94,11 @@ void* core_sg_xform_gridmaps(void* input)
             render_data->world_view_matrix,
             model_world_matrix, model_view_matrix);
         core_mat_normal_init(model_view_matrix, normal_mvt_matrix);
-        ras_log_buffer("Gridmap normal mvt: %s", repr_mat_4x4(buffer, sizeof buffer, normal_mvt_matrix));
+
+        core_gridmap_to_element_faces(
+            current_gridmap,
+            render_data->camera,
+            &current_gridmap->element);
     }
 }
 

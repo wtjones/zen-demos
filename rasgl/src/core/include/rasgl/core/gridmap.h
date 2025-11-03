@@ -1,6 +1,7 @@
 #ifndef GRIDMAP_H
 #define GRIDMAP_H
 
+#include "camera.h"
 #include "graphics.h"
 #include "maths.h"
 
@@ -60,5 +61,18 @@ typedef struct {
  * @return RasResult
  */
 RasResult core_script_map_gridmap(LarNode* gridmap_exp, RasSceneGridMap* gridmap);
+
+/**
+ * @brief Create faces by major and minor axis based on camera angle.
+ *
+ * @param gridmap
+ * @param camera
+ * @param element
+ * @return RasResult
+ */
+RasResult core_gridmap_to_element_faces(
+    RasSceneGridMap* gridmap,
+    RasCamera* camera,
+    RasPipelineElement* element);
 
 #endif

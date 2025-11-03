@@ -23,7 +23,15 @@ static inline void add_cell_face(
     element->num_faces++;
 }
 
-RasResult core_gridmap_to_pipeline_element(
+/**
+ * @brief Create only the gridmap vertices.
+ * The faces are created during the pipeline based on the camera.
+ *
+ * @param gridmap
+ * @param element
+ * @return RasResult
+ */
+RasResult core_gridmap_to_element_verts(
     RasSceneGridMap* gridmap,
     RasPipelineElement* element)
 {
@@ -60,14 +68,65 @@ RasResult core_gridmap_to_pipeline_element(
 
     core_get_element_aabb(element, &element->aabb);
 
+    return RAS_RESULT_OK;
+}
+
+RasResult core_gridmap_to_element_faces(
+    RasSceneGridMap* gridmap,
+    RasCamera* camera,
+    RasPipelineElement* element)
+{
+    element->num_indexes = 0;
+    element->num_faces = 0;
+    element->num_material_indexes = 0;
+
     // Track the far-back-left and far-top-left vert indexes
     size_t fbl_index = 0;
 
-    for (size_t z_cell = 0; z_cell < gridmap->depth; z_cell++) {
-        for (size_t x_cell = 0; x_cell < gridmap->width; x_cell++) {
+    size_t z_cell = 0, x_cell = 0;
+    size_t major_i = 0;
+    size_t minor_i = 0;
+    int32_t major_axis; // 0 = x, 1 = z
+    int32_t major_dir;  // 0 = 0..len, 1 = len..0
+
+    if (camera->angle >= 45 && camera->angle < 135) {
+        // Looking down +X
+        major_axis = 0;
+        major_dir = 1;
+        ras_log_buffer("Looking down +X");
+    } else if (camera->angle >= 135 && camera->angle < 225) {
+        // Looking down -Z
+        major_axis = 1;
+        major_dir = 0;
+        ras_log_buffer("Looking down -Z");
+    } else if (camera->angle >= 225 && camera->angle < 315) {
+        // Looking down -X
+        major_axis = 0;
+        major_dir = 0;
+        ras_log_buffer("Looking down -X");
+    } else {
+        // Looking down +Z
+        major_axis = 1;
+        major_dir = 1;
+        ras_log_buffer("Looking down +Z");
+    }
+
+    const size_t major_length = major_axis == 0 ? gridmap->width : gridmap->depth;
+    const size_t minor_length = major_axis == 0 ? gridmap->depth : gridmap->width;
+    for (major_i = 0; major_i < major_length; major_i++) {
+        for (minor_i = 0; minor_i < minor_length; minor_i++) {
+            if (major_axis == 0) {
+                x_cell = major_dir == 0 ? major_i : (major_length - 1 - major_i);
+                z_cell = minor_i;
+            } else {
+                z_cell = major_dir == 0 ? major_i : (major_length - 1 - major_i);
+                x_cell = minor_i;
+            }
+
             size_t cell_index = (z_cell * gridmap->width) + x_cell;
             RasGridMapCell* cell = &gridmap->cells[cell_index];
 
+            fbl_index = (z_cell * (gridmap->width + 1)) + x_cell;
             size_t fbr_index = fbl_index + 1;
             size_t nbl_index = fbl_index + (gridmap->width + 1);
             size_t nbr_index = nbl_index + 1;
@@ -300,7 +359,7 @@ RasResult core_script_map_gridmap(LarNode* gridmap_exp, RasSceneGridMap* gridmap
 
     core_set_gridmap_cell_flags(gridmap);
 
-    if (core_gridmap_to_pipeline_element(gridmap, &gridmap->element) != RAS_RESULT_OK) {
+    if (core_gridmap_to_element_verts(gridmap, &gridmap->element) != RAS_RESULT_OK) {
         ras_log_error("Failed to convert gridmap to pipeline element.");
         return RAS_RESULT_ERROR;
     }
