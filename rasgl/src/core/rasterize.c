@@ -7,11 +7,13 @@ size_t core_interpolate(
     RasFixed i1, RasFixed d1,
     RasFixed dest[], size_t max_size)
 {
+#ifdef RAS_INTERPOLATE_TRACE
     char buffer1[255];
     char buffer2[255];
-    ras_log_buffer("Interpolating from %s to %s\n",
+    ras_log_buffer_trace("Interpolating from %s to %s\n",
         repr_fixed_16_16(buffer1, 255, i0),
         repr_fixed_16_16(buffer2, 255, i1));
+#endif
 
     size_t count = 0;
     if (i0 == i1) {
@@ -20,9 +22,10 @@ size_t core_interpolate(
     }
 
     RasFixed a = div_fixed_16_16_by_fixed_16_16(d1 - d0, i1 - i0);
+#ifdef RAS_INTERPOLATE_TRACE
     char buffer[255];
-    ras_log_buffer("Div: %s\n", repr_fixed_16_16(buffer, 255, a));
-
+    ras_log_buffer_trace("Div: %s\n", repr_fixed_16_16(buffer, 255, a));
+#endif
     RasFixed d = d0;
     RasFixed step = (i0 < i1) ? RAS_FIXED_ONE : -RAS_FIXED_ONE;
 
