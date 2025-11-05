@@ -11,6 +11,9 @@
         }                                                                        \
     } while (0)
 
+void ras_draw_horizontal_line(
+    SDL_Surface* surface, int x0, int x1, int y, uint8_t color);
+
 void ras_draw_line(
     SDL_Surface* surface, Point2i* p0, Point2i* p1, uint8_t color);
 

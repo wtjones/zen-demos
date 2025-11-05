@@ -295,15 +295,8 @@ void render_mesh_solid(RenderState* state)
                 ? num_hlines
                 : max_lines;
             for (size_t j = 0; j < num_hlines; j++) {
-                Point2i point0 = {
-                    .x = hlines[j].left.x,
-                    .y = hlines[j].left.y
-                };
-                Point2i point1 = {
-                    .x = hlines[j].right.x,
-                    .y = hlines[j].right.y
-                };
-                ras_draw_line(surface, &point0, &point1, color);
+                ras_draw_horizontal_line(surface,
+                    hlines[j].left.x, hlines[j].right.x, hlines[j].left.y, color);
             }
             material_index++;
             face++;
@@ -352,15 +345,8 @@ void render_polygon_solid(RenderState* state)
         num_hlines = rasterize_tri(tri, hlines, sizeof(hlines) / sizeof(hlines[0]));
 
         for (size_t j = 0; j < num_hlines; j++) {
-            Point2i point0 = {
-                .x = hlines[j].left.x,
-                .y = hlines[j].left.y
-            };
-            Point2i point1 = {
-                .x = hlines[j].right.x,
-                .y = hlines[j].right.y
-            };
-            ras_draw_line(surface, &point0, &point1, color);
+            ras_draw_horizontal_line(surface,
+                hlines[j].left.x, hlines[j].right.x, hlines[j].left.y, color);
         }
         material_index++;
         face++;
