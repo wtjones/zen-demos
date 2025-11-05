@@ -13,6 +13,31 @@
 
 #define MAX_SHAPE_VERTICES 10
 
+/*
+
+    The names are a bit counter-intuitive.
+    Notice that N is between 180 and 225 degrees.
+
+           -Z (North)
+       225 N 180 NE 135
+    NW  \   |    /  E
+ -X 270 --+--+--+ 90 +X
+         /   |   \
+       315   0   45
+           +Z (South)
+*/
+
+typedef enum {
+    DIR_S = 0,  // 0°
+    DIR_SE = 1, // 45°
+    DIR_E = 2,  // 90°
+    DIR_NE = 3, // 135°
+    DIR_N = 4,  // 180°
+    DIR_NW = 5, // 225°
+    DIR_W = 6,  // 270°
+    DIR_SW = 7  // 315°
+} RasOctant;
+
 typedef struct Point2i {
     int32_t x;
     int32_t y;
@@ -152,5 +177,7 @@ void core_sub_vector3f(RasVector3f* v1, RasVector3f* v2, RasVector3f* dest);
 bool core_point_in_rect(Point2f* p, Point2f* top_left, Point2f* bottom_right);
 
 void core_face_normal(RasVector3f* v1, RasVector3f* v2, RasVector3f* v3, RasVector3f* normal);
+
+RasOctant core_angle_to_octant(int32_t angle);
 
 #endif

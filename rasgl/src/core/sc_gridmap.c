@@ -88,27 +88,82 @@ RasResult core_gridmap_to_element_faces(
     size_t minor_i = 0;
     int32_t major_axis; // 0 = x, 1 = z
     int32_t major_dir;  // 0 = 0..len, 1 = len..0
+    int32_t minor_dir;  // 0 = 0..len, 1 = len..0
 
-    if (camera->angle >= 45 && camera->angle < 135) {
-        // Looking down +X
-        major_axis = 0;
-        major_dir = 1;
-        ras_log_buffer("Looking down +X");
-    } else if (camera->angle >= 135 && camera->angle < 225) {
-        // Looking down -Z
+    /*
+        Camera angles from top-down:
+
+                -Z
+           225  180  135
+                 |
+        -X 270 --+-- 90 +X
+                 |
+           315   0   45
+                +Z
+    */
+
+    RasOctant octant = core_angle_to_octant(camera->angle);
+
+    switch (octant) {
+    case DIR_N:
+        // Looking down -Z, toward -X
         major_axis = 1;
         major_dir = 0;
+        minor_dir = 0;
         ras_log_buffer("Looking down -Z");
-    } else if (camera->angle >= 225 && camera->angle < 315) {
-        // Looking down -X
+        break;
+    case DIR_NW:
+        // Looking down -X, toward -Z
         major_axis = 0;
         major_dir = 0;
+        minor_dir = 0;
         ras_log_buffer("Looking down -X");
-    } else {
-        // Looking down +Z
+        break;
+    case DIR_W:
+        // Looking down -X, toward +Z
+        major_axis = 0;
+        major_dir = 0;
+        minor_dir = 1;
+        ras_log_buffer("Looking down -X");
+        break;
+    case DIR_SW:
+        // Looking down +Z, toward -X
         major_axis = 1;
         major_dir = 1;
+        minor_dir = 0;
+        ras_log_buffer("Looking down -X");
+        break;
+    case DIR_S:
+        // Looking down +Z, toward +X
+        major_axis = 1;
+        major_dir = 1;
+        minor_dir = 1;
         ras_log_buffer("Looking down +Z");
+        break;
+    case DIR_SE:
+        // Looking down +X, toward +Z
+        major_axis = 0;
+        major_dir = 1;
+        minor_dir = 1;
+        ras_log_buffer("Looking down +X");
+        break;
+    case DIR_E:
+        // Looking down +X, toward -Z
+        major_axis = 0;
+        major_dir = 1;
+        minor_dir = 0;
+        ras_log_buffer("Looking down +X");
+        break;
+    case DIR_NE:
+        // Looking down -Z, toward +X
+        major_axis = 1;
+        major_dir = 0;
+        minor_dir = 1;
+        ras_log_buffer("Looking down -Z");
+        break;
+    default:
+        ras_log_error("Invalid octant %d", octant);
+        return RAS_RESULT_ERROR;
     }
 
     const size_t major_length = major_axis == 0 ? gridmap->width : gridmap->depth;
@@ -117,10 +172,10 @@ RasResult core_gridmap_to_element_faces(
         for (minor_i = 0; minor_i < minor_length; minor_i++) {
             if (major_axis == 0) {
                 x_cell = major_dir == 0 ? major_i : (major_length - 1 - major_i);
-                z_cell = minor_i;
+                z_cell = minor_dir == 0 ? minor_i : (minor_length - 1 - minor_i);
             } else {
                 z_cell = major_dir == 0 ? major_i : (major_length - 1 - major_i);
-                x_cell = minor_i;
+                x_cell = minor_dir == 0 ? minor_i : (minor_length - 1 - minor_i);
             }
 
             size_t cell_index = (z_cell * gridmap->width) + x_cell;

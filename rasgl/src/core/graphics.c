@@ -205,7 +205,7 @@ void core_renderstate_scene_init(RenderState* state)
     state->layer_visible = true;
     state->projection_mode = RAS_PERSPECTIVE_MATRIX;
     state->polygon_mode = RAS_POLYGON_WIREFRAME;
-    state->grid_mode = RAS_GRID_MODE_ORIGIN | RAS_GRID_MODE_GRID;
+    state->grid_mode = RAS_GRID_MODE_ORIGIN;
 }
 
 void core_renderstate_ui_init(RenderState* state)
