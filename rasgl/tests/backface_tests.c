@@ -21,23 +21,21 @@ typedef struct RasVector3fp {
  */
 bool core_is_backface_fp(RasVector3fp* sv0, RasVector3fp* sv1, RasVector3fp* sv2)
 {
-    // norm1 = (1.x - 0.x) * (0.y - 2.y)
-    // norm2 = (1.y - 0.y) * (0.x - 2.x)
-    float norm1 = (sv1->x - sv0->x) * (sv0->y - sv2->y);
-    float norm2 = (sv1->y - sv0->y) * (sv0->x - sv2->x);
+    float dx1 = sv1->x - sv0->x;
+    float dy1 = sv1->y - sv0->y;
+    float dx2 = sv2->x - sv0->x;
+    float dy2 = sv2->y - sv0->y;
 
-    float norm = norm1 - norm2;
+    float cross = dx1 * dy2 - dy1 * dx2;
 
-    // Debug output for problematic cases
-
-    return norm < 0;
+    return cross < 0.0f;
 }
 
 void backface_tests()
 {
 
     /*
-    call first with result = false (not backface) example:
+    call first with result = true (is backface) example:
 
     [x: 86.677246, y: 22.238159, z: 0.948990, w: 1.700806]
 [x: -29.384766, y: 296.057739, z: 0.901703, w: 0.944412]
@@ -64,7 +62,7 @@ void backface_tests()
 
     bool result = core_is_backface_fp(&sv0, &sv1, &sv2);
 
-    assert(!result);
+    assert(result);
     /*
 
     call with result = true (is backface) expectation
@@ -88,12 +86,12 @@ void backface_tests()
 
     result = core_is_backface_fp(&sv0, &sv1, &sv2);
 
-    assert(!result);
+    assert(result);
 
     // Now test the same scenarios with the fixed-point version core_is_backface
     ras_log_info("Testing fixed-point core_is_backface...\n");
 
-    // Test case 1: Front-facing triangle (should return false)
+    // Test case 1: Back-facing triangle (should return true)
     RasVector4f sv0_fixed = {
         .x = float_to_fixed_16_16(86.677246f),
         .y = float_to_fixed_16_16(22.238159f),
@@ -116,8 +114,8 @@ void backface_tests()
     };
 
     bool fixed_result = core_is_backface(&sv0_fixed, &sv1_fixed, &sv2_fixed);
-    ras_log_info("Fixed-point test 1 (front-facing): %s\n", fixed_result ? "backface" : "front-facing");
-    assert(!fixed_result);
+    ras_log_info("Fixed-point test 1 (back-facing): %s\n", fixed_result ? "backface" : "front-facing");
+    assert(fixed_result);
 
     // Test case 2: Back-facing triangle (should return true)
     sv0_fixed.x = float_to_fixed_16_16(86.677246f);
@@ -138,7 +136,7 @@ void backface_tests()
     fixed_result = core_is_backface(&sv0_fixed, &sv1_fixed, &sv2_fixed);
 
     ras_log_info("Fixed-point test 2 (back-facing): %s\n", fixed_result ? "backface" : "front-facing");
-    assert(!fixed_result);
+    assert(fixed_result);
     ras_log_info("Fixed-point backface tests completed successfully!\n");
 }
 
@@ -157,9 +155,9 @@ void fixed_sub_tests()
 
 void backface_tests2()
 {
-    ras_log_info("backface_test2: Testing front-facing triangle from log data...\n");
+    ras_log_info("backface_test2: Testing back-facing triangle from log data...\n");
 
-    // Test case: Triangle that should be front-facing (not a backface)
+    // Test case: Triangle that should be back-facing (is a backface)
     // v1: [x: 296.308594, y: 9.660645, z: 0.945312, w: 1.600906]
     // v2: [x: 224.575195, y: 186.859131, z: 0.964966, w: 2.331741]
     // v3: [x: 488.542480, y: 299.177856, z: 0.892624, w: 0.870087]    // Floating-point test
@@ -182,7 +180,7 @@ void backface_tests2()
     };
 
     bool fp_result = core_is_backface_fp(&sv0_fp, &sv1_fp, &sv2_fp);
-    ras_log_info("Float test (should be front-facing): %s\n", fp_result ? "backface" : "front-facing");
+    ras_log_info("Float test (should be back-facing): %s\n", fp_result ? "backface" : "front-facing");
 
     // Fixed-point test
     RasVector4f sv0_fixed = {
@@ -207,12 +205,12 @@ void backface_tests2()
     };
 
     bool fixed_result = core_is_backface(&sv0_fixed, &sv1_fixed, &sv2_fixed);
-    ras_log_info("Fixed-point test (should be front-facing): %s\n", fixed_result ? "backface" : "front-facing");
+    ras_log_info("Fixed-point test (should be back-facing): %s\n", fixed_result ? "backface" : "front-facing");
 
-    // Both should identify this as front-facing (not a backface)
-    assert(fp_result == false);
-    assert(fixed_result == false);
+    // Both should identify this as back-facing (is a backface)
+    assert(fp_result == true);
+    assert(fixed_result == true);
     assert(fp_result == fixed_result);
 
-    ras_log_info("backface_test2 completed: Both float and fixed-point correctly identify front-facing triangle\n");
+    ras_log_info("backface_test2 completed: Both float and fixed-point correctly identify back-facing triangle\n");
 }
