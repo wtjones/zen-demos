@@ -23,10 +23,11 @@ See [TODO.md](TODO.md) and [RESEARCH.md](RESEARCH.md).
   * Backface culling
   * Wireframe polygon rendering
   * Bitmap font rendering
-* Planned
   * Frustum culling
   * Polygon clipping
   * Flat shaded polygons
+  * Gridmap with back-to-front rendering
+* Planned
   * Texture-mapped polygons
   * Depth sorting
 
@@ -105,25 +106,12 @@ Platform support progress:
    * Push each final screen-space vertex into the render array and record its index.
    * For each triangle, push the 3 vertex indices.
 
-### Map render
-
-Assume world size of 5x5.
-
-```text
-p0-------p1-------p2
-|  t0  / |  t2  / |
-|    /   |    /   |
-|  /  t1 |  /  t3 |
-p6-------p7-------p8
-```
-
 ## Render layers
 
 ### Scene pass
 
-* World geometry
-* Terrain
-* Models
+* Gridmaps
+* Objects
 
 ### UI pass
 
@@ -305,6 +293,20 @@ example: `./run_dos.sh poly 0 assets/secenes/tri.lsp`
 ### Demo: world
 
 Demonstrates movement controls over world geometry.
+
+This demo is deprecated in favor of loading scene files in the poly demo.
+
+#### Map geometry
+
+Assume world size of 5x5.
+
+```text
+p0-------p1-------p2
+|  t0  / |  t2  / |
+|    /   |    /   |
+|  /  t1 |  /  t3 |
+p6-------p7-------p8
+```
 
 #### Controls
 

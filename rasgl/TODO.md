@@ -55,10 +55,6 @@
 
 - [ ] Add scene reset operation.
 
-### Map
-
-- [ ] Render map as fixed obj
-
 ### Text
 
 - [ ] Text clipping
@@ -89,8 +85,6 @@
 ## In Progress
 
 ### Rendering
-
-- [ ] Render origin
 
 ### Text
 
@@ -146,6 +140,7 @@
 - [x] Material colors in filled polygon mode
 - [x] Shaded polygon mode
 - [x] Add flat shading toggle
+- [x] Render origin
 
 
 ### Scene Loading
@@ -181,7 +176,7 @@
 - [x] Show cursor
 - [x] Add key repeat for backspace
 
-### Grid
+### Grid overlay
 
 - [x] Shade points
 - [x] Cull points outside of frustum.
