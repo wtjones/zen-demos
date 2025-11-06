@@ -27,6 +27,9 @@ void core_free_scene_cameras(RasScene* scene)
 
 void core_free_scene_gridmaps(RasScene* scene)
 {
+    if (scene->num_gridmaps == 0) {
+        return;
+    }
     free(scene->gridmaps);
 }
 
