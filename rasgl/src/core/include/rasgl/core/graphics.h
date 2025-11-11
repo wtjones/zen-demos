@@ -220,6 +220,8 @@ typedef struct RenderState {
 
     uint32_t current_frame;
     uint32_t max_frames;
+    uint32_t last_app_render_ticks;
+    uint32_t last_rasterize_ticks;
     ScreenSettings screen_settings;
     RasRenderLayer layer;
     bool layer_visible;

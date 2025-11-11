@@ -704,7 +704,12 @@ int main(int argc, const char** argv)
                 states[i].screen_settings.screen_height = plat_settings.screen_height;
             }
             SDL_LockSurface(surface);
+            uint32_t start_ticks = SDL_GetTicks();
             ras_app_render(states);
+            uint32_t now = SDL_GetTicks();
+            for (size_t i = 0; i < RAS_LAYER_COUNT; i++) {
+                states[i].last_app_render_ticks = now - start_ticks;
+            }
 
             RasFont font;
             core_draw_console(&states[RAS_LAYER_CONSOLE], &font, console);
@@ -713,9 +718,12 @@ int main(int argc, const char** argv)
             for (int i = 0; i < surface->w * surface->h; i++) {
                 pixels[i] = 0;
             }
-            render_state(&states[RAS_LAYER_SCENE]);
-            render_state(&states[RAS_LAYER_UI]);
-            render_state(&states[RAS_LAYER_CONSOLE]);
+
+            for (size_t i = 0; i < RAS_LAYER_COUNT; i++) {
+                start_ticks = SDL_GetTicks();
+                render_state(&states[i]);
+                states[i].last_rasterize_ticks = SDL_GetTicks() - start_ticks;
+            }
 
             SDL_UnlockSurface(surface);
 

@@ -184,6 +184,8 @@ void core_renderstate_init(RenderState* state)
     state->num_visible_meshes = 0;
     state->current_frame = 0;
     state->max_frames = UINT32_MAX;
+    state->last_app_render_ticks = 0;
+    state->last_rasterize_ticks = 0;
 
     state->backface_culling_mode = RAS_BACKFACE_CULLING_ON;
     state->clipping_mode = RAS_CLIPPING_ON;

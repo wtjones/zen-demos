@@ -319,10 +319,11 @@ void render_ui(RenderState* render_state)
 
     Point2f stat_pos = { .x = RAS_FIXED_ZERO, .y = RAS_FIXED_ZERO };
     RasOctant octant = core_angle_to_octant(camera->angle);
-
+    static uint32_t ticks = 0;
+    ticks = render_state->current_frame % 60 == 0 ? render_state->last_app_render_ticks : ticks;
     core_draw_textf(
-        render_state, ui_font, stat_pos, "Frame: %d\nAngle: %d\nOctant: %d",
-        render_state->current_frame, camera->angle, octant);
+        render_state, ui_font, stat_pos, "Frame: %d\nFrame time: %d\nAngle: %d\nOctant: %d",
+        render_state->current_frame, ticks, camera->angle, octant);
 
     ras_log_buffer_trace("Text width %d",
         FIXED_16_16_TO_INT_32(core_get_font_width(ui_font, "Hello!")));
