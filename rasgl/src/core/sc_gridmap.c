@@ -76,6 +76,17 @@ RasResult core_gridmap_to_element_faces(
     RasCamera* camera,
     RasPipelineElement* element)
 {
+
+    if (gridmap->width * gridmap->depth * 8 > MAX_PIPELINE_FACES) {
+        ras_log_error("Reached max faces in pipeline element: %d", MAX_PIPELINE_FACES);
+        assert(false);
+    }
+
+    if (gridmap->width * gridmap->depth * 24 > MAX_VISIBLE_INDEXES) {
+        ras_log_error("Reached max indexes in pipeline element: %d", MAX_VISIBLE_INDEXES);
+        assert(false);
+    }
+
     element->num_indexes = 0;
     element->num_faces = 0;
     element->num_material_indexes = 0;

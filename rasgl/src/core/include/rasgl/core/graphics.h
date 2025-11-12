@@ -12,8 +12,9 @@
 #define MAX_RENDER_POINTS 10000
 #define MAX_RENDER_COMMANDS 10000
 #define MAX_COMMAND_POINTS 3
-#define MAX_PIPELINE_VERTS 10000
-#define MAX_VISIBLE_INDEXES MAX_PIPELINE_VERTS * 3
+#define MAX_PIPELINE_VERTS 1000
+#define MAX_PIPELINE_FACES (MAX_PIPELINE_VERTS)
+#define MAX_VISIBLE_INDEXES (MAX_PIPELINE_VERTS * 3)
 #define RAS_MAX_AABB_POINTS 8
 #define RAS_MAX_MESHES 10 // FIXME
 
@@ -150,7 +151,7 @@ typedef struct RasPipelineElement {
     RasVertex verts[MAX_PIPELINE_VERTS];
     uint32_t num_verts;
 
-    RasElementFace faces[MAX_PIPELINE_VERTS / 3];
+    RasElementFace faces[MAX_PIPELINE_FACES];
     uint32_t num_faces;
 
     /**
@@ -173,7 +174,7 @@ typedef struct RasPipelineVertexBuffer {
     uint32_t visible_indexes[MAX_VISIBLE_INDEXES];
     uint32_t num_visible_indexes;
 
-    RasPipelineFace visible_faces[MAX_PIPELINE_VERTS / 3];
+    RasPipelineFace visible_faces[MAX_PIPELINE_FACES];
     uint32_t num_visible_faces;
 
     int32_t material_indexes[MAX_VISIBLE_INDEXES]; // -1 if undefined
