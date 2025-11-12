@@ -16,7 +16,7 @@
 - [ ] Validate screen points are in screen bounds
 - [ ] Fix poly fill gaps
 - [ ] Support DOS poly fill
-- [ ] Support color ramps
+- [ ] Support DOS color ramps
 - [ ] Tidy diagnosic rendering to another module
 - [ ] Support render layers in DOS
 - [ ] Toggle UI layer
@@ -81,6 +81,10 @@
 
 ### Pipeline
 
+### Build
+
+- [ ] Auto build larse deps.
+- [ ] Use distinct build folders to avoid platform clash.
 
 ## In Progress
 
@@ -126,7 +130,6 @@
 - [x] Fix disappearing poly in some near camera clipping cases.
   - Proposed fix is to perform backface culling in NDC after clipping.
 
-
 ### Models
 
 - [x] Fix DOS version not taking model param
@@ -141,7 +144,7 @@
 - [x] Shaded polygon mode
 - [x] Add flat shading toggle
 - [x] Render origin
-
+- [x] Support color ramps
 
 ### Scene Loading
 

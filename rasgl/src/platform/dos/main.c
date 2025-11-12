@@ -14,6 +14,7 @@ ScreenSettings plat_settings
     = { .screen_width = 320, .screen_height = 240 };
 RenderState states[RAS_LAYER_COUNT];
 InputState plat_input_state;
+BITMAP* g_screen_buffer;
 
 volatile int scancode_up = 0;
 volatile int scancode_down = 0;
@@ -123,11 +124,78 @@ void map_input()
         : plat_input_state.mods;
 }
 
+void render_mesh_wireframe(__attribute__((unused)) RenderState* state)
+{
+
+    ras_log_buffer("Render fn2...");
+
+    RasVector4f* sv;
+    for (uint32_t m = 0; m < state->num_visible_meshes; m++) {
+        RasPipelineMesh* mesh = &state->meshes[state->visible_meshes[m]];
+
+        uint32_t i = 0;
+        uint32_t material_index = 0;
+        while (i < mesh->num_visible_indexes) {
+            int32_t material = mesh->material_indexes[material_index];
+            if (material == -1) {
+                ras_log_buffer("Face %d has material = %d", i / 3, material);
+            }
+
+            // FIXME: Support palette colors
+            // int8_t color = material == -1
+            //     ? 7
+            //     : (7 + (material * 8));
+
+            RasPipelineVertex* pv0 = &mesh->verts[mesh->visible_indexes[i++]];
+            sv = &pv0->screen_space_position;
+            Point2i point0 = {
+                .x = FIXED_16_16_TO_INT_32(sv->x),
+                .y = FIXED_16_16_TO_INT_32(sv->y)
+            };
+
+            RasPipelineVertex* pv1 = &mesh->verts[mesh->visible_indexes[i++]];
+            sv = &pv1->screen_space_position;
+            Point2i point1 = {
+                .x = FIXED_16_16_TO_INT_32(sv->x),
+                .y = FIXED_16_16_TO_INT_32(sv->y)
+            };
+
+            RasPipelineVertex* pv2 = &mesh->verts[mesh->visible_indexes[i++]];
+            sv = &pv2->screen_space_position;
+            Point2i point2 = {
+                .x = FIXED_16_16_TO_INT_32(sv->x),
+                .y = FIXED_16_16_TO_INT_32(sv->y)
+            };
+
+            line(g_screen_buffer, point0.x, point0.y, point1.x, point1.y, makecol(0, 0, 255));
+            line(g_screen_buffer, point1.x, point1.y, point2.x, point2.y, makecol(0, 255, 0));
+            line(g_screen_buffer, point2.x, point2.y, point0.x, point0.y, makecol(255, 0, 0));
+
+            material_index++;
+        }
+    }
+}
+
+void render_mesh_solid(__attribute__((unused)) RenderState* state)
+{
+}
+
+void render_polygon_bitmap(__attribute__((unused)) RenderState* state) { }
+
+void (*g_render_fns[RAS_POLYGON_COUNT])(RenderState* state) = {
+    render_mesh_wireframe,
+    render_mesh_solid,
+    render_polygon_bitmap
+};
+
 void render_state(BITMAP* buffer, RenderState* state)
 {
     if (!state->layer_visible) {
         return;
     }
+    ras_log_buffer("Render fn...");
+    g_render_fns[state->polygon_mode](state);
+
     RasVector4f* sv;
     uint32_t i = 0;
     while (i < state->num_visible_indexes) {
@@ -204,8 +272,6 @@ int main(int argc, const char** argv)
     log_set_level(RAS_LOG_LEVEL_STRERR);
     log_set_quiet(false);
 
-    BITMAP* buffer;
-
     ras_log_info("Starting Allegro...");
     if (allegro_init() != 0) {
         ras_log_error("Failed to start Allegro.");
@@ -231,7 +297,7 @@ int main(int argc, const char** argv)
         allegro_message("Cannot set graphics mode:\r\n%s\r\n", allegro_error);
         return 1;
     }
-    buffer = create_bitmap(SCREEN_W, SCREEN_H);
+    g_screen_buffer = create_bitmap(SCREEN_W, SCREEN_H);
     RasResult result = ras_app_init(argc, argv, &plat_settings);
     if (result != RAS_RESULT_OK) {
         ras_log_error("Error result from ras_app_init(), exiting...");
@@ -277,16 +343,16 @@ int main(int argc, const char** argv)
 
             ras_app_render(states);
 
-            clear_to_color(buffer, makecol(0, 0, 0));
+            clear_to_color(g_screen_buffer, makecol(0, 0, 0));
 
-            render_state(buffer, &states[RAS_LAYER_SCENE]);
-            render_state(buffer, &states[RAS_LAYER_UI]);
+            render_state(g_screen_buffer, &states[RAS_LAYER_SCENE]);
+            render_state(g_screen_buffer, &states[RAS_LAYER_UI]);
         }
 
-        textprintf_ex(buffer, font, 0, 0, makecol(255, 255, 255), -1,
+        textprintf_ex(g_screen_buffer, font, 0, 0, makecol(255, 255, 255), -1,
             "Double buffered (%s)", gfx_driver->name);
 
-        textprintf_ex(buffer, font, 0, 10, makecol(255, 255, 255), -1,
+        textprintf_ex(g_screen_buffer, font, 0, 10, makecol(255, 255, 255), -1,
             "Key d/u: %d - %d, %d : %s %s",
             watcher_count,
             scancode_down,
@@ -295,10 +361,10 @@ int main(int argc, const char** argv)
             scancode_to_name(scancode_up));
 
         vsync();
-        blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+        blit(g_screen_buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
     }
 
-    destroy_bitmap(buffer);
+    destroy_bitmap(g_screen_buffer);
 
     return 0;
 }

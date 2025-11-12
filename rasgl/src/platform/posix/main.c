@@ -140,8 +140,7 @@ uint8_t color_from_material(int32_t material)
 void render_mesh_wireframe(RenderState* state)
 {
     RasVector4f* sv;
-    uint32_t material_index = 0;
-    for (int32_t m = 0; m < state->num_visible_meshes; m++) {
+    for (uint32_t m = 0; m < state->num_visible_meshes; m++) {
         RasPipelineMesh* mesh = &state->meshes[state->visible_meshes[m]];
 
         uint32_t i = 0;
