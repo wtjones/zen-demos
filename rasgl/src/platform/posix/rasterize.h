@@ -14,4 +14,15 @@
 void ras_draw_line(
     SDL_Surface* surface, Point2i* p0, Point2i* p1, uint8_t color);
 
+/**
+ * @brief Draw a horizontal line with exclusive right end.
+ *
+ * @param surface
+ * @param x0
+ * @param x1
+ * @param y
+ * @param color
+ */
+void ras_draw_hline(SDL_Surface* surface, int32_t x0, int32_t x1, int32_t y, uint8_t color);
+
 #endif
