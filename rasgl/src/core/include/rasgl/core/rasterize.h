@@ -4,7 +4,6 @@
 #include "graphics.h"
 #include "maths.h"
 
-#define RAS_INTERPOLATE_MAX 500
 #define RAS_HORIZONTAL_LINE_MAX 4000
 
 typedef struct {
@@ -12,14 +11,15 @@ typedef struct {
     Point2i right;
 } RasHorizontalLine;
 
-size_t core_interpolate(
-    RasFixed i0,
-    RasFixed d0,
-    RasFixed i1,
-    RasFixed d1,
-    RasFixed dest[],
-    size_t max_size);
-
+/**
+ * @brief Rasterizes a triangle into horizontal scanlines.
+ * Splits the triangle into top-flat and bottom-flat parts.
+ * A top-left fill rule is used to prevent overdraw.
+ *
+ * @param pv
+ * @param lines Output array of horizontal lines.
+ * @return size_t The number of horizontal lines generated.
+ */
 size_t rasterize_tri(
     RasVector4f* pv[3],
     RasHorizontalLine* lines,

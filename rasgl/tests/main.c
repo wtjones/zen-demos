@@ -401,31 +401,6 @@ void rasterize_tri_tests()
     }
 }
 
-void interpolate_tests()
-{
-    RasVector4f p0 = {
-        .x = float_to_fixed_16_16(10.0f),
-        .y = float_to_fixed_16_16(10.0f),
-        .z = 0,
-        .w = 1
-    };
-    RasVector4f p1 = {
-        .x = float_to_fixed_16_16(15.0f),
-        .y = float_to_fixed_16_16(12.0f),
-        .z = 0,
-        .w = 1
-    };
-
-    RasFixed result[255];
-    size_t count = core_interpolate(p0.x, p0.y, p0.x, p1.y, result, 255);
-
-    ras_log_trace("Interpolate result...");
-    for (size_t i = 0; i < count; i++) {
-        char buffer[255];
-        ras_log_trace("Div: %s\n", repr_fixed_16_16(buffer, 255, result[i]));
-    }
-}
-
 void line_buffer_index_tests()
 {
     RasLineBuffer* line_buffer = core_line_buffer_init(RAS_CONSOLE_DEFAULT_CAPACITY);
@@ -609,7 +584,6 @@ int main()
     mat_ortho_tests();
     model_tests();
     scene_tests();
-    interpolate_tests();
     rasterize_tri_tests();
     pipeline_scene_tests();
     event_summary_tests();
