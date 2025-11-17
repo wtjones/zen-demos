@@ -14,7 +14,6 @@
 - [ ] Add AABB debug view toggle
 - [ ] Render grid lines
 - [ ] Validate screen points are in screen bounds
-- [ ] Fix poly fill gaps
 - [ ] Support DOS poly fill
 - [ ] Support DOS color ramps
 - [ ] Tidy diagnosic rendering to another module
@@ -145,6 +144,7 @@
 - [x] Add flat shading toggle
 - [x] Render origin
 - [x] Support color ramps
+- [x] Fix poly fill gaps
 
 ### Scene Loading
 
