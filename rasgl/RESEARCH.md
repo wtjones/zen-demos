@@ -324,3 +324,29 @@ Use a simple sort algorithm (quick sort, radix sort, etc.) on depth, in back-to-
 | event_name   | level | last_occurred_at | num_occurred |
 | ------------ | ----- | ---------------- | ------------ |
 | scene-object | INFO  | 24234            | 12           |
+
+## New GridMap
+
+Based on Tomb Raider 1: <https://opentomb.github.io/TRosettaStone3/trosettastone.html#_room_geometry>
+
+Rooms are rectangular grids of sectors  on x/z that connect to other rooms via portals.
+
+```text
+Room
+
+- int x         // integer world coords
+- int y         // integer world coords
+- int z         // integer world coords
+- int y_top     // relative from zero
+- int y_bottom  //
+```
+
+Sectors are 1024x1024 unit squares with floor and ceiling y dimentions.
+
+```text
+Sector
+
+- int ceiling     // Relative from zero. Each value is 256 world units.
+- int floor       // Relative from zero. Each value is 256 world units.
+
+```

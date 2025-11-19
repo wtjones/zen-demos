@@ -497,6 +497,14 @@ RasResult core_script_map_scene(LarScript* script, RasScene** scene)
         return RAS_RESULT_ERROR;
     }
 
+    result = core_script_map_tombmaps(scene_exp, &new_scene->tombmaps, &new_scene->num_tombmaps);
+
+    if (result != RAS_RESULT_OK) {
+        ras_log_info("Failed to map a tombmap");
+        free(new_scene);
+        return RAS_RESULT_ERROR;
+    }
+
     result = core_script_map_cameras(scene_exp, new_scene);
 
     if (result != RAS_RESULT_OK) {

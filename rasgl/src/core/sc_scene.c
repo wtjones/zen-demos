@@ -40,6 +40,7 @@ void core_free_scene(RasScene** scene)
     core_free_scene_objects(s);
     core_free_scene_cameras(s);
     core_free_scene_gridmaps(s);
+    core_free_scene_tombmaps(s->tombmaps, s->num_tombmaps);
     free(s);
     *scene = NULL;
 }

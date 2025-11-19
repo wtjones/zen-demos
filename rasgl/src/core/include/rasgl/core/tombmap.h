@@ -1,0 +1,87 @@
+#ifndef TOMBMAP_H
+#define TOMBMAP_H
+
+#include "camera.h"
+#include "graphics.h"
+#include "maths.h"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#include <larse/core/expression.h>
+#include <larse/core/parse.h>
+#include <larse/core/repr.h>
+#pragma GCC diagnostic pop
+
+#define RAS_TOMBMAP_FLOOR_CEILING_UNIT 256
+#define MAX_TOMBMAP_NAME 50
+#define SCRIPT_SYMBOL_TOMBMAPS "tombmaps"
+#define SCRIPT_SYMBOL_TOMBMAP "tombmap"
+#define SCRIPT_SYMBOL_TOMBMAP_NAME ":name"
+#define SCRIPT_SYMBOL_TOMBMAP_ROOMS "rooms"
+#define SCRIPT_SYMBOL_TOMBMAP_ROOM_X ":x"
+#define SCRIPT_SYMBOL_TOMBMAP_ROOM_Z ":z"
+#define SCRIPT_SYMBOL_TOMBMAP_ROOM_Y_TOP ":y_top"
+#define SCRIPT_SYMBOL_TOMBMAP_ROOM_Y_BOTTOM ":y_bottom"
+#define SCRIPT_SYMBOL_TOMBMAP_SECTORS "sectors"
+#define SCRIPT_SYMBOL_TOMBMAP_SECTOR_MATERIAL ":m"
+#define SCRIPT_SYMBOL_TOMBMAP_SECTOR_CEILING ":c"
+#define SCRIPT_SYMBOL_TOMBMAP_SECTOR_FLOOR ":f"
+
+typedef enum {
+    // UP
+    RAS_TOMBMAP_Z_MINUS_1 = 0,
+    // DOWN
+    RAS_TOMBMAP_Z_PLUS_1 = 1,
+    // LEFT
+    RAS_TOMBMAP_X_MINUS_1 = 2,
+    // RIGHT
+    RAS_TOMBMAP_X_PLUS_1 = 3
+} RasTombMapSpatial;
+
+typedef struct {
+    int32_t material;
+    uint8_t spatial_flags;
+    int32_t spatial_materials[4];
+    int8_t ceiling; // Relative from zero. Each value is 256 world units.
+    int8_t floor;   // Relative from zero. Each value is 256 world units.
+} RasTombMapSector;
+
+typedef struct {
+    int32_t x; // world coords
+    int32_t z; // world coords
+    int32_t y_top;
+    int32_t y_bottom;
+    RasTombMapSector* sectors;
+    size_t num_sectors_x;
+    size_t num_sectors_z;
+} RasTombMapRoom;
+
+typedef struct {
+    char name[MAX_TOMBMAP_NAME];
+    RasTombMapRoom* rooms;
+    size_t num_rooms;
+    RasPipelineElement element;
+    uint32_t mesh_index;
+} RasSceneTombMap;
+
+RasResult core_script_map_tombmaps(
+    LarNode* scene_exp,
+    RasSceneTombMap** out_tombmaps,
+    size_t* out_num_tombmaps);
+
+/**
+ * @brief Create faces by major and minor axis based on camera angle.
+ *
+ * @param tombmap
+ * @param camera
+ * @param element
+ * @return RasResult
+ */
+RasResult core_tombmap_to_element_faces(
+    RasSceneTombMap* tombmap,
+    RasCamera* camera,
+    RasPipelineElement* element);
+
+void core_free_scene_tombmaps(RasSceneTombMap* tombmaps, size_t num_tombmaps);
+
+#endif

@@ -7,6 +7,7 @@
 #include "gridmap.h"
 #include "maths.h"
 #include "model.h"
+#include "tombmap.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
@@ -17,6 +18,7 @@
 
 #define RAS_MAX_SCENE_OBJECTS 100
 #define RAS_MAX_SCENE_GRIDMAPS 1
+#define RAS_MAX_SCENE_TOMBMAPS 1
 #define MAX_SCENE_NAME 50
 #define MAX_FILE_PATH 50
 #define SCRIPT_SYMBOL_SCENE "scene"
@@ -92,6 +94,8 @@ typedef struct {
     size_t num_objects;
     RasSceneGridMap* gridmaps;
     size_t num_gridmaps;
+    RasSceneTombMap* tombmaps;
+    size_t num_tombmaps;
     RasSceneMap* maps;
     size_t num_maps;
     RasCamera* cameras;

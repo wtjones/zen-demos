@@ -28,6 +28,7 @@ add_library(core
     sc_gridmap.c
     sc_load.c
     sc_scene.c
+    sc_tombmap_load.c
     text.c
     string.c)
 
