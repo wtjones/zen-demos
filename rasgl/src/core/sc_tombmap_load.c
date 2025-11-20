@@ -1,5 +1,94 @@
 #include "rasgl/core/tombmap.h"
 
+RasResult core_script_map_tombmap_sector(LarNode* sector_list, RasTombMapSector* sector)
+{
+    memset(sector, 0, sizeof(RasTombMapSector));
+
+    LarNode* material_node = lar_get_list_node_by_index(sector_list, 0);
+
+    RAS_CHECK_AND_LOG(material_node == NULL,
+        "Failed to find sector material.");
+
+    sector->material = material_node->atom.val_integer;
+
+    LarNode* ceiling_node = lar_get_list_node_by_index(sector_list, 1);
+
+    RAS_CHECK_AND_LOG(ceiling_node == NULL,
+        "Failed to find sector ceiling.");
+
+    // FIXME: Source value is in hex, convert to int8_t.
+
+    sector->ceiling = (int8_t)ceiling_node->atom.val_integer;
+
+    LarNode* floor_node = lar_get_list_node_by_index(sector_list, 2);
+
+    RAS_CHECK_AND_LOG(floor_node == NULL,
+        "Failed to find sector floor.");
+
+    sector->floor = (int8_t)floor_node->atom.val_integer;
+
+    return RAS_RESULT_OK;
+}
+
+RasResult core_script_map_tombmap_sectors(
+    LarNode* rooms_node, RasTombMapRoom* room)
+{
+    LarNode* sectors_node = lar_get_list_by_symbol(
+        rooms_node, SCRIPT_SYMBOL_TOMBMAP_SECTORS);
+
+    RAS_CHECK_AND_LOG(sectors_node == NULL,
+        "Failed to find property %s", SCRIPT_SYMBOL_TOMBMAP_SECTORS);
+
+    LarNode* sectors_list = lar_get_list_node_by_index(sectors_node, 1);
+
+    RAS_CHECK_AND_LOG(sectors_list == NULL,
+        "Failed to find sectors list.");
+
+    room->num_sectors_x = 0;
+    room->num_sectors_z = sectors_list->list.length;
+
+    RAS_CHECK_AND_LOG(sectors_list->list.length == 0,
+        "Tombmap room has zero rows of sectors.");
+
+    LarNode* first_sector_row = lar_get_list_node_by_index(sectors_list, 0);
+
+    RAS_CHECK_AND_LOG(first_sector_row->list.length == 0,
+        "Unable to determine width of room sectors.");
+
+    room->num_sectors_x = first_sector_row->list.length;
+    room->sectors = malloc(
+        sizeof(RasTombMapSector) * room->num_sectors_z * room->num_sectors_x);
+
+    RAS_CHECK_AND_LOG(room->sectors == NULL,
+        "Failed to allocate memory for tombmap room sectors");
+
+    for (size_t row = 0; row < room->num_sectors_z; row++) {
+        LarNode* sector_row = &sectors_list->list.nodes[row];
+
+        if (sector_row->list.length > room->num_sectors_x) {
+            ras_log_error("Tombmap room sector row has %d items, but expected %d.",
+                sector_row->list.length,
+                room->num_sectors_x);
+            free(room->sectors);
+            return RAS_RESULT_ERROR;
+        }
+        for (size_t col = 0; col < room->num_sectors_x; col++) {
+            LarNode* sector_node = &sector_row->list.nodes[col];
+
+            RasTombMapSector* sector = &room->sectors[(row * room->num_sectors_x) + col];
+
+            RasResult result = core_script_map_tombmap_sector(sector_node, sector);
+
+            if (result != RAS_RESULT_OK) {
+                ras_log_error("Failed to map tombmap sector.");
+                free(room->sectors);
+                return RAS_RESULT_ERROR;
+            }
+        }
+    }
+    return RAS_RESULT_OK;
+}
+
 RasResult core_script_map_tombmap_room(LarNode* exp, RasTombMapRoom* room)
 {
 
@@ -28,6 +117,10 @@ RasResult core_script_map_tombmap_room(LarNode* exp, RasTombMapRoom* room)
         "Failed to find property %s", SCRIPT_SYMBOL_TOMBMAP_ROOM_Y_BOTTOM);
 
     room->y_bottom = y_bottom_node->atom.val_integer;
+
+    RAS_CHECK_AND_LOG(
+        core_script_map_tombmap_sectors(exp, room),
+        "Failed to map sectors of room.");
 
     return RAS_RESULT_OK;
 }
