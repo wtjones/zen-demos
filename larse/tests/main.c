@@ -58,6 +58,46 @@ int test_parse_single()
     return 0;
 }
 
+LarParseResult test_hex(const char* exp, int32_t* actual)
+{
+    LarNode* node;
+
+    LarParseResult result;
+    *actual = 0;
+
+    result = lar_parse_single(exp, &node);
+    if (result != LAR_PARSE_RESULT_OK) {
+        return LAR_PARSE_RESULT_ERROR;
+    }
+    *actual = node->list.nodes[0].atom.val_integer;
+    lar_free_expression(&node);
+    return result;
+}
+
+int test_parse_hex()
+{
+    LarNode* node;
+
+    LarParseResult result;
+    bool success = true;
+    int32_t expected, actual;
+    expected = 255;
+    result = test_hex("(#xFF)", &actual);
+    assert(result == LAR_PARSE_RESULT_OK && actual == expected);
+    expected = 0;
+    result = test_hex("(#x00)", &actual);
+    assert(result == LAR_PARSE_RESULT_OK && actual == expected);
+    expected = 3735928559;
+    result = test_hex("(#xDEADBEEF)", &actual);
+    assert(result == LAR_PARSE_RESULT_OK && actual == expected);
+    result = test_hex("(#xG1)", &actual);
+    assert(result == LAR_PARSE_RESULT_ERROR);
+    result = test_hex("(#x)", &actual);
+    assert(result == LAR_PARSE_RESULT_ERROR);
+    lar_free_expression(&node);
+    return 0;
+}
+
 int test_parse_symbol()
 {
     LarNode* node;
@@ -246,6 +286,7 @@ int test_get_list()
 TestFn test_fns[] = {
     { "TEST_PARSE_COMMENT", test_parse_comment },
     { "TEST_PARSE_FILE", test_parse_file },
+    { "TEST_PARSE_HEX", test_parse_hex },
     { "TEST_PARSE_SYMBOL", test_parse_symbol },
     { "TEST_PARSE_FIXED", test_parse_fixed },
     { "TEST_PARSE_SINGLE", test_parse_single },

@@ -46,6 +46,66 @@ LarParseResult parse_token_atom_boolean(const char* file_buffer,
     return LAR_PARSE_RESULT_OK;
 }
 
+bool is_hex_digit(char ch)
+{
+    char chars[] = "0123456789abcdefABCDEF";
+    return (isalnum(ch) && strchr(chars, ch) != NULL);
+}
+
+LarParseResult parse_token_atom_hex(
+    const char* file_buffer,
+    int* buffer_pos,
+    LarNode* node)
+{
+    char token[LAR_PARSE_TOKEN_MAX] = "";
+    char ch[2] = "";
+    int pos = *buffer_pos;
+    int orig_pos = pos;
+
+    ch[0] = file_buffer[pos];
+    assert(ch[0] != '\0');
+
+    while ('\0' != ch[0] && !is_atom_end_char(ch[0]) && pos - orig_pos < 2) {
+        strcat(token, ch);
+        pos++;
+        ch[0] = file_buffer[pos];
+    }
+    token[2] = '\0';
+
+    bool has_prefix = strlen(token) == 2 && token[0] == '#' && token[1] == 'x';
+    if (!has_prefix) {
+        return LAR_PARSE_RESULT_PASS;
+    }
+
+    token[0] = '\0';
+
+    // Treat as atom and copy to token
+    size_t num_chars = 0, num_digits = 0;
+    bool is_hex = false;
+    while ('\0' != ch[0] && !is_atom_end_char(ch[0])) {
+        num_digits += is_hex_digit(ch[0]) ? 1 : 0;
+        if (!is_hex_digit(ch[0])) {
+            log_error("parse_token_atom_hex: Invalid char: %c", ch[0]);
+            return LAR_PARSE_RESULT_ERROR;
+        }
+
+        strcat(token, ch);
+        pos++;
+        ch[0] = file_buffer[pos];
+    }
+
+    if (num_digits == 0) {
+        log_error("parse_token_atom_hex: No hex digits found after #x");
+        return LAR_PARSE_RESULT_ERROR;
+    }
+    node->node_type = LAR_NODE_ATOM_INTEGER;
+    node->atom.val_integer = (int)strtol(token, NULL, 16);
+    log_trace("Hex Integer found, adding to node: %d\n", node->atom.val_integer);
+    (*buffer_pos) = pos;
+
+    return LAR_PARSE_RESULT_OK;
+}
+
 LarParseResult parse_token_atom_integer(
     const char* file_buffer,
     int* buffer_pos,
@@ -281,6 +341,10 @@ LarParseResult parse_token_atom(
         return result;
     }
 
+    result = parse_token_atom_hex(file_buffer, buffer_pos, node);
+    if (result != LAR_PARSE_RESULT_PASS) {
+        return result;
+    }
     result = parse_token_atom_integer(file_buffer, buffer_pos, node);
     if (result != LAR_PARSE_RESULT_PASS) {
         return result;

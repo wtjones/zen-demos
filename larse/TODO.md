@@ -22,3 +22,4 @@
 - [x] Support single-line comments
 - [x] Test coverage for decimal
 - [x] Free expression on error
+- [x] Support hex digits

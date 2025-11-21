@@ -25,6 +25,23 @@ LarParseResult parse_token_atom_boolean(const char* file_buffer,
     LarNode* node);
 
 /**
+ * @brief Tries to parse a hexadecimal integer out of given position.
+ *
+ * A valid hexadecimal integer starts with "#x" followed by hexadecimal digits.
+ * If a valid hexadecimal integer, node is populated and result is OK.
+ * If not a valid hexadecimal integer, result is ERROR to avoid symbol evaluation.
+ *
+ * @param file_buffer
+ * @param buffer_pos
+ * @param node
+ * @return LarParseResult
+ */
+LarParseResult parse_token_atom_hex(
+    const char* file_buffer,
+    int* buffer_pos,
+    LarNode* node);
+
+/**
  * @brief Tries to parse an integer out of given position.
  * A valid integer consists of an optional sign char followed
  * by digits.
