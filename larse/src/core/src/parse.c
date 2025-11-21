@@ -123,6 +123,7 @@ LarParseResult parse_list(
             LarParseResult atom_result = parse_token_atom(file_buffer, buffer_pos, new_atom_node);
 
             if (atom_result != LAR_PARSE_RESULT_OK) {
+                lar_free_expression(&node);
                 return atom_result;
             }
 
@@ -230,7 +231,8 @@ LarParseResult lar_parse_script(
 
         if (exp_type != LAR_PARSE_EXP_LIST_START) {
             log_error("Expression not found.\n");
-            // TODO: free
+            lar_free_expression(&new_script->expressions);
+            free(new_script);
             return LAR_PARSE_RESULT_ERROR;
         }
 
@@ -242,7 +244,9 @@ LarParseResult lar_parse_script(
             exp, &buffer_pos, new_list_node, 1);
 
         if (list_result == LAR_PARSE_RESULT_ERROR) {
-            // TODO: free
+            lar_free_expression(&new_script->expressions);
+            lar_free_expression(&new_list_node);
+            free(new_script);
             return list_result;
         }
 

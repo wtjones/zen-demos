@@ -6,7 +6,6 @@
 - [ ] Test coverage for boolean
 - [ ] Add test framework
   - <https://github.com/ThrowTheSwitch/Unity>
-- [ ] Free expression on error
 - [ ] Add sanitizer build
 - [ ] Support dosbox.conf templating for param passing
 
@@ -22,3 +21,4 @@
 - [x] Add log config to README
 - [x] Support single-line comments
 - [x] Test coverage for decimal
+- [x] Free expression on error
