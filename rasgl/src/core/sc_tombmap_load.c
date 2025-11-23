@@ -16,8 +16,6 @@ RasResult core_script_map_tombmap_sector(LarNode* sector_list, RasTombMapSector*
     RAS_CHECK_AND_LOG(ceiling_node == NULL,
         "Failed to find sector ceiling.");
 
-    // FIXME: Source value is in hex, convert to int8_t.
-
     sector->ceiling = (int8_t)ceiling_node->atom.val_integer;
 
     LarNode* floor_node = lar_get_list_node_by_index(sector_list, 2);
@@ -216,6 +214,11 @@ RasResult core_script_map_tombmaps(
 
     *out_tombmaps = maps;
     *out_num_tombmaps = num_tombmaps;
+
+    if (core_tombmap_to_element_verts(&maps[0]) != RAS_RESULT_OK) {
+        ras_log_error("Failed to convert gridmap to pipeline element.");
+        return RAS_RESULT_ERROR;
+    }
 
     return RAS_RESULT_OK;
 }

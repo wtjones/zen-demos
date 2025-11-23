@@ -13,6 +13,7 @@
 #pragma GCC diagnostic pop
 
 #define RAS_TOMBMAP_FLOOR_CEILING_UNIT 256
+#define RAS_TOMBMAP_SECTOR_UNITS 1024
 #define MAX_TOMBMAP_NAME 50
 #define SCRIPT_SYMBOL_TOMBMAPS "tombmaps"
 #define SCRIPT_SYMBOL_TOMBMAP "tombmap"
@@ -54,13 +55,13 @@ typedef struct {
     RasTombMapSector* sectors;
     size_t num_sectors_x;
     size_t num_sectors_z;
+    RasPipelineElement element;
 } RasTombMapRoom;
 
 typedef struct {
     char name[MAX_TOMBMAP_NAME];
     RasTombMapRoom* rooms;
     size_t num_rooms;
-    RasPipelineElement element;
     uint32_t mesh_index;
 } RasSceneTombMap;
 
@@ -81,6 +82,9 @@ RasResult core_tombmap_to_element_faces(
     RasSceneTombMap* tombmap,
     RasCamera* camera,
     RasPipelineElement* element);
+
+RasResult core_tombmap_to_element_verts(
+    RasSceneTombMap* tombmap);
 
 void core_free_scene_tombmaps(RasSceneTombMap* tombmaps, size_t num_tombmaps);
 
