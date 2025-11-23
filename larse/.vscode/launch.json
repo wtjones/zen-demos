@@ -35,9 +35,9 @@
             "name": "larse tests",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${cmake.testProgram}",
+            "program": "${workspaceFolder}/build/bin/tests",
             "args": [
-                "${cmake.testArgs}"
+                "${input:testName}"
             ],
             "cwd": "${workspaceFolder}",
             "linux": {
@@ -45,6 +45,28 @@
                 "miDebuggerPath": "/usr/bin/gdb"
             },
             "preLaunchTask": "CMake: build"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "testName",
+            "type": "pickString",
+            "description": "Select the test to run",
+            "options": [
+                "TEST_PARSE",
+                "TEST_PARSE_COMMENT",
+                "TEST_PARSE_FILE",
+                "TEST_PARSE_SCRIPT",
+                "TEST_PARSE_SINGLE",
+                "TEST_PARSE_HEX",
+                "TEST_PARSE_SYMBOL",
+                "TEST_PARSE_FIXED",
+                "TEST_REPR_EXPRESSION",
+                "TEST_REPR_SCRIPT",
+                "TEST_GET_PROPERTY",
+                "TEST_GET_LIST"
+            ],
+            "default": "TEST_PARSE"
         }
     ]
 }
