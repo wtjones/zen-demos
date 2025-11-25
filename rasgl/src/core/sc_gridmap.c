@@ -213,9 +213,11 @@ RasResult core_gridmap_to_element_faces(
             // |       |
             // NBL -- NBR
             // Order: (FBR, FBL, NBL), (FBR, NBL, NBR)
-
-            add_cell_face(element, fbr_index, fbl_index, nbl_index, cell->material);
-            add_cell_face(element, fbr_index, nbl_index, nbr_index, cell->material);
+            uint32_t checker = (z_cell + x_cell) % 2 == 0
+                ? cell->material
+                : (cell->material + 3);
+            add_cell_face(element, fbr_index, fbl_index, nbl_index, checker);
+            add_cell_face(element, fbr_index, nbl_index, nbr_index, checker);
 
             // Create interior ceiling face in CCW order.
             // Looking up:
@@ -225,8 +227,8 @@ RasResult core_gridmap_to_element_faces(
             // FTL -- FTR
             // Order: (NTR, NTL, FTL), (NTR, FTL, FTR)
 
-            add_cell_face(element, ntr_index, ntl_index, ftl_index, cell->material);
-            add_cell_face(element, ntr_index, ftl_index, ftr_index, cell->material);
+            add_cell_face(element, ntr_index, ntl_index, ftl_index, checker);
+            add_cell_face(element, ntr_index, ftl_index, ftr_index, checker);
 
             if (cell->spatial_flags & (1 << RAS_GRIDMAP_Z_MINUS_1)) {
                 // Create interior far face in CCW order.
