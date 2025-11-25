@@ -15,6 +15,7 @@
 #define RAS_TOMBMAP_FLOOR_CEILING_UNIT 256
 #define RAS_TOMBMAP_SECTOR_UNITS 1024
 #define MAX_TOMBMAP_NAME 50
+#define RAS_TOMBMAP_SECTOR_VERTS_MAX 16
 #define SCRIPT_SYMBOL_TOMBMAPS "tombmaps"
 #define SCRIPT_SYMBOL_TOMBMAP "tombmap"
 #define SCRIPT_SYMBOL_TOMBMAP_NAME ":name"
@@ -39,12 +40,55 @@ typedef enum {
     RAS_TOMBMAP_X_PLUS_1 = 3
 } RasTombMapSpatial;
 
+/**
+ * @brief Sector corners denoted as 00, 01, 11, 10.
+ * First digit is X axis, second digit is Z axis.
+ *
+ * C00           C10
+ *        +----+
+ *       /      \
+ *      /        \
+ *     /          \
+ *    +------------+
+ *  C01            C11
+ *
+ */
+typedef enum {
+
+    FLOOR_BASE_C00,
+    FLOOR_BASE_C01,
+    FLOOR_BASE_C11,
+    FLOOR_BASE_C10,
+
+    FLOOR_TIP_C00,
+    FLOOR_TIP_C01,
+    FLOOR_TIP_C11,
+    FLOOR_TIP_C10,
+
+    CEIL_TIP_C00,
+    CEIL_TIP_C01,
+    CEIL_TIP_C11,
+    CEIL_TIP_C10,
+
+    CEIL_BASE_C00,
+    CEIL_BASE_C01,
+    CEIL_BASE_C11,
+    CEIL_BASE_C10,
+} RasTombMapSectorCorner;
+
 typedef struct {
     int32_t material;
     uint8_t spatial_flags;
     int32_t spatial_materials[4];
     int8_t ceiling; // Relative from zero. Each value is 256 world units.
     int8_t floor;   // Relative from zero. Each value is 256 world units.
+    /**
+     * @brief Vertex indexes for the two possible rectangles of a scector.
+     * If ceiling == 0, the tip and base vertices will point to the same index.
+     * If floor == 0, the tip and base vertices will point to the same index.
+     *
+     */
+    int32_t corners[RAS_TOMBMAP_SECTOR_VERTS_MAX];
 } RasTombMapSector;
 
 typedef struct {

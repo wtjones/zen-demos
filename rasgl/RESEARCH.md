@@ -350,3 +350,24 @@ Sector
 - int floor       // Relative from zero. Each value is 256 world units.
 
 ```
+
+### Sector to vertex
+
+> The corners will be denoted as 00, 01, 10, and 11, where the first digit is the corner’s X coordinate and the second digit is the corner’s Z coordinate, with both given as multiples of 1024.
+
+Floor corner: CXZ
+
+```text
+C00           C10
+        +----+
+       /      \
+      /        \
+     /          \
+    +------------+
+C01            C11
+```
+
+FLOOR_BASE_C00
+FLOOR_TIP_C00
+CEIL_TIP_C00
+CEIL_BASE_C00
