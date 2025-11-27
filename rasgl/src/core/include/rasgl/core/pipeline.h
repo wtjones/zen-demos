@@ -1,7 +1,7 @@
 #ifndef PIPELINE_H
 #define PIPELINE_H
 
-#define RAS_MAX_PIPELINE_STAGES 16
+#define RAS_MAX_PIPELINE_STAGES 24
 
 typedef void* (*RasPipelineStageFn)(void* input);
 

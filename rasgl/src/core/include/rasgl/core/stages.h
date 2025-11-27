@@ -89,6 +89,7 @@ void core_renderdata_init(
 void* core_sg_setup(void* input);
 
 void* core_sg_xform_gridmaps(void* input);
+void* core_sg_xform_tombmaps(void* input);
 /**
  * @brief Transform object matrices
  *
@@ -98,6 +99,7 @@ void* core_sg_xform_gridmaps(void* input);
 void* core_sg_xform_objects(void* input);
 
 void* core_sg_xform_gridmap_aabb(void* input);
+void* core_sg_xform_tombmap_aabb(void* input);
 
 /**
  * @brief Transforms the axis-aligned bounding boxes (AABBs) of all objects

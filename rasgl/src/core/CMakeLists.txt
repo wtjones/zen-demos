@@ -24,6 +24,7 @@ add_library(core
     rasterize.c
     repr.c
     sg_setup.c
+    sg_tombmap.c
     sc_animation.c
     sc_gridmap.c
     sc_load.c

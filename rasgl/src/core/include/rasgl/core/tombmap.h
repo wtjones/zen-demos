@@ -16,6 +16,7 @@
 #define RAS_TOMBMAP_SECTOR_UNITS 1024
 #define MAX_TOMBMAP_NAME 50
 #define RAS_TOMBMAP_SECTOR_VERTS_MAX 16
+#define RAS_TOMBMAP_WALL_VALUE (-127)
 #define SCRIPT_SYMBOL_TOMBMAPS "tombmaps"
 #define SCRIPT_SYMBOL_TOMBMAP "tombmap"
 #define SCRIPT_SYMBOL_TOMBMAP_NAME ":name"
@@ -100,13 +101,28 @@ typedef struct {
     size_t num_sectors_x;
     size_t num_sectors_z;
     RasPipelineElement element;
+    uint32_t mesh_index;
 } RasTombMapRoom;
+
+static inline bool core_tombmap_sector_is_wall(RasTombMapSector* sector)
+{
+    return sector == NULL
+        ? false
+        : sector->floor == RAS_TOMBMAP_WALL_VALUE && sector->ceiling == RAS_TOMBMAP_WALL_VALUE;
+}
+
+static inline RasTombMapSector* core_get_sector(RasTombMapRoom* room, int32_t x, int32_t z)
+{
+    if (x < 0 || x >= (int32_t)room->num_sectors_x || z < 0 || z >= (int32_t)room->num_sectors_z) {
+        return NULL;
+    }
+    return &room->sectors[(z * room->num_sectors_x) + x];
+}
 
 typedef struct {
     char name[MAX_TOMBMAP_NAME];
     RasTombMapRoom* rooms;
     size_t num_rooms;
-    uint32_t mesh_index;
 } RasSceneTombMap;
 
 RasResult core_script_map_tombmaps(
@@ -122,8 +138,8 @@ RasResult core_script_map_tombmaps(
  * @param element
  * @return RasResult
  */
-RasResult core_tombmap_to_element_faces(
-    RasSceneTombMap* tombmap,
+RasResult core_tombmap_room_to_element_faces(
+    RasTombMapRoom* room,
     RasCamera* camera,
     RasPipelineElement* element);
 

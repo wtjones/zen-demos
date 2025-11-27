@@ -6,16 +6,19 @@
 #include "rasgl/core/normals.h"
 #include "rasgl/core/repr.h"
 #include "rasgl/core/stages.h"
+#include "rasgl/core/tombmap.h"
 
 void core_pipeline_init(RasPipeline* pipeline)
 {
     RasPipeline template = {
-        .num_stages = 16,
+        .num_stages = 18,
         .stages = {
             { .name = "core_sg_setup", core_sg_setup },
             { .name = "core_sg_xform_gridmaps", core_sg_xform_gridmaps },
+            { .name = "core_sg_xform_tombmaps", core_sg_xform_tombmaps },
             { .name = "core_sg_xform_objects", core_sg_xform_objects },
             { .name = "core_sg_xform_gridmap_aabb", core_sg_xform_gridmap_aabb },
+            { .name = "core_sg_xform_tombmap_aabb", core_sg_xform_tombmap_aabb },
             { .name = "core_sg_xform_aabb", core_sg_xform_aabb },
             { .name = "core_sg_render_aabb", core_sg_render_aabb },
             { .name = "core_sg_xform_verts", core_sg_xform_verts },
