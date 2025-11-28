@@ -208,15 +208,15 @@ RasResult core_tombmap_room_to_element_faces(
 
                 add_sector_face(
                     element,
-                    sector->corners[CEIL_TIP_C10],
-                    sector->corners[CEIL_TIP_C00],
-                    sector->corners[FLOOR_TIP_C00],
+                    sector->corners[CEIL_BASE_C10],
+                    sector->corners[CEIL_BASE_C00],
+                    sector->corners[FLOOR_BASE_C00],
                     sector_z_minus->material);
                 add_sector_face(
                     element,
-                    sector->corners[CEIL_TIP_C10],
-                    sector->corners[FLOOR_TIP_C00],
-                    sector->corners[FLOOR_TIP_C10],
+                    sector->corners[CEIL_BASE_C10],
+                    sector->corners[FLOOR_BASE_C00],
+                    sector->corners[FLOOR_BASE_C10],
                     sector_z_minus->material);
             }
 
@@ -232,16 +232,16 @@ RasResult core_tombmap_room_to_element_faces(
 
                 add_sector_face(
                     element,
-                    sector->corners[CEIL_TIP_C00],
-                    sector->corners[CEIL_TIP_C01],
-                    sector->corners[FLOOR_TIP_C01],
+                    sector->corners[CEIL_BASE_C00],
+                    sector->corners[CEIL_BASE_C01],
+                    sector->corners[FLOOR_BASE_C01],
                     sector_x_minus->material);
 
                 add_sector_face(
                     element,
-                    sector->corners[CEIL_TIP_C00],
-                    sector->corners[FLOOR_TIP_C01],
-                    sector->corners[FLOOR_TIP_C00],
+                    sector->corners[CEIL_BASE_C00],
+                    sector->corners[FLOOR_BASE_C01],
+                    sector->corners[FLOOR_BASE_C00],
                     sector_x_minus->material);
             }
 
@@ -257,16 +257,16 @@ RasResult core_tombmap_room_to_element_faces(
 
                 add_sector_face(
                     element,
-                    sector->corners[CEIL_TIP_C01],
-                    sector->corners[CEIL_TIP_C11],
-                    sector->corners[FLOOR_TIP_C11],
+                    sector->corners[CEIL_BASE_C01],
+                    sector->corners[CEIL_BASE_C11],
+                    sector->corners[FLOOR_BASE_C11],
                     sector_z_plus->material);
 
                 add_sector_face(
                     element,
-                    sector->corners[CEIL_TIP_C01],
-                    sector->corners[FLOOR_TIP_C11],
-                    sector->corners[FLOOR_TIP_C01],
+                    sector->corners[CEIL_BASE_C01],
+                    sector->corners[FLOOR_BASE_C11],
+                    sector->corners[FLOOR_BASE_C01],
                     sector_z_plus->material);
             }
 
@@ -282,15 +282,15 @@ RasResult core_tombmap_room_to_element_faces(
 
                 add_sector_face(
                     element,
-                    sector->corners[CEIL_TIP_C11],
-                    sector->corners[CEIL_TIP_C10],
-                    sector->corners[FLOOR_TIP_C10],
+                    sector->corners[CEIL_BASE_C11],
+                    sector->corners[CEIL_BASE_C10],
+                    sector->corners[FLOOR_BASE_C10],
                     sector_x_plus->material);
                 add_sector_face(
                     element,
-                    sector->corners[CEIL_TIP_C11],
-                    sector->corners[FLOOR_TIP_C10],
-                    sector->corners[FLOOR_TIP_C11],
+                    sector->corners[CEIL_BASE_C11],
+                    sector->corners[FLOOR_BASE_C10],
+                    sector->corners[FLOOR_BASE_C11],
                     sector_x_plus->material);
             }
         }
