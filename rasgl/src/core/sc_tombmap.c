@@ -160,19 +160,19 @@ RasResult core_tombmap_room_to_element_faces(
             // Order: (C10, C00, C01), (C10, C01, C11)
 
             uint32_t checker = (z_cell + x_cell) % 2 == 0
-                ? sector->material
-                : (sector->material + 3);
+                ? 0
+                : 3;
             add_sector_face(
                 element,
-                sector->corners[FLOOR_BASE_C10],
-                sector->corners[FLOOR_BASE_C00],
-                sector->corners[FLOOR_BASE_C01],
+                sector->corners[FLOOR_TIP_C10],
+                sector->corners[FLOOR_TIP_C00],
+                sector->corners[FLOOR_TIP_C01],
                 checker);
             add_sector_face(
                 element,
-                sector->corners[FLOOR_BASE_C10],
-                sector->corners[FLOOR_BASE_C01],
-                sector->corners[FLOOR_BASE_C11],
+                sector->corners[FLOOR_TIP_C10],
+                sector->corners[FLOOR_TIP_C01],
+                sector->corners[FLOOR_TIP_C11],
                 checker);
 
             // Create interior ceiling face in CCW order.
@@ -185,18 +185,18 @@ RasResult core_tombmap_room_to_element_faces(
 
             add_sector_face(
                 element,
-                sector->corners[CEIL_BASE_C11],
-                sector->corners[CEIL_BASE_C01],
-                sector->corners[CEIL_BASE_C00],
+                sector->corners[CEIL_TIP_C11],
+                sector->corners[CEIL_TIP_C01],
+                sector->corners[CEIL_TIP_C00],
                 checker);
             add_sector_face(
                 element,
-                sector->corners[CEIL_BASE_C11],
-                sector->corners[CEIL_BASE_C00],
-                sector->corners[CEIL_BASE_C10],
+                sector->corners[CEIL_TIP_C11],
+                sector->corners[CEIL_TIP_C00],
+                sector->corners[CEIL_TIP_C10],
                 checker);
 
-            if (core_tombmap_sector_is_wall(sector_z_minus)) {
+            if (core_tombmap_floor_side_visible(sector, sector_z_minus)) {
 
                 // Create interior far face in CCW order.
                 // Looking far:
@@ -208,19 +208,19 @@ RasResult core_tombmap_room_to_element_faces(
 
                 add_sector_face(
                     element,
-                    sector->corners[CEIL_BASE_C10],
-                    sector->corners[CEIL_BASE_C00],
-                    sector->corners[FLOOR_BASE_C00],
+                    sector_z_minus->corners[FLOOR_TIP_C11],
+                    sector_z_minus->corners[FLOOR_TIP_C01],
+                    sector->corners[FLOOR_TIP_C00],
                     sector_z_minus->material);
                 add_sector_face(
                     element,
-                    sector->corners[CEIL_BASE_C10],
-                    sector->corners[FLOOR_BASE_C00],
-                    sector->corners[FLOOR_BASE_C10],
+                    sector_z_minus->corners[FLOOR_TIP_C11],
+                    sector->corners[FLOOR_TIP_C00],
+                    sector->corners[FLOOR_TIP_C10],
                     sector_z_minus->material);
             }
 
-            if (core_tombmap_sector_is_wall(sector_x_minus)) {
+            if (core_tombmap_floor_side_visible(sector, sector_x_minus)) {
 
                 // Create interior left face in CCW order.
                 // Looking left:
@@ -232,21 +232,20 @@ RasResult core_tombmap_room_to_element_faces(
 
                 add_sector_face(
                     element,
-                    sector->corners[CEIL_BASE_C00],
-                    sector->corners[CEIL_BASE_C01],
-                    sector->corners[FLOOR_BASE_C01],
+                    sector_x_minus->corners[FLOOR_TIP_C10],
+                    sector_x_minus->corners[FLOOR_TIP_C11],
+                    sector->corners[FLOOR_TIP_C01],
                     sector_x_minus->material);
 
                 add_sector_face(
                     element,
-                    sector->corners[CEIL_BASE_C00],
-                    sector->corners[FLOOR_BASE_C01],
-                    sector->corners[FLOOR_BASE_C00],
+                    sector_x_minus->corners[FLOOR_TIP_C10],
+                    sector->corners[FLOOR_TIP_C01],
+                    sector->corners[FLOOR_TIP_C00],
                     sector_x_minus->material);
             }
 
-            if (core_tombmap_sector_is_wall(sector_z_plus)) {
-
+            if (core_tombmap_floor_side_visible(sector, sector_z_plus)) {
                 // Create interior near face in CCW order.
                 // Looking near:
                 // CT11 -- CT01
@@ -257,20 +256,20 @@ RasResult core_tombmap_room_to_element_faces(
 
                 add_sector_face(
                     element,
-                    sector->corners[CEIL_BASE_C01],
-                    sector->corners[CEIL_BASE_C11],
-                    sector->corners[FLOOR_BASE_C11],
+                    sector_z_plus->corners[FLOOR_TIP_C00],
+                    sector_z_plus->corners[FLOOR_TIP_C10],
+                    sector->corners[FLOOR_TIP_C11],
                     sector_z_plus->material);
 
                 add_sector_face(
                     element,
-                    sector->corners[CEIL_BASE_C01],
-                    sector->corners[FLOOR_BASE_C11],
-                    sector->corners[FLOOR_BASE_C01],
+                    sector_z_plus->corners[FLOOR_TIP_C00],
+                    sector->corners[FLOOR_TIP_C11],
+                    sector->corners[FLOOR_TIP_C01],
                     sector_z_plus->material);
             }
 
-            if (core_tombmap_sector_is_wall(sector_x_plus)) {
+            if (core_tombmap_floor_side_visible(sector, sector_x_plus)) {
 
                 // Create interior right face in CCW order.
                 // Looking right:
@@ -282,20 +281,86 @@ RasResult core_tombmap_room_to_element_faces(
 
                 add_sector_face(
                     element,
-                    sector->corners[CEIL_BASE_C11],
-                    sector->corners[CEIL_BASE_C10],
-                    sector->corners[FLOOR_BASE_C10],
+                    sector_x_plus->corners[FLOOR_TIP_C01],
+                    sector_x_plus->corners[FLOOR_TIP_C00],
+                    sector->corners[FLOOR_TIP_C10],
                     sector_x_plus->material);
                 add_sector_face(
                     element,
-                    sector->corners[CEIL_BASE_C11],
-                    sector->corners[FLOOR_BASE_C10],
-                    sector->corners[FLOOR_BASE_C11],
+                    sector_x_plus->corners[FLOOR_TIP_C01],
+                    sector->corners[FLOOR_TIP_C10],
+                    sector->corners[FLOOR_TIP_C11],
                     sector_x_plus->material);
             }
         }
     }
 
+    return RAS_RESULT_OK;
+}
+
+void core_add_floor_pillar_corner(
+    RasTombMapRoom* room,
+    RasTombMapSector* sector,
+    size_t corner_index,
+    int32_t x,
+    int32_t z)
+{
+    if (sector != NULL && core_tombmap_sector_is_floor_pillar(sector)) {
+
+        // Pillar tip vertex
+        int32_t vert_index = room->element.num_verts++;
+        RasVector3f* v = &room->element.verts[vert_index].position;
+
+        v->x = INT_32_TO_FIXED_16_16(room->x + (x * 1));
+        v->y = INT_32_TO_FIXED_16_16(sector->floor);
+        v->z = INT_32_TO_FIXED_16_16(room->z + (z * 1));
+
+        v->x = mul_fixed_16_16_by_fixed_16_16(v->x, RAS_FIXED_HALF);
+        v->y = mul_fixed_16_16_by_fixed_16_16(v->y, float_to_fixed_16_16(0.125));
+        v->z = mul_fixed_16_16_by_fixed_16_16(v->z, RAS_FIXED_HALF);
+
+        sector->corners[corner_index] = vert_index;
+    }
+}
+
+RasResult core_tombmap_room_pillars_to_element_verts(
+    RasTombMapRoom* room,
+    RasPipelineElement* element)
+{
+    for (size_t z = 0; z < room->num_sectors_z + 1; z++) {
+        for (size_t x = 0; x < room->num_sectors_x + 1; x++) {
+
+            RasTombMapSector* sector_tl = core_get_sector(room, x - 1, z - 1);
+            RasTombMapSector* sector_bl = core_get_sector(room, x - 1, z);
+            RasTombMapSector* sector_br = core_get_sector(room, x, z);
+            RasTombMapSector* sector_tr = core_get_sector(room, x, z - 1);
+
+            core_add_floor_pillar_corner(
+                room,
+                sector_tl,
+                FLOOR_TIP_C11,
+                x,
+                z);
+            core_add_floor_pillar_corner(
+                room,
+                sector_bl,
+                FLOOR_TIP_C10,
+                x,
+                z);
+            core_add_floor_pillar_corner(
+                room,
+                sector_br,
+                FLOOR_TIP_C00,
+                x,
+                z);
+            core_add_floor_pillar_corner(
+                room,
+                sector_tr,
+                FLOOR_TIP_C01,
+                x,
+                z);
+        }
+    }
     return RAS_RESULT_OK;
 }
 
@@ -312,7 +377,6 @@ RasResult core_tombmap_room_to_element_verts(
     RasTombMapRoom* room,
     RasPipelineElement* element)
 {
-    memset(element, 0, sizeof(RasPipelineElement));
 
     for (size_t z = 0; z < room->num_sectors_z + 1; z++) {
         for (size_t x = 0; x < room->num_sectors_x + 1; x++) {
@@ -321,6 +385,8 @@ RasResult core_tombmap_room_to_element_verts(
             RasTombMapSector* sector_bl = core_get_sector(room, x - 1, z);
             RasTombMapSector* sector_br = core_get_sector(room, x, z);
             RasTombMapSector* sector_tr = core_get_sector(room, x, z - 1);
+
+            // Floor base vertex
             int32_t vert_index = element->num_verts++;
             RasVector3f* v = &element->verts[vert_index].position;
 
@@ -332,6 +398,7 @@ RasResult core_tombmap_room_to_element_verts(
             v->y = mul_fixed_16_16_by_fixed_16_16(v->y, RAS_FIXED_HALF);
             v->z = mul_fixed_16_16_by_fixed_16_16(v->z, RAS_FIXED_HALF);
 
+            // Ceiling base vertex
             int32_t vert2_index = element->num_verts++;
             RasVector3f* v2 = &element->verts[vert2_index].position;
 
@@ -343,29 +410,47 @@ RasResult core_tombmap_room_to_element_verts(
             v2->y = mul_fixed_16_16_by_fixed_16_16(v2->y, RAS_FIXED_HALF);
             v2->z = mul_fixed_16_16_by_fixed_16_16(v2->z, RAS_FIXED_HALF);
 
+            // Pillars and zero-height sectors start with tip and base pointing to the same vertex.
+            // Walls tips point to the opposite corner vertex to simplify face creation later.
             if (sector_tl != NULL) {
                 sector_tl->corners[FLOOR_BASE_C11] = vert_index;
-                sector_tl->corners[FLOOR_TIP_C11] = vert_index;
+                sector_tl->corners[FLOOR_TIP_C11] = core_tombmap_sector_is_wall(sector_tl)
+                    ? vert2_index
+                    : vert_index;
+                sector_tl->corners[CEIL_TIP_C11] = core_tombmap_sector_is_wall(sector_tl)
+                    ? vert_index
+                    : vert2_index;
                 sector_tl->corners[CEIL_BASE_C11] = vert2_index;
-                sector_tl->corners[CEIL_TIP_C11] = vert2_index;
             }
             if (sector_bl != NULL) {
                 sector_bl->corners[FLOOR_BASE_C10] = vert_index;
-                sector_bl->corners[FLOOR_TIP_C10] = vert_index;
+                sector_bl->corners[FLOOR_TIP_C10] = core_tombmap_sector_is_wall(sector_bl)
+                    ? vert2_index
+                    : vert_index;
+                sector_bl->corners[CEIL_TIP_C10] = core_tombmap_sector_is_wall(sector_bl)
+                    ? vert_index
+                    : vert2_index;
                 sector_bl->corners[CEIL_BASE_C10] = vert2_index;
-                sector_bl->corners[CEIL_TIP_C10] = vert2_index;
             }
             if (sector_br != NULL) {
                 sector_br->corners[FLOOR_BASE_C00] = vert_index;
-                sector_br->corners[FLOOR_TIP_C00] = vert_index;
+                sector_br->corners[FLOOR_TIP_C00] = core_tombmap_sector_is_wall(sector_br)
+                    ? vert2_index
+                    : vert_index;
+                sector_br->corners[CEIL_TIP_C00] = core_tombmap_sector_is_wall(sector_br)
+                    ? vert_index
+                    : vert2_index;
                 sector_br->corners[CEIL_BASE_C00] = vert2_index;
-                sector_br->corners[CEIL_TIP_C00] = vert2_index;
             }
             if (sector_tr != NULL) {
                 sector_tr->corners[FLOOR_BASE_C01] = vert_index;
-                sector_tr->corners[FLOOR_TIP_C01] = vert_index;
+                sector_tr->corners[FLOOR_TIP_C01] = core_tombmap_sector_is_wall(sector_tr)
+                    ? vert2_index
+                    : vert_index;
+                sector_tr->corners[CEIL_TIP_C01] = core_tombmap_sector_is_wall(sector_tr)
+                    ? vert_index
+                    : vert2_index;
                 sector_tr->corners[CEIL_BASE_C01] = vert2_index;
-                sector_tr->corners[CEIL_TIP_C01] = vert2_index;
             }
         }
     }
@@ -379,11 +464,18 @@ RasResult core_tombmap_to_element_verts(
 {
     for (size_t i = 0; i < tombmap->num_rooms; i++) {
         RasTombMapRoom* room = &tombmap->rooms[i];
+        memset(&room->element, 0, sizeof(RasPipelineElement));
+
         RasResult result = core_tombmap_room_to_element_verts(room, &room->element);
         if (result != RAS_RESULT_OK) {
             ras_log_error("Failed to convert tombmap room to pipeline element.");
             return RAS_RESULT_ERROR;
         }
+        result = core_tombmap_room_pillars_to_element_verts(room, &room->element);
+        if (result != RAS_RESULT_OK) {
+            ras_log_error("Failed to convert tombmap room pillars to pipeline element.");
+            return RAS_RESULT_ERROR;
+        }
+        return RAS_RESULT_OK;
     }
-    return RAS_RESULT_OK;
 }

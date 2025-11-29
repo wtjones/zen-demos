@@ -104,11 +104,39 @@ typedef struct {
     uint32_t mesh_index;
 } RasTombMapRoom;
 
+static inline bool core_tombmap_sector_is_floor_pillar(RasTombMapSector* sector)
+{
+    return sector == NULL
+        ? false
+        : sector->floor != RAS_TOMBMAP_WALL_VALUE && sector->floor != 0;
+}
+
 static inline bool core_tombmap_sector_is_wall(RasTombMapSector* sector)
 {
     return sector == NULL
         ? false
         : sector->floor == RAS_TOMBMAP_WALL_VALUE && sector->ceiling == RAS_TOMBMAP_WALL_VALUE;
+}
+
+/**
+ * @brief Determine if the side between sector and neighbor is visible.
+ * The neighbor is visible if it is a wall or has a higher floor.
+ *
+ * @param sector
+ * @param neighbor
+ * @return true
+ * @return false
+ */
+static inline bool core_tombmap_floor_side_visible(
+    RasTombMapSector* sector,
+    RasTombMapSector* neighbor)
+{
+    if (sector == NULL && neighbor == NULL) {
+        return false;
+    }
+
+    return core_tombmap_sector_is_wall(neighbor)
+        || (neighbor->floor > sector->floor);
 }
 
 static inline RasTombMapSector* core_get_sector(RasTombMapRoom* room, int32_t x, int32_t z)
