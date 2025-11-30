@@ -304,6 +304,7 @@ int main(int argc, const char** argv)
         return 1;
     }
     core_renderstates_init(states);
+    states[RAS_LAYER_SCENE].polygon_mode = RAS_POLYGON_WIREFRAME;
     states[RAS_LAYER_UI].layer_visible = false;
     core_input_init(&plat_input_state);
 

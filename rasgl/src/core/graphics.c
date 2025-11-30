@@ -206,7 +206,7 @@ void core_renderstate_scene_init(RenderState* state)
     state->layer = RAS_LAYER_SCENE;
     state->layer_visible = true;
     state->projection_mode = RAS_PERSPECTIVE_MATRIX;
-    state->polygon_mode = RAS_POLYGON_WIREFRAME;
+    state->polygon_mode = RAS_POLYGON_SOLID;
     state->grid_mode = RAS_GRID_MODE_ORIGIN;
 }
 
