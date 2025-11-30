@@ -554,6 +554,8 @@ void* core_sg_visible_faces(void* input)
                 }
 
                 // Copy material indexes for each new face created from clipping
+                assert(*num_dest_faces + num_out_verts / 3 < MAX_PIPELINE_FACES);
+                assert(*num_dest_materials + num_out_verts / 3 < MAX_VISIBLE_INDEXES);
                 for (size_t j = 0; j < num_out_verts / 3; j++) {
                     mesh->material_indexes[*num_dest_materials] = element->material_indexes[current_src_face_index];
                     mesh->visible_faces[*num_dest_faces].normal = element->faces[current_src_face_index].normal;

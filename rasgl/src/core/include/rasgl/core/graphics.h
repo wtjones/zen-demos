@@ -188,7 +188,7 @@ typedef struct RasPipelineMesh {
     uint32_t visible_indexes[MAX_VISIBLE_INDEXES];
     uint32_t num_visible_indexes;
 
-    RasPipelineFace visible_faces[MAX_PIPELINE_VERTS / 3];
+    RasPipelineFace visible_faces[MAX_PIPELINE_FACES];
     uint32_t num_visible_faces;
 
     int32_t material_indexes[MAX_VISIBLE_INDEXES]; // -1 if undefined
@@ -208,7 +208,7 @@ typedef struct RenderState {
     uint32_t visible_indexes[MAX_VISIBLE_INDEXES];
     uint32_t num_visible_indexes;
 
-    RasPipelineFace visible_faces[MAX_PIPELINE_VERTS / 3];
+    RasPipelineFace visible_faces[MAX_PIPELINE_FACES];
     uint32_t num_visible_faces;
 
     int32_t material_indexes[MAX_VISIBLE_INDEXES];
