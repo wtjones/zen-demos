@@ -11,19 +11,19 @@ RasResult core_script_map_tombmap_sector(LarNode* sector_list, RasTombMapSector*
 
     sector->material = material_node->atom.val_integer;
 
-    LarNode* ceiling_node = lar_get_list_node_by_index(sector_list, 1);
-
-    RAS_CHECK_AND_LOG(ceiling_node == NULL,
-        "Failed to find sector ceiling.");
-
-    sector->ceiling = (int8_t)ceiling_node->atom.val_integer;
-
-    LarNode* floor_node = lar_get_list_node_by_index(sector_list, 2);
+    LarNode* floor_node = lar_get_list_node_by_index(sector_list, 1);
 
     RAS_CHECK_AND_LOG(floor_node == NULL,
         "Failed to find sector floor.");
 
     sector->floor = (int8_t)floor_node->atom.val_integer;
+
+    LarNode* ceiling_node = lar_get_list_node_by_index(sector_list, 2);
+
+    RAS_CHECK_AND_LOG(ceiling_node == NULL,
+        "Failed to find sector ceiling.");
+
+    sector->ceiling = (int8_t)ceiling_node->atom.val_integer;
 
     return RAS_RESULT_OK;
 }

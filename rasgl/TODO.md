@@ -94,6 +94,10 @@
 
 ### Rendering
 
+### Tombmap
+
+- [ ] Render pits (inverted pillars)
+
 ### Text
 
 ### Console
