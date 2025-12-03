@@ -585,9 +585,11 @@ void* core_sg_visible_faces(void* input)
             // Copy face
             RasPipelineFace* face = &mesh->visible_faces[*num_dest_faces];
             face->clip_flags = face_clip_flags;
-            face->normal = element->faces[current_src_face_index].normal;
-            face->material_index = element->faces[current_src_face_index].material_index;
-
+            RasElementFace* src_face = &element->faces[current_src_face_index];
+            face->normal = src_face->normal;
+            face->material_index = src_face->material_index;
+            face->outline_edges = src_face->outline_edges;
+            face->outline_material_index = src_face->outline_material_index;
             (*num_dest_faces)++;
             current_src_face_index++;
         }

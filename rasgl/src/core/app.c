@@ -45,10 +45,20 @@ void ras_core_update(InputState* input_state, RenderState render_states[RAS_LAYE
         ras_log_info("normal_mode: %s", repr_normal_mode(buffer, sizeof(buffer), scene_state->normal_mode));
     }
     if (input_state->keys[RAS_KEY_O] == RAS_KEY_EVENT_UP
-        && input_state->mods & RAS_KMOD_CTRL) {
+        && input_state->mods & RAS_KMOD_CTRL
+        && !(input_state->mods & RAS_KMOD_SHIFT)) {
         scene_state->polygon_mode = (scene_state->polygon_mode + 1) % 2;
 
         ras_log_info("polygon_mode: %s", scene_state->polygon_mode == RAS_POLYGON_WIREFRAME ? "wireframe" : "solid");
+    }
+    if (input_state->keys[RAS_KEY_O] == RAS_KEY_EVENT_UP
+        && input_state->mods & RAS_KMOD_CTRL
+        && input_state->mods & RAS_KMOD_SHIFT) {
+        scene_state->polygon_outline_mode = (scene_state->polygon_outline_mode + 1) % RAS_POLYGON_OUTLINE_COUNT;
+
+        ras_log_info(
+            "polygon_outline_mode: %s",
+            repr_polygon_outline_mode(buffer, sizeof(buffer), scene_state->polygon_outline_mode));
     }
     if (input_state->keys[RAS_KEY_G] == RAS_KEY_EVENT_UP
         && input_state->mods & RAS_KMOD_CTRL) {

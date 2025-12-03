@@ -69,6 +69,17 @@ typedef enum {
     RAS_POLYGON_COUNT
 } RasPolygonMode;
 
+typedef enum {
+    RAS_POLYGON_OUTLINE_OFF,
+    /**
+     * @brief Draw outlines based on outline_edges mask in face.
+     *
+     */
+    RAS_POLYGON_OUTLINE_SPECIFIED,
+    RAS_POLYGON_OUTLINE_ALL,
+    RAS_POLYGON_OUTLINE_COUNT
+} RasPolygonOutlineMode;
+
 /**
  * @brief Grid output flags
  *
@@ -137,6 +148,8 @@ typedef struct RasAABB {
 typedef struct RasElementFace {
     RasVector3f normal;
     int32_t material_index;
+    uint8_t outline_edges;
+    int32_t outline_material_index;
 } RasElementFace;
 
 typedef struct RasPipelineFace {
@@ -145,6 +158,8 @@ typedef struct RasPipelineFace {
     int32_t material_index;
     RasFixed diffuse_intensity;
     RasClipFlags clip_flags;
+    uint8_t outline_edges;
+    int32_t outline_material_index;
 } RasPipelineFace;
 
 typedef struct RasPipelineElement {
@@ -231,6 +246,7 @@ typedef struct RenderState {
     RasClippingMode clipping_mode;
     RasClipSideMode clip_side_mode;
     RasPolygonMode polygon_mode;
+    RasPolygonOutlineMode polygon_outline_mode;
     RasNormalMode normal_mode;
     RasGridMode grid_mode;
     RasPipelineMode pipeline_mode;

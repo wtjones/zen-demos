@@ -20,7 +20,53 @@ static inline void add_sector_face(
         &element->verts[v1i].position,
         &element->verts[v2i].position,
         &element->faces[element->num_faces].normal);
+    element->faces[element->num_faces].outline_edges = 0;
+    element->faces[element->num_faces].outline_material_index = 0;
     element->num_faces++;
+}
+
+static inline void add_sector_face0(
+    RasPipelineElement* element,
+    uint32_t v0i,
+    uint32_t v1i,
+    uint32_t v2i,
+    uint32_t material_index)
+{
+    uint32_t face_index = element->num_faces;
+
+    RasVector3f* v0 = &element->verts[v0i].position;
+    RasVector3f* v1 = &element->verts[v1i].position;
+    RasVector3f* v2 = &element->verts[v2i].position;
+
+    add_sector_face(
+        element,
+        v0i,
+        v1i,
+        v2i,
+        material_index);
+    // Outline edges 0 and 1.
+    element->faces[face_index].outline_edges = 1 | 2;
+    element->faces[face_index].outline_material_index = 0;
+}
+
+static inline void add_sector_face1(
+    RasPipelineElement* element,
+    uint32_t v0i,
+    uint32_t v1i,
+    uint32_t v2i,
+    uint32_t material_index)
+{
+    uint32_t face_index = element->num_faces;
+
+    add_sector_face(
+        element,
+        v0i,
+        v1i,
+        v2i,
+        material_index);
+    // Outline edges 1 and 2.
+    element->faces[face_index].outline_edges = 2 | 4;
+    element->faces[face_index].outline_material_index = 0;
 }
 
 RasResult core_tombmap_room_to_element_faces(
@@ -162,13 +208,13 @@ RasResult core_tombmap_room_to_element_faces(
             uint32_t checker = (z_cell + x_cell) % 2 == 0
                 ? 0
                 : 3;
-            add_sector_face(
+            add_sector_face0(
                 element,
                 sector->corners[FLOOR_TIP_C10],
                 sector->corners[FLOOR_TIP_C00],
                 sector->corners[FLOOR_TIP_C01],
                 checker);
-            add_sector_face(
+            add_sector_face1(
                 element,
                 sector->corners[FLOOR_TIP_C10],
                 sector->corners[FLOOR_TIP_C01],
@@ -183,13 +229,13 @@ RasResult core_tombmap_room_to_element_faces(
             // C00 -- C10
             // Order: (C11, C01, C00), (C11, C00, C10)
 
-            add_sector_face(
+            add_sector_face0(
                 element,
                 sector->corners[CEIL_TIP_C11],
                 sector->corners[CEIL_TIP_C01],
                 sector->corners[CEIL_TIP_C00],
                 checker);
-            add_sector_face(
+            add_sector_face1(
                 element,
                 sector->corners[CEIL_TIP_C11],
                 sector->corners[CEIL_TIP_C00],
@@ -206,13 +252,13 @@ RasResult core_tombmap_room_to_element_faces(
                 // FT00 -- FT10
                 // Order: (CT10, CT00, FT00), (CT01, FT00, FT10)
 
-                add_sector_face(
+                add_sector_face0(
                     element,
                     sector_z_minus->corners[FLOOR_TIP_C11],
                     sector_z_minus->corners[FLOOR_TIP_C01],
                     sector->corners[FLOOR_TIP_C00],
                     sector_z_minus->material);
-                add_sector_face(
+                add_sector_face1(
                     element,
                     sector_z_minus->corners[FLOOR_TIP_C11],
                     sector->corners[FLOOR_TIP_C00],
@@ -230,14 +276,14 @@ RasResult core_tombmap_room_to_element_faces(
                 // FT01 -- FT00
                 // Order: (CT00, CT01, FT01), (CT00, FT01, FT00)
 
-                add_sector_face(
+                add_sector_face0(
                     element,
                     sector_x_minus->corners[FLOOR_TIP_C10],
                     sector_x_minus->corners[FLOOR_TIP_C11],
                     sector->corners[FLOOR_TIP_C01],
                     sector_x_minus->material);
 
-                add_sector_face(
+                add_sector_face1(
                     element,
                     sector_x_minus->corners[FLOOR_TIP_C10],
                     sector->corners[FLOOR_TIP_C01],
@@ -254,14 +300,14 @@ RasResult core_tombmap_room_to_element_faces(
                 // FT11 -- FT01
                 // Order: (CT01, CT11, FT11), (CT01, FT11, FT01)
 
-                add_sector_face(
+                add_sector_face0(
                     element,
                     sector_z_plus->corners[FLOOR_TIP_C00],
                     sector_z_plus->corners[FLOOR_TIP_C10],
                     sector->corners[FLOOR_TIP_C11],
                     sector_z_plus->material);
 
-                add_sector_face(
+                add_sector_face1(
                     element,
                     sector_z_plus->corners[FLOOR_TIP_C00],
                     sector->corners[FLOOR_TIP_C11],
@@ -279,13 +325,13 @@ RasResult core_tombmap_room_to_element_faces(
                 // FT10 -- FT11
                 // Order: (CT11, CT10, FT10), (CT11, FT10, FT11)
 
-                add_sector_face(
+                add_sector_face0(
                     element,
                     sector_x_plus->corners[FLOOR_TIP_C01],
                     sector_x_plus->corners[FLOOR_TIP_C00],
                     sector->corners[FLOOR_TIP_C10],
                     sector_x_plus->material);
-                add_sector_face(
+                add_sector_face1(
                     element,
                     sector_x_plus->corners[FLOOR_TIP_C01],
                     sector->corners[FLOOR_TIP_C10],
@@ -377,7 +423,6 @@ RasResult core_tombmap_room_to_element_verts(
     RasTombMapRoom* room,
     RasPipelineElement* element)
 {
-
     for (size_t z = 0; z < room->num_sectors_z + 1; z++) {
         for (size_t x = 0; x < room->num_sectors_x + 1; x++) {
 

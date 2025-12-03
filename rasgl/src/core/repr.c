@@ -12,6 +12,12 @@ static const char* g_repr_clip_side_mode[] = {
     "RAS_CLIP_SIDE_NEAR_ONLY"
 };
 
+static const char* g_repr_polygon_outline_mode[] = {
+    "RAS_POLYGON_OUTLINE_OFF",
+    "RAS_POLYGON_OUTLINE_SPECIFIED",
+    "RAS_POLYGON_OUTLINE_ALL"
+};
+
 static const char* g_repr_normal_mode[] = {
     "RAS_NORMAL_MODE_OFF",
     "RAS_NORMAL_MODE_FAUX",
@@ -146,6 +152,11 @@ const char* repr_clipping_mode(char* buffer, size_t count, RasClippingMode mode)
 const char* repr_clip_side_mode(char* buffer, size_t count, RasClipSideMode mode)
 {
     return g_repr_clip_side_mode[mode];
+}
+
+const char* repr_polygon_outline_mode(char* buffer, size_t count, RasPolygonOutlineMode mode)
+{
+    return g_repr_polygon_outline_mode[mode];
 }
 
 const char* repr_normal_mode(char* buffer, size_t count, RasNormalMode mode)

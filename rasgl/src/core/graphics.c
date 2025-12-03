@@ -190,6 +190,7 @@ void core_renderstate_init(RenderState* state)
     state->backface_culling_mode = RAS_BACKFACE_CULLING_ON;
     state->clipping_mode = RAS_CLIPPING_ON;
     state->clip_side_mode = RAS_CLIP_SIDE_DEFAULT;
+    state->polygon_outline_mode = RAS_POLYGON_OUTLINE_SPECIFIED;
     state->normal_mode = RAS_NORMAL_MODE_OFF;
     state->grid_mode = RAS_GRID_MODE_OFF;
     state->pipeline_mode = RAS_PIPELINE_MODE_DEFAULT;

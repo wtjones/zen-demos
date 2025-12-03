@@ -239,6 +239,7 @@ void render_mesh_solid(RenderState* state)
         uint32_t material_index = 0;
         size_t num_hlines = 0;
         RasVector4f* tri[3];
+        RasVector4f* tri_outline[3]; // Unmodified triangle for outline drawing
         RasHorizontalLine hlines[RAS_HORIZONTAL_LINE_MAX];
 
         while (i < mesh->num_visible_indexes) {
@@ -261,13 +262,13 @@ void render_mesh_solid(RenderState* state)
                 : (shade + (material * 8));
 
             RasPipelineVertex* pv0 = &mesh->verts[mesh->visible_indexes[i++]];
-            tri[0] = &pv0->screen_space_position;
+            tri[0] = tri_outline[0] = &pv0->screen_space_position;
 
             RasPipelineVertex* pv1 = &mesh->verts[mesh->visible_indexes[i++]];
-            tri[1] = &pv1->screen_space_position;
+            tri[1] = tri_outline[1] = &pv1->screen_space_position;
 
             RasPipelineVertex* pv2 = &mesh->verts[mesh->visible_indexes[i++]];
-            tri[2] = &pv2->screen_space_position;
+            tri[2] = tri_outline[2] = &pv2->screen_space_position;
 
             RasFixed delta0 = abs(tri[0]->y - tri[1]->y);
             RasFixed delta1 = abs(tri[1]->y - tri[2]->y);
@@ -297,6 +298,38 @@ void render_mesh_solid(RenderState* state)
                 ras_draw_hline(surface,
                     hlines[j].left.x, hlines[j].right.x, hlines[j].left.y, color);
             }
+
+            bool should_draw_outline = state->polygon_outline_mode == RAS_POLYGON_OUTLINE_ALL;
+            should_draw_outline |= (face->outline_edges != 0)
+                && state->polygon_outline_mode == RAS_POLYGON_OUTLINE_SPECIFIED;
+            if (should_draw_outline) {
+                uint32_t edge_v0 = 0;
+                uint32_t edge_v1 = 1;
+
+                for (uint32_t edge = 0; edge < 3; edge++) {
+                    uint8_t edge_mask = (1 << edge);
+                    bool should_draw_edge = state->polygon_outline_mode == RAS_POLYGON_OUTLINE_ALL;
+                    should_draw_edge |= (face->outline_edges & edge_mask)
+                        && state->polygon_outline_mode == RAS_POLYGON_OUTLINE_SPECIFIED;
+                    if (should_draw_edge) {
+
+                        Point2i point1 = {
+                            .x = FIXED_16_16_TO_INT_32(tri_outline[edge_v0]->x),
+                            .y = FIXED_16_16_TO_INT_32(tri_outline[edge_v0]->y)
+                        };
+
+                        Point2i point2 = {
+                            .x = FIXED_16_16_TO_INT_32(tri_outline[edge_v1]->x),
+                            .y = FIXED_16_16_TO_INT_32(tri_outline[edge_v1]->y)
+                        };
+
+                        ras_draw_line(surface, &point1, &point2, face->outline_material_index);
+                    }
+                    edge_v0 = edge_v1;
+                    edge_v1 = (edge_v1 + 1) % 3;
+                }
+            }
+
             material_index++;
             face++;
         }

@@ -259,6 +259,7 @@ example: `./run_dos.sh poly 0 assets/secenes/tri.lsp`
 | Toggle projection mode        | ctrl-p       |
 | Toggle backface culling mode  | ctrl-b       |
 | Cycle polygon render modes    | ctrl-o       |
+| Cycle polygon outline modes   | ctrl-shift-o |
 | Cycle polygon clipping modes  | ctrl-c       |
 | Cycle polygon clip sides[^1]  | ctrl-shift-c |
 | Cycle normal diagnostic modes | ctrl-n       |
