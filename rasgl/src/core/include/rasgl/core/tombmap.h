@@ -40,7 +40,8 @@ typedef enum {
     // LEFT
     RAS_TOMBMAP_X_MINUS_1 = 2,
     // RIGHT
-    RAS_TOMBMAP_X_PLUS_1 = 3
+    RAS_TOMBMAP_X_PLUS_1 = 3,
+    RAS_TOMBMAP_SPATIAL_COUNT = 4
 } RasTombMapSpatial;
 
 /**
@@ -78,6 +79,165 @@ typedef enum {
     CEIL_BASE_C11,
     CEIL_BASE_C10,
 } RasTombMapSectorCorner;
+
+typedef enum {
+    RAS_TOMBMAP_BASE,
+    RAS_TOMBMAP_TIP
+} RasTombmapPillarSpace;
+
+typedef enum {
+    RAS_TOMBMAP_SECTOR_SPACE_FLOOR,
+    RAS_TOMBMAP_SECTOR_SPACE_CEILING,
+    RAS_TOMBMAP_SECTOR_SPACE_COUNT
+} RasTombMapSectorSpace;
+
+typedef enum {
+    RAS_TOMBMAP_C00,
+    RAS_TOMBMAP_C01,
+    RAS_TOMBMAP_C11,
+    RAS_TOMBMAP_C10
+} RasTombMapSectorCorner2;
+
+typedef enum {
+    RAS_TOMBMAP_RULE_FLOOR,
+    RAS_TOMBMAP_RULE_FLOOR_PILLAR,
+    RAS_TOMBMAP_RULE_CEILING,
+    RAS_TOMBMAP_RULE_WALL,
+    RAS_TOMBMAP_RULE_COUNT
+} RasTombMapSectorFaceRuleType;
+
+typedef enum {
+    RAS_TOMBMAP_SECTOR_TARGET_CURRENT,
+    RAS_TOMBMAP_SECTOR_TARGET_NEIGHBOR
+} RasTombMapSectorTarget;
+/*
+PILLAR_Z_MINUS_1, [
+        RAS_TOMBMAP_SECTOR_TARGET_CURRENT, RAS_TOMBMAP_C00,
+        RAS_TOMBMAP_SECTOR_TARGET_CURRENT, RAS_TOMBMAP_C01,
+       RAS_TOMBMAP_SECTOR_TARGET_CURRENT, RAS_TOMBMAP_C11]
+*/
+
+typedef struct {
+    RasTombMapSectorTarget target;
+    RasTombMapSectorCorner corner;
+} RasTombMapSectorRuleVert;
+
+typedef struct {
+    RasTombMapSectorRuleVert verts[6];
+    size_t num_verts;
+
+} RasTombMapSectorRule;
+
+typedef struct {
+    RasTombMapSectorRule* rules[4];
+    size_t num_rules;
+} RasTombMapSectorRuleResult;
+
+// add_sector_face0(
+//                 element,
+//                 sector->corners[FLOOR_TIP_C10],
+//                 sector->corners[FLOOR_TIP_C00],
+//                 sector->corners[FLOOR_TIP_C01],
+//                 checker);
+//             add_sector_face1(
+//                 element,
+//                 sector->corners[FLOOR_TIP_C10],
+//                 sector->corners[FLOOR_TIP_C01],
+//                 sector->corners[FLOOR_TIP_C11],
+//                 checker);
+
+// clang-format off
+
+#define RAS_TOMBMAP_RULE_FLOOR_VERTS \
+    { RAS_TOMBMAP_SECTOR_TARGET_CURRENT, FLOOR_TIP_C10 }, \
+    { RAS_TOMBMAP_SECTOR_TARGET_CURRENT, FLOOR_TIP_C00 }, \
+    { RAS_TOMBMAP_SECTOR_TARGET_CURRENT, FLOOR_TIP_C01 }, \
+    { RAS_TOMBMAP_SECTOR_TARGET_CURRENT, FLOOR_TIP_C10 }, \
+    { RAS_TOMBMAP_SECTOR_TARGET_CURRENT, FLOOR_TIP_C01 }, \
+    { RAS_TOMBMAP_SECTOR_TARGET_CURRENT, FLOOR_TIP_C11 } 
+
+// static  RasTombMapSectorRule core_tombmap_sector_side_rules[RAS_TOMBMAP_RULE_COUNT][RAS_TOMBMAP_SPATIAL_COUNT] = {
+//     // RAS_TOMBMAP_RULE_WALL
+//     {
+//         // Z_MINUS_1
+//         {
+//             .verts = {
+//                 { .target = RAS_TOMBMAP_SECTOR_TARGET_CURRENT, .corner = CEIL_TIP_C10 },
+//                 { .target = RAS_TOMBMAP_SECTOR_TARGET_CURRENT, .corner = CEIL_TIP_C00 },
+//                 { .target = RAS_TOMBMAP_SECTOR_TARGET_CURRENT, .corner = FLOOR_TIP_C00 },
+//                 { .target = RAS_TOMBMAP_SECTOR_TARGET_CURRENT, .corner = CEIL_TIP_C10 },
+//                 { .target = RAS_TOMBMAP_SECTOR_TARGET_CURRENT, .corner = FLOOR_TIP_C00 },
+//                 { .target = RAS_TOMBMAP_SECTOR_TARGET_CURRENT, .corner = FLOOR_TIP_C10 } },
+//             .num_verts = 6,
+//         } },
+//     // RAS_TOMBMAP_RULE_FLOOR
+//     { 
+//         // Z_MINUS_1
+//         {
+//             .verts = {
+             
+//                 { .target = RAS_TOMBMAP_SECTOR_TARGET_NEIGHBOR, .corner = FLOOR_TIP_C11 },
+//                 { .target = RAS_TOMBMAP_SECTOR_TARGET_NEIGHBOR, .corner = FLOOR_TIP_C01 },
+//                 { .target = RAS_TOMBMAP_SECTOR_TARGET_CURRENT, .corner = FLOOR_TIP_C00 },
+//                 { .target = RAS_TOMBMAP_SECTOR_TARGET_NEIGHBOR, .corner = FLOOR_TIP_C11 },
+//                 { .target = RAS_TOMBMAP_SECTOR_TARGET_CURRENT, .corner = FLOOR_TIP_C00 },
+//                 { .target = RAS_TOMBMAP_SECTOR_TARGET_CURRENT, .corner = FLOOR_TIP_C10 }
+//             },
+//             .num_verts = 12,
+//         } }
+// };
+// clang-format on
+
+// clang-format off
+
+extern RasTombMapSectorRule g_core_tombmap_sector_tile_rules[RAS_TOMBMAP_SECTOR_SPACE_COUNT];
+extern RasTombMapSectorRule g_core_tombmap_sector_pillar_rules[RAS_TOMBMAP_SECTOR_SPACE_COUNT][RAS_TOMBMAP_SPATIAL_COUNT];
+extern RasTombMapSectorRule g_core_tombmap_sector_wall_rules[RAS_TOMBMAP_SPATIAL_COUNT];
+
+
+static const RasTombMapSectorRule core_tombmap_sector_side_rules[RAS_TOMBMAP_RULE_COUNT][RAS_TOMBMAP_SPATIAL_COUNT] = {
+    
+    [RAS_TOMBMAP_RULE_FLOOR] = {
+        [RAS_TOMBMAP_Z_MINUS_1] = {
+            .verts = {
+                { RAS_TOMBMAP_SECTOR_TARGET_NEIGHBOR, FLOOR_TIP_C11 },
+                { RAS_TOMBMAP_SECTOR_TARGET_NEIGHBOR, FLOOR_TIP_C01 },
+                { RAS_TOMBMAP_SECTOR_TARGET_CURRENT, FLOOR_TIP_C00 },
+                { RAS_TOMBMAP_SECTOR_TARGET_NEIGHBOR, FLOOR_TIP_C11 },
+                { RAS_TOMBMAP_SECTOR_TARGET_CURRENT, FLOOR_TIP_C00 },
+                { RAS_TOMBMAP_SECTOR_TARGET_CURRENT, FLOOR_TIP_C10 }
+            },
+            .num_verts = 6
+        }
+    },
+    [RAS_TOMBMAP_RULE_CEILING] = {
+        [RAS_TOMBMAP_Z_MINUS_1] = {
+            .verts = {
+                { RAS_TOMBMAP_SECTOR_TARGET_CURRENT, CEIL_TIP_C10 },
+                { RAS_TOMBMAP_SECTOR_TARGET_CURRENT, CEIL_TIP_C00 },
+                { RAS_TOMBMAP_SECTOR_TARGET_NEIGHBOR, CEIL_TIP_C01 },
+                { RAS_TOMBMAP_SECTOR_TARGET_CURRENT, CEIL_TIP_C10 },
+                { RAS_TOMBMAP_SECTOR_TARGET_NEIGHBOR, CEIL_TIP_C01 },
+                { RAS_TOMBMAP_SECTOR_TARGET_NEIGHBOR, CEIL_TIP_C11 }
+            },
+            .num_verts = 6
+        }
+    },
+    [RAS_TOMBMAP_RULE_WALL] = {
+        [RAS_TOMBMAP_Z_MINUS_1] = {
+            .verts = {
+                { RAS_TOMBMAP_SECTOR_TARGET_CURRENT, CEIL_TIP_C10 },
+                { RAS_TOMBMAP_SECTOR_TARGET_CURRENT, CEIL_TIP_C00 },
+                { RAS_TOMBMAP_SECTOR_TARGET_CURRENT, FLOOR_TIP_C00 },
+                { RAS_TOMBMAP_SECTOR_TARGET_CURRENT, CEIL_TIP_C10 },
+                { RAS_TOMBMAP_SECTOR_TARGET_CURRENT, FLOOR_TIP_C00 },
+                { RAS_TOMBMAP_SECTOR_TARGET_CURRENT, FLOOR_TIP_C10 }
+            },
+            .num_verts = 6
+        }
+    }
+};
+// clang-format on
 
 typedef struct {
     int32_t material;
