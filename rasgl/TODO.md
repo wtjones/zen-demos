@@ -96,8 +96,6 @@
 
 ### Tombmap
 
-- [ ] Render pits (inverted pillars)
-
 ### Text
 
 ### Console
@@ -198,3 +196,7 @@
 - [x] Fix culled object warping
 - [x] Clip polygons added during clipping
 - [x] Copy materials in new clipping pipeline.
+
+### Tombmap
+
+- [x] Render pits (inverted pillars)

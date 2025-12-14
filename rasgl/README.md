@@ -27,6 +27,7 @@ See [TODO.md](TODO.md) and [RESEARCH.md](RESEARCH.md).
   * Polygon clipping
   * Flat shaded polygons
   * Gridmap with back-to-front rendering
+  * Advanced gridmap "tombmap" with variable hights
 * Planned
   * Texture-mapped polygons
   * Depth sorting
@@ -321,12 +322,13 @@ p6-------p7-------p8
 ./run_posix poly 0
 ```
 
-Provide a model obj file as an optional param.
+Provide a scene file as an optional param.
 
 ```bash
-./run_posix poly 0 ./assets/models/cube.obj
-./run_posix poly 0 ./assets/models/ico.obj
-./run_posix poly 0 ./assets/models/tri.obj
+./run_posix poly 0 ./assets/scenes/tri.lsp
+./run_posix poly 0 ./assets/scenes/cube.lsp
+./run_posix poly 0 ./assets/scenes/ico.lsp
+./run_posix poly 0 ./assets/scenes/tmap01.lsp
 ```
 
 #### Controls
