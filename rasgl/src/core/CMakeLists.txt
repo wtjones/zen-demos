@@ -30,6 +30,7 @@ add_library(core
     sc_load.c
     sc_scene.c
     sc_tombmap.c
+    sc_tombmap_data.c
     sc_tombmap_load.c
     text.c
     string.c)

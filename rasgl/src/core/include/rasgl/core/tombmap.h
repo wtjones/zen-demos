@@ -40,7 +40,8 @@ typedef enum {
     // LEFT
     RAS_TOMBMAP_X_MINUS_1 = 2,
     // RIGHT
-    RAS_TOMBMAP_X_PLUS_1 = 3
+    RAS_TOMBMAP_X_PLUS_1 = 3,
+    RAS_TOMBMAP_SPATIAL_COUNT = 4
 } RasTombMapSpatial;
 
 /**
@@ -78,6 +79,33 @@ typedef enum {
     CEIL_BASE_C11,
     CEIL_BASE_C10,
 } RasTombMapSectorCorner;
+
+typedef enum {
+    RAS_TOMBMAP_SECTOR_SPACE_FLOOR,
+    RAS_TOMBMAP_SECTOR_SPACE_CEILING,
+    RAS_TOMBMAP_SECTOR_SPACE_COUNT
+} RasTombMapSectorSpace;
+
+typedef enum {
+    RAS_TOMBMAP_SECTOR_TARGET_CURRENT,
+    RAS_TOMBMAP_SECTOR_TARGET_NEIGHBOR
+} RasTombMapSectorTarget;
+
+typedef struct {
+    RasTombMapSectorTarget target;
+    RasTombMapSectorCorner corner;
+} RasTombMapSectorRuleVert;
+
+typedef struct {
+    RasTombMapSectorRuleVert verts[6];
+    size_t num_verts;
+
+} RasTombMapSectorRule;
+
+typedef struct {
+    RasTombMapSectorRule* rules[4];
+    size_t num_rules;
+} RasTombMapSectorRuleResult;
 
 typedef struct {
     int32_t material;

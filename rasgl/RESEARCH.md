@@ -371,3 +371,30 @@ FLOOR_BASE_C00
 FLOOR_TIP_C00
 CEIL_TIP_C00
 CEIL_BASE_C00
+
+sequence
+draw floor tile
+draw celing tile
+draw floor pillar
+draw ceiling pillar
+draw wall
+
+get floor tile - always
+get ceiling tile - always
+get floor pillar - sometimes
+get ceiling pillar - sometimes
+get wall - sometimes
+
+```clang
+typedef enum {
+    RAS_TOMBMAP_BASE,
+    RAS_TOMBMAP_TIP
+} RasTombmapPillarSpace;
+
+typedef enum {
+    RAS_TOMBMAP_C00,
+    RAS_TOMBMAP_C01,
+    RAS_TOMBMAP_C11,
+    RAS_TOMBMAP_C10
+} RasTombMapSectorCorner2;
+```

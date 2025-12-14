@@ -2,6 +2,9 @@
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/tombmap.h"
 
+extern RasTombMapSectorRule g_core_tombmap_sector_pillar_rules[RAS_TOMBMAP_SECTOR_SPACE_COUNT][RAS_TOMBMAP_SPATIAL_COUNT];
+extern RasTombMapSectorRule g_core_tombmap_sector_wall_rules[RAS_TOMBMAP_SPATIAL_COUNT];
+
 static inline void add_sector_face(
     RasPipelineElement* element,
     uint32_t v0i,
@@ -67,6 +70,93 @@ static inline void add_sector_face1(
     // Outline edges 1 and 2.
     element->faces[face_index].outline_edges = 2 | 4;
     element->faces[face_index].outline_material_index = 0;
+}
+
+static inline void add_sector_faces(
+    RasPipelineElement* element,
+    RasTombMapSector* sector,
+    RasTombMapSector* neighbor,
+    RasTombMapSectorRuleResult* rules)
+{
+    if (rules == NULL) {
+        return;
+    }
+
+    for (size_t r = 0; r < rules->num_rules; r++) {
+        RasTombMapSectorRule* rule = rules->rules[r];
+        for (size_t i = 0; i < rule->num_verts; i += 6) {
+            RasTombMapSector* v0_sector = rule->verts[i].target == RAS_TOMBMAP_SECTOR_TARGET_CURRENT
+                ? sector
+                : neighbor;
+            RasTombMapSector* v1_sector = rule->verts[i + 1].target == RAS_TOMBMAP_SECTOR_TARGET_CURRENT
+                ? sector
+                : neighbor;
+            RasTombMapSector* v2_sector = rule->verts[i + 2].target == RAS_TOMBMAP_SECTOR_TARGET_CURRENT
+                ? sector
+                : neighbor;
+            add_sector_face0(
+                element,
+                v0_sector->corners[rule->verts[i].corner],
+                v1_sector->corners[rule->verts[i + 1].corner],
+                v2_sector->corners[rule->verts[i + 2].corner],
+                neighbor->material);
+
+            RasTombMapSector* v3_sector = rule->verts[i + 3].target == RAS_TOMBMAP_SECTOR_TARGET_CURRENT
+                ? sector
+                : neighbor;
+            RasTombMapSector* v4_sector = rule->verts[i + 4].target == RAS_TOMBMAP_SECTOR_TARGET_CURRENT
+                ? sector
+                : neighbor;
+            RasTombMapSector* v5_sector = rule->verts[i + 5].target == RAS_TOMBMAP_SECTOR_TARGET_CURRENT
+                ? sector
+                : neighbor;
+            add_sector_face1(
+                element,
+                v3_sector->corners[rule->verts[i + 3].corner],
+                v4_sector->corners[rule->verts[i + 4].corner],
+                v5_sector->corners[rule->verts[i + 5].corner],
+                neighbor->material);
+        }
+    }
+}
+
+/**
+ * @brief Get face construction rule(s) for a side.
+ *
+ *
+ * get floor tile - always - not here
+ * get ceiling tile - always - not here
+ * get floor pillar - if not same height as neighbor
+ * get ceiling pillar - if not same height as neighbor
+ * get wall - if neighbor is wall
+ *
+ * @param direction
+ * @param sector
+ * @param neighbor
+ */
+void core_tombmap_get_side_rules(
+    RasTombMapSpatial direction,
+    RasTombMapSector* sector,
+    RasTombMapSector* neighbor,
+    RasTombMapSectorRuleResult* result)
+{
+    result->num_rules = 0;
+
+    if (core_tombmap_sector_is_wall(sector)) {
+        return;
+    }
+
+    if (core_tombmap_sector_is_wall(neighbor)) {
+        result->rules[result->num_rules++] = &g_core_tombmap_sector_wall_rules[direction];
+        return;
+    }
+
+    if (core_tombmap_floor_side_visible(sector, neighbor)) {
+        result->rules[result->num_rules++] = &g_core_tombmap_sector_pillar_rules[RAS_TOMBMAP_SECTOR_SPACE_FLOOR][direction];
+    }
+    if (core_tombmap_ceiling_side_visible(sector, neighbor)) {
+        result->rules[result->num_rules++] = &g_core_tombmap_sector_pillar_rules[RAS_TOMBMAP_SECTOR_SPACE_CEILING][direction];
+    }
 }
 
 RasResult core_tombmap_room_to_element_faces(
@@ -242,147 +332,57 @@ RasResult core_tombmap_room_to_element_faces(
                 sector->corners[CEIL_TIP_C10],
                 checker);
 
-            if (core_tombmap_sector_is_wall(sector_z_minus)) {
+            RasTombMapSectorRuleResult rules;
 
-                // Far sector is wall. Use ceiling and floor verts.
-                add_sector_face0(
-                    element,
-                    sector->corners[CEIL_TIP_C10],
-                    sector->corners[CEIL_TIP_C00],
-                    sector->corners[FLOOR_TIP_C00],
-                    sector_z_minus->material);
+            core_tombmap_get_side_rules(
+                RAS_TOMBMAP_Z_MINUS_1,
+                sector,
+                sector_z_minus,
+                &rules);
 
-                add_sector_face1(
-                    element,
-                    sector->corners[CEIL_TIP_C10],
-                    sector->corners[FLOOR_TIP_C00],
-                    sector->corners[FLOOR_TIP_C10],
-                    sector_z_minus->material);
+            add_sector_faces(
+                element,
+                sector,
+                sector_z_minus,
+                &rules);
 
-            } else {
-                if (core_tombmap_floor_side_visible(sector, sector_z_minus)) {
+            core_tombmap_get_side_rules(
+                RAS_TOMBMAP_X_MINUS_1,
+                sector,
+                sector_x_minus,
+                &rules);
 
-                    // Create interior far face in CCW order.
-                    // Looking far:
-                    // CT00 -- CT10
-                    // |       |
-                    // |       |
-                    // FT00 -- FT10
-                    // Order: (CT10, CT00, FT00), (CT01, FT00, FT10)
+            add_sector_faces(
+                element,
+                sector,
+                sector_x_minus,
+                &rules);
 
-                    add_sector_face0(
-                        element,
-                        sector_z_minus->corners[FLOOR_TIP_C11],
-                        sector_z_minus->corners[FLOOR_TIP_C01],
-                        sector->corners[FLOOR_TIP_C00],
-                        sector_z_minus->material);
-                    add_sector_face1(
-                        element,
-                        sector_z_minus->corners[FLOOR_TIP_C11],
-                        sector->corners[FLOOR_TIP_C00],
-                        sector->corners[FLOOR_TIP_C10],
-                        sector_z_minus->material);
-                }
+            core_tombmap_get_side_rules(
+                RAS_TOMBMAP_Z_PLUS_1,
+                sector,
+                sector_z_plus,
+                &rules);
 
-                if (core_tombmap_ceiling_side_visible(sector, sector_z_minus)) {
+            add_sector_faces(
+                element,
+                sector,
+                sector_z_plus,
+                &rules);
 
-                    // Create interior far face in CCW order.
-                    // Looking far:
-                    // CT00    -- CT10
-                    // |           |
-                    // |           |
-                    // (-z)CT01 -- (-z)CT11
+            core_tombmap_get_side_rules(
+                RAS_TOMBMAP_X_PLUS_1,
+                sector,
+                sector_x_plus,
+                &rules);
 
-                    add_sector_face0(
-                        element,
-                        sector->corners[CEIL_TIP_C10],
-                        sector->corners[CEIL_TIP_C00],
-                        sector_z_minus->corners[CEIL_TIP_C01],
-                        sector_z_minus->material);
-                    add_sector_face1(
-                        element,
-                        sector->corners[CEIL_TIP_C10],
-                        sector_z_minus->corners[CEIL_TIP_C01],
-                        sector_z_minus->corners[CEIL_TIP_C11],
-                        sector_z_minus->material);
-                }
-            }
-
-            if (core_tombmap_floor_side_visible(sector, sector_x_minus)) {
-
-                // Create interior left face in CCW order.
-                // Looking left:
-                // CT01 -- CT00
-                // |          |
-                // |          |
-                // FT01 -- FT00
-                // Order: (CT00, CT01, FT01), (CT00, FT01, FT00)
-
-                add_sector_face0(
-                    element,
-                    sector_x_minus->corners[FLOOR_TIP_C10],
-                    sector_x_minus->corners[FLOOR_TIP_C11],
-                    sector->corners[FLOOR_TIP_C01],
-                    sector_x_minus->material);
-
-                add_sector_face1(
-                    element,
-                    sector_x_minus->corners[FLOOR_TIP_C10],
-                    sector->corners[FLOOR_TIP_C01],
-                    sector->corners[FLOOR_TIP_C00],
-                    sector_x_minus->material);
-            }
-
-            if (core_tombmap_floor_side_visible(sector, sector_z_plus)) {
-                // Create interior near face in CCW order.
-                // Looking near:
-                // CT11 -- CT01
-                // |       |
-                // |       |
-                // FT11 -- FT01
-                // Order: (CT01, CT11, FT11), (CT01, FT11, FT01)
-
-                add_sector_face0(
-                    element,
-                    sector_z_plus->corners[FLOOR_TIP_C00],
-                    sector_z_plus->corners[FLOOR_TIP_C10],
-                    sector->corners[FLOOR_TIP_C11],
-                    sector_z_plus->material);
-
-                add_sector_face1(
-                    element,
-                    sector_z_plus->corners[FLOOR_TIP_C00],
-                    sector->corners[FLOOR_TIP_C11],
-                    sector->corners[FLOOR_TIP_C01],
-                    sector_z_plus->material);
-            }
-
-            if (core_tombmap_floor_side_visible(sector, sector_x_plus)) {
-
-                // Create interior right face in CCW order.
-                // Looking right:
-                // CT10 -- CT11
-                // |       |
-                // |       |
-                // FT10 -- FT11
-                // Order: (CT11, CT10, FT10), (CT11, FT10, FT11)
-
-                add_sector_face0(
-                    element,
-                    sector_x_plus->corners[FLOOR_TIP_C01],
-                    sector_x_plus->corners[FLOOR_TIP_C00],
-                    sector->corners[FLOOR_TIP_C10],
-                    sector_x_plus->material);
-                add_sector_face1(
-                    element,
-                    sector_x_plus->corners[FLOOR_TIP_C01],
-                    sector->corners[FLOOR_TIP_C10],
-                    sector->corners[FLOOR_TIP_C11],
-                    sector_x_plus->material);
-            }
+            add_sector_faces(
+                element,
+                sector,
+                sector_x_plus,
+                &rules);
         }
     }
-
     return RAS_RESULT_OK;
 }
 
