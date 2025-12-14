@@ -240,54 +240,6 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
         "model_rot: %s", repr_point3f(buffer, sizeof(buffer), model_rotation));
 }
 
-void render_scene_classic(RenderState* render_state)
-{
-
-    RasFixed model_world_matrix[4][4];
-    RasFixed world_view_matrix[4][4];
-    RasFixed projection_matrix[4][4];
-    RasFixed combined_matrix[4][4];
-    RasFrustum frustum;
-    RasSceneObject* current_object;
-
-    ras_camera_projection_init(camera, projection_matrix);
-    mat_set_identity_4x4(world_view_matrix);
-    ras_camera_world_view_init(camera, world_view_matrix);
-
-    for (size_t i = 0; i < scene->num_objects; i++) {
-        current_object = &scene->objects[i];
-        RasVector3f* model_pos = &current_object->position;
-        RasVector3f* model_rotation = &current_object->rotation;
-
-        mat_set_identity_4x4(model_world_matrix);
-
-        // FIXME: Support all objects in scene
-        core_translate_apply(model_world_matrix, model_pos);
-        RasFixed model_world2[4][4];
-        RasFixed model_world3[4][4];
-
-        // FIXME: Should rotate around model origin
-        core_rotate_x_apply(model_world_matrix, FIXED_16_16_TO_INT_32(model_rotation->x));
-        mat_rotate_y(model_world_matrix, FIXED_16_16_TO_INT_32(model_rotation->y), model_world2);
-        mat_rotate_z(model_world2, FIXED_16_16_TO_INT_32(model_rotation->z), model_world3);
-
-        core_translate_apply(model_world3, model_pos);
-
-        mat_mul_4x4_4x4(projection_matrix, world_view_matrix, combined_matrix);
-
-        // TODO: unused
-        core_frustum_init(projection_matrix, &frustum);
-
-        core_draw_element(
-            render_state,
-            current_object->element_ref,
-            model_world3,
-            world_view_matrix,
-            projection_matrix,
-            &frustum);
-    }
-}
-
 void render_scene_pipeline(RenderState* render_state)
 {
     core_renderdata_init(
@@ -302,11 +254,7 @@ void render_scene_pipeline(RenderState* render_state)
 
 void render_scene(RenderState* render_state)
 {
-    if (render_state->pipeline_mode == RAS_PIPELINE_MODE_OFF) {
-        render_scene_classic(render_state);
-    } else {
-        render_scene_pipeline(render_state);
-    }
+    render_scene_pipeline(render_state);
 }
 
 void render_ui(RenderState* render_state)

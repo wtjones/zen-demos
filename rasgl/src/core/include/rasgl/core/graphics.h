@@ -252,14 +252,6 @@ typedef struct RenderState {
     RasPipelineMode pipeline_mode;
 } RenderState;
 
-void core_clip_poly(
-    RasFrustum* frustum,
-    RasClipFlags face_clip_flags,
-    RasPipelineVertexBuffer* vert_buffer,
-    uint32_t in_indexes[3],
-    int32_t material_index,
-    RasPipelineFace* face);
-
 /**
  * @brief Sets a vector at the intersection of the given line and plane.
  *
@@ -317,12 +309,6 @@ bool core_aabb_in_frustum(
     RasClipFlags* flags);
 
 /**
- * Sets bitmask of planes with an ouside AABB point.
- * Returns true if all points are outside.
- */
-bool core_aabb_in_frustum_alt(RasAABB* view_aabb, RasFrustum* frustum, RasClipFlags* flags);
-
-/**
  * Determine if poly is backfacing based on the normal's angle to the viewer
  * in clip space. Assumes vertices are counter-clockwise.
  * Based on https://github.com/wtjones/qbasic/blob/master/POLY3D.BAS
@@ -350,14 +336,6 @@ void projected_to_screen_point(
     Point2i* screen_point);
 
 void core_get_element_aabb(RasPipelineElement* element, RasAABB* aabb);
-
-void core_draw_element(
-    RenderState* render_state,
-    RasPipelineElement* element,
-    RasFixed model_world_matrix[4][4],
-    RasFixed world_view_matrix[4][4],
-    RasFixed proj_matrix[4][4],
-    RasFrustum* frustum);
 
 void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineElement* element);
 

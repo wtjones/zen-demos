@@ -55,13 +55,12 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
     ras_camera_update(camera, input_state);
 }
 
-void render_map(RenderState* render_state)
+void render_map(__attribute__((unused)) RenderState* render_state)
 {
     RasFixed model_world_matrix[4][4];
     RasFixed world_view_matrix[4][4];
     RasFixed projection_matrix[4][4];
     RasFrustum frustum;
-    RasSceneMap* current;
 
     if (scene->num_maps == 0) {
         return;
@@ -71,18 +70,10 @@ void render_map(RenderState* render_state)
     mat_set_identity_4x4(world_view_matrix);
     ras_camera_world_view_init(camera, world_view_matrix);
 
-    current = &scene->maps[0];
-
     mat_set_identity_4x4(model_world_matrix);
     core_frustum_init(projection_matrix, &frustum);
 
-    core_draw_element(
-        render_state,
-        current->element_ref,
-        model_world_matrix,
-        world_view_matrix,
-        projection_matrix,
-        &frustum);
+    ras_log_buffer("core_draw_element() deprecated");
 }
 
 void render_scene(RenderState* render_state __attribute__((unused)))
