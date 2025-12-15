@@ -66,7 +66,6 @@ typedef struct {
     RasMeshFace faces_to_clip[RAS_MAX_MESHES * 10];
     size_t num_faces_to_clip;
 
-    RasPipelineVertexBuffer vert_buffer; // needed?
     uint32_t num_verts_in_frustum[RAS_MAX_SCENE_OBJECTS];
     uint32_t num_faces_in_frustum[RAS_MAX_SCENE_OBJECTS];
     uint32_t num_backfaces[RAS_MAX_SCENE_OBJECTS];

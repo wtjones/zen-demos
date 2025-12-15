@@ -186,21 +186,6 @@ typedef struct RasPipelineElement {
     RasAABB aabb;
 } RasPipelineElement;
 
-// FIXME: Dynamic allocate or suspected deprication
-typedef struct RasPipelineVertexBuffer {
-    RasPipelineVertex verts[MAX_PIPELINE_VERTS];
-    uint32_t num_verts;
-
-    uint32_t visible_indexes[MAX_VISIBLE_INDEXES];
-    uint32_t num_visible_indexes;
-
-    RasPipelineFace visible_faces[MAX_PIPELINE_FACES];
-    uint32_t num_visible_faces;
-
-    int32_t material_indexes[MAX_VISIBLE_INDEXES]; // -1 if undefined
-    uint32_t num_material_indexes;                 // Will be num_visible_indexes / 3
-} RasPipelineVertexBuffer;
-
 typedef struct RasPipelineMesh {
     RasPipelineVertex verts[MAX_PIPELINE_VERTS];
     uint32_t num_verts;

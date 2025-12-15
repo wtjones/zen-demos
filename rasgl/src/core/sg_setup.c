@@ -50,7 +50,6 @@ void core_renderdata_init(
     mat_set_identity_4x4(render_data->projection_matrix);
     render_data->num_visible_gridmaps = 0;
     render_data->num_visible_objects = 0;
-    render_data->vert_buffer.num_verts = 0;
     render_data->num_mesh_elements = 0;
     render_data->render_state->num_visible_meshes = 0;
 
