@@ -5,7 +5,12 @@
 
 void core_free_scene_models(RasScene* scene)
 {
+    for (size_t i = 0; i < scene->num_models; i++) {
+        core_pipeline_element_free(&scene->models[i].element);
+    }
     free(scene->models);
+    scene->models = NULL;
+    scene->num_models = 0;
 }
 
 void core_free_scene_objects(RasScene* scene)
@@ -30,7 +35,12 @@ void core_free_scene_gridmaps(RasScene* scene)
     if (scene->num_gridmaps == 0) {
         return;
     }
+    for (size_t i = 0; i < scene->num_gridmaps; i++) {
+        core_pipeline_element_free(&scene->gridmaps[i].element);
+    }
     free(scene->gridmaps);
+    scene->gridmaps = NULL;
+    scene->num_gridmaps = 0;
 }
 
 void core_free_scene(RasScene** scene)

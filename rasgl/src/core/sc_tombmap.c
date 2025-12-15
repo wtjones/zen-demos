@@ -164,17 +164,6 @@ RasResult core_tombmap_room_to_element_faces(
     RasCamera* camera,
     RasPipelineElement* element)
 {
-
-    if (room->num_sectors_x * room->num_sectors_z * 8 > MAX_PIPELINE_FACES) {
-        ras_log_error("Reached max faces in pipeline element: %d", MAX_PIPELINE_FACES);
-        assert(false);
-    }
-
-    if (room->num_sectors_x * room->num_sectors_z * 24 > MAX_VISIBLE_INDEXES) {
-        ras_log_error("Reached max indexes in pipeline element: %d", MAX_VISIBLE_INDEXES);
-        assert(false);
-    }
-
     element->num_indexes = 0;
     element->num_faces = 0;
     element->num_material_indexes = 0;
@@ -605,7 +594,6 @@ RasResult core_tombmap_to_element_verts(
 {
     for (size_t i = 0; i < tombmap->num_rooms; i++) {
         RasTombMapRoom* room = &tombmap->rooms[i];
-        memset(&room->element, 0, sizeof(RasPipelineElement));
 
         RasResult result = core_tombmap_room_to_element_verts(room, &room->element);
         if (result != RAS_RESULT_OK) {
@@ -619,4 +607,51 @@ RasResult core_tombmap_to_element_verts(
         }
         return RAS_RESULT_OK;
     }
+}
+
+RasResult core_tombmap_to_element_alloc(
+    RasSceneTombMap* tombmap)
+{
+    for (size_t i = 0; i < tombmap->num_rooms; i++) {
+        RasTombMapRoom* room = &tombmap->rooms[i];
+
+        memset(&room->element, 0, sizeof(RasPipelineElement));
+        room->element.max_verts = (room->num_sectors_x + 1) * (room->num_sectors_z + 1) * 4;
+        room->element.verts = malloc(sizeof(RasVertex) * room->element.max_verts);
+        if (room->element.verts == NULL) {
+            ras_log_error("Failed to allocate memory for tombmap room verts");
+            return RAS_RESULT_ERROR;
+        }
+        memset(room->element.verts, 0, sizeof(RasVertex) * room->element.max_verts);
+
+        room->element.max_faces = room->num_sectors_x * room->num_sectors_z * 12;
+        room->element.faces = malloc(sizeof(RasElementFace) * room->element.max_faces);
+        if (room->element.faces == NULL) {
+            ras_log_error("Failed to allocate memory for tombmap room faces");
+            free(room->element.verts);
+            return RAS_RESULT_ERROR;
+        }
+        memset(room->element.faces, 0, sizeof(RasElementFace) * room->element.max_faces);
+
+        room->element.max_indexes = room->element.max_faces * 3;
+        room->element.indexes = malloc(sizeof(uint32_t) * room->element.max_indexes);
+        if (room->element.indexes == NULL) {
+            ras_log_error("Failed to allocate memory for tombmap room indexes");
+            free(room->element.verts);
+            free(room->element.faces);
+            return RAS_RESULT_ERROR;
+        }
+        memset(room->element.indexes, 0, sizeof(uint32_t) * room->element.max_indexes);
+
+        room->element.max_material_indexes = room->element.max_faces * 3;
+        room->element.material_indexes = malloc(sizeof(int32_t) * room->element.max_material_indexes);
+        if (room->element.material_indexes == NULL) {
+            ras_log_error("Failed to allocate memory for tombmap room material indexes");
+            free(room->element.verts);
+            free(room->element.faces);
+            free(room->element.indexes);
+            return RAS_RESULT_ERROR;
+        }
+    }
+    return RAS_RESULT_OK;
 }

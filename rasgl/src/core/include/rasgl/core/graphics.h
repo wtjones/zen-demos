@@ -163,25 +163,30 @@ typedef struct RasPipelineFace {
 } RasPipelineFace;
 
 typedef struct RasPipelineElement {
-    RasVertex verts[MAX_PIPELINE_VERTS];
+    RasVertex* verts;
     uint32_t num_verts;
+    size_t max_verts;
 
-    RasElementFace faces[MAX_PIPELINE_FACES];
+    RasElementFace* faces;
     uint32_t num_faces;
+    size_t max_faces;
 
     /**
      * @brief Triangle indexes
      *  Size is number of faces * 3
      */
-    uint32_t indexes[MAX_VISIBLE_INDEXES];
+    uint32_t* indexes;
     uint32_t num_indexes;
+    size_t max_indexes;
 
-    int32_t material_indexes[MAX_VISIBLE_INDEXES];
+    int32_t* material_indexes;
     uint32_t num_material_indexes; // Will be num_indexes / 3
+    size_t max_material_indexes;
 
     RasAABB aabb;
 } RasPipelineElement;
 
+// FIXME: Dynamic allocate or suspected deprication
 typedef struct RasPipelineVertexBuffer {
     RasPipelineVertex verts[MAX_PIPELINE_VERTS];
     uint32_t num_verts;
@@ -338,6 +343,11 @@ void projected_to_screen_point(
 void core_get_element_aabb(RasPipelineElement* element, RasAABB* aabb);
 
 void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineElement* element);
+
+RasResult core_model_group_to_pipeline_element_alloc(
+    RasModelGroup* group, RasPipelineElement* element);
+
+void core_pipeline_element_free(RasPipelineElement* element);
 
 /**
  * Add a screen-space point to the command list.

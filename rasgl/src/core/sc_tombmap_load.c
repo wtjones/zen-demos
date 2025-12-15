@@ -215,6 +215,11 @@ RasResult core_script_map_tombmaps(
     *out_tombmaps = maps;
     *out_num_tombmaps = num_tombmaps;
 
+    if (core_tombmap_to_element_alloc(&maps[0]) != RAS_RESULT_OK) {
+        ras_log_error("Failed to allocate tombmap pipeline element.");
+        return RAS_RESULT_ERROR;
+    }
+
     if (core_tombmap_to_element_verts(&maps[0]) != RAS_RESULT_OK) {
         ras_log_error("Failed to convert gridmap to pipeline element.");
         return RAS_RESULT_ERROR;
@@ -237,6 +242,7 @@ void core_free_scene_tombmaps(RasSceneTombMap* tombmaps, size_t num_tombmaps)
                 continue;
             }
             free(room->sectors);
+            core_pipeline_element_free(&room->element);
         }
         free(map->rooms);
     }

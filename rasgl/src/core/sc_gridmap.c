@@ -15,6 +15,8 @@ static inline void add_cell_face(
     element->material_indexes[element->num_material_indexes++] = material_index;
 
     element->faces[element->num_faces].material_index = material_index;
+    element->faces[element->num_faces].outline_edges = 0;
+    element->faces[element->num_faces].outline_material_index = 0;
     core_face_normal(
         &element->verts[v0i].position,
         &element->verts[v1i].position,
@@ -35,16 +37,10 @@ RasResult core_gridmap_to_element_verts(
     RasSceneGridMap* gridmap,
     RasPipelineElement* element)
 {
-    if (gridmap->height != 1) {
-        ras_log_error("Only gridmaps with height 1 are supported.");
+    if (element->max_verts == 0) {
+        ras_log_error("Pipeline element not allocated for gridmap verts.");
         return RAS_RESULT_ERROR;
     }
-
-    if (gridmap->width * gridmap->depth > MAX_PIPELINE_VERTS) {
-        ras_log_error("Gridmap too large to convert to pipeline element.");
-        return RAS_RESULT_ERROR;
-    }
-    memset(element, 0, sizeof(RasPipelineElement));
 
     // Gennerate extra y vert for floor and ceiling.
     for (size_t y = 0; y < gridmap->height + 1; y++) {
@@ -68,6 +64,53 @@ RasResult core_gridmap_to_element_verts(
 
     core_get_element_aabb(element, &element->aabb);
 
+    return RAS_RESULT_OK;
+}
+
+RasResult core_gridmap_to_element_verts_alloc(
+    RasSceneGridMap* gridmap,
+    RasPipelineElement* element)
+{
+    if (gridmap->height != 1) {
+        ras_log_error("Only gridmaps with height 1 are supported.");
+        return RAS_RESULT_ERROR;
+    }
+
+    if (gridmap->width * gridmap->depth > MAX_PIPELINE_VERTS) {
+        ras_log_error("Gridmap too large to convert to pipeline element.");
+        return RAS_RESULT_ERROR;
+    }
+    memset(element, 0, sizeof(RasPipelineElement));
+    element->max_verts = (gridmap->width + 1) * (gridmap->depth + 1) * (gridmap->height + 1);
+    element->verts = malloc(sizeof(RasVertex) * element->max_verts);
+    if (element->verts == NULL) {
+        ras_log_error("Failed to allocate memory for gridmap verts");
+        return RAS_RESULT_ERROR;
+    }
+    element->max_faces = gridmap->width * gridmap->depth * 8;
+    element->faces = malloc(sizeof(RasElementFace) * element->max_faces);
+    if (element->faces == NULL) {
+        ras_log_error("Failed to allocate memory for gridmap faces");
+        free(element->verts);
+        return RAS_RESULT_ERROR;
+    }
+    element->max_indexes = element->max_faces * 3;
+    element->indexes = malloc(sizeof(uint32_t) * element->max_indexes);
+    if (element->indexes == NULL) {
+        ras_log_error("Failed to allocate memory for gridmap indexes");
+        free(element->verts);
+        free(element->faces);
+        return RAS_RESULT_ERROR;
+    }
+    element->max_material_indexes = element->max_faces * 3;
+    element->material_indexes = malloc(sizeof(int32_t) * element->max_material_indexes);
+    if (element->material_indexes == NULL) {
+        ras_log_error("Failed to allocate memory for gridmap material indexes");
+        free(element->verts);
+        free(element->faces);
+        free(element->indexes);
+        return RAS_RESULT_ERROR;
+    }
     return RAS_RESULT_OK;
 }
 
@@ -426,6 +469,10 @@ RasResult core_script_map_gridmap(LarNode* gridmap_exp, RasSceneGridMap* gridmap
     }
 
     core_set_gridmap_cell_flags(gridmap);
+    if (core_gridmap_to_element_verts_alloc(gridmap, &gridmap->element) != RAS_RESULT_OK) {
+        ras_log_error("Failed to allocate memory for gridmap pipeline element.");
+        return RAS_RESULT_ERROR;
+    }
 
     if (core_gridmap_to_element_verts(gridmap, &gridmap->element) != RAS_RESULT_OK) {
         ras_log_error("Failed to convert gridmap to pipeline element.");

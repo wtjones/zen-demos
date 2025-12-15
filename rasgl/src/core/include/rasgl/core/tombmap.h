@@ -232,6 +232,9 @@ RasResult core_tombmap_room_to_element_faces(
 RasResult core_tombmap_to_element_verts(
     RasSceneTombMap* tombmap);
 
+RasResult core_tombmap_to_element_alloc(
+    RasSceneTombMap* tombmap);
+
 void core_free_scene_tombmaps(RasSceneTombMap* tombmaps, size_t num_tombmaps);
 
 #endif

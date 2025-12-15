@@ -401,6 +401,12 @@ RasResult core_script_map_model(LarNode* model_exp, RasSceneModel* scene_model)
         return RAS_RESULT_ERROR;
     }
 
+    if (core_model_group_to_pipeline_element_alloc(
+            &file_model->groups[0], &scene_model->element)
+        != RAS_RESULT_OK) {
+        free(file_model);
+        return RAS_RESULT_ERROR;
+    }
     core_model_group_to_pipeline_element(
         &file_model->groups[0], &scene_model->element);
     ras_log_info("Mapped model %s to pipeline elements", scene_model->name);

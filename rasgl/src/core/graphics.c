@@ -5,6 +5,7 @@
 #include "rasgl/core/event.h"
 #include "rasgl/core/normals.h"
 #include "rasgl/core/repr.h"
+#include <stdlib.h>
 
 void core_aabb_init(RasAABB* aabb)
 {
@@ -423,10 +424,8 @@ void core_get_element_aabb(RasPipelineElement* element, RasAABB* aabb)
 
 void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineElement* element)
 {
-
-    element->num_verts = group->num_verts;
     for (int i = 0; i < group->num_verts; i++) {
-        RasVertex* element_vert = &element->verts[i];
+        RasVertex* element_vert = &element->verts[element->num_verts++];
 
         element_vert->position.x = group->verts[i].x;
         element_vert->position.y = group->verts[i].y;
@@ -458,4 +457,56 @@ void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineEleme
         dest_face->normal = *src_normal;
         dest_face++;
     }
+}
+
+RasResult core_model_group_to_pipeline_element_alloc(RasModelGroup* group, RasPipelineElement* element)
+{
+    memset(element, 0, sizeof(RasPipelineElement));
+    element->max_verts = group->num_verts;
+    element->verts = malloc(sizeof(RasVertex) * element->max_verts);
+    if (element->verts == NULL) {
+        ras_log_error("Failed to allocate memory for pipeline element verts");
+        return RAS_RESULT_ERROR;
+    }
+    element->max_faces = group->num_faces;
+    element->faces = malloc(sizeof(RasElementFace) * element->max_faces);
+    if (element->faces == NULL) {
+        ras_log_error("Failed to allocate memory for pipeline element faces");
+        free(element->verts);
+        return RAS_RESULT_ERROR;
+    }
+    element->max_indexes = group->num_faces * 3;
+    element->indexes = malloc(sizeof(uint32_t) * element->max_indexes);
+    if (element->indexes == NULL) {
+        ras_log_error("Failed to allocate memory for pipeline element indexes");
+        free(element->verts);
+        free(element->faces);
+        return RAS_RESULT_ERROR;
+    }
+    element->max_material_indexes = group->num_faces;
+    element->material_indexes = malloc(sizeof(int32_t) * element->max_material_indexes);
+    if (element->material_indexes == NULL) {
+        ras_log_error("Failed to allocate memory for pipeline element material indexes");
+        free(element->verts);
+        free(element->faces);
+        free(element->indexes);
+        return RAS_RESULT_ERROR;
+    }
+    return RAS_RESULT_OK;
+}
+
+void core_pipeline_element_free(RasPipelineElement* element)
+{
+    free(element->verts);
+    free(element->faces);
+    free(element->indexes);
+    free(element->material_indexes);
+    element->verts = NULL;
+    element->faces = NULL;
+    element->indexes = NULL;
+    element->material_indexes = NULL;
+    element->max_verts = element->num_verts = 0;
+    element->max_faces = element->num_faces = 0;
+    element->max_indexes = element->num_indexes = 0;
+    element->max_material_indexes = element->num_material_indexes = 0;
 }

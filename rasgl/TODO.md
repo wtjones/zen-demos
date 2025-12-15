@@ -85,6 +85,8 @@
 
 ### Pipeline
 
+- [ ] Support dynamic allocation of meshes.
+
 ### Build
 
 - [ ] Auto build larse deps.
@@ -196,6 +198,7 @@
 - [x] Fix culled object warping
 - [x] Clip polygons added during clipping
 - [x] Copy materials in new clipping pipeline.
+- [x] Support dynamic allocation of elements.
 
 ### Tombmap
 
