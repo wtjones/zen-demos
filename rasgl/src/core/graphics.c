@@ -422,43 +422,6 @@ void core_get_element_aabb(RasPipelineElement* element, RasAABB* aabb)
     ras_log_trace("Model AABB max: %s\n", repr_point3f(buffer, sizeof buffer, &element->aabb.max));
 }
 
-void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineElement* element)
-{
-    for (int i = 0; i < group->num_verts; i++) {
-        RasVertex* element_vert = &element->verts[element->num_verts++];
-
-        element_vert->position.x = group->verts[i].x;
-        element_vert->position.y = group->verts[i].y;
-        element_vert->position.z = group->verts[i].z;
-    }
-
-    core_get_element_aabb(element, &element->aabb);
-
-    element->num_indexes = group->num_faces * 3;
-    element->num_material_indexes = group->num_faces;
-    element->num_faces = group->num_faces;
-    uint32_t* element_index = &element->indexes[0];
-    int32_t* material_index = &element->material_indexes[0];
-    RasElementFace* dest_face = &element->faces[0];
-
-    for (int j = 0; j < group->num_faces; j++) {
-        RasModelFace* face = &group->faces[j];
-        for (int k = 0; k < RAS_MAX_MODEL_FACE_INDEXES; k++) {
-            RasModelFaceIndex* face_index = &face->indexes[k];
-            *element_index = face_index->vert_index;
-            element_index++;
-        }
-
-        *material_index = face->material_index;
-        material_index++;
-
-        dest_face->material_index = face->material_index;
-        RasVector3f* src_normal = &group->normals[face->indexes[0].normal_index];
-        dest_face->normal = *src_normal;
-        dest_face++;
-    }
-}
-
 RasResult core_pipeline_element_alloc(
     size_t max_verts,
     size_t max_faces,
@@ -498,16 +461,6 @@ RasResult core_pipeline_element_alloc(
         return RAS_RESULT_ERROR;
     }
     return RAS_RESULT_OK;
-}
-
-RasResult core_model_group_to_pipeline_element_alloc(RasModelGroup* group, RasPipelineElement* element)
-{
-    return core_pipeline_element_alloc(
-        group->num_verts,
-        group->num_faces,
-        group->num_faces * 3,
-        group->num_faces,
-        element);
 }
 
 void core_pipeline_element_free(RasPipelineElement* element)

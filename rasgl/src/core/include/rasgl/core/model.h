@@ -2,6 +2,7 @@
 #define MODEL_H
 
 #include "debug.h"
+#include "graphics.h"
 #include "maths.h"
 
 #define RAS_MAX_MODEL_NAME 50
@@ -49,6 +50,12 @@ typedef struct RasModel {
 
 RasModel* core_load_model(const char* path);
 void core_free_model(RasModel* model);
+
+RasResult core_model_group_to_pipeline_element_alloc(
+    RasModelGroup* group, RasPipelineElement* element);
+
+void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineElement* element);
+
 char* core_repr_model(char* buffer, size_t count, RasModel* model);
 
 #endif

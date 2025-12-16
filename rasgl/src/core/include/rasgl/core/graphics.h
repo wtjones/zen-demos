@@ -4,7 +4,6 @@
 #include "fixed_maths.h"
 #include "frustum.h"
 #include "maths.h"
-#include "model.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -327,17 +326,12 @@ void projected_to_screen_point(
 
 void core_get_element_aabb(RasPipelineElement* element, RasAABB* aabb);
 
-void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineElement* element);
-
 RasResult core_pipeline_element_alloc(
     size_t max_verts,
     size_t max_faces,
     size_t max_indexes,
     size_t max_material_indexes,
     RasPipelineElement* element);
-
-RasResult core_model_group_to_pipeline_element_alloc(
-    RasModelGroup* group, RasPipelineElement* element);
 
 void core_pipeline_element_free(RasPipelineElement* element);
 
