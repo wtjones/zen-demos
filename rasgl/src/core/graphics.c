@@ -459,23 +459,28 @@ void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineEleme
     }
 }
 
-RasResult core_model_group_to_pipeline_element_alloc(RasModelGroup* group, RasPipelineElement* element)
+RasResult core_pipeline_element_alloc(
+    size_t max_verts,
+    size_t max_faces,
+    size_t max_indexes,
+    size_t max_material_indexes,
+    RasPipelineElement* element)
 {
     memset(element, 0, sizeof(RasPipelineElement));
-    element->max_verts = group->num_verts;
+    element->max_verts = max_verts;
     element->verts = malloc(sizeof(RasVertex) * element->max_verts);
     if (element->verts == NULL) {
         ras_log_error("Failed to allocate memory for pipeline element verts");
         return RAS_RESULT_ERROR;
     }
-    element->max_faces = group->num_faces;
+    element->max_faces = max_faces;
     element->faces = malloc(sizeof(RasElementFace) * element->max_faces);
     if (element->faces == NULL) {
         ras_log_error("Failed to allocate memory for pipeline element faces");
         free(element->verts);
         return RAS_RESULT_ERROR;
     }
-    element->max_indexes = group->num_faces * 3;
+    element->max_indexes = max_indexes;
     element->indexes = malloc(sizeof(uint32_t) * element->max_indexes);
     if (element->indexes == NULL) {
         ras_log_error("Failed to allocate memory for pipeline element indexes");
@@ -483,7 +488,7 @@ RasResult core_model_group_to_pipeline_element_alloc(RasModelGroup* group, RasPi
         free(element->faces);
         return RAS_RESULT_ERROR;
     }
-    element->max_material_indexes = group->num_faces;
+    element->max_material_indexes = max_material_indexes;
     element->material_indexes = malloc(sizeof(int32_t) * element->max_material_indexes);
     if (element->material_indexes == NULL) {
         ras_log_error("Failed to allocate memory for pipeline element material indexes");
@@ -493,6 +498,16 @@ RasResult core_model_group_to_pipeline_element_alloc(RasModelGroup* group, RasPi
         return RAS_RESULT_ERROR;
     }
     return RAS_RESULT_OK;
+}
+
+RasResult core_model_group_to_pipeline_element_alloc(RasModelGroup* group, RasPipelineElement* element)
+{
+    return core_pipeline_element_alloc(
+        group->num_verts,
+        group->num_faces,
+        group->num_faces * 3,
+        group->num_faces,
+        element);
 }
 
 void core_pipeline_element_free(RasPipelineElement* element)

@@ -76,42 +76,12 @@ RasResult core_gridmap_to_element_verts_alloc(
         return RAS_RESULT_ERROR;
     }
 
-    if (gridmap->width * gridmap->depth > MAX_PIPELINE_VERTS) {
-        ras_log_error("Gridmap too large to convert to pipeline element.");
-        return RAS_RESULT_ERROR;
-    }
-    memset(element, 0, sizeof(RasPipelineElement));
-    element->max_verts = (gridmap->width + 1) * (gridmap->depth + 1) * (gridmap->height + 1);
-    element->verts = malloc(sizeof(RasVertex) * element->max_verts);
-    if (element->verts == NULL) {
-        ras_log_error("Failed to allocate memory for gridmap verts");
-        return RAS_RESULT_ERROR;
-    }
-    element->max_faces = gridmap->width * gridmap->depth * 8;
-    element->faces = malloc(sizeof(RasElementFace) * element->max_faces);
-    if (element->faces == NULL) {
-        ras_log_error("Failed to allocate memory for gridmap faces");
-        free(element->verts);
-        return RAS_RESULT_ERROR;
-    }
-    element->max_indexes = element->max_faces * 3;
-    element->indexes = malloc(sizeof(uint32_t) * element->max_indexes);
-    if (element->indexes == NULL) {
-        ras_log_error("Failed to allocate memory for gridmap indexes");
-        free(element->verts);
-        free(element->faces);
-        return RAS_RESULT_ERROR;
-    }
-    element->max_material_indexes = element->max_faces * 3;
-    element->material_indexes = malloc(sizeof(int32_t) * element->max_material_indexes);
-    if (element->material_indexes == NULL) {
-        ras_log_error("Failed to allocate memory for gridmap material indexes");
-        free(element->verts);
-        free(element->faces);
-        free(element->indexes);
-        return RAS_RESULT_ERROR;
-    }
-    return RAS_RESULT_OK;
+    return core_pipeline_element_alloc(
+        (gridmap->width + 1) * (gridmap->depth + 1) * (gridmap->height + 1),
+        gridmap->width * gridmap->depth * 8,
+        gridmap->width * gridmap->depth * 24,
+        gridmap->width * gridmap->depth * 8,
+        element);
 }
 
 RasResult core_gridmap_to_element_faces(
