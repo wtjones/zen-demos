@@ -7,10 +7,7 @@
 
 #define RAS_MAX_MODEL_NAME 50
 #define RAS_MAX_MODEL_GROUPS 1
-#define RAS_MAX_MODEL_VERTS 1024
-#define RAS_MAX_MODEL_FACES 256
 #define RAS_MAX_MODEL_FACE_INDEXES 3
-#define RAS_MAX_MODEL_NORMALS 256
 
 typedef struct RasModelMaterial {
     char* name;

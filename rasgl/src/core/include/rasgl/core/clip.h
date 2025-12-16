@@ -5,6 +5,8 @@
 #include "graphics.h"
 #include "maths.h"
 
+#define RAS_MAX_CLIP_OUT_VERTS 64
+
 /**
  * @brief Result structure to describe the necessary clipping scenario
  * required for a face.

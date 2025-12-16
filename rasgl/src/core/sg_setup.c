@@ -504,7 +504,7 @@ void* core_sg_visible_faces(void* input)
             if (face_clip_flags != 0 && clip_on) {
                 ras_log_buffer_trace("scenario: face_clip_flags: %d\n", face_clip_flags);
                 RasPipelineVertex* in_verts[3] = { pv1, pv2, pv3 };
-                RasPipelineVertex out_verts[RAS_MAX_MODEL_VERTS];
+                RasPipelineVertex out_verts[RAS_MAX_CLIP_OUT_VERTS];
                 size_t num_out_verts = 0;
                 (*num_faces_to_clip)++;
 
@@ -513,7 +513,7 @@ void* core_sg_visible_faces(void* input)
                     in_verts,
                     out_verts,
                     &num_out_verts,
-                    RAS_MAX_MODEL_VERTS);
+                    RAS_MAX_CLIP_OUT_VERTS);
 
                 static char buffer[255];
                 ras_log_buffer_trace("clip2: num_out_verts: %d\n", num_out_verts);
