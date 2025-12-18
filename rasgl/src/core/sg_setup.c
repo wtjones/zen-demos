@@ -37,15 +37,9 @@ void core_pipeline_init(RasPipeline* pipeline)
     ras_log_info("Pipeline initialized with %d stages", pipeline->num_stages);
 }
 
-void core_renderdata_init(
-    RasRenderData* render_data,
-    RenderState* render_state,
-    RasScene* scene,
-    RasCamera* camera)
+void core_renderdata_clear(
+    RasRenderData* render_data)
 {
-    render_data->render_state = render_state;
-    render_data->scene = scene;
-    render_data->camera = camera;
     mat_set_identity_4x4(render_data->world_view_matrix);
     mat_set_identity_4x4(render_data->projection_matrix);
     render_data->num_visible_gridmaps = 0;
@@ -60,7 +54,108 @@ void core_renderdata_init(
         render_data->aabb_clip_flags[i] = 0;
     }
 
+    for (size_t i = 0; i < render_data->render_state->num_meshes; i++) {
+        RasPipelineMesh* mesh = &render_data->render_state->meshes[i];
+        mesh->num_visible_indexes = 0;
+        mesh->num_visible_faces = 0;
+        mesh->num_material_indexes = 0;
+        mesh->num_verts = 0;
+    }
+}
+
+RasResult core_renderdata_objects_alloc(RasRenderData* render_data)
+{
+    for (size_t i = 0; i < render_data->scene->num_objects; i++) {
+        RasSceneObject* current_object = &render_data->scene->objects[i];
+        uint32_t mesh_index = current_object->mesh_index = render_data->render_state->num_meshes++;
+        if (core_pipeline_element_to_mesh_alloc(
+                current_object->element_ref,
+                &render_data->render_state->meshes[mesh_index])
+            != RAS_RESULT_OK) {
+            return RAS_RESULT_ERROR;
+        }
+    }
+    return RAS_RESULT_OK;
+}
+
+RasResult core_renderdata_gridmaps_alloc(RasRenderData* render_data)
+{
+    for (size_t i = 0; i < render_data->scene->num_gridmaps; i++) {
+        RasSceneGridMap* gridmap = &render_data->scene->gridmaps[i];
+        uint32_t mesh_index = gridmap->mesh_index = render_data->render_state->num_meshes++;
+        size_t max_verts = (gridmap->depth + 1) * (gridmap->width + 1) * 2 * 4 + 64;
+        size_t max_faces = gridmap->depth * gridmap->width * 12 + 64;
+
+        if (core_pipeline_mesh_alloc(
+                max_verts,
+                max_faces * 3,
+                max_faces,
+                max_faces,
+                &render_data->render_state->meshes[mesh_index])
+            != RAS_RESULT_OK) {
+            return RAS_RESULT_ERROR;
+        }
+    }
+    return RAS_RESULT_OK;
+}
+
+RasResult core_renderdata_tombmaps_alloc(RasRenderData* render_data)
+{
+    for (size_t i = 0; i < render_data->scene->num_tombmaps; i++) {
+        RasSceneTombMap* tombmap = &render_data->scene->tombmaps[i];
+
+        for (size_t j = 0; j < tombmap->num_rooms; j++) {
+            RasTombMapRoom* room = &tombmap->rooms[j];
+            uint32_t mesh_index = room->mesh_index = render_data->render_state->num_meshes++;
+            size_t max_verts = (room->num_sectors_x + 1) * (room->num_sectors_z + 1) * 8 + 64;
+            size_t max_faces = room->num_sectors_x * room->num_sectors_z * 12 + 64;
+            if (core_pipeline_mesh_alloc(
+                    max_verts,
+                    max_faces * 3,
+                    max_faces,
+                    max_faces,
+                    &render_data->render_state->meshes[mesh_index])
+                != RAS_RESULT_OK) {
+                return RAS_RESULT_ERROR;
+            }
+        }
+    }
+    return RAS_RESULT_OK;
+}
+
+RasResult core_renderdata_alloc(
+    RasRenderData* render_data)
+{
+    render_data->render_state->num_meshes = 0;
+
+    if (core_renderdata_gridmaps_alloc(render_data) != RAS_RESULT_OK) {
+        return RAS_RESULT_ERROR;
+    }
+    if (core_renderdata_tombmaps_alloc(render_data) != RAS_RESULT_OK) {
+        return RAS_RESULT_ERROR;
+    }
+    if (core_renderdata_objects_alloc(render_data) != RAS_RESULT_OK) {
+        return RAS_RESULT_ERROR;
+    }
+    return RAS_RESULT_OK;
+}
+
+RasResult core_renderdata_init(
+    RasRenderData* render_data,
+    RenderState* render_state,
+    RasScene* scene,
+    RasCamera* camera)
+{
+    render_data->render_state = render_state;
+    render_data->scene = scene;
+    render_data->camera = camera;
     render_state->num_meshes = 0;
+
+    RAS_CHECK_RESULT_AND_LOG(core_renderdata_alloc(render_data),
+        "Failed to allocate render data meshes");
+
+    core_renderdata_clear(render_data);
+    return RAS_RESULT_OK;
 }
 
 void* core_sg_setup(void* input)
@@ -86,7 +181,9 @@ void* core_sg_xform_gridmaps(void* input)
     for (size_t i = 0; i < render_data->scene->num_gridmaps; i++) {
         RasSceneGridMap* current_gridmap = &render_data->scene->gridmaps[i];
 
-        uint32_t mesh_index = current_gridmap->mesh_index = render_data->render_state->num_meshes++;
+        // uint32_t mesh_index = current_gridmap->mesh_index = render_data->render_state->num_meshes++;
+        uint32_t mesh_index = current_gridmap->mesh_index;
+
         RasFixed(*model_world_matrix)[4] = render_data->model_world_matrix[mesh_index];
         RasFixed(*model_view_matrix)[4] = render_data->model_view_matrix[mesh_index];
         RasFixed(*normal_mvt_matrix)[4] = render_data->normal_mvt_matrix[mesh_index];
@@ -111,7 +208,8 @@ void* core_sg_xform_objects(void* input)
 
     for (size_t i = 0; i < render_data->scene->num_objects; i++) {
         RasSceneObject* current_object = &render_data->scene->objects[i];
-        uint32_t mesh_index = current_object->mesh_index = render_data->render_state->num_meshes++;
+
+        uint32_t mesh_index = current_object->mesh_index;
         RasVector3f* model_pos = &current_object->position;
         RasVector3f* model_rotation = &current_object->rotation;
         RasFixed(*model_world_matrix)[4] = render_data->model_world_matrix[mesh_index];
@@ -272,6 +370,16 @@ void* core_sg_xform_verts(void* input)
         uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
         RasPipelineElement* element = render_data->mesh_elements[i].element_ref;
         RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
+
+        if (mesh->verts == NULL) {
+            if (core_pipeline_element_to_mesh_alloc(
+                    element,
+                    mesh)
+                != RAS_RESULT_OK) {
+                ras_log_error("Failed to allocate pipeline mesh from element.");
+                return NULL;
+            }
+        }
 
         RasFixed(*model_world_matrix)[4] = render_data->model_world_matrix[mesh_index];
         RasFixed(*model_view_matrix)[4] = render_data->model_view_matrix[mesh_index];
@@ -521,10 +629,10 @@ void* core_sg_visible_faces(void* input)
                     ras_log_buffer_trace("clip2: out_verts[%zu]: %s\n", j, repr_point3f(buffer, sizeof buffer, &out_verts[j].view_space_position));
                 }
 
-                if (mesh->num_verts + num_out_verts > MAX_PIPELINE_VERTS) {
-                    ras_log_error("Reached max visible verts for mesh %d: %d",
+                if (mesh->num_verts + num_out_verts > mesh->max_verts) {
+                    ras_log_error("Reached max verts for mesh %d: %d",
                         mesh_index,
-                        MAX_PIPELINE_VERTS);
+                        mesh->max_verts);
                     assert(false);
                 }
 
@@ -553,8 +661,8 @@ void* core_sg_visible_faces(void* input)
                 }
 
                 // Copy material indexes for each new face created from clipping
-                assert(*num_dest_faces + num_out_verts / 3 < MAX_PIPELINE_FACES);
-                assert(*num_dest_materials + num_out_verts / 3 < MAX_VISIBLE_INDEXES);
+                // assert(*num_dest_faces + num_out_verts / 3 < MAX_PIPELINE_FACES);
+                // assert(*num_dest_materials + num_out_verts / 3 < MAX_VISIBLE_INDEXES);
                 for (size_t j = 0; j < num_out_verts / 3; j++) {
                     mesh->material_indexes[*num_dest_materials] = element->material_indexes[current_src_face_index];
                     mesh->visible_faces[*num_dest_faces].normal = element->faces[current_src_face_index].normal;
@@ -571,6 +679,12 @@ void* core_sg_visible_faces(void* input)
             // - visible indexes
             // - visible faces
             // - material indexes
+            if (mesh->num_visible_indexes + 3 >= mesh->max_visible_indexes) {
+                ras_log_error("Reached max visible faces for mesh %d: %d",
+                    mesh_index,
+                    mesh->max_visible_faces);
+                assert(false);
+            }
             mesh->visible_indexes[*vi] = element->indexes[i];
             mesh->visible_indexes[*vi + 1] = element->indexes[i + 1];
             mesh->visible_indexes[*vi + 2] = element->indexes[i + 2];

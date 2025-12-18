@@ -186,17 +186,21 @@ typedef struct RasPipelineElement {
 } RasPipelineElement;
 
 typedef struct RasPipelineMesh {
-    RasPipelineVertex verts[MAX_PIPELINE_VERTS];
+    RasPipelineVertex* verts;
     uint32_t num_verts;
+    size_t max_verts;
 
-    uint32_t visible_indexes[MAX_VISIBLE_INDEXES];
+    uint32_t* visible_indexes;
     uint32_t num_visible_indexes;
+    size_t max_visible_indexes;
 
-    RasPipelineFace visible_faces[MAX_PIPELINE_FACES];
+    RasPipelineFace* visible_faces;
     uint32_t num_visible_faces;
+    size_t max_visible_faces;
 
-    int32_t material_indexes[MAX_VISIBLE_INDEXES]; // -1 if undefined
-    uint32_t num_material_indexes;                 // Will be num_visible_indexes / 3
+    int32_t* material_indexes;     // -1 if undefined
+    uint32_t num_material_indexes; // Will be num_visible_indexes / 3
+    size_t max_material_indexes;
 } RasPipelineMesh;
 
 typedef struct RenderState {
@@ -334,6 +338,21 @@ RasResult core_pipeline_element_alloc(
     RasPipelineElement* element);
 
 void core_pipeline_element_free(RasPipelineElement* element);
+
+RasResult core_pipeline_mesh_alloc(
+    size_t max_verts,
+    size_t max_visible_indexes,
+    size_t max_visible_faces,
+    size_t max_material_indexes,
+    RasPipelineMesh* mesh);
+
+void core_pipeline_mesh_free(RasPipelineMesh* mesh);
+
+void core_renderstate_free(RenderState* state);
+
+RasResult core_pipeline_element_to_mesh_alloc(
+    RasPipelineElement* element,
+    RasPipelineMesh* mesh);
 
 /**
  * Add a screen-space point to the command list.

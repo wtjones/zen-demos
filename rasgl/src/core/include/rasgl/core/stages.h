@@ -79,7 +79,10 @@ typedef struct {
  */
 void core_pipeline_init(RasPipeline* pipeline);
 
-void core_renderdata_init(
+void core_renderdata_clear(
+    RasRenderData* render_data);
+
+RasResult core_renderdata_init(
     RasRenderData* render_data,
     RenderState* render_state,
     RasScene* scene,

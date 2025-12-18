@@ -216,8 +216,7 @@ void core_renderstate_clear(RenderState* state)
     memset(state->material_indexes, 0, sizeof(state->material_indexes));
     memset(state->visible_indexes, 0, sizeof(state->visible_indexes));
     memset(state->visible_faces, 0, sizeof(state->visible_faces));
-    state->num_meshes = 0;
-    memset(state->meshes, 0, sizeof(state->meshes));
+    // state->num_meshes = 0;
 }
 
 void core_renderstates_clear(RenderState states[])
@@ -477,4 +476,92 @@ void core_pipeline_element_free(RasPipelineElement* element)
     element->max_faces = element->num_faces = 0;
     element->max_indexes = element->num_indexes = 0;
     element->max_material_indexes = element->num_material_indexes = 0;
+}
+
+RasResult core_pipeline_mesh_alloc(
+    size_t max_verts,
+    size_t max_visible_indexes,
+    size_t max_visible_faces,
+    size_t max_material_indexes,
+    RasPipelineMesh* mesh)
+{
+    memset(mesh, 0, sizeof(RasPipelineMesh));
+
+    mesh->max_verts = max_verts;
+    mesh->verts = malloc(sizeof(RasPipelineVertex) * mesh->max_verts);
+    if (mesh->verts == NULL) {
+        ras_log_error("Failed to allocate memory for pipeline mesh verts");
+        return RAS_RESULT_ERROR;
+    }
+
+    mesh->max_visible_indexes = max_visible_indexes;
+    mesh->visible_indexes = malloc(sizeof(uint32_t) * mesh->max_visible_indexes);
+    if (mesh->visible_indexes == NULL) {
+        ras_log_error("Failed to allocate memory for pipeline mesh visible indexes");
+        free(mesh->verts);
+        return RAS_RESULT_ERROR;
+    }
+
+    mesh->max_visible_faces = max_visible_faces;
+    mesh->visible_faces = malloc(sizeof(RasPipelineFace) * mesh->max_visible_faces);
+    if (mesh->visible_faces == NULL) {
+        ras_log_error("Failed to allocate memory for pipeline mesh visible faces");
+        free(mesh->verts);
+        free(mesh->visible_indexes);
+        return RAS_RESULT_ERROR;
+    }
+
+    mesh->max_material_indexes = max_material_indexes;
+    mesh->material_indexes = malloc(sizeof(int32_t) * mesh->max_material_indexes);
+    if (mesh->material_indexes == NULL) {
+        ras_log_error("Failed to allocate memory for pipeline mesh material indexes");
+        free(mesh->verts);
+        free(mesh->visible_indexes);
+        free(mesh->visible_faces);
+        return RAS_RESULT_ERROR;
+    }
+
+    return RAS_RESULT_OK;
+}
+
+void core_pipeline_mesh_free(RasPipelineMesh* mesh)
+{
+    free(mesh->verts);
+    free(mesh->visible_indexes);
+    free(mesh->visible_faces);
+    free(mesh->material_indexes);
+    mesh->verts = NULL;
+    mesh->visible_indexes = NULL;
+    mesh->visible_faces = NULL;
+    mesh->material_indexes = NULL;
+    mesh->max_verts = mesh->num_verts = 0;
+    mesh->max_visible_indexes = mesh->num_visible_indexes = 0;
+    mesh->max_visible_faces = mesh->num_visible_faces = 0;
+    mesh->max_material_indexes = mesh->num_material_indexes = 0;
+}
+
+void core_renderstate_free(RenderState* state)
+{
+    for (size_t i = 0; i < state->num_meshes; i++) {
+        core_pipeline_mesh_free(&state->meshes[i]);
+    }
+    state->num_meshes = 0;
+}
+
+RasResult core_pipeline_element_to_mesh_alloc(
+    RasPipelineElement* element,
+    RasPipelineMesh* mesh)
+{
+    size_t max_verts = element->max_verts * 2 + 64;
+    RasResult result = core_pipeline_mesh_alloc(
+        max_verts,
+        element->max_indexes * 8 + 64,
+        element->max_faces * 8 + 64,
+        element->max_material_indexes * 8 + 64,
+        mesh);
+    if (result != RAS_RESULT_OK) {
+        ras_log_error("Failed to allocate pipeline mesh from element.");
+        return RAS_RESULT_ERROR;
+    }
+    return RAS_RESULT_OK;
 }
