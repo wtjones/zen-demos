@@ -79,7 +79,19 @@ typedef struct {
  */
 void core_pipeline_init(RasPipeline* pipeline);
 
-void core_renderdata_init(
+void core_renderdata_clear(
+    RasRenderData* render_data);
+
+/**
+ * @brief Allocate mesh storage based on scene contents.
+ *
+ * @param render_data
+ * @param render_state
+ * @param scene
+ * @param camera
+ * @return RasResult
+ */
+RasResult core_renderdata_init(
     RasRenderData* render_data,
     RenderState* render_state,
     RasScene* scene,

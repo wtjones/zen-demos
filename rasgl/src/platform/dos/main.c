@@ -306,6 +306,10 @@ int main(int argc, const char** argv)
     core_renderstates_init(states);
     states[RAS_LAYER_SCENE].polygon_mode = RAS_POLYGON_WIREFRAME;
     states[RAS_LAYER_UI].layer_visible = false;
+    if (ras_app_renderstates_init(states) != RAS_RESULT_OK) {
+        ras_log_error("Error result from ras_app_renderstates_init(), exiting...");
+        return 1;
+    }
     core_input_init(&plat_input_state);
 
     set_palette(desktop_palette);

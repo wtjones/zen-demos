@@ -647,6 +647,15 @@ int main(int argc, const char** argv)
     }
 
     core_renderstates_init(states);
+    if (ras_app_renderstates_init(states) != RAS_RESULT_OK) {
+        ras_log_error("Error result from ras_app_renderstates_init(), exiting...");
+
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(win);
+        SDL_Quit();
+        return 1;
+    }
+
     input_init();
     core_input_init(&plat_input_state);
 

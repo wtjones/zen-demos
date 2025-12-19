@@ -6,8 +6,15 @@
 #include "input.h"
 
 RasResult ras_app_init(int argc, const char** argv, ScreenSettings* video_settings);
+/**
+ * @brief Allow the app to allocate meshes.
+ *
+ * @param states
+ * @return RasResult
+ */
+RasResult ras_app_renderstates_init(RenderState states[]);
 void ras_app_update(InputState*);
-void ras_app_render(RenderState*);
+void ras_app_render(__attribute__((unused)) RenderState states[RAS_LAYER_COUNT]);
 void app_main();
 
 /**

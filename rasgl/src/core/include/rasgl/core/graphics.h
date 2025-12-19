@@ -14,6 +14,9 @@
 #define MAX_PIPELINE_VERTS 1000
 #define MAX_PIPELINE_FACES (MAX_PIPELINE_VERTS)
 #define MAX_VISIBLE_INDEXES (MAX_PIPELINE_VERTS * 3)
+
+#define RAS_MESH_CLIP_PADDING_FLOOR 64 // Establish minimum padding for small meshes.
+#define RAS_MESH_CLIP_PAD(x) ((x) * 2 + RAS_MESH_CLIP_PADDING_FLOOR)
 #define RAS_MAX_AABB_POINTS 8
 #define RAS_MAX_MESHES 10 // FIXME
 
@@ -186,17 +189,21 @@ typedef struct RasPipelineElement {
 } RasPipelineElement;
 
 typedef struct RasPipelineMesh {
-    RasPipelineVertex verts[MAX_PIPELINE_VERTS];
+    RasPipelineVertex* verts;
     uint32_t num_verts;
+    size_t max_verts;
 
-    uint32_t visible_indexes[MAX_VISIBLE_INDEXES];
+    uint32_t* visible_indexes;
     uint32_t num_visible_indexes;
+    size_t max_visible_indexes;
 
-    RasPipelineFace visible_faces[MAX_PIPELINE_FACES];
+    RasPipelineFace* visible_faces;
     uint32_t num_visible_faces;
+    size_t max_visible_faces;
 
-    int32_t material_indexes[MAX_VISIBLE_INDEXES]; // -1 if undefined
-    uint32_t num_material_indexes;                 // Will be num_visible_indexes / 3
+    int32_t* material_indexes;     // -1 if undefined
+    uint32_t num_material_indexes; // Will be num_visible_indexes / 3
+    size_t max_material_indexes;
 } RasPipelineMesh;
 
 typedef struct RenderState {
@@ -334,6 +341,29 @@ RasResult core_pipeline_element_alloc(
     RasPipelineElement* element);
 
 void core_pipeline_element_free(RasPipelineElement* element);
+
+RasResult core_pipeline_mesh_alloc(
+    size_t max_verts,
+    size_t max_visible_indexes,
+    size_t max_visible_faces,
+    size_t max_material_indexes,
+    RasPipelineMesh* mesh);
+
+void core_pipeline_mesh_free(RasPipelineMesh* mesh);
+
+void core_renderstate_free(RenderState* state);
+
+/**
+ * @brief Allocate a mesh from an allocated pipeline element.
+ * Extra space is added for clipping.
+ *
+ * @param element
+ * @param mesh
+ * @return RasResult
+ */
+RasResult core_pipeline_element_to_mesh_alloc(
+    RasPipelineElement* element,
+    RasPipelineMesh* mesh);
 
 /**
  * Add a screen-space point to the command list.

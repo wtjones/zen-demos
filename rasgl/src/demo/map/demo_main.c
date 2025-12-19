@@ -97,7 +97,7 @@ void render_scene(RenderState* render_state __attribute__((unused)))
         projection_matrix);
 }
 
-void ras_app_render(__attribute__((unused)) RenderState states[])
+void ras_app_render(__attribute__((unused)) RenderState states[RAS_LAYER_COUNT])
 {
     render_scene(&states[RAS_LAYER_SCENE]);
 }

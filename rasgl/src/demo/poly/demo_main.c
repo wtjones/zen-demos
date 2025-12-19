@@ -66,6 +66,17 @@ RasResult ras_app_init(int argc, const char** argv, ScreenSettings* init_setting
     return RAS_RESULT_OK;
 }
 
+RasResult ras_app_renderstates_init(RenderState states[])
+{
+    RAS_CHECK_RESULT(core_renderdata_init(
+        &render_data,
+        &states[RAS_LAYER_SCENE],
+        scene,
+        &scene->cameras[0]));
+
+    return RAS_RESULT_OK;
+}
+
 void ras_objects_update(InputState* input_state)
 {
     if (input_state->keys[RAS_KEY_J] == RAS_KEY_EVENT_UP) {
@@ -240,13 +251,10 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
         "model_rot: %s", repr_point3f(buffer, sizeof(buffer), model_rotation));
 }
 
-void render_scene_pipeline(RenderState* render_state)
+void render_scene_pipeline(__attribute__((unused)) RenderState* render_state)
 {
-    core_renderdata_init(
-        &render_data,
-        render_state,
-        scene,
-        &scene->cameras[0]);
+    core_renderdata_clear(&render_data);
+
     core_pipeline_run(
         &pipeline,
         &render_data);
@@ -277,7 +285,7 @@ void render_ui(RenderState* render_state)
         FIXED_16_16_TO_INT_32(core_get_font_width(ui_font, "Hello!")));
 }
 
-void ras_app_render(__attribute__((unused)) RenderState states[])
+void ras_app_render(__attribute__((unused)) RenderState states[RAS_LAYER_COUNT])
 {
     render_scene(&states[RAS_LAYER_SCENE]);
     render_ui(&states[RAS_LAYER_UI]);

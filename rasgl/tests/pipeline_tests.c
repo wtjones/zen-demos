@@ -63,11 +63,15 @@ void pipeline_scene_test(const char* scene_path)
     core_pipeline_init(&pipeline);
 
     RasRenderData render_data;
-    core_renderdata_init(
+    assert(result == RAS_RESULT_OK);
+
+    result = core_renderdata_init(
         &render_data,
         &states[RAS_LAYER_SCENE],
         scene,
         &scene->cameras[0]);
+
+    assert(result == RAS_RESULT_OK);
 
     // act
     RasRenderData* render_result = core_pipeline_run(&pipeline, &render_data);
@@ -81,6 +85,7 @@ void pipeline_scene_test(const char* scene_path)
         repr_mat_4x4(buffer, sizeof(buffer), render_result->world_view_matrix));
 
     core_free_scene(&scene);
+    core_renderstate_free(&states[RAS_LAYER_SCENE]);
     ras_log_flush();
 }
 
