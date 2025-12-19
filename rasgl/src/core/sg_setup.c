@@ -558,14 +558,7 @@ void* core_sg_visible_faces(void* input)
         uint32_t current_src_face_index = 0;
         uint16_t num_faces_excluded = 0;
 
-        if (element->num_verts >= MAX_PIPELINE_VERTS) {
-            ras_log_error("Reached max visible verts for mesh %d: %d",
-                mesh_index,
-                MAX_PIPELINE_VERTS);
-            assert(false);
-        }
         for (uint32_t i = 0; i < element->num_indexes; i += 3) {
-
             RasPipelineVertex* pv1 = &mesh->verts[element->indexes[i]];
             RasPipelineVertex* pv2 = &mesh->verts[element->indexes[i + 1]];
             RasPipelineVertex* pv3 = &mesh->verts[element->indexes[i + 2]];

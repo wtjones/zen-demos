@@ -16,7 +16,7 @@
 #define MAX_VISIBLE_INDEXES (MAX_PIPELINE_VERTS * 3)
 
 #define RAS_MESH_CLIP_PADDING_FLOOR 64 // Establish minimum padding for small meshes.
-#define RAS_MESH_CLIP_PAD(x) ((x) * 2 + RAS_MESH_CLIP_PADDING_FLOOR)
+#define RAS_MESH_CLIP_PAD(x) ((x) * 4 + RAS_MESH_CLIP_PADDING_FLOOR)
 #define RAS_MAX_AABB_POINTS 8
 #define RAS_MAX_MESHES 10 // FIXME
 
