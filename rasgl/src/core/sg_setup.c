@@ -651,6 +651,8 @@ void* core_sg_visible_faces(void* input)
                     mesh->material_indexes[*num_dest_materials] = element->material_indexes[current_src_face_index];
                     mesh->visible_faces[*num_dest_faces].normal = element->faces[current_src_face_index].normal;
                     mesh->visible_faces[*num_dest_faces].material_index = element->faces[current_src_face_index].material_index;
+                    mesh->visible_faces[*num_dest_faces].outline_edges = 0;
+                    mesh->visible_faces[*num_dest_faces].outline_material_index = element->faces[current_src_face_index].outline_material_index;
                     (*num_dest_materials)++;
                     (*num_dest_faces)++;
                 }
