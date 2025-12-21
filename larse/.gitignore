@@ -32,4 +32,5 @@
 *.app
 
 build
+bld_dos
 Testing

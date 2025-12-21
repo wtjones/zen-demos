@@ -7,4 +7,4 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cmake -S . -Bbuild
 cmake --build build
 
-${SCRIPT_DIR}/build/bin/larse "$OPTION_1" "$EXP" 
+${SCRIPT_DIR}/build/bin/larse "$OPTION_1" "$EXP"

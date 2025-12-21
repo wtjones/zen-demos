@@ -215,15 +215,15 @@ The _larse_ project must be build with djgpp.
 ./build_deps_dos.sh
 ```
 
-If an error like the following is encountered, try deleting the _larse_ `build` folder.
+If an error like the following is encountered, try deleting the _larse_ `bld_dos` folder.
 
 > gcc-12: fatal error: cannot execute ‘cc1’: execvp: No such file or directory
 
 #### Build
 
 ```bash
-cmake -S . -DCMAKE_TOOLCHAIN_FILE=tools/djgpp.cmake -DRAS_PLATFORM=ras_dos -B build
-cmake --build build -t demo
+cmake -S . -DCMAKE_TOOLCHAIN_FILE=tools/djgpp.cmake -DRAS_PLATFORM=ras_dos -B bld_dos
+cmake --build bld_dos -t demo
 ```
 
 #### DOSBox

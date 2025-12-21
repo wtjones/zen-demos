@@ -90,7 +90,6 @@
 ### Build
 
 - [ ] Auto build larse deps.
-- [ ] Use distinct build folders to avoid platform clash.
 
 ## In Progress
 
@@ -203,3 +202,7 @@
 ### Tombmap
 
 - [x] Render pits (inverted pillars)
+
+### Build
+
+- [x] Use distinct build folders to avoid platform clash.
