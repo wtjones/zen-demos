@@ -20,7 +20,12 @@ main() {
     fi
     echo "build succeeded"
 
-    $DOSBOX_BIN -conf tools/dosbox.conf -log-con
+    if [ -z "${DOSBOX_BIN:-}" ]; then
+        echo "DOSBOX_BIN is not set, using flatpak fallback."
+        flatpak run --filesystem=/tmp --filesystem="$(pwd)" com.dosbox_x.DOSBox-X -conf tools/dosbox.conf
+    else
+        $DOSBOX_BIN -conf tools/dosbox.conf
+    fi
 }
 
 main

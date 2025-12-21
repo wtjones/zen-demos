@@ -94,3 +94,18 @@ lar_log_configure(log_file);
 ## Development
 
 `./run_tests.sh`
+
+
+## DOSBox
+
+[DOSBox-X](https://github.com/joncampbell123/dosbox-x/) is recommended due to the built-in 32-bit extender.
+
+**Flatpak**
+
+`run_dos.sh` will attempt to use flatpak with $pwd permissions. I'd prefer to wire this up in the shell profile, but had issues with the sandbox.
+
+**Non-flatpak**
+
+```bash
+export DOSBOX_BIN="/usr/local/bin/dosbox-x"
+```
