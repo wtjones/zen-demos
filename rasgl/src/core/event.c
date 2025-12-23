@@ -89,7 +89,7 @@ void core_event_summary_cb(log_Event* ev)
     RasEventSummaryItem* event = &event_summary_items[ev->category];
     event_summary_items_count++;
     event->occurrences++;
-    char buffer[RAS_EVENT_SUMMARY_MESSAGE_MAX];
+    static char buffer[RAS_EVENT_SUMMARY_MESSAGE_MAX];
     vsnprintf(
         buffer,
         RAS_EVENT_SUMMARY_MESSAGE_MAX,
@@ -101,10 +101,12 @@ void core_event_summary_cb(log_Event* ev)
 
 void ras_log_summary_flush()
 {
-    char summary[1024 * 5] = "";
+    static char summary[1024 * 5] = "";
+    static char buffer[512];
+    buffer[0] = '\0';
+    summary[0] = '\0';
 
-    for (size_t i = 0; i < event_summary_items_count - 1; i++) {
-        char buffer[512];
+    for (size_t i = 0; i < event_summary_items_count; i++) {
         if (event_summary_items[i].occurrences == 0)
             continue;
         core_repr_event_summary(buffer, sizeof(buffer), &event_summary_items[i]);
