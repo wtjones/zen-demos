@@ -10,9 +10,11 @@
 #include "rasgl/core/maths.h"
 #include "rasgl/core/rasterize.h"
 #include "rasgl/core/repr.h"
+#include "rasgl/core/timer.h"
 #include "rasterize.h"
 #include <SDL2/SDL.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 ScreenSettings plat_settings
     = { .screen_width = 320, .screen_height = 240 };
@@ -26,6 +28,11 @@ RasConsole* console;
 RenderState states[RAS_LAYER_COUNT];
 InputState plat_input_state;
 bool is_text_input_enabled = false;
+
+uint32_t ras_timer_get_ticks(void)
+{
+    return SDL_GetTicks();
+}
 
 int g_key_app_to_plat[RAS_KEY_COUNT];
 /**

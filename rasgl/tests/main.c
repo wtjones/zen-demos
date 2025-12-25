@@ -12,11 +12,22 @@
 #include "rasgl/core/repr.h"
 #include "rasgl/core/scene.h"
 #include "rasgl/core/string.h"
+#include "rasgl/core/timer.h"
 #include "tests.h"
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+/**
+ * @brief Generic implementation for testing.
+ * @return uint32_t Tick count
+ */
+uint32_t ras_timer_get_ticks(void)
+{
+    static uint32_t ticks = 0;
+    return ticks++;
+}
 
 void repr_matrix_tests()
 {

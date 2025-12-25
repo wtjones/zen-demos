@@ -3,7 +3,9 @@
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/input.h"
 #include "rasgl/core/maths.h"
+#include "rasgl/core/timer.h"
 #include <allegro.h>
+#include <stdint.h>
 
 typedef struct {
     uint32_t ras_key;
@@ -19,6 +21,12 @@ BITMAP* g_screen_buffer;
 volatile int scancode_up = 0;
 volatile int scancode_down = 0;
 volatile int watcher_count = 0;
+
+/**
+ * @brief Milliseconds since app start
+ *
+ */
+volatile uint32_t timer_count = 0;
 
 int g_key_app_to_plat[RAS_KEY_COUNT];
 
@@ -247,6 +255,23 @@ void render_state(BITMAP* buffer, RenderState* state)
 }
 
 /**
+ * @brief Gets number of ticks (milliseconds) since app start.
+ * The return type is explicit due to differences in stdint.h on DOS.
+ *
+ * @return long unsigned int
+ */
+long unsigned int ras_timer_get_ticks(void)
+{
+    return (long unsigned int)timer_count;
+}
+
+void timer_handler()
+{
+    timer_count++;
+}
+END_OF_FUNCTION(timer_handler)
+
+/**
  * @brief Capture key-up events via interrupt. This allows for toggle-like
  *  controls (such as modes) to trigger during low frame rate conditions.
  *
@@ -284,7 +309,10 @@ int main(int argc, const char** argv)
     }
     input_init();
 
+    LOCK_VARIABLE(timer_count);
+    LOCK_FUNCTION(timer_handler);
     install_timer();
+    install_int_ex(timer_handler, BPS_TO_TIMER(RAS_TIMER_TICKS_PER_SECOND));
     LOCK_VARIABLE(scancode_up);
     LOCK_VARIABLE(scancode_down);
     LOCK_FUNCTION(keypress_watcher);
@@ -316,7 +344,7 @@ int main(int argc, const char** argv)
     clear_keybuf();
 
     while (!key[KEY_ESC]) {
-
+        uint32_t start_frame_ticks = timer_count;
         map_input();
 
         if (keypressed()) {
@@ -364,6 +392,13 @@ int main(int argc, const char** argv)
             scancode_up,
             scancode_to_name(scancode_down),
             scancode_to_name(scancode_up));
+
+        static uint32_t display_frame_ticks = 0;
+        if (states[RAS_LAYER_SCENE].current_frame % 20 == 0) {
+            display_frame_ticks = timer_count - start_frame_ticks;
+        }
+        textprintf_ex(g_screen_buffer, font, 0, 80, makecol(255, 255, 255), -1,
+            "Frame ticks: %d", (int)(display_frame_ticks));
 
         vsync();
         blit(g_screen_buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
