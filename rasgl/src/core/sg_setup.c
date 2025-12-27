@@ -10,6 +10,8 @@
 
 void core_pipeline_init(RasPipeline* pipeline)
 {
+    memset(pipeline, 0, sizeof(RasPipeline));
+
     RasPipeline template = {
         .num_stages = 18,
         .stages = {
