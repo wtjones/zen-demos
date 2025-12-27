@@ -183,7 +183,12 @@ void render_mesh_solid(__attribute__((unused)) RenderState* state)
 {
 }
 
-void render_polygon_bitmap(__attribute__((unused)) RenderState* state) { }
+void render_polygon_bitmap(__attribute__((unused)) RenderState* state)
+{
+    if (!state->layer_visible) {
+        return;
+    }
+}
 
 void (*g_render_fns[RAS_POLYGON_COUNT])(RenderState* state) = {
     render_mesh_wireframe,
@@ -196,7 +201,7 @@ void render_state(BITMAP* buffer, RenderState* state)
     if (!state->layer_visible) {
         return;
     }
-    ras_log_buffer("Render fn...");
+    ras_log_buffer("Render fn... %d", state->polygon_mode);
     g_render_fns[state->polygon_mode](state);
 
     RasVector4f* sv;
@@ -311,7 +316,7 @@ int main(int argc, const char** argv)
     }
     core_renderstates_init(states);
     states[RAS_LAYER_SCENE].polygon_mode = RAS_POLYGON_WIREFRAME;
-    states[RAS_LAYER_UI].layer_visible = false;
+    states[RAS_LAYER_UI].layer_visible = true;
     if (ras_app_renderstates_init(states) != RAS_RESULT_OK) {
         ras_log_error("Error result from ras_app_renderstates_init(), exiting...");
         return 1;
@@ -352,12 +357,37 @@ int main(int argc, const char** argv)
                 states[i].screen_settings.screen_height = plat_settings.screen_height;
             }
 
+            uint32_t start_ticks = ras_timer_get_ticks();
             ras_app_render(states);
+            uint32_t now = ras_timer_get_ticks();
+            for (size_t i = 0; i < RAS_LAYER_COUNT; i++) {
+                states[i].last_app_render_ticks = now - start_ticks;
+            }
 
             clear_to_color(g_screen_buffer, makecol(0, 0, 0));
 
-            render_state(g_screen_buffer, &states[RAS_LAYER_SCENE]);
-            render_state(g_screen_buffer, &states[RAS_LAYER_UI]);
+            for (size_t i = 0; i < RAS_LAYER_COUNT; i++) {
+                start_ticks = ras_timer_get_ticks();
+
+                render_state(g_screen_buffer, &states[i]);
+                states[i].last_rasterize_ticks = ras_timer_get_ticks() - start_ticks;
+
+                if (ras_timer_get_ticks() % 500 == 0) {
+                    ras_log_buffer("Layer %d: Rrn ticks: %d Rast ticks: %d",
+                        (int)i,
+                        (int)states[i].last_app_render_ticks,
+                        (int)states[i].last_rasterize_ticks);
+                }
+
+                // Although not yet printed to UI layer, maintain similar logic.
+                if (states[RAS_LAYER_UI].layer_visible) {
+                    textprintf_ex(g_screen_buffer, font, 0, 200 + (i * 10), makecol(255, 255, 255), -1,
+                        "Layer %d: App ticks: %d Rast ticks: %d",
+                        (int)i,
+                        (int)states[i].last_app_render_ticks,
+                        (int)states[i].last_rasterize_ticks);
+                }
+            }
         }
 
         textprintf_ex(g_screen_buffer, font, 0, 0, makecol(255, 255, 255), -1,
@@ -375,7 +405,7 @@ int main(int argc, const char** argv)
         if (states[RAS_LAYER_SCENE].current_frame % 20 == 0) {
             display_frame_ticks = ras_timer_get_ticks() - start_frame_ticks;
         }
-        textprintf_ex(g_screen_buffer, font, 0, 80, makecol(255, 255, 255), -1,
+        textprintf_ex(g_screen_buffer, font, 0, 230, makecol(255, 255, 255), -1,
             "Frame ticks: %d", (int)(display_frame_ticks));
 
         vsync();
