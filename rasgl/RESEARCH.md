@@ -104,6 +104,19 @@ Supported LTO compression algorithms: zlib
 gcc version 14.1.0 (GCC)
 ```
 
+### DOS
+
+From <https://www.allegro.cc/forums/thread/617748>:
+
+> One of the original commenters mentioned about a change in extern inline handling in c99, and sure enough, it's detailed here:
+>
+> https://gcc.gnu.org/onlinedocs/gcc/Inline.html
+>
+> The short version is that if compiling against Allegro 4.x on something more modern than GCC 2.x (which, if you're doing any DOS work these days, you'd be nuts for using so old a version of GCC), you need to pass the option -fgnu89-inline.
+>
+> Otherwise, it will never work due to the inline functions in the headers.
+
+
 ## Text
 
 Ideal situation is to use the same 3d pipline by rendering characters as orthographic two poly sprites.

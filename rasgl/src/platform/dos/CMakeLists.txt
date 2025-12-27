@@ -1,4 +1,4 @@
-add_library(ras_dos main.c)
+add_library(ras_dos main.c timer.c)
 
 INCLUDE_DIRECTORIES(  "$ENV{ALLEGRO}/include" )
 LINK_DIRECTORIES(  "$ENV{ALLEGRO}/lib/djgpp" )

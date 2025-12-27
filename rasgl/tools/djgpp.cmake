@@ -14,6 +14,10 @@ set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_CROSSCOMPILING ON)
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 set(CMAKE_C_LINK_FLAGS "")
+
+# Fix for Allegro 4.2 inline function issues with modern GCC
+# https://www.allegro.cc/forums/thread/617748
+add_compile_options(-fgnu89-inline)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Shared libs not available" )
