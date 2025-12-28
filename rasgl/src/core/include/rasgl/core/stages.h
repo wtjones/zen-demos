@@ -140,6 +140,12 @@ void* core_sg_project_to_clip_space(void* input);
  * @brief Set clip flags of clip-space vertices.
  */
 void* core_sg_clip_flag_verts(void* input);
+/**
+ * @brief Perform perspective divide => NDC coords => screen space coords.
+ *
+ * @param input
+ * @return void*
+ */
 void* core_sg_project_to_screen_space(void* input);
 void* core_sg_visible_faces(void* input);
 void* core_sg_cull_backfaces(void* input);

@@ -24,6 +24,12 @@ void ras_core_update(InputState* input_state, RenderState render_states[RAS_LAYE
 
         ras_log_info("backface_culling_mode: %s", scene_state->backface_culling_mode == RAS_BACKFACE_CULLING_ON ? "ON" : "OFF");
     }
+    if (input_state->keys[RAS_KEY_Z] == RAS_KEY_EVENT_UP
+        && input_state->mods & RAS_KMOD_CTRL) {
+        scene_state->z_divide_mode = (RasZDivideMode)((scene_state->z_divide_mode + 1) % RAS_Z_DIVIDE_MODE_COUNT);
+
+        ras_log_info("z_divide_mode: %s", scene_state->z_divide_mode == RAS_Z_DIVIDE_MODE_LUT ? "LUT" : "RT");
+    }
     if (input_state->keys[RAS_KEY_C] == RAS_KEY_EVENT_UP
         && input_state->mods & RAS_KMOD_CTRL
         && !(input_state->mods & RAS_KMOD_SHIFT)) {

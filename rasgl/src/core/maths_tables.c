@@ -1,6 +1,24 @@
 #include "rasgl/core/maths_tables.h"
 #include <stdio.h>
 
+RasFixed z_scale_table[RAS_Z_SCALE_STEPS + 1];
+
+void core_init_z_scale_table()
+{
+    const RasFixed z_min_fp = RAS_Z_SCALE_FIXED_MIN;
+    const RasFixed z_max_fp = RAS_Z_SCALE_FIXED_MAX;
+    for (size_t i = 0; i < RAS_Z_SCALE_STEPS; i++) {
+
+        int32_t z = RAS_Z_SCALE_FIXED_MIN + (int32_t)((int64_t)i * (z_max_fp - z_min_fp) / (RAS_Z_SCALE_STEPS - 1));
+
+        // Store 1/z in fixed 16.16
+        z_scale_table[i]
+            = div_fixed_16_16_by_fixed_16_16(
+                RAS_FIXED_ONE,
+                z);
+    }
+}
+
 RasFixed cos_table[360] = {
     65536,
     65526,

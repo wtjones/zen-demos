@@ -142,7 +142,10 @@ void core_view_space_to_clip_space(
     RasVector3f* view_space,
     RasVector4f* dest);
 
+typedef void (*RasClipSpaceToNDCFn)(RasFixed clip_space[4], RasFixed ndc_space[4]);
+
 void core_clip_space_to_ndc(RasFixed clip_space[4], RasFixed ndc_space[4]);
+void core_clip_space_to_ndc_lut(RasFixed clip_space[4], RasFixed ndc_space[4]);
 
 /**
  * @brief Create a normal matrix from a model view matrix by omitting the translation. Scaling tranforms are not supported with this method.

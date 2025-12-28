@@ -402,6 +402,12 @@ void* core_sg_xform_verts(void* input)
         xformed_verts);
 }
 
+/**
+ * @brief Deprecated: Use core_sg_project_to_screen_space instead.
+ *
+ * @param input
+ * @return void*
+ */
 void* core_sg_project_verts(void* input)
 {
     RasRenderData* render_data = (RasRenderData*)input;
@@ -489,10 +495,15 @@ void* core_sg_clip_flag_verts(void* input)
 void* core_sg_project_to_screen_space(void* input)
 {
     RasRenderData* render_data = (RasRenderData*)input;
+    RenderState* render_state = render_data->render_state;
+
+    RasClipSpaceToNDCFn clip_space_to_ndc_fn = render_state->z_divide_mode == RAS_Z_DIVIDE_MODE_LUT
+        ? core_clip_space_to_ndc_lut
+        : core_clip_space_to_ndc;
 
     for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
         uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
-        RasPipelineMesh* mesh = &render_data->render_state->meshes[mesh_index];
+        RasPipelineMesh* mesh = &render_state->meshes[mesh_index];
 
         render_data->num_verts_in_frustum[mesh_index] = 0;
 
@@ -510,9 +521,7 @@ void* core_sg_project_to_screen_space(void* input)
             core_vector4f_to_4x1(&pv->clip_space_position, clip_space_position);
 
             // Perform perspective divide to get NDC coords.
-            core_clip_space_to_ndc(
-                clip_space_position,
-                ndc_space_vec);
+            clip_space_to_ndc_fn(clip_space_position, ndc_space_vec);
 
             core_4x1_to_vector4f(ndc_space_vec, &pv->ndc_space_position);
 
@@ -520,8 +529,8 @@ void* core_sg_project_to_screen_space(void* input)
             ras_log_buffer_trace("ndc pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->ndc_space_position));
 
             core_projected_to_screen_point(
-                render_data->render_state->screen_settings.screen_width,
-                render_data->render_state->screen_settings.screen_height,
+                render_state->screen_settings.screen_width,
+                render_state->screen_settings.screen_height,
                 ndc_space_vec,
                 &pv->screen_space_position);
         }

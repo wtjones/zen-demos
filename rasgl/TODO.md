@@ -37,6 +37,8 @@
 
 - [ ] Increase whole part of fixed-point scheme from 16 bits
 - [ ] Fix model rotation origin
+- [ ] Perspective div LUT - Remove div in index calc.
+- [ ] Perspective div LUT - Improve mapping between znear/zfar and LUT.
 
 ### Models
 
@@ -136,6 +138,10 @@
 - [x] Fix assert when a triangle is rotating and clipping on the left side
 - [x] Fix disappearing poly in some near camera clipping cases.
   - Proposed fix is to perform backface culling in NDC after clipping.
+
+### Math
+
+- [x] Add LUT for perspective divide.
 
 ### Models
 

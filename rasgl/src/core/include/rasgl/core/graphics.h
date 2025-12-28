@@ -39,6 +39,12 @@ typedef enum {
 } RasProjectionMode;
 
 typedef enum {
+    RAS_Z_DIVIDE_MODE_LUT,
+    RAS_Z_DIVIDE_MODE_RT,
+    RAS_Z_DIVIDE_MODE_COUNT
+} RasZDivideMode;
+
+typedef enum {
     RAS_BACKFACE_CULLING_ON,
     RAS_BACKFACE_CULLING_OFF,
 } RasBackfaceCullingMode;
@@ -238,6 +244,7 @@ typedef struct RenderState {
     RasRenderLayer layer;
     bool layer_visible;
     RasProjectionMode projection_mode;
+    RasZDivideMode z_divide_mode;
     RasBackfaceCullingMode backface_culling_mode;
     RasClippingMode clipping_mode;
     RasClipSideMode clip_side_mode;

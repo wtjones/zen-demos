@@ -258,6 +258,7 @@ example: `./run_dos.sh poly 0 assets/secenes/tri.lsp`
 | Toggle UI layer               | F3           |
 | Toggle projection mode        | ctrl-p       |
 | Toggle backface culling mode  | ctrl-b       |
+| Cycle Z scale LUT modes       | ctrl-z       |
 | Cycle polygon render modes    | ctrl-o       |
 | Cycle polygon outline modes   | ctrl-shift-o |
 | Cycle polygon clipping modes  | ctrl-c       |
