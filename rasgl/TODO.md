@@ -8,6 +8,7 @@
 - [ ] POSIX - screen resolution shouldn't be hard-coded
 - [ ] Log buffer overflow - DOS only?
   - Move model to left clip side to trigger.
+- [ ] Summary logs not working in DOS.
 
 ### Rendering
 

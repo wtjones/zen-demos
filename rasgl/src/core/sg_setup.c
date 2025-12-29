@@ -525,8 +525,10 @@ void* core_sg_project_to_screen_space(void* input)
 
             core_4x1_to_vector4f(ndc_space_vec, &pv->ndc_space_position);
 
+#ifdef RAS_DEBUG_Z_DIVIDE
             static char buffer[255];
             ras_log_buffer_trace("ndc pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->ndc_space_position));
+#endif
 
             core_projected_to_screen_point(
                 render_state->screen_settings.screen_width,
@@ -634,6 +636,7 @@ void* core_sg_visible_faces(void* input)
                 assert(mesh->num_visible_indexes + num_out_verts <= mesh->max_visible_indexes);
                 for (size_t j = 0; j < num_out_verts; j++) {
 
+#ifdef RAS_DEBUG_CLIPPING
                     int32_t sx = FIXED_16_16_TO_INT_32(out_verts[j].screen_space_position.x);
                     int32_t sy = FIXED_16_16_TO_INT_32(out_verts[j].screen_space_position.y);
 
@@ -649,6 +652,7 @@ void* core_sg_visible_faces(void* input)
                             sx,
                             sy);
                     }
+#endif
                     mesh->verts[mesh->num_verts] = out_verts[j];
                     mesh->visible_indexes[*vi] = mesh->num_verts;
                     mesh->num_verts++;

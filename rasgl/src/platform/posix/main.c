@@ -255,11 +255,13 @@ void render_mesh_solid(RenderState* state)
                 ras_log_buffer("Face %d has material = %d", i / 3, material);
             }
 
-            char buffer[255];
             RasFixed max_shade = INT_32_TO_FIXED_16_16(7);
             RasFixed shade_fixed = mul_fixed_16_16_by_fixed_16_16(face->diffuse_intensity, max_shade);
+#ifdef RAS_DEBUG_SHADE_CALC
+            static char buffer[255];
             ras_log_buffer("diffuse_intensity: %s", repr_fixed_16_16(buffer, sizeof buffer, face->diffuse_intensity));
             ras_log_buffer("shade_fixed: %s", repr_fixed_16_16(buffer, sizeof buffer, shade_fixed));
+#endif
             int shade = FIXED_16_16_TO_INT_32(shade_fixed);
             shade = shade < RAS_COLOR_RAMP_MIN_SHADE ? RAS_COLOR_RAMP_MIN_SHADE : shade;
             assert(shade <= 7);
@@ -284,13 +286,14 @@ void render_mesh_solid(RenderState* state)
             if (delta0 > INT_32_TO_FIXED_16_16(241)
                 || delta1 > INT_32_TO_FIXED_16_16(241)
                 || delta2 > INT_32_TO_FIXED_16_16(241)) {
-                char buffer1[255];
-                char buffer2[255];
+                static char buffer1[255];
+                static char buffer2[255];
+                static char buffer3[255];
                 ras_log_buffer_ex(
                     RAS_EVENT_RS_TRI_HLINES, "Tri Y delta exeeds screen: %s, %s, %s",
                     repr_fixed_16_16(buffer1, sizeof buffer1, delta0),
                     repr_fixed_16_16(buffer2, sizeof buffer2, delta1),
-                    repr_fixed_16_16(buffer, sizeof buffer, delta2));
+                    repr_fixed_16_16(buffer3, sizeof buffer3, delta2));
             }
             num_hlines = rasterize_tri(tri, hlines, sizeof(hlines) / sizeof(hlines[0]));
             if (num_hlines > max_lines) {
@@ -527,7 +530,9 @@ void render_state(RenderState* state)
         }
     }
     state->current_frame++;
+#ifdef RAS_DEBUG_SHADE_CALC
     ras_log_buffer("Min color %d, Max color: %" PRId8, min_color, max_color);
+#endif
 }
 
 int main(int argc, const char** argv)
