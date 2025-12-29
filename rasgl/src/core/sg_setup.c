@@ -320,9 +320,9 @@ void* core_sg_xform_aabb(void* input)
 
         core_aabb_xform(&element->aabb, render_data->model_view_matrix[mesh_index], view_aabb);
 
-        ras_log_buffer("AABB orig min: %s\n", repr_point3f(buffer, sizeof buffer, &element->aabb.min));
-        ras_log_buffer("AABB view min: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb->min));
-        ras_log_buffer("AABB view max: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb->max));
+        ras_log_buffer("AABB orig min: %s", repr_point3f(buffer, sizeof buffer, &element->aabb.min));
+        ras_log_buffer("AABB view min: %s", repr_point3f(buffer, sizeof buffer, &view_aabb->min));
+        ras_log_buffer("AABB view max: %s", repr_point3f(buffer, sizeof buffer, &view_aabb->max));
 
         bool all_out = core_aabb_in_frustum(
             view_aabb,
@@ -330,7 +330,7 @@ void* core_sg_xform_aabb(void* input)
             use_far_plane,
             &render_data->aabb_clip_flags[mesh_index]);
 
-        ras_log_buffer("AABB flags: %hhu, all_out: %s\n", render_data->aabb_clip_flags[mesh_index], all_out ? "true" : "false");
+        ras_log_buffer("AABB flags: %hhu, all_out: %s", render_data->aabb_clip_flags[mesh_index], all_out ? "true" : "false");
         if (!all_out) {
             assert(render_data->num_visible_objects < RAS_MAX_SCENE_OBJECTS);
             assert(render_data->render_state->num_visible_meshes < RAS_MAX_MESHES);

@@ -70,9 +70,9 @@ void* core_sg_xform_tombmap_aabb(void* input)
 
     core_aabb_xform(&element->aabb, render_data->model_view_matrix[mesh_index], view_aabb);
 
-    ras_log_buffer("Gridmap AABB orig min: %s\n", repr_point3f(buffer, sizeof buffer, &element->aabb.min));
-    ras_log_buffer("Gridmap AABB view min: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb->min));
-    ras_log_buffer("Gridmap AABB view max: %s\n", repr_point3f(buffer, sizeof buffer, &view_aabb->max));
+    ras_log_buffer("Tombmap AABB orig min: %s", repr_point3f(buffer, sizeof buffer, &element->aabb.min));
+    ras_log_buffer("Tombmap AABB view min: %s", repr_point3f(buffer, sizeof buffer, &view_aabb->min));
+    ras_log_buffer("Tombmap AABB view max: %s", repr_point3f(buffer, sizeof buffer, &view_aabb->max));
 
     bool all_out = core_aabb_in_frustum(
         view_aabb,
@@ -81,7 +81,7 @@ void* core_sg_xform_tombmap_aabb(void* input)
         &render_data->aabb_clip_flags[mesh_index]);
 
     ras_log_buffer(
-        "Tombmap AABB flags: %hhu, all_out: %s\n",
+        "Tombmap AABB flags: %hhu, all_out: %s",
         render_data->aabb_clip_flags[mesh_index],
         all_out ? "true" : "false");
     if (!all_out) {
