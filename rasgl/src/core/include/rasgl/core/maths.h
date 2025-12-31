@@ -145,7 +145,22 @@ void core_view_space_to_clip_space(
 typedef void (*RasClipSpaceToNDCFn)(RasFixed clip_space[4], RasFixed ndc_space[4]);
 
 void core_clip_space_to_ndc(RasFixed clip_space[4], RasFixed ndc_space[4]);
+
+/**
+ * @brief Convert clip space coordinates to NDC using a linear mapped LUT.
+ *
+ * @param clip_space
+ * @param ndc_space
+ */
 void core_clip_space_to_ndc_lut(RasFixed clip_space[4], RasFixed ndc_space[4]);
+
+/**
+ * @brief Convert clip space coordinates to NDC using a LUT with shifted index.
+ *
+ * @param clip_space
+ * @param ndc_space
+ */
+void core_clip_space_to_ndc_lut_shift(RasFixed clip_space[4], RasFixed ndc_space[4]);
 
 /**
  * @brief Create a normal matrix from a model view matrix by omitting the translation. Scaling tranforms are not supported with this method.

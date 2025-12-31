@@ -497,9 +497,14 @@ void* core_sg_project_to_screen_space(void* input)
     RasRenderData* render_data = (RasRenderData*)input;
     RenderState* render_state = render_data->render_state;
 
-    RasClipSpaceToNDCFn clip_space_to_ndc_fn = render_state->z_divide_mode == RAS_Z_DIVIDE_MODE_LUT
-        ? core_clip_space_to_ndc_lut
-        : core_clip_space_to_ndc;
+    RasClipSpaceToNDCFn clip_space_to_ndc_fn;
+    if (render_state->z_divide_mode == RAS_Z_DIVIDE_MODE_LUT) {
+        clip_space_to_ndc_fn = core_clip_space_to_ndc_lut;
+    } else if (render_state->z_divide_mode == RAS_Z_DIVIDE_MODE_LUT_SHIFT) {
+        clip_space_to_ndc_fn = core_clip_space_to_ndc_lut_shift;
+    } else {
+        clip_space_to_ndc_fn = core_clip_space_to_ndc;
+    }
 
     for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
         uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;

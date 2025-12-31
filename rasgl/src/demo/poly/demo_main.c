@@ -45,7 +45,7 @@ RasResult ras_app_init(int argc, const char** argv, ScreenSettings* init_setting
     ras_log_info("ras_app_init()... argc: %d argv: %s\n", argc, argv[0]);
     ras_log_info("ras_app_init()... screen_width.x: %d\n", init_settings->screen_width);
     settings = init_settings;
-    core_init_z_scale_table();
+    core_init_maths_tables();
     core_pipeline_init(&pipeline);
     const char* scene_path = (argc > 1) ? argv[1] : default_scene;
 

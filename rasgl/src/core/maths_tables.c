@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 RasFixed z_scale_table[RAS_Z_SCALE_STEPS + 1];
+RasFixed z_scale_table_shift[RAS_Z_SCALE_STEPS + 1];
 
 void core_init_z_scale_table()
 {
@@ -12,11 +13,32 @@ void core_init_z_scale_table()
         int32_t z = RAS_Z_SCALE_FIXED_MIN + (int32_t)((int64_t)i * (z_max_fp - z_min_fp) / (RAS_Z_SCALE_STEPS - 1));
 
         // Store 1/z in fixed 16.16
-        z_scale_table[i]
-            = div_fixed_16_16_by_fixed_16_16(
-                RAS_FIXED_ONE,
-                z);
+        z_scale_table[i] = div_fixed_16_16_by_fixed_16_16(RAS_FIXED_ONE, z);
     }
+}
+
+void core_init_z_scale_table_shift()
+{
+    const RasFixed znear_fp = RAS_FIXED_TENTH; // e.g. 0.1 in 16.16
+
+    for (size_t i = 0; i < RAS_Z_SCALE_STEPS; i++) {
+
+        // Map w to input w used in the perspective divide.
+        // This avoids additional math to compute the index.
+        RasFixed w = (RasFixed)(i << RAS_Z_SCALE_W_SHIFT);
+
+        if (w < znear_fp)
+            w = znear_fp;
+
+        // Store 1/w in fixed 16.16
+        z_scale_table_shift[i] = div_fixed_16_16_by_fixed_16_16(RAS_FIXED_ONE, w);
+    }
+}
+
+void core_init_maths_tables()
+{
+    core_init_z_scale_table();
+    core_init_z_scale_table_shift();
 }
 
 RasFixed cos_table[360] = {

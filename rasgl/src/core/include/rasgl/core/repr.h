@@ -21,6 +21,7 @@ const char* repr_clip_side_mode(char* buffer, size_t count, RasClipSideMode mode
 const char* repr_polygon_outline_mode(char* buffer, size_t count, RasPolygonOutlineMode mode);
 const char* repr_normal_mode(char* buffer, size_t count, RasNormalMode mode);
 const char* repr_grid_mode(char* buffer, size_t count, RasGridMode mode);
+const char* repr_z_divide_mode(char* buffer, size_t count, RasZDivideMode mode);
 const char* repr_camera(char* buffer, size_t count, RasCamera* camera);
 
 #endif

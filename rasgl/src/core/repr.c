@@ -30,6 +30,12 @@ static const char* g_repr_grid_mode[] = {
     "RAS_GRID_MODE_GRID"
 };
 
+static const char* g_repr_z_divide_mode[] = {
+    "RAS_Z_DIVIDE_MODE_RT",
+    "RAS_Z_DIVIDE_MODE_LUT",
+    "RAS_Z_DIVIDE_MODE_LUT_SHIFT"
+};
+
 char* repr_point2i(char* buffer, size_t count, Point2i* p)
 {
     snprintf(
@@ -177,6 +183,11 @@ const char* repr_grid_mode(char* buffer, size_t count, RasGridMode mode)
     }
 
     return buffer;
+}
+
+const char* repr_z_divide_mode(char* buffer, size_t count, RasZDivideMode mode)
+{
+    return g_repr_z_divide_mode[mode];
 }
 
 const char* repr_camera(char* buffer, size_t count, RasCamera* camera)

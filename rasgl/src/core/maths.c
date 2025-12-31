@@ -281,6 +281,46 @@ void core_clip_space_to_ndc_lut(RasFixed clip_space[4], RasFixed ndc_space[4])
 #endif
 }
 
+void core_clip_space_to_ndc_lut_shift(RasFixed clip_space[4], RasFixed ndc_space[4])
+{
+    RasFixed w = clip_space[3];
+
+    if (w < 0)
+        w = 0;
+
+    static const RasFixed w_max = (RasFixed)(RAS_Z_SCALE_STEPS << RAS_Z_SCALE_W_SHIFT);
+    if (w >= w_max)
+        w = w_max - 1;
+
+    // LUT index based on shifted w value
+    uint32_t lut_idx = w >> RAS_Z_SCALE_W_SHIFT;
+
+    if (lut_idx >= RAS_Z_SCALE_STEPS)
+        lut_idx = RAS_Z_SCALE_STEPS - 1;
+
+    RasFixed w_scale = z_scale_table_shift[lut_idx]; // 1/w in fixed 16.16
+
+    ndc_space[0] = mul_fixed_16_16_by_fixed_16_16(clip_space[0], w_scale);
+    ndc_space[1] = mul_fixed_16_16_by_fixed_16_16(clip_space[1], w_scale);
+    ndc_space[2] = mul_fixed_16_16_by_fixed_16_16(clip_space[2], w_scale);
+    ndc_space[3] = RAS_FIXED_ONE;
+
+#ifdef RAS_DEBUG_Z_DIVIDE
+    static char buffer0[100];
+    static char buffer1[100];
+    static char buffer2[100];
+    ras_log_buffer("Divsors: x=%s/w=%s\n  LUT index %u w_scale=%s",
+        repr_fixed_16_16(buffer0, sizeof buffer0, clip_space[0]),
+        repr_fixed_16_16(buffer1, sizeof buffer1, clip_space[3]),
+        lut_idx,
+        repr_fixed_16_16(buffer2, sizeof buffer2, w_scale));
+
+    ras_log_buffer("Non-LUT: x=%s/y=%s\n",
+        repr_fixed_16_16(buffer0, sizeof buffer0, ndc_space[0]),
+        repr_fixed_16_16(buffer1, sizeof buffer1, ndc_space[1]));
+#endif
+}
+
 void core_mat_normal_init(RasFixed mvt[4][4], RasFixed dest[4][4])
 {
     mat_set_identity_4x4(dest);

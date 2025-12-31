@@ -39,8 +39,9 @@ typedef enum {
 } RasProjectionMode;
 
 typedef enum {
-    RAS_Z_DIVIDE_MODE_LUT,
     RAS_Z_DIVIDE_MODE_RT,
+    RAS_Z_DIVIDE_MODE_LUT,
+    RAS_Z_DIVIDE_MODE_LUT_SHIFT,
     RAS_Z_DIVIDE_MODE_COUNT
 } RasZDivideMode;
 
