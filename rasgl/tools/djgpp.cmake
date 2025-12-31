@@ -20,6 +20,18 @@ set(CMAKE_C_LINK_FLAGS "")
 add_compile_options(-fgnu89-inline)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
+# Release-specific optimizations
+# -O2: Good balance of speed and binary size (use -O3 for max speed, -Os for size)
+# -fomit-frame-pointer: Free up a register on x86
+# -march=i586: Optimize for Pentium (use i486 for 486-class CPUs)
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_compile_options(-O2 -fomit-frame-pointer -march=i586)
+endif()
+
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Shared libs not available" )
 set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
 set(DJGPP ON)

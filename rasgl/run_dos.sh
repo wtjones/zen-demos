@@ -16,8 +16,15 @@ main() {
     source $DJGPP_PREFIX/setenv
     SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
+    if [ "$DEBUG" -eq 1 ]; then
+        BUILD_TYPE="Debug"
+    else
+        BUILD_TYPE="Release"
+    fi
+
     cmake -S . \
         -DCMAKE_TOOLCHAIN_FILE=tools/djgpp.cmake \
+        -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
         -DRAS_PLATFORM=ras_dos \
         -DRAS_DEMO=$DEMO  \
         -DDEBUG=$DEBUG \
