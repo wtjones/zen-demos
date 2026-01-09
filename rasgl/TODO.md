@@ -58,6 +58,10 @@
 
 - [ ] Add scene reset operation.
 
+### Scene update
+
+- [ ] Support frame rate independent updates.
+
 ### Text
 
 - [ ] Text clipping
