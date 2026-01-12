@@ -1,6 +1,7 @@
 *.out
 /build
 /bld_dos
+/bld_psx
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
