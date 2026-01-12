@@ -83,6 +83,15 @@ From [Pixelblog](https://www.slynyrd.com/blog/2018/1/10/pixelblog-1-color-palett
 
 To avoid WinXP: <https://github.com/Lameguy64/PSn00bSDK>
 
+*Outline*
+
+* Get minimial build with core library. Exclude FILE etc.
+  * Refactor FILE/posix code to separate library?
+* Code-inserted pipeline example to avoid scene loading.
+* Refactor scene to avoid pointer xref.
+* POC of struct 'recording' packer/unpacker.
+
+
 ### PS2
 
 The PS2 CPU is currently not a candidate for this project as it is [64-bit](https://en.wikipedia.org/wiki/R5000#Derivatives).
