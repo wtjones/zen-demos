@@ -6,9 +6,9 @@ add_executable(tests
     tombmap_tests.c)
 
 include(${CMAKE_SOURCE_DIR}/cmake/FindLarse.cmake)
-target_link_libraries(tests PRIVATE core)
 
 target_include_directories(tests PUBLIC include)
+target_link_libraries(tests PRIVATE core hosted)
 
 add_compile_options(-fsanitize=address)
 add_link_options(-fsanitize=address)

@@ -2,6 +2,7 @@
 #define CORE_LINE_BUFFER
 
 #include "debug.h"
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 
