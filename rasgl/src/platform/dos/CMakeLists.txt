@@ -8,7 +8,7 @@ message("ALLEGRO = $ENV{ALLEGRO}")
 message("LIBRARIES = ${LIBRARIES}")
 
 target_include_directories(ras_dos PUBLIC include)
-target_link_libraries(ras_dos PRIVATE core ${LIBRARIES})
+target_link_libraries(ras_dos PRIVATE core hosted ${LIBRARIES})
 
 if(MSVC)
   target_compile_options(ras_dos PRIVATE /W4 /WX)

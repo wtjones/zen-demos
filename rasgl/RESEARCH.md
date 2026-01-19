@@ -189,7 +189,7 @@ Determine index of first row of console via max index - rows - 1.
 
 For each visible row, call function that builds a line from current index to next - 1.
 
-- Discard trailing newline if exists. It may not if wrap is supported.  
+- Discard trailing newline if exists. It may not if wrap is supported.
 
 #### option alt
 
@@ -259,6 +259,17 @@ Empty when head == tail
 ## CMake peer libraries
 
 <https://github.com/pr0g/cmake-examples/blob/main/examples/core/shared/application/configure.sh>
+
+## CMake conventions
+
+Canonical ordering in modern CMake:
+
+1. `add_library()` / `add_executable()`
+2. `target_sources()`
+3. `target_include_directories()`
+4. `target_compile_definitions()`
+5. `target_compile_options()`
+6. `target_link_libraries()`
 
 ## Rendering optimizations
 
