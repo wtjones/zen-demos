@@ -5,6 +5,7 @@
 #include "rasgl/core/input.h"
 #include "rasgl/core/maths.h"
 #include "rasgl/core/timer.h"
+#include "rasgl/hosted/log.h"
 #include "timer.h"
 #include <allegro.h>
 #include <stdint.h>

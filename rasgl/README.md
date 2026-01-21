@@ -73,6 +73,8 @@ Platform support progress:
         ras.h
         ras_plat.h
         ras.c           // uses ras_plat.c
+    /hosted
+      impl.c           // implementations for hosted platforms (non-embedded)
 
 ```
 
