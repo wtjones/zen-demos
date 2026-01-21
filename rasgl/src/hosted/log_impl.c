@@ -1,7 +1,7 @@
 
 #include "log.c/src/log.h"
-// #include "rasgl/core/log.h"
 
+// FIXME: Remove or switch to function pointers.
 void ras_log_impl(
     int level,
     int category,

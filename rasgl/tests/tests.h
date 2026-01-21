@@ -2,6 +2,7 @@
 #define RAS_TESTS_H
 
 #include "rasgl/core/debug.h"
+#include "rasgl/hosted/log.h"
 
 void backface_tests();
 void backface_tests2();
