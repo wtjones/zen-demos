@@ -1,6 +1,7 @@
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/model.h"
 #include "rasgl/core/scene.h"
+#include <stdlib.h>
 #include <string.h>
 
 void core_free_scene_models(RasScene* scene)

@@ -1,10 +1,12 @@
+#include "rasgl/hosted/sc_load.h"
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/gridmap.h"
 #include "rasgl/core/model.h"
 #include "rasgl/core/scene.h"
+
 #include <string.h>
 
-RasResult core_script_map_int32(LarNode* exp, const char* symbol, int32_t* dest)
+RasResult hosted_script_map_int32(LarNode* exp, const char* symbol, int32_t* dest)
 {
     LarNode* node = lar_get_property_by_type(exp, symbol, LAR_NODE_ATOM_INTEGER);
 
@@ -15,7 +17,7 @@ RasResult core_script_map_int32(LarNode* exp, const char* symbol, int32_t* dest)
     return RAS_RESULT_OK;
 }
 
-RasResult core_script_map_vector(LarNode* vector_exp, RasVector3f* dest)
+RasResult hosted_script_map_vector(LarNode* vector_exp, RasVector3f* dest)
 {
     RAS_CHECK_AND_LOG(!lar_is_symbol(lar_get_first(vector_exp), "vec"),
         "Vector must have a symbol")
@@ -39,7 +41,7 @@ RasResult core_script_map_vector(LarNode* vector_exp, RasVector3f* dest)
     return RAS_RESULT_OK;
 }
 
-RasResult core_script_map_camera(RasScene* scene, LarNode* camera_exp, RasCamera* camera)
+RasResult hosted_script_map_camera(RasScene* scene, LarNode* camera_exp, RasCamera* camera)
 {
     LarNode* position = lar_get_property_by_type(
         camera_exp, SCRIPT_SYMBOL_POSITION, LAR_NODE_LIST);
@@ -47,12 +49,12 @@ RasResult core_script_map_camera(RasScene* scene, LarNode* camera_exp, RasCamera
     RAS_CHECK_AND_LOG(position == NULL,
         "Failed to find property %s", SCRIPT_SYMBOL_POSITION);
 
-    RasResult result = core_script_map_vector(position, &camera->position);
+    RasResult result = hosted_script_map_vector(position, &camera->position);
 
     RAS_CHECK_RESULT_AND_LOG(result,
         "Failed to map property %s", SCRIPT_SYMBOL_POSITION);
 
-    result = core_script_map_int32(
+    result = hosted_script_map_int32(
         camera_exp, SCRIPT_SYMBOL_ANGLE, &camera->angle);
 
     RAS_CHECK_RESULT_AND_LOG(result,
@@ -61,7 +63,7 @@ RasResult core_script_map_camera(RasScene* scene, LarNode* camera_exp, RasCamera
     return RAS_RESULT_OK;
 }
 
-RasResult core_script_map_cameras(LarNode* scene_exp, RasScene* scene)
+RasResult hosted_script_map_cameras(LarNode* scene_exp, RasScene* scene)
 {
     LarNode* cameras_list = lar_get_list_by_symbol(
         scene_exp, SCRIPT_SYMBOL_CAMERAS);
@@ -83,7 +85,7 @@ RasResult core_script_map_cameras(LarNode* scene_exp, RasScene* scene)
 
         RasCamera* camera = &cameras[i];
 
-        RasResult result = core_script_map_camera(scene, item_exp, camera);
+        RasResult result = hosted_script_map_camera(scene, item_exp, camera);
 
         if (result != RAS_RESULT_OK) {
             ras_log_error("Failed to map camera");
@@ -109,7 +111,7 @@ RasResult core_script_map_cameras(LarNode* scene_exp, RasScene* scene)
  * @param scene_object
  * @return RasResult
  */
-RasResult core_script_map_animation(
+RasResult hosted_script_map_animation(
     LarNode* object_exp, RasSceneObject* scene_object)
 {
     LarNode* animation_exp = lar_get_property_by_type(
@@ -127,7 +129,7 @@ RasResult core_script_map_animation(
     RAS_CHECK_AND_LOG(axis_exp == NULL,
         "Failed to find property %s", SCRIPT_SYMBOL_AXIS);
     RasVector3f axis;
-    RasResult result = core_script_map_vector(axis_exp, &axis);
+    RasResult result = hosted_script_map_vector(axis_exp, &axis);
 
     RAS_CHECK_RESULT_AND_LOG(result,
         "Failed to map property %s", SCRIPT_SYMBOL_AXIS);
@@ -151,11 +153,11 @@ RasResult core_script_map_animation(
     return RAS_RESULT_OK;
 }
 
-RasResult core_script_map_object(
+RasResult hosted_script_map_object(
     RasScene* scene, LarNode* object_exp, RasSceneObject* scene_object)
 {
 
-    RasResult result = core_script_map_animation(object_exp, scene_object);
+    RasResult result = hosted_script_map_animation(object_exp, scene_object);
 
     RAS_CHECK_AND_LOG(result != RAS_RESULT_OK,
         "Failed to map object animation %s", SCRIPT_SYMBOL_ANIMATION);
@@ -186,7 +188,7 @@ RasResult core_script_map_object(
         "Failed to find property %s", SCRIPT_SYMBOL_POSITION);
 
     // Set initial rotation based on orientation
-    result = core_script_map_vector(position, &scene_object->position);
+    result = hosted_script_map_vector(position, &scene_object->position);
 
     RAS_CHECK_RESULT_AND_LOG(result,
         "Failed to map property %s", SCRIPT_SYMBOL_POSITION);
@@ -198,7 +200,7 @@ RasResult core_script_map_object(
         "Failed to find property %s", SCRIPT_SYMBOL_ORIENTATION);
 
     // Set initial rotation based on orientation
-    result = core_script_map_vector(orientation, &scene_object->rotation);
+    result = hosted_script_map_vector(orientation, &scene_object->rotation);
 
     RAS_CHECK_RESULT_AND_LOG(result,
         "Failed to map property %s", SCRIPT_SYMBOL_ORIENTATION);
@@ -206,7 +208,7 @@ RasResult core_script_map_object(
     return RAS_RESULT_OK;
 }
 
-RasResult core_script_map_objects(LarNode* scene_exp, RasScene* scene)
+RasResult hosted_script_map_objects(LarNode* scene_exp, RasScene* scene)
 {
     LarNode* objects_list = lar_get_list_by_symbol(
         scene_exp, SCRIPT_SYMBOL_OBJECTS);
@@ -231,7 +233,7 @@ RasResult core_script_map_objects(LarNode* scene_exp, RasScene* scene)
 
         RasSceneObject* object = &objects[i];
 
-        RasResult result = core_script_map_object(scene, object_exp, object);
+        RasResult result = hosted_script_map_object(scene, object_exp, object);
 
         if (result != RAS_RESULT_OK) {
             ras_log_error("Failed to map object");
@@ -246,7 +248,7 @@ RasResult core_script_map_objects(LarNode* scene_exp, RasScene* scene)
     return RAS_RESULT_OK;
 }
 
-RasResult core_script_map_gridmaps(LarNode* scene_exp, RasScene* scene)
+RasResult hosted_script_map_gridmaps(LarNode* scene_exp, RasScene* scene)
 {
     LarNode* list = lar_get_list_by_symbol(
         scene_exp, SCRIPT_SYMBOL_GRIDMAPS);
@@ -271,7 +273,7 @@ RasResult core_script_map_gridmaps(LarNode* scene_exp, RasScene* scene)
 
         RasSceneGridMap* gridmap = &gridmaps[i];
 
-        RasResult result = core_script_map_gridmap(gridmap_exp, gridmap);
+        RasResult result = hosted_script_map_gridmap(gridmap_exp, gridmap);
 
         if (result != RAS_RESULT_OK) {
             ras_log_error("Failed to map gridmap");
@@ -286,7 +288,7 @@ RasResult core_script_map_gridmaps(LarNode* scene_exp, RasScene* scene)
     return RAS_RESULT_OK;
 }
 
-RasResult core_script_map_map(
+RasResult hosted_script_map_map(
     RasScene* scene, LarNode* map_exp, RasSceneMap* scene_map)
 {
 
@@ -314,7 +316,7 @@ RasResult core_script_map_map(
     return RAS_RESULT_OK;
 }
 
-RasResult core_script_map_maps(LarNode* scene_exp, RasScene* scene)
+RasResult hosted_script_map_maps(LarNode* scene_exp, RasScene* scene)
 {
     LarNode* maps_list = lar_get_list_by_symbol(
         scene_exp, SCRIPT_SYMBOL_MAPS);
@@ -338,7 +340,7 @@ RasResult core_script_map_maps(LarNode* scene_exp, RasScene* scene)
 
         RasSceneMap* map = &maps[i];
 
-        RasResult result = core_script_map_map(scene, map_exp, map);
+        RasResult result = hosted_script_map_map(scene, map_exp, map);
 
         if (result != RAS_RESULT_OK) {
             ras_log_error("Failed to map object");
@@ -353,7 +355,7 @@ RasResult core_script_map_maps(LarNode* scene_exp, RasScene* scene)
     return RAS_RESULT_OK;
 }
 
-RasResult core_script_map_name(LarNode* scene_exp, RasScene* scene)
+RasResult hosted_script_map_name(LarNode* scene_exp, RasScene* scene)
 {
 
     LarNode* scene_name = lar_get_property_by_type(
@@ -374,7 +376,7 @@ RasResult core_script_map_name(LarNode* scene_exp, RasScene* scene)
  * @param model must be freed via core_free_scene_model()
  * @return RasResult
  */
-RasResult core_script_map_model(LarNode* model_exp, RasSceneModel* scene_model)
+RasResult hosted_script_map_model(LarNode* model_exp, RasSceneModel* scene_model)
 {
     LarNode* model_name = lar_get_property_by_type(
         model_exp, SCRIPT_SYMBOL_NAME, LAR_NODE_ATOM_STRING);
@@ -415,7 +417,7 @@ RasResult core_script_map_model(LarNode* model_exp, RasSceneModel* scene_model)
     return RAS_RESULT_OK;
 }
 
-RasResult core_script_map_models(LarNode* scene_exp, RasScene* scene)
+RasResult hosted_script_map_models(LarNode* scene_exp, RasScene* scene)
 {
     LarNode* models_list = lar_get_list_by_symbol(
         scene_exp, SCRIPT_SYMBOL_MODELS);
@@ -436,7 +438,7 @@ RasResult core_script_map_models(LarNode* scene_exp, RasScene* scene)
 
         RasSceneModel* model = &models[i];
 
-        RasResult result = core_script_map_model(model_exp, model);
+        RasResult result = hosted_script_map_model(model_exp, model);
 
         if (result != RAS_RESULT_OK) {
             ras_log_error("Failed to map model");
@@ -451,7 +453,7 @@ RasResult core_script_map_models(LarNode* scene_exp, RasScene* scene)
     return RAS_RESULT_OK;
 }
 
-RasResult core_script_map_scene(LarScript* script, RasScene** scene)
+RasResult hosted_script_map_scene(LarScript* script, RasScene** scene)
 {
     LarNode* scene_exp = lar_get_list_by_symbol(
         script->expressions, SCRIPT_SYMBOL_SCENE);
@@ -464,14 +466,14 @@ RasResult core_script_map_scene(LarScript* script, RasScene** scene)
     RAS_CHECK_AND_LOG(new_scene == NULL,
         "Failed to allocate memory for scene");
 
-    RasResult result = core_script_map_name(scene_exp, new_scene);
+    RasResult result = hosted_script_map_name(scene_exp, new_scene);
     if (result != RAS_RESULT_OK) {
         ras_log_error("Failed to map scene name");
         free(new_scene);
         return RAS_RESULT_ERROR;
     }
 
-    result = core_script_map_models(scene_exp, new_scene);
+    result = hosted_script_map_models(scene_exp, new_scene);
 
     if (result != RAS_RESULT_OK) {
         ras_log_error("Failed to map models");
@@ -479,7 +481,7 @@ RasResult core_script_map_scene(LarScript* script, RasScene** scene)
         return RAS_RESULT_ERROR;
     }
 
-    result = core_script_map_objects(scene_exp, new_scene);
+    result = hosted_script_map_objects(scene_exp, new_scene);
 
     if (result != RAS_RESULT_OK) {
         ras_log_error("Failed to map objects");
@@ -487,7 +489,7 @@ RasResult core_script_map_scene(LarScript* script, RasScene** scene)
         return RAS_RESULT_ERROR;
     }
 
-    result = core_script_map_maps(scene_exp, new_scene);
+    result = hosted_script_map_maps(scene_exp, new_scene);
 
     if (result != RAS_RESULT_OK) {
         ras_log_error("Failed to map maps");
@@ -495,7 +497,7 @@ RasResult core_script_map_scene(LarScript* script, RasScene** scene)
         return RAS_RESULT_ERROR;
     }
 
-    result = core_script_map_gridmaps(scene_exp, new_scene);
+    result = hosted_script_map_gridmaps(scene_exp, new_scene);
 
     if (result != RAS_RESULT_OK) {
         ras_log_info("Failed to map a gridmap");
@@ -503,7 +505,7 @@ RasResult core_script_map_scene(LarScript* script, RasScene** scene)
         return RAS_RESULT_ERROR;
     }
 
-    result = core_script_map_tombmaps(scene_exp, &new_scene->tombmaps, &new_scene->num_tombmaps);
+    result = hosted_script_map_tombmaps(scene_exp, &new_scene->tombmaps, &new_scene->num_tombmaps);
 
     if (result != RAS_RESULT_OK) {
         ras_log_info("Failed to map a tombmap");
@@ -511,7 +513,7 @@ RasResult core_script_map_scene(LarScript* script, RasScene** scene)
         return RAS_RESULT_ERROR;
     }
 
-    result = core_script_map_cameras(scene_exp, new_scene);
+    result = hosted_script_map_cameras(scene_exp, new_scene);
 
     if (result != RAS_RESULT_OK) {
         ras_log_error("Failed to map cameras");
@@ -525,6 +527,13 @@ RasResult core_script_map_scene(LarScript* script, RasScene** scene)
     return RAS_RESULT_OK;
 }
 
+/**
+ * @brief Implementation of core/scene.h
+ *
+ * @param path
+ * @param scene
+ * @return RasResult
+ */
 RasResult core_load_scene(const char* path, RasScene** scene)
 {
     LarScript* script;
@@ -537,7 +546,7 @@ RasResult core_load_scene(const char* path, RasScene** scene)
     ras_log_info("Script: %s", repr);
     free(repr);
 
-    result = core_script_map_scene(script, scene);
+    result = hosted_script_map_scene(script, scene);
 
     if (result != RAS_RESULT_OK) {
         ras_log_error("Failed to map script to scene");

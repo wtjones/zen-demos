@@ -1,6 +1,4 @@
 
-include(${CMAKE_SOURCE_DIR}/cmake/FindLarse.cmake)
-
 add_library(core
     app.c
     camera.c
@@ -27,13 +25,11 @@ add_library(core
     sg_tombmap.c
     sc_animation.c
     sc_gridmap.c
-    sc_load.c
     sc_scene.c
     sc_tombmap.c
     sc_tombmap_data.c
-    sc_tombmap_load.c
     text.c
     string.c)
 
 target_include_directories(core PUBLIC include)
-target_link_libraries(core PUBLIC external ${LARSE_LIB})
+target_link_libraries(core PUBLIC external)

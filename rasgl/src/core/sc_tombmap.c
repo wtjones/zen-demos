@@ -1,6 +1,7 @@
 
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/tombmap.h"
+#include <stdlib.h>
 
 extern RasTombMapSectorRule g_core_tombmap_sector_pillar_rules[RAS_TOMBMAP_SECTOR_SPACE_COUNT][RAS_TOMBMAP_SPATIAL_COUNT];
 extern RasTombMapSectorRule g_core_tombmap_sector_wall_rules[RAS_TOMBMAP_SPATIAL_COUNT];
@@ -627,4 +628,26 @@ RasResult core_tombmap_to_element_alloc(
         }
     }
     return RAS_RESULT_OK;
+}
+
+void core_free_scene_tombmaps(RasSceneTombMap* tombmaps, size_t num_tombmaps)
+{
+    if (num_tombmaps == 0) {
+        return;
+    }
+
+    for (size_t i = 0; i < num_tombmaps; i++) {
+        RasSceneTombMap* map = &tombmaps[i];
+        for (size_t j = 0; j < map->num_rooms; j++) {
+            RasTombMapRoom* room = &map->rooms[j];
+            if (room->num_sectors_x * room->num_sectors_z == 0) {
+                continue;
+            }
+            free(room->sectors);
+            core_pipeline_element_free(&room->element);
+        }
+        free(map->rooms);
+    }
+
+    free(tombmaps);
 }
