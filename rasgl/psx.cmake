@@ -26,11 +26,12 @@ target_include_directories(
 	src/platform/psx
 	src/platform/psx/libc
 )
-link_libraries(common)
 
-addPS1Executable(RasGL
+addPS1Executable(ras_psx
 	src/platform/psx/main.c
 	src/platform/psx/serial.c
 )
 
-addBinaryFileWithSize(RasGL textData textDataSize src/platform/psx/data.txt)
+target_link_libraries(ras_psx PRIVATE common)
+
+addBinaryFileWithSize(ras_psx textData textDataSize src/platform/psx/data.txt)
