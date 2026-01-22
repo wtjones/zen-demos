@@ -1,6 +1,7 @@
 #include "rasgl/core/tombmap.h"
+#include "rasgl/hosted/sc_load.h"
 
-RasResult core_script_map_tombmap_sector(LarNode* sector_list, RasTombMapSector* sector)
+RasResult hosted_script_map_tombmap_sector(LarNode* sector_list, RasTombMapSector* sector)
 {
     memset(sector, 0, sizeof(RasTombMapSector));
 
@@ -28,7 +29,7 @@ RasResult core_script_map_tombmap_sector(LarNode* sector_list, RasTombMapSector*
     return RAS_RESULT_OK;
 }
 
-RasResult core_script_map_tombmap_sectors(
+RasResult hosted_script_map_tombmap_sectors(
     LarNode* rooms_node, RasTombMapRoom* room)
 {
     LarNode* sectors_node = lar_get_list_by_symbol(
@@ -75,7 +76,7 @@ RasResult core_script_map_tombmap_sectors(
 
             RasTombMapSector* sector = &room->sectors[(row * room->num_sectors_x) + col];
 
-            RasResult result = core_script_map_tombmap_sector(sector_node, sector);
+            RasResult result = hosted_script_map_tombmap_sector(sector_node, sector);
 
             if (result != RAS_RESULT_OK) {
                 ras_log_error("Failed to map tombmap sector.");
@@ -87,9 +88,8 @@ RasResult core_script_map_tombmap_sectors(
     return RAS_RESULT_OK;
 }
 
-RasResult core_script_map_tombmap_room(LarNode* exp, RasTombMapRoom* room)
+RasResult hosted_script_map_tombmap_room(LarNode* exp, RasTombMapRoom* room)
 {
-
     memset(room, 0, sizeof(RasTombMapRoom));
 
     LarNode* x_node = lar_get_property_by_type(
@@ -117,13 +117,13 @@ RasResult core_script_map_tombmap_room(LarNode* exp, RasTombMapRoom* room)
     room->y_bottom = y_bottom_node->atom.val_integer;
 
     RAS_CHECK_AND_LOG(
-        core_script_map_tombmap_sectors(exp, room),
+        hosted_script_map_tombmap_sectors(exp, room),
         "Failed to map sectors of room.");
 
     return RAS_RESULT_OK;
 }
 
-RasResult core_script_map_tombmap_rooms(
+RasResult hosted_script_map_tombmap_rooms(
     LarNode* rooms_node, RasTombMapRoom** out_rooms, size_t* out_num_rooms)
 {
     size_t num_rooms = rooms_node->list.length - 1; // exclude symbol
@@ -138,7 +138,7 @@ RasResult core_script_map_tombmap_rooms(
 
         RasTombMapRoom* room = &rooms[i];
 
-        RasResult result = core_script_map_tombmap_room(room_exp, room);
+        RasResult result = hosted_script_map_tombmap_room(room_exp, room);
 
         if (result != RAS_RESULT_OK) {
             ras_log_error("Failed to map tombmap room");
@@ -153,7 +153,7 @@ RasResult core_script_map_tombmap_rooms(
     return RAS_RESULT_OK;
 }
 
-RasResult core_script_map_tombmap(LarNode* exp, RasSceneTombMap* map)
+RasResult hosted_script_map_tombmap(LarNode* exp, RasSceneTombMap* map)
 {
     memset(map, 0, sizeof(RasSceneTombMap));
 
@@ -171,13 +171,13 @@ RasResult core_script_map_tombmap(LarNode* exp, RasSceneTombMap* map)
         exp, SCRIPT_SYMBOL_TOMBMAP_ROOMS);
 
     RAS_CHECK_RESULT_AND_LOG(
-        core_script_map_tombmap_rooms(rooms_node, &map->rooms, &map->num_rooms),
+        hosted_script_map_tombmap_rooms(rooms_node, &map->rooms, &map->num_rooms),
         "Failed to map tombmap rooms");
 
     return RAS_RESULT_OK;
 }
 
-RasResult core_script_map_tombmaps(
+RasResult hosted_script_map_tombmaps(
     LarNode* scene_exp,
     RasSceneTombMap** out_tombmaps,
     size_t* out_num_tombmaps)
@@ -203,7 +203,7 @@ RasResult core_script_map_tombmaps(
 
         RasSceneTombMap* map = &maps[i];
 
-        RasResult result = core_script_map_tombmap(map_exp, map);
+        RasResult result = hosted_script_map_tombmap(map_exp, map);
 
         if (result != RAS_RESULT_OK) {
             ras_log_error("Failed to map tombmap.");
@@ -226,26 +226,4 @@ RasResult core_script_map_tombmaps(
     }
 
     return RAS_RESULT_OK;
-}
-
-void core_free_scene_tombmaps(RasSceneTombMap* tombmaps, size_t num_tombmaps)
-{
-    if (num_tombmaps == 0) {
-        return;
-    }
-
-    for (size_t i = 0; i < num_tombmaps; i++) {
-        RasSceneTombMap* map = &tombmaps[i];
-        for (size_t j = 0; j < map->num_rooms; j++) {
-            RasTombMapRoom* room = &map->rooms[j];
-            if (room->num_sectors_x * room->num_sectors_z == 0) {
-                continue;
-            }
-            free(room->sectors);
-            core_pipeline_element_free(&room->element);
-        }
-        free(map->rooms);
-    }
-
-    free(tombmaps);
 }

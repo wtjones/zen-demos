@@ -5,13 +5,6 @@
 #include "graphics.h"
 #include "maths.h"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-variable"
-#include <larse/core/expression.h>
-#include <larse/core/parse.h>
-#include <larse/core/repr.h>
-#pragma GCC diagnostic pop
-
 #define RAS_TOMBMAP_FLOOR_CEILING_UNIT 256
 #define RAS_TOMBMAP_SECTOR_UNITS 1024
 // FIXME: Should be sub units of a sector.
@@ -210,11 +203,6 @@ typedef struct {
     RasTombMapRoom* rooms;
     size_t num_rooms;
 } RasSceneTombMap;
-
-RasResult core_script_map_tombmaps(
-    LarNode* scene_exp,
-    RasSceneTombMap** out_tombmaps,
-    size_t* out_num_tombmaps);
 
 /**
  * @brief Create faces by major and minor axis based on camera angle.
