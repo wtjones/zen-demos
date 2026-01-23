@@ -66,10 +66,18 @@ void ras_camera_update(RasCamera* camera, InputState* input_state)
         }
         if (input_state->keys[RAS_KEY_LEFTBRACKET] == 1) {
             camera->fov -= RAS_FOV_SPEED;
-            ras_log_debug("FOV: %f\n", camera->fov);
         }
         if (input_state->keys[RAS_KEY_RIGHTBRACKET] == 1) {
             camera->fov += RAS_FOV_SPEED;
+        }
+
+        if (camera->fov < RAS_FOV_MIN) {
+            camera->fov = RAS_FOV_MIN;
+        } else if (camera->fov > RAS_FOV_MAX) {
+            camera->fov = RAS_FOV_MAX;
+        }
+
+        if (camera->fov != camera_prev.fov) {
             ras_log_debug("FOV: %f\n", camera->fov);
         }
     }

@@ -2,6 +2,7 @@ add_executable(tests
     main.c
     backface_tests.c
     gridmap_tests.c
+    maths_tests.c
     pipeline_tests.c
     tombmap_tests.c)
 

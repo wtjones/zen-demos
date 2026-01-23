@@ -8,20 +8,22 @@
 
 #define RAS_ZOOM_SPEED float_to_fixed_16_16(.05)
 #define RAS_ROTATION_SPEED 1
-#define RAS_FOV_SPEED 2.0f
-#define RAS_PLANE_SPEED 0.1f
-#define RAS_NEAR_PLANE_MIN 0.1f
-#define RAS_FAR_PLANE_MIN 1.0f
+#define RAS_FOV_SPEED float_to_fixed_16_16(2.0f)
+#define RAS_FOV_MIN float_to_fixed_16_16(30.0f)
+#define RAS_FOV_MAX float_to_fixed_16_16(120.0f)
+#define RAS_PLANE_SPEED float_to_fixed_16_16(0.1f)
+#define RAS_NEAR_PLANE_MIN float_to_fixed_16_16(0.1f)
+#define RAS_FAR_PLANE_MIN float_to_fixed_16_16(1.0f)
 #define RAS_VIEWER_SPEED float_to_fixed_16_16(0.025)
 #define RAS_PROJECTION_RATIO -float_to_fixed_16_16(2.0)
 
 typedef struct RasCamera {
     RasVector3f position;
     int32_t angle;
-    float fov;
-    float aspect_ratio; // (width/height)
-    float near;         // Near clipping plane
-    float far;          // Far clipping plane
+    RasFixed fov;
+    RasFixed aspect_ratio; // (width/height)
+    RasFixed near;         // Near clipping plane
+    RasFixed far;          // Far clipping plane
     RasProjectionMode projection_mode;
     RasFixed projection_matrix[4][4];
     uint32_t last_changed_frame; // frame counter

@@ -184,11 +184,20 @@ void mat_rotate_z(RasFixed m[4][4], int32_t angle, RasFixed dest[4][4])
     mat_mul_4x4_4x4(temp, m, dest);
 }
 
-void mat_projection_init(RasFixed projection_matrix[4][4], float fov, float aspect_ratio, float near, float far)
+void mat_projection_init(
+    RasFixed projection_matrix[4][4],
+    RasFixed fov,
+    RasFixed aspect_ratio,
+    RasFixed near,
+    RasFixed far)
 {
-    double d2r = M_PI / 180.0;
-    double y_scale = 1.0 / tan(d2r * fov / 2); // FOV scaling factor
-    double x_scale = y_scale / aspect_ratio;
+    size_t fov_index = (size_t)((fov >> 16) - RAS_FOV_SCALE_OFFSET);
+    fov_index = fov_index >= RAS_FOV_SCALE_STEPS
+        ? RAS_FOV_SCALE_STEPS - 1
+        : fov_index;
+    fov_index = fov_index < 0 ? 0 : fov_index;
+    RasFixed y_scale = fov_scale_table[fov_index];
+    RasFixed x_scale = div_fixed_16_16_by_fixed_16_16(y_scale, aspect_ratio);
 
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
@@ -196,11 +205,13 @@ void mat_projection_init(RasFixed projection_matrix[4][4], float fov, float aspe
         }
     }
 
-    projection_matrix[0][0] = float_to_fixed_16_16(x_scale);
-    projection_matrix[1][1] = float_to_fixed_16_16(y_scale);
-    projection_matrix[2][2] = float_to_fixed_16_16((far + near) / (near - far));
-    projection_matrix[2][3] = float_to_fixed_16_16((far * near) / (near - far));
-    projection_matrix[3][2] = float_to_fixed_16_16(-1.0f);
+    RasFixed far_x_near = mul_fixed_16_16_by_fixed_16_16(far, near);
+
+    projection_matrix[0][0] = x_scale;
+    projection_matrix[1][1] = y_scale;
+    projection_matrix[2][2] = div_fixed_16_16_by_fixed_16_16(far + near, near - far);
+    projection_matrix[2][3] = div_fixed_16_16_by_fixed_16_16(far_x_near, near - far);
+    projection_matrix[3][2] = -RAS_FIXED_ONE;
 }
 
 void mat_mul_project(RasFixed projection_matrix[4][4], RasFixed v[4], RasFixed dest[4])

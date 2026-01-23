@@ -129,7 +129,12 @@ void mat_rotate_y(RasFixed m[4][4], int32_t angle, RasFixed dest[4][4]);
  */
 void mat_rotate_z(RasFixed m[4][4], int32_t angle, RasFixed dest[4][4]);
 
-void mat_projection_init(RasFixed projection_matrix[4][4], float fov, float aspect_ratio, float near, float far);
+void mat_projection_init(
+    RasFixed projection_matrix[4][4],
+    RasFixed fov,
+    RasFixed aspect_ratio,
+    RasFixed near,
+    RasFixed far);
 
 /**
  * Multiply a 4x1 vector with a project matrix and perform perspective divide on
