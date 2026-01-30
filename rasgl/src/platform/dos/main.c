@@ -5,7 +5,6 @@
 #include "rasgl/core/input.h"
 #include "rasgl/core/maths.h"
 #include "rasgl/core/timer.h"
-#include "rasgl/hosted/log.h"
 #include "timer.h"
 #include <allegro.h>
 #include <stdint.h>
@@ -281,6 +280,7 @@ int main(int argc, const char** argv)
     log_add_fp(log_file, RAS_LOG_LEVEL_FILE);
     log_set_level(RAS_LOG_LEVEL_STRERR);
     log_set_quiet(false);
+    ras_log_init();
 
     ras_log_info("Starting Allegro...");
     if (allegro_init() != 0) {

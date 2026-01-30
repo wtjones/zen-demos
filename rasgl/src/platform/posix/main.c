@@ -11,7 +11,6 @@
 #include "rasgl/core/rasterize.h"
 #include "rasgl/core/repr.h"
 #include "rasgl/core/timer.h"
-#include "rasgl/hosted/log.h"
 #include "rasterize.h"
 #include <SDL2/SDL.h>
 #include <stdbool.h>

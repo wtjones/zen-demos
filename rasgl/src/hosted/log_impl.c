@@ -1,14 +1,9 @@
-
 #include "log.c/src/log.h"
+#include "rasgl/core/debug.h"
+#include "rasgl/core/event.h"
 
-// FIXME: Remove or switch to function pointers.
-void ras_log_impl(
-    int level,
-    int category,
-    const char* file,
-    int line,
-    const char* fmt,
-    ...)
+void ras_log_init(void)
 {
-    log_log_ex(level, category, file, line, fmt);
+    core_event_summary_init();
+    g_ras_log_fn = log_log_ex;
 }

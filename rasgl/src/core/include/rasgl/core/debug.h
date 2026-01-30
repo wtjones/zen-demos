@@ -1,6 +1,8 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
+#include <stdarg.h>
+
 #define RAS_MAX_LOG_BUFFER 200000
 
 // FIXME: needed for vscode intellisense
@@ -35,19 +37,33 @@ typedef enum {
             fprintf(stderr, fmt, __VA_ARGS__); \
     } while (0)
 
-void core_log_buffer(int level, int category, const char* file, int line, const char* fmt, ...);
+typedef void (*ras_log_fn)(
+    int level,
+    int category,
+    const char* file,
+    int line,
+    const char* fmt,
+    va_list args);
 
-// Default stub macros - platform overrides via hosted/log.h or custom.
-#ifndef ras_log_trace
-#    define ras_log_trace(...) ((void)0)
-#    define ras_log_debug(...) ((void)0)
-#    define ras_log_info(...) ((void)0)
-#    define ras_log_info_ex(category, ...) ((void)0)
-#    define ras_log_warn(...) ((void)0)
-#    define ras_log_warn_ex(category, ...) ((void)0)
-#    define ras_log_error(...) ((void)0)
-#    define ras_log_fatal(...) ((void)0)
-#endif
+extern ras_log_fn g_ras_log_fn;
+
+void ras_log(
+    int level,
+    int category,
+    const char* file,
+    int line,
+    const char* fmt,
+    ...);
+
+void core_log_buffer(int level, int category, const char* file, int line, const char* fmt, ...);
+#define ras_log_trace(...) ras_log(RAS_LOG_TRACE, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_debug(...) ras_log(RAS_LOG_DEBUG, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_info(...) ras_log(RAS_LOG_INFO, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_info_ex(category, ...) ras_log(RAS_LOG_INFO, category, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_warn(...) ras_log(RAS_LOG_WARN, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_warn_ex(category, ...) ras_log(RAS_LOG_WARN, category, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_error(...) ras_log(RAS_LOG_ERROR, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_fatal(...) ras_log(RAS_LOG_FATAL, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
 
 #define ras_log_buffer(...) core_log_buffer(RAS_LOG_INFO, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
 #define ras_log_buffer_ex(category, ...) core_log_buffer(RAS_LOG_INFO, category, __FILE_NAME__, __LINE__, __VA_ARGS__)

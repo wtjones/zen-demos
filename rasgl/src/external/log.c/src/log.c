@@ -187,7 +187,7 @@ void log_log(int level, const char *file, int line, const char *fmt, ...) {
 }
 
 
-void log_log_ex(int level, int category, const char *file, int line, const char *fmt, ...) {
+void log_log_ex(int level, int category, const char *file, int line, const char *fmt, va_list args) {
   log_Event ev = {
     .fmt   = fmt,
     .file  = file,
@@ -200,7 +200,7 @@ void log_log_ex(int level, int category, const char *file, int line, const char 
 
   if (!L.quiet && level >= L.level) {
     init_event(&ev, stderr);
-    va_start(ev.ap, fmt);
+    va_copy(ev.ap, args);
     stdout_callback(&ev);
     va_end(ev.ap);
   }
@@ -209,7 +209,7 @@ void log_log_ex(int level, int category, const char *file, int line, const char 
     Callback *cb = &L.callbacks[i];
     if (level >= cb->level) {
       init_event(&ev, cb->udata);
-      va_start(ev.ap, fmt);
+      va_copy(ev.ap, args);
       cb->fn(&ev);
       va_end(ev.ap);
     }

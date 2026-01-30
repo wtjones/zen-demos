@@ -1,6 +1,5 @@
 #include "rasgl/core/console.h"
 #include "rasgl/core/debug.h"
-#include "rasgl/hosted/log.h"
 #include "rasgl/core/event.h"
 #include "rasgl/core/fixed_maths.h"
 #include "rasgl/core/graphics.h"
