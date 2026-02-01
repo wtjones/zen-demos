@@ -159,7 +159,6 @@ char* core_repr_line_buffer_line(char* buffer, size_t count, RasLineBuffer* line
     size_t* tail = &line_buffer->tail;
     size_t current = start;
     char* dest = buffer;
-    char* last = NULL;
     *dest = '\0';
 
     if (count < line_buffer->capacity) {
@@ -179,8 +178,6 @@ char* core_repr_line_buffer_line(char* buffer, size_t count, RasLineBuffer* line
             ras_log_error("Should not reach tail");
             return NULL;
         }
-
-        last = dest;
         dest++;
     }
 
