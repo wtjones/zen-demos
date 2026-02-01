@@ -6,7 +6,6 @@
 #include "maths.h"
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
 
 #define MAX_RENDER_POINTS 10000
 #define MAX_RENDER_COMMANDS 10000

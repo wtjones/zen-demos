@@ -2,7 +2,6 @@
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/maths.h"
 #include <stdarg.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 

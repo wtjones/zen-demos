@@ -1,5 +1,6 @@
 #include "rasgl/core/plane.h"
 #include "rasgl/core/repr.h"
+#include <stdio.h>
 
 /**
  *

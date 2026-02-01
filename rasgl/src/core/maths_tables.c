@@ -1,5 +1,5 @@
 #include "rasgl/core/maths_tables.h"
-#include <stdio.h>
+#include <stddef.h>
 
 RasFixed z_scale_table[RAS_Z_SCALE_STEPS + 1];
 RasFixed z_scale_table_shift[RAS_Z_SCALE_STEPS + 1];

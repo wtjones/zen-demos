@@ -2,7 +2,6 @@
 #include "rasgl/core/debug.h"
 #include "rasgl/core/repr.h"
 #include "rasgl/core/string.h"
-#include <stdio.h>
 #include <stdlib.h>
 
 /**

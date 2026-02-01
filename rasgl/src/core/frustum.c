@@ -1,5 +1,6 @@
 #include "rasgl/core/frustum.h"
 #include "rasgl/core/repr.h"
+#include <stdio.h>
 
 void core_frustum_plane_init(RasFixed v[4], RasPlane* plane)
 {

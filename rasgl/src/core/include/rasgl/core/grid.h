@@ -5,7 +5,6 @@
 #include "graphics.h"
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
 
 #define RAS_GRID_ORIGIN_AXIS_POINTS 5
 #define RAS_GRID_ORIGIN_POINTS ((RAS_GRID_ORIGIN_AXIS_POINTS * 3) + 1)
