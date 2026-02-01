@@ -2,6 +2,7 @@
 #include "rasgl/core/debug.h"
 #include "rasgl/core/repr.h"
 #include "tests.h"
+#include <math.h>
 
 void fov_scale_tests()
 {

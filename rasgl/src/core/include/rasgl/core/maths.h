@@ -5,9 +5,7 @@
 #include "fpsqrt/fpsqrt.h"
 #include "maths_tables.h"
 #include "matrix.h"
-#define _USE_MATH_DEFINES
 #include <assert.h>
-#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 

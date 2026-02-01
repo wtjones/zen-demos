@@ -460,5 +460,5 @@ void core_face_normal(RasVector3f* v1, RasVector3f* v2, RasVector3f* v3, RasVect
 
 RasOctant core_angle_to_octant(int32_t angle)
 {
-    return ((int32_t)round(angle / 45)) & 7;
+    return ((int32_t)(angle) / 45) & 7;
 }
