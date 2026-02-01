@@ -4,7 +4,6 @@
 #define _USE_MATH_DEFINES
 #include "fixed_maths.h"
 #include <assert.h>
-#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 
