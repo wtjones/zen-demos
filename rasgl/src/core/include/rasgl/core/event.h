@@ -1,7 +1,6 @@
 #ifndef CORE_EVENT_H
 #define CORE_EVENT_H
 
-#include "log.c/src/log.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -33,12 +32,18 @@ typedef struct {
 
 void core_event_summary_init();
 
+/**
+ * @brief Update the event summary:
+ * - Increment occurrence count
+ * - Store last message
+ *
+ * @param event_type
+ * @param message
+ */
 void core_event_summary_update(
     RasEventType event_type,
     const char* message);
 
 char* core_repr_event_summary(char* buffer, size_t count, RasEventSummaryItem* event);
-
-void core_event_summary_cb(log_Event* log_event);
 
 #endif

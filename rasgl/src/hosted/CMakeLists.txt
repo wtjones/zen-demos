@@ -3,6 +3,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/FindLarse.cmake)
 
 add_library(
     hosted
+    event_log.c
     log_impl.c
     sc_load.c
     sc_gridmap_load.c

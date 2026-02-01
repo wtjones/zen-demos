@@ -2,6 +2,8 @@
 #include "rasgl/core/debug.h"
 #include "rasgl/core/event.h"
 #include <assert.h>
+#include <stdarg.h>
+#include <stdio.h>
 #include <string.h>
 
 char log_buffer[RAS_MAX_LOG_BUFFER] = "";
