@@ -1,6 +1,7 @@
 #include "rasgl/core/event.h"
 #include "rasgl/core/debug.h"
 #include <assert.h>
+#include <stdio.h>
 #include <string.h>
 
 RasEventSummaryItem event_summary_items[RAS_EVENT_SUMMARY_ITEMS_MAX];
