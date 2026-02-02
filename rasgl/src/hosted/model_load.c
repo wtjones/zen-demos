@@ -11,7 +11,7 @@
  *
  * ¯\_(ツ)_/¯
  */
-void core_plat_free(char** buffer)
+void hosted_plat_free(char** buffer)
 {
 #ifndef __APPLE__
     free(*buffer);
@@ -19,7 +19,7 @@ void core_plat_free(char** buffer)
     *buffer = NULL;
 }
 
-int core_parse_group_name(char* line, RasModelGroup* group)
+int hosted_parse_group_name(char* line, RasModelGroup* group)
 {
     char *token, *str, *tofree;
 
@@ -35,7 +35,7 @@ int core_parse_group_name(char* line, RasModelGroup* group)
     ras_log_trace("parsed from token: %s", token);
     group->name = (char*)malloc(strlen(token) + 1);
     strcpy(group->name, token);
-    core_plat_free(&tofree);
+    hosted_plat_free(&tofree);
     return 0;
 }
 
@@ -43,7 +43,7 @@ int core_parse_group_name(char* line, RasModelGroup* group)
  * Parse a vector line with format:
  * v  0.0  1.0  0.0
  */
-int core_parse_vector(char* line, RasVector3f* dest)
+int hosted_parse_vector(char* line, RasVector3f* dest)
 {
     char buffer[255];
     char *token, *str, *tofree;
@@ -88,7 +88,7 @@ int core_parse_vector(char* line, RasVector3f* dest)
     ras_log_trace("parsing float from token: %s", token);
     RasFixed z = float_to_fixed_16_16(atof(token));
     ras_log_trace("vector y: %s\n", repr_fixed_16_16(buffer, sizeof buffer, y));
-    core_plat_free(&tofree);
+    hosted_plat_free(&tofree);
     dest->x = x;
     dest->y = y;
     dest->z = z;
@@ -103,7 +103,7 @@ int core_parse_vector(char* line, RasVector3f* dest)
  * @param material
  * @return int
  */
-int core_parse_face_material(char* line, RasModelMaterial* material)
+int hosted_parse_face_material(char* line, RasModelMaterial* material)
 {
     char *token, *str, *tofree;
 
@@ -120,14 +120,14 @@ int core_parse_face_material(char* line, RasModelMaterial* material)
     material->name = (char*)malloc(strlen(token) + 1);
 
     strcpy(material->name, token);
-    core_plat_free(&tofree);
+    hosted_plat_free(&tofree);
     return 0;
 }
 
 /**
  * Parse the indexes from the face block v/t/n ie 6/3/4.
  */
-int core_parse_face_index(char* line, RasModelFaceIndex* dest)
+int hosted_parse_face_index(char* line, RasModelFaceIndex* dest)
 {
     char buffer[255];
     char *token, *str, *tofree;
@@ -172,14 +172,14 @@ int core_parse_face_index(char* line, RasModelFaceIndex* dest)
         dest->normal_index = atoi(token) - 1;
     }
     ras_log_trace("face normal index int: %d", dest->normal_index);
-    core_plat_free(&tofree);
+    hosted_plat_free(&tofree);
     return 0;
 }
 
 /**
  * Parse the next raw face block in the face line ie 6//2.
  */
-int core_parse_face_token(char** str, RasModelFaceIndex* dest)
+int hosted_parse_face_token(char** str, RasModelFaceIndex* dest)
 {
     char* token;
 
@@ -193,7 +193,7 @@ int core_parse_face_token(char** str, RasModelFaceIndex* dest)
     }
     ras_log_trace("parsing face index from token: %s", token);
 
-    int result = core_parse_face_index(token, dest);
+    int result = hosted_parse_face_index(token, dest);
     if (result != 0) {
         return result;
     }
@@ -205,7 +205,7 @@ int core_parse_face_token(char** str, RasModelFaceIndex* dest)
  * Parse a vector line with format:
  * f  1//2  7//2  5//2
  */
-int core_parse_face(char* line, RasModelFace* dest)
+int hosted_parse_face(char* line, RasModelFace* dest)
 {
     char buffer[255];
     char *token, *str, *tofree;
@@ -217,16 +217,22 @@ int core_parse_face(char* line, RasModelFace* dest)
 
     for (int i = 0; i < 3; i++) {
         face_index = &dest->indexes[i];
-        int result = core_parse_face_token(&str, face_index);
+        int result = hosted_parse_face_token(&str, face_index);
         if (result != 0) {
             return result;
         }
     }
 
-    core_plat_free(&tofree);
+    hosted_plat_free(&tofree);
     return 0;
 }
 
+/**
+ * @brief Implentation of core/model.h
+ *
+ * @param path
+ * @return RasModel*
+ */
 RasModel* core_load_model(const char* path)
 {
     char buffer[255];
@@ -283,7 +289,7 @@ RasModel* core_load_model(const char* path)
                 ras_log_error("Multiple groups not supported.");
                 return NULL;
             }
-            int result = core_parse_group_name(line, current_group);
+            int result = hosted_parse_group_name(line, current_group);
             if (result != 0) {
                 return NULL;
             }
@@ -291,7 +297,7 @@ RasModel* core_load_model(const char* path)
             ras_log_trace("vertex... %s", "");
             current_group->verts = realloc(current_group->verts, sizeof(RasVector3f) * (current_group->num_verts + 1));
             RasVector3f* v = &current_group->verts[current_group->num_verts];
-            int result = core_parse_vector(line, v);
+            int result = hosted_parse_vector(line, v);
             if (result != 0) {
                 return NULL;
             }
@@ -302,7 +308,7 @@ RasModel* core_load_model(const char* path)
             ras_log_trace("vertex normal... %s", "");
             current_group->normals = realloc(current_group->normals, sizeof(RasVector3f) * (current_group->num_normals + 1));
             RasVector3f* v = &current_group->normals[current_group->num_normals];
-            int result = core_parse_vector(line, v);
+            int result = hosted_parse_vector(line, v);
             if (result != 0) {
                 return NULL;
             }
@@ -313,7 +319,7 @@ RasModel* core_load_model(const char* path)
             model->num_materials++;
             model->materials = realloc(model->materials, sizeof(RasModelMaterial) * model->num_materials);
             RasModelMaterial* material = &model->materials[current_material_index];
-            int result = core_parse_face_material(line, material);
+            int result = hosted_parse_face_material(line, material);
 
         } else if (strncmp(line, "f ", 2) == 0) {
 
@@ -330,16 +336,15 @@ RasModel* core_load_model(const char* path)
                 ras_log_trace("Face material index: %d", current_material_index);
             }
             f->material_index = current_material_index;
-            int result = core_parse_face(line, f);
+            int result = hosted_parse_face(line, f);
             if (result != 0) {
                 return NULL;
             }
         }
-        core_plat_free(&line);
+        hosted_plat_free(&line);
     }
-    core_plat_free(&line);
+    hosted_plat_free(&line);
     ras_log_trace("Model loaded: %s, bytes: %zu", model->name, sizeof *model);
     ras_log_info("%s", core_repr_model(buffer, sizeof buffer, model));
     return model;
-    ;
 }
