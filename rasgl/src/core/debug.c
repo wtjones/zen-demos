@@ -2,14 +2,43 @@
 #include "rasgl/core/debug.h"
 #include "rasgl/core/event.h"
 #include <assert.h>
+#include <stdarg.h>
+#include <stdio.h>
 #include <string.h>
 
 char log_buffer[RAS_MAX_LOG_BUFFER] = "";
 size_t log_buffer_offset = 0;
 
-void ras_log_init()
+static void ras_log_stub(
+    int level,
+    int category,
+    const char* file,
+    int line,
+    const char* fmt,
+    va_list args)
 {
-    core_event_summary_init();
+    (void)level;
+    (void)category;
+    (void)file;
+    (void)line;
+    (void)fmt;
+    (void)args;
+}
+
+ras_log_fn g_ras_log_fn = ras_log_stub;
+
+void ras_log(
+    int level,
+    int category,
+    const char* file,
+    int line,
+    const char* fmt,
+    ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    g_ras_log_fn(level, category, file, line, fmt, args);
+    va_end(args);
 }
 
 void ras_log_flush()
@@ -35,7 +64,7 @@ void ras_log_flush()
         size_t message_length = strlen(message) + 1;
         offset += message_length;
 
-        log_log(level, file, line, message);
+        ras_log(level, 0, file, line, message);
     }
     ras_log_summary_flush();
 }

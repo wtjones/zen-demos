@@ -45,6 +45,9 @@ typedef struct RasModel {
     uint32_t num_materials;
 } RasModel;
 
+void core_model_init(RasModel* model);
+void core_model_group_init(RasModelGroup* group);
+
 RasModel* core_load_model(const char* path);
 void core_free_model(RasModel* model);
 

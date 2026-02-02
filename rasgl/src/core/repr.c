@@ -1,4 +1,5 @@
 #include "rasgl/core/repr.h"
+#include <stdio.h>
 
 static const char* g_repr_clipping_mode[] = {
     "RAS_CLIPPING_ON",

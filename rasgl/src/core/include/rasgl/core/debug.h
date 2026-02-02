@@ -1,7 +1,7 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-#include "log.c/src/log.h"
+#include <stdarg.h>
 
 #define RAS_MAX_LOG_BUFFER 200000
 
@@ -14,12 +14,21 @@
 #    define DEBUG 0
 #endif
 
-#define RAS_LOG_LEVEL_STRERR LOG_ERROR
+typedef enum {
+    RAS_LOG_TRACE = 0,
+    RAS_LOG_DEBUG = 1,
+    RAS_LOG_INFO = 2,
+    RAS_LOG_WARN = 3,
+    RAS_LOG_ERROR = 4,
+    RAS_LOG_FATAL = 5
+} RasLogLevel;
+
+#define RAS_LOG_LEVEL_STRERR RAS_LOG_ERROR
 
 #if (DEBUG)
-#    define RAS_LOG_LEVEL_FILE LOG_TRACE
+#    define RAS_LOG_LEVEL_FILE RAS_LOG_TRACE
 #else
-#    define RAS_LOG_LEVEL_FILE LOG_INFO
+#    define RAS_LOG_LEVEL_FILE RAS_LOG_INFO
 #endif
 
 #define debug_print(fmt, ...)                  \
@@ -28,27 +37,44 @@
             fprintf(stderr, fmt, __VA_ARGS__); \
     } while (0)
 
-#define ras_log_trace(...) log_log_ex(LOG_TRACE, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_debug(...) log_log_ex(LOG_DEBUG, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_info(...) log_log_ex(LOG_INFO, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_info_ex(category, ...) log_log_ex(LOG_INFO, category, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_warn(...) log_log_ex(LOG_WARN, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_warn_ex(category, ...) log_log_ex(LOG_WARN, category, __FILE_NAME__, __LINE__, __VA_ARGS__)
+typedef void (*ras_log_fn)(
+    int level,
+    int category,
+    const char* file,
+    int line,
+    const char* fmt,
+    va_list args);
 
-#define ras_log_error(...) log_log_ex(LOG_ERROR, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_fatal(...) log_log_ex(LOG_FATAL, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_buffer(...) core_log_buffer(LOG_INFO, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_buffer_ex(category, ...) core_log_buffer(LOG_INFO, category, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_buffer_trace(...) core_log_buffer(LOG_TRACE, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_buffer_info(...) core_log_buffer(LOG_INFO, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_buffer_warn_ex(category, ...) core_log_buffer(LOG_WARN, category, __FILE_NAME__, __LINE__, __VA_ARGS__)
+extern ras_log_fn g_ras_log_fn;
+
+void ras_log(
+    int level,
+    int category,
+    const char* file,
+    int line,
+    const char* fmt,
+    ...);
+
+void core_log_buffer(int level, int category, const char* file, int line, const char* fmt, ...);
+#define ras_log_trace(...) ras_log(RAS_LOG_TRACE, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_debug(...) ras_log(RAS_LOG_DEBUG, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_info(...) ras_log(RAS_LOG_INFO, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_info_ex(category, ...) ras_log(RAS_LOG_INFO, category, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_warn(...) ras_log(RAS_LOG_WARN, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_warn_ex(category, ...) ras_log(RAS_LOG_WARN, category, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_error(...) ras_log(RAS_LOG_ERROR, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_fatal(...) ras_log(RAS_LOG_FATAL, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+
+#define ras_log_buffer(...) core_log_buffer(RAS_LOG_INFO, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_buffer_ex(category, ...) core_log_buffer(RAS_LOG_INFO, category, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_buffer_trace(...) core_log_buffer(RAS_LOG_TRACE, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_buffer_info(...) core_log_buffer(RAS_LOG_INFO, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define ras_log_buffer_warn_ex(category, ...) core_log_buffer(RAS_LOG_WARN, category, __FILE_NAME__, __LINE__, __VA_ARGS__)
 
 typedef enum RasResult {
     RAS_RESULT_OK,
     RAS_RESULT_ERROR
 } RasResult;
-
-void core_log_buffer(int level, int category, const char* file, int line, const char* fmt, ...);
 
 void ras_log_flush();
 

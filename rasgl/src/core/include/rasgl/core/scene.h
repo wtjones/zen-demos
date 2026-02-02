@@ -9,13 +9,6 @@
 #include "model.h"
 #include "tombmap.h"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-variable"
-#include <larse/core/expression.h>
-#include <larse/core/parse.h>
-#include <larse/core/repr.h>
-#pragma GCC diagnostic pop
-
 #define RAS_MAX_SCENE_OBJECTS 100
 #define RAS_MAX_SCENE_GRIDMAPS 1
 #define RAS_MAX_SCENE_TOMBMAPS 1
@@ -113,15 +106,6 @@ typedef struct {
 RasResult core_load_scene(const char* path, RasScene** scene);
 
 void core_free_scene(RasScene** scene);
-
-/**
- * @brief Map a scene script to a RasScene
- *
- * @param script The parsed larse script
- * @param scene Must be freed by caller
- * @return RasResult
- */
-RasResult core_script_map_scene(LarScript* script, RasScene** scene);
 
 /**
  * @brief Iterate the object's state based on the animation

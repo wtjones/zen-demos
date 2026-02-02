@@ -47,5 +47,15 @@ int log_add_callback(log_LogFn fn, void *udata, int level);
 int log_add_fp(FILE *fp, int level);
 
 void log_log(int level, const char *file, int line, const char *fmt, ...);
-void log_log_ex(int level, int category, const char *file, int line, const char *fmt, ...);
+/**
+ * @brief A v-variant of log_log to allow for variadic calls via function pointers.
+ *
+ * @param level
+ * @param category
+ * @param file
+ * @param line
+ * @param fmt
+ * @param args
+ */
+void log_log_ex(int level, int category, const char *file, int line, const char *fmt, va_list args);
 #endif

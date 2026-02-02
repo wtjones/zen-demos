@@ -1,5 +1,6 @@
 #include "font8x8/font8x8_basic.h"
 #include "font8x8/font8x8_block.h"
+#include "log.c/src/log.h"
 #include "rasgl/core/app.h"
 #include "rasgl/core/color.h"
 #include "rasgl/core/console.h"

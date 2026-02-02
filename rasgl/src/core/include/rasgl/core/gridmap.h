@@ -5,13 +5,6 @@
 #include "graphics.h"
 #include "maths.h"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-variable"
-#include <larse/core/expression.h>
-#include <larse/core/parse.h>
-#include <larse/core/repr.h>
-#pragma GCC diagnostic pop
-
 #define RAS_MAX_GRIDMAP_WIDTH 128
 #define RAS_MAX_GRIDMAP_HEIGHT 1
 #define RAS_MAX_GRIDMAP_DEPTH 128
@@ -55,14 +48,6 @@ typedef struct {
 } RasSceneGridMap;
 
 /**
- * @brief Map a gridmap script to a RasGridMap
- *
- * @param script The parsed larse script
- * @return RasResult
- */
-RasResult core_script_map_gridmap(LarNode* gridmap_exp, RasSceneGridMap* gridmap);
-
-/**
  * @brief Create faces by major and minor axis based on camera angle.
  *
  * @param gridmap
@@ -73,6 +58,24 @@ RasResult core_script_map_gridmap(LarNode* gridmap_exp, RasSceneGridMap* gridmap
 RasResult core_gridmap_to_element_faces(
     RasSceneGridMap* gridmap,
     RasCamera* camera,
+    RasPipelineElement* element);
+
+void core_set_gridmap_cell_flags(RasSceneGridMap* gridmap);
+
+/**
+ * @brief Create only the gridmap vertices.
+ * The faces are created during the pipeline based on the camera.
+ *
+ * @param gridmap
+ * @param element
+ * @return RasResult
+ */
+RasResult core_gridmap_to_element_verts(
+    RasSceneGridMap* gridmap,
+    RasPipelineElement* element);
+
+RasResult core_gridmap_to_element_verts_alloc(
+    RasSceneGridMap* gridmap,
     RasPipelineElement* element);
 
 #endif

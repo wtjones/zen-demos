@@ -1,3 +1,4 @@
+#include "log.c/src/log.h"
 #include "rasgl/core/console.h"
 #include "rasgl/core/debug.h"
 #include "rasgl/core/event.h"
