@@ -1,18 +1,19 @@
 cmake_minimum_required(VERSION 3.7)
 
 
-if (NOT ${RAS_PLATFORM} STREQUAL "ras_psx")
+if (NOT RAS_PLATFORM STREQUAL "ras_psx")
 
 
-project(
+  project(
     RasGL
     VERSION 1.0
     DESCRIPTION ""
     LANGUAGES C)
 
-add_compile_definitions(DEBUG=${DEBUG})
+  add_compile_definitions(DEBUG=${DEBUG})
 
   set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+  set (RAS_PLATFORM_TYPE "hosted")
   option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 
   if(ENABLE_ASAN)

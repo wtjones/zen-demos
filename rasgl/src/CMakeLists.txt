@@ -1,5 +1,7 @@
 add_subdirectory(core)
-add_subdirectory(hosted)
+if (NOT RAS_PLATFORM_TYPE STREQUAL "embedded")
+    add_subdirectory(hosted)
+endif()
 add_subdirectory(external)
 IF (DEFINED RAS_PLATFORM)
     add_subdirectory(platform)

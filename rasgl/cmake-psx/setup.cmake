@@ -39,7 +39,6 @@ target_compile_features(
 target_compile_options(
 	flags INTERFACE
 		-g
-		-Wall
 		-Wa,--strip-local-absolute
 		-ffreestanding
 		-fno-builtin
