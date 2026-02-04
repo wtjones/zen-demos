@@ -10,4 +10,4 @@ if [ -z "${DUCKSTATION:-}" ]; then
     exit 1
 fi
 
-$DUCKSTATION $SCRIPT_DIR/bld_psx/ras_psx.psexe
+$DUCKSTATION $SCRIPT_DIR/bld_psx/ras_psx.psexe > /tmp/rasgl.log
