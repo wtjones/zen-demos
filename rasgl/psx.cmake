@@ -21,6 +21,7 @@ add_library(
 	src/platform/psx/libc/string.c
 	src/platform/psx/libc/string.s
 	src/platform/psx/ps1/cache.s
+	src/platform/psx/ps1/gpu.c
 	src/platform/psx/vendor/printf.c
 )
 target_include_directories(
