@@ -24,6 +24,10 @@ add_library(
 	src/platform/psx/ps1/gpu.c
 	src/platform/psx/vendor/printf.c
 )
+
+# Enable floating point in snprintf() log usage.
+target_compile_definitions(common PRIVATE PRINTF_SUPPORT_FLOAT=1)
+
 target_include_directories(
 	common PUBLIC
 	src/platform/psx
@@ -47,6 +51,6 @@ addPS1Executable(ras_psx
 	src/platform/psx/log_impl.c
 )
 
-target_link_libraries(ras_psx PRIVATE common core)
+target_link_libraries(ras_psx PRIVATE common core demo)
 
 addBinaryFileWithSize(ras_psx textData textDataSize src/platform/psx/data.txt)

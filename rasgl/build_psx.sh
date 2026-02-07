@@ -8,6 +8,6 @@ docker run -it --rm \
 	-w /work/r \
 	--name psx-app ras-psx \
 	/bin/bash -c "
-	  cmake -DCMAKE_TOOLCHAIN_FILE=/work/r/cmake-psx/toolchain.cmake -DVENV_PATH=/work/env -DCMAKE_BUILD_TYPE=Debug -DRAS_PLATFORM=ras_psx -GNinja -B bld_psx &&
+	  cmake -DCMAKE_TOOLCHAIN_FILE=/work/r/cmake-psx/toolchain.cmake -DVENV_PATH=/work/env -DCMAKE_BUILD_TYPE=Debug -DRAS_PLATFORM=ras_psx -DRAS_DEMO=mini -GNinja -B bld_psx &&
 	  cmake --build bld_psx
 	"
