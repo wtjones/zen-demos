@@ -8,9 +8,19 @@ else
 	RAS_ARG=""
 fi
 
+CMAKE_CMD="cmake \
+	-DCMAKE_TOOLCHAIN_FILE=/work/r/cmake-psx/toolchain.cmake \
+	-DVENV_PATH=/work/env \
+	-DCMAKE_BUILD_TYPE=Debug \
+	-DRAS_PLATFORM=ras_psx \
+	-DRAS_DEMO=mini \
+	${RAS_ARG} \
+	-GNinja \
+	-B bld_psx"
+
 docker run -it --rm \
- 	--user $(id -u):$(id -g) \
+	--user $(id -u):$(id -g) \
 	-v "$SCRIPT_DIR":/work/r \
 	-w /work/r \
 	--name psx-app ras-psx \
-	/bin/bash -c "cmake -DCMAKE_TOOLCHAIN_FILE=/work/r/cmake-psx/toolchain.cmake -DVENV_PATH=/work/env -DCMAKE_BUILD_TYPE=Debug -DRAS_PLATFORM=ras_psx -DRAS_DEMO=mini ${RAS_ARG} -GNinja -B bld_psx && cmake --build bld_psx"
+	/bin/bash -c "${CMAKE_CMD} && cmake --build bld_psx"
