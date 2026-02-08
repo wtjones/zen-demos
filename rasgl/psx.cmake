@@ -49,6 +49,7 @@ addPS1Executable(ras_psx
 	src/platform/psx/main.c
 	src/platform/psx/serial.c
 	src/platform/psx/log_impl.c
+	src/platform/psx/render.c
 )
 
 target_link_libraries(ras_psx PRIVATE common core demo)
