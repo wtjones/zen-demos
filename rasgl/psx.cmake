@@ -55,3 +55,9 @@ addPS1Executable(ras_psx
 target_link_libraries(ras_psx PRIVATE common core demo)
 
 addBinaryFileWithSize(ras_psx textData textDataSize src/platform/psx/data.txt)
+
+MESSAGE(STATUS "RAS_MAX_FRAMES: ${RAS_MAX_FRAMES}")
+
+if(DEFINED RAS_MAX_FRAMES)
+  target_compile_definitions(ras_psx PRIVATE RAS_MAX_FRAMES=${RAS_MAX_FRAMES})
+endif()

@@ -4,6 +4,10 @@
 #include "rasgl/core/graphics.h"
 #include <stdint.h>
 
+#ifndef RAS_MAX_FRAMES
+#    define RAS_MAX_FRAMES -1
+#endif
+
 RasResult render_renderstates_init(RenderState* states);
 
 void render_mesh_solid(RenderState* state);

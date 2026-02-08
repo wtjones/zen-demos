@@ -250,6 +250,24 @@ export DOSBOX_BIN="/usr/local/bin/dosbox-x"
 
 example: `./run_dos.sh poly 0 assets/secenes/tri.lsp`
 
+### PSX
+
+Implementation is currently limited.
+
+#### Build
+
+```bash
+./build_psx.sh
+```
+Optionally set max frames for testing:
+
+```bash
+RAS_MAX_FRAMES=1000 ./build_psx.sh
+```
+#### Run
+
+Refer to `run_psx.sh`.
+
 ## Demos
 
 ### Common Controls

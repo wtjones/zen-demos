@@ -56,6 +56,8 @@ int main(int argc, const char** argv)
 
     core_input_init(&plat_input_state);
 
+    ras_log_info("RAS_MAX_FRAMES: %d\n", RAS_MAX_FRAMES);
+
     for (;;) {
         char textBuffer[256];
 
@@ -67,30 +69,27 @@ int main(int argc, const char** argv)
         val = TIMER_VALUE(1);
 
         int timer_mode = TIMER_CTRL_SYNC_BITMASK & TIMER_CTRL(1);
-        int ret;
 
-        ras_log_info("hello= %d, %d\n", val, timer_mode);
+        if (states[RAS_LAYER_SCENE].max_frames == UINT32_MAX
+            || states[RAS_LAYER_SCENE].current_frame < states[RAS_LAYER_SCENE].max_frames) {
 
-        ret = snprintf(buffer, sizeof(buffer), "textDataSize= %d\n%s\n", textDataSize, textBuffer);
-        ras_log_info("textDataSize= %d\n%s\n", textDataSize, textBuffer);
+            core_renderstates_clear(states);
+            ras_core_update(&plat_input_state, states);
 
-        core_renderstates_clear(states);
-        ras_core_update(&plat_input_state, states);
+            for (size_t i = 0; i < RAS_LAYER_COUNT; i++) {
+                states[i].screen_settings.screen_width = plat_settings.screen_width;
+                states[i].screen_settings.screen_height = plat_settings.screen_height;
+            }
 
-        for (size_t i = 0; i < RAS_LAYER_COUNT; i++) {
-            states[i].screen_settings.screen_width = plat_settings.screen_width;
-            states[i].screen_settings.screen_height = plat_settings.screen_height;
+            ras_app_render(states);
+            render_clear(&plat_settings);
+
+            for (size_t i = 0; i < RAS_LAYER_COUNT; i++) {
+
+                render_state(&states[i]);
+                states[i].last_rasterize_ticks = 10;
+            }
         }
-
-        ras_app_render(states);
-        render_clear(&plat_settings);
-
-        for (size_t i = 0; i < RAS_LAYER_COUNT; i++) {
-
-            render_state(&states[i]);
-            states[i].last_rasterize_ticks = 10;
-        }
-
         // Send two GP1 commands to set the origin of the area we want to display
         // and switch on the display output.
         GPU_GP1 = gp1_fbOffset(0, 0);

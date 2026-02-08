@@ -10,6 +10,10 @@ RasResult render_renderstates_init(RenderState* states)
     core_renderstates_init(states);
     states[RAS_LAYER_SCENE].polygon_mode = RAS_POLYGON_WIREFRAME;
 
+    for (int i = 0; i < RAS_LAYER_COUNT; i++) {
+        states[i].max_frames = RAS_MAX_FRAMES;
+    }
+
     return ras_app_renderstates_init(states);
 }
 
@@ -102,9 +106,6 @@ void render_state(RenderState* state)
         return;
     }
 
-    ras_log_info("Rendering state with %d commands and %d points\n",
-        state->num_commands,
-        state->num_points);
     waitForGP0Ready();
     for (size_t i = 0; i < state->num_commands; i++) {
         RenderCommand* command = &state->commands[i];
@@ -119,4 +120,7 @@ void render_state(RenderState* state)
         }
     }
     state->current_frame++;
+    if (state->current_frame == RAS_MAX_FRAMES) {
+        ras_log_info("Reached RAS_MAX_FRAMES for layer %d.", state->layer);
+    }
 }
