@@ -28,6 +28,7 @@ main() {
         -DRAS_PLATFORM=ras_dos \
         -DRAS_DEMO=$DEMO  \
         -DDEBUG=$DEBUG \
+        -DRAS_LOG_BUFFER_MODE=${RAS_LOG_BUFFER_MODE:-0} \
         -B bld_dos
     cmake --build bld_dos -t demo
     if [ $? -ne 0 ]; then

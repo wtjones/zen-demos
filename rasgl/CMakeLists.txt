@@ -12,6 +12,9 @@ if (NOT RAS_PLATFORM STREQUAL "ras_psx")
 
   add_compile_definitions(DEBUG=${DEBUG})
 
+  set(RAS_LOG_BUFFER_MODE "1" CACHE STRING "Log buffer mode: 0=disabled, 1=enabled")
+  add_compile_definitions(RAS_LOG_BUFFER_MODE=${RAS_LOG_BUFFER_MODE})
+
   set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
   set (RAS_PLATFORM_TYPE "hosted")
   option(ENABLE_ASAN "Enable AddressSanitizer" OFF)

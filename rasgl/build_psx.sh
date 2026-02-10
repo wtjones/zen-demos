@@ -2,10 +2,16 @@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-if [ -n "${RAS_MAX_FRAMES}" ]; then
+if [ -n "${RAS_MAX_FRAMES:-}" ]; then
 	RAS_ARG="-DRAS_MAX_FRAMES=${RAS_MAX_FRAMES}"
 else
 	RAS_ARG=""
+fi
+
+if [ -n "${RAS_LOG_BUFFER_MODE:-}" ]; then
+	RAS_ARG="${RAS_ARG} -DRAS_LOG_BUFFER_MODE=${RAS_LOG_BUFFER_MODE}"
+else
+	RAS_ARG="${RAS_ARG} -DRAS_LOG_BUFFER_MODE=0"
 fi
 
 CMAKE_CMD="cmake \

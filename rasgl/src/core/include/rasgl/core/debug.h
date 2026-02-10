@@ -65,11 +65,19 @@ void core_log_buffer(int level, int category, const char* file, int line, const 
 #define ras_log_error(...) ras_log(RAS_LOG_ERROR, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
 #define ras_log_fatal(...) ras_log(RAS_LOG_FATAL, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
 
-#define ras_log_buffer(...) core_log_buffer(RAS_LOG_INFO, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_buffer_ex(category, ...) core_log_buffer(RAS_LOG_INFO, category, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_buffer_trace(...) core_log_buffer(RAS_LOG_TRACE, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_buffer_info(...) core_log_buffer(RAS_LOG_INFO, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
-#define ras_log_buffer_warn_ex(category, ...) core_log_buffer(RAS_LOG_WARN, category, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#if RAS_LOG_BUFFER_MODE != 0
+#    define ras_log_buffer(...) core_log_buffer(RAS_LOG_INFO, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#    define ras_log_buffer_ex(category, ...) core_log_buffer(RAS_LOG_INFO, category, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#    define ras_log_buffer_trace(...) core_log_buffer(RAS_LOG_TRACE, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#    define ras_log_buffer_info(...) core_log_buffer(RAS_LOG_INFO, 0, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#    define ras_log_buffer_warn_ex(category, ...) core_log_buffer(RAS_LOG_WARN, category, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#else
+#    define ras_log_buffer(...) ((void)0)
+#    define ras_log_buffer_ex(category, ...) ((void)0)
+#    define ras_log_buffer_trace(...) ((void)0)
+#    define ras_log_buffer_info(...) ((void)0)
+#    define ras_log_buffer_warn_ex(category, ...) ((void)0)
+#endif
 
 typedef enum RasResult {
     RAS_RESULT_OK,

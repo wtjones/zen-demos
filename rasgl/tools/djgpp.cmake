@@ -35,3 +35,7 @@ endif()
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Shared libs not available" )
 set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
 set(DJGPP ON)
+
+
+set(RAS_LOG_BUFFER_MODE "0" CACHE STRING "Log buffer mode: 0=disabled, 1=enabled")
+add_compile_definitions(RAS_LOG_BUFFER_MODE=${RAS_LOG_BUFFER_MODE})

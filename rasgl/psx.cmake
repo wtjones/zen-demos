@@ -38,6 +38,8 @@ include_directories(
 	${CMAKE_SOURCE_DIR}/src/platform/psx
 	${CMAKE_SOURCE_DIR}/src/platform/psx/libc)
 
+add_compile_definitions(RAS_LOG_BUFFER_MODE=${RAS_LOG_BUFFER_MODE})
+
 add_subdirectory(src)
 
 target_include_directories(core PUBLIC

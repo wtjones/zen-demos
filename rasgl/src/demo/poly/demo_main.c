@@ -215,7 +215,7 @@ void ras_selected_object_update(__attribute__((unused)) InputState* input_state)
 
     if (!cmp_point3f(model_pos, &model_pos_prev)
         || !cmp_point3f(model_rotation, &model_rot_prev)) {
-        char buffer[100];
+        __attribute__((unused)) char buffer[100];
         ras_log_buffer_ex(
             RAS_EVENT_SC_OBJ_MOVE,
             "new model_pos: %s", repr_point3f(buffer, sizeof(buffer), model_pos));
@@ -241,9 +241,9 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
         }
     }
 
-    RasVector3f* model_pos = &selected_object->position;
-    RasVector3f* model_rotation = &selected_object->rotation;
-    char buffer[100];
+    __attribute__((unused)) RasVector3f* model_pos = &selected_object->position;
+    __attribute__((unused)) RasVector3f* model_rotation = &selected_object->rotation;
+    __attribute__((unused)) char buffer[100];
     ras_log_buffer_ex(
         RAS_EVENT_SC_OBJ_MOVE,
         "model_pos: %s", repr_point3f(buffer, sizeof(buffer), model_pos));
