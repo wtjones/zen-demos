@@ -8,6 +8,13 @@
 #    define RAS_MAX_FRAMES -1
 #endif
 
+typedef struct RasColor {
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    uint8_t a;
+} RasColor;
+
 RasResult render_renderstates_init(RenderState* states);
 
 void render_mesh_solid(RenderState* state);
