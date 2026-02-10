@@ -42,6 +42,9 @@ int main(int argc, const char** argv)
         setupGPU(GP1_MODE_NTSC, SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 
+    // Turn on the video output.
+    GPU_GP1 = gp1_dispBlank(false);
+
     RasResult result = ras_app_init(argc, argv, &plat_settings);
     if (result != RAS_RESULT_OK) {
         ras_log_error("Error result from ras_app_init(), exiting...");
@@ -67,14 +70,16 @@ int main(int argc, const char** argv)
         textBuffer[textDataSize] = '\0';
 
         val = TIMER_VALUE(1);
-
         int timer_mode = TIMER_CTRL_SYNC_BITMASK & TIMER_CTRL(1);
+
+        render_clear(&plat_settings);
 
         if (states[RAS_LAYER_SCENE].max_frames == UINT32_MAX
             || states[RAS_LAYER_SCENE].current_frame < states[RAS_LAYER_SCENE].max_frames) {
 
             core_renderstates_clear(states);
             ras_core_update(&plat_input_state, states);
+            ras_app_update(&plat_input_state);
 
             for (size_t i = 0; i < RAS_LAYER_COUNT; i++) {
                 states[i].screen_settings.screen_width = plat_settings.screen_width;
@@ -82,7 +87,6 @@ int main(int argc, const char** argv)
             }
 
             ras_app_render(states);
-            render_clear(&plat_settings);
 
             for (size_t i = 0; i < RAS_LAYER_COUNT; i++) {
 
@@ -90,13 +94,7 @@ int main(int argc, const char** argv)
                 states[i].last_rasterize_ticks = 10;
             }
         }
-        // Send two GP1 commands to set the origin of the area we want to display
-        // and switch on the display output.
-        GPU_GP1 = gp1_fbOffset(0, 0);
-        GPU_GP1 = gp1_dispBlank(false);
-
-        for (int i = 0; i < 5000000; i++)
-            __asm__ volatile("");
+        render_flip();
     }
 
     return 0;

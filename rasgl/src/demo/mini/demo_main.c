@@ -138,6 +138,22 @@ RasScene* build_scene()
     obj->rotation.y = RAS_FLOAT_TO_FIXED(0.0f);
     obj->rotation.z = RAS_FLOAT_TO_FIXED(0.0f);
     obj->mesh_index = 0;
+    // :animation (rotation :axis (vec 0.0 1.0 0.0) :speed 0.5))
+    obj->animation = malloc(sizeof(RasSceneObjectAnimation));
+    if (obj->animation == NULL) {
+        ras_log_error("Unable to malloc() scene object animation.");
+        free(scene->objects);
+        core_pipeline_element_free(&model->element);
+        free(scene->cameras);
+        free(scene->models);
+        free(scene);
+        return NULL;
+    }
+    RasSceneObjectAnimation* anim = obj->animation;
+    anim->rotation.axis.x = RAS_FLOAT_TO_FIXED(0.0f);
+    anim->rotation.axis.y = RAS_FLOAT_TO_FIXED(1.0f);
+    anim->rotation.axis.z = RAS_FLOAT_TO_FIXED(0.0f);
+    anim->rotation.speed = RAS_FLOAT_TO_FIXED(0.5f);
 
     return scene;
 }
@@ -171,8 +187,18 @@ RasResult ras_app_renderstates_init(RenderState states[])
     return RAS_RESULT_OK;
 }
 
+void ras_objects_update(__attribute__((unused)) InputState* input_state)
+{
+    for (size_t i = 0; i < scene->num_objects; i++) {
+        RasSceneObject* current_object = &scene->objects[i];
+        core_update_animation(current_object);
+    }
+}
+
 void ras_app_update(__attribute__((unused)) InputState* input_state)
 {
+    ras_camera_update(camera, input_state);
+    ras_objects_update(input_state);
 }
 
 void render_scene_pipeline(__attribute__((unused)) RenderState* render_state)

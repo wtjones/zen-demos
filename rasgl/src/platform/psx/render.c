@@ -5,10 +5,15 @@
 #include "rasgl/core/app.h"
 #include "rasgl/core/debug.h"
 
+static bool using_second_frame = false;
+static int frame_x = 0;
+static int frame_y = 0;
+
 RasResult render_renderstates_init(RenderState* states)
 {
     core_renderstates_init(states);
     states[RAS_LAYER_SCENE].polygon_mode = RAS_POLYGON_WIREFRAME;
+    states[RAS_LAYER_SCENE].grid_mode = RAS_GRID_MODE_OFF;
 
     for (int i = 0; i < RAS_LAYER_COUNT; i++) {
         states[i].max_frames = RAS_MAX_FRAMES;
@@ -78,19 +83,35 @@ void render_mesh_bitmap(RenderState* state)
 
 void render_clear(ScreenSettings* plat_settings)
 {
-    // Wait for the GPU to become ready, then send some GP0 commands to tell it
-    // which area of the framebuffer we want to draw to and enable dithering.
+    // Determine the VRAM location of the current frame. We're going to
+    // place the two frames next to each other in VRAM, at (0, 0) and
+    // (320, 0) respectively.
+    frame_x = using_second_frame ? plat_settings->screen_width : 0;
+    frame_y = 0;
+
+    // Tell the GPU which area of VRAM belongs to the frame we're going to
+    // use and enable dithering.
     waitForGP0Ready();
     GPU_GP0 = gp0_texpage(0, true, false);
-    GPU_GP0 = gp0_fbOffset1(0, 0);
-    GPU_GP0 = gp0_fbOffset2(plat_settings->screen_width - 1, plat_settings->screen_height - 1);
-    GPU_GP0 = gp0_fbOrigin(0, 0);
+    GPU_GP0 = gp0_fbOffset1(frame_x, frame_y);
+    GPU_GP0 = gp0_fbOffset2(
+        frame_x + plat_settings->screen_width - 1,
+        frame_y + plat_settings->screen_height - 2);
+    GPU_GP0 = gp0_fbOrigin(frame_x, frame_y);
 
-    // Send a VRAM fill command to quickly fill our area with solid gray.
+    // Fill the framebuffer with solid gray.
     waitForGP0Ready();
     GPU_GP0 = gp0_rgb(64, 64, 64) | gp0_vramFill();
-    GPU_GP0 = gp0_xy(0, 0);
+    GPU_GP0 = gp0_xy(frame_x, frame_y);
     GPU_GP0 = gp0_xy(plat_settings->screen_width, plat_settings->screen_height);
+}
+
+void render_flip()
+{
+    waitForGP0Ready();
+    waitForVSync();
+    GPU_GP1 = gp1_fbOffset(frame_x, frame_y);
+    using_second_frame = !using_second_frame;
 }
 
 void (*g_render_fns[RAS_POLYGON_COUNT])(RenderState* state) = {

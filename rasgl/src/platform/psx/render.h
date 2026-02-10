@@ -16,5 +16,6 @@ void render_mesh_bitmap(RenderState* state);
 
 void render_clear(ScreenSettings* plat_settings);
 void render_state(RenderState* state);
+void render_flip();
 
 #endif

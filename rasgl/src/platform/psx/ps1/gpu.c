@@ -43,3 +43,16 @@ void waitForGP0Ready(void)
     while (!(GPU_GP1 & GP1_STAT_CMD_READY))
         __asm__ volatile("");
 }
+
+void waitForVSync(void)
+{
+    // The GPU won't tell us directly whenever it is done sending a frame to the
+    // display, but it will send a signal to another peripheral known as the
+    // interrupt controller (which will be covered in a future tutorial). We can
+    // thus wait until the interrupt controller's vertical blank flag gets set,
+    // then reset (acknowledge) it so that it can be set again by the GPU.
+    while (!(IRQ_STAT & (1 << IRQ_VSYNC)))
+        __asm__ volatile("");
+
+    IRQ_STAT = ~(1 << IRQ_VSYNC);
+}
