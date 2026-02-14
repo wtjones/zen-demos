@@ -70,8 +70,9 @@ RasResult core_renderdata_objects_alloc(RasRenderData* render_data)
     for (size_t i = 0; i < render_data->scene->num_objects; i++) {
         RasSceneObject* current_object = &render_data->scene->objects[i];
         uint32_t mesh_index = current_object->mesh_index = render_data->render_state->num_meshes++;
+        RasPipelineElement* element = &render_data->scene->models[current_object->model_index].element;
         if (core_pipeline_element_to_mesh_alloc(
-                current_object->element_ref,
+                element,
                 &render_data->render_state->meshes[mesh_index])
             != RAS_RESULT_OK) {
             return RAS_RESULT_ERROR;
@@ -314,7 +315,7 @@ void* core_sg_xform_aabb(void* input)
 
     for (size_t i = 0; i < render_data->scene->num_objects; i++) {
         RasSceneObject* current_object = &render_data->scene->objects[i];
-        RasPipelineElement* element = current_object->element_ref;
+        RasPipelineElement* element = &render_data->scene->models[current_object->model_index].element;
         const uint32_t mesh_index = current_object->mesh_index;
         RasAABB* view_aabb = &render_data->aabbs[mesh_index];
 

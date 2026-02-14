@@ -168,17 +168,17 @@ RasResult hosted_script_map_object(
     RAS_CHECK_AND_LOG(model_name == NULL,
         "Failed to find property %s", SCRIPT_SYMBOL_MODEL_NAME);
 
-    // Look up the model by name and assign the reference
-    scene_object->element_ref = NULL;
+    // Look up the model by name and assign the index.
+    scene_object->model_index = -1;
     for (size_t i = 0; i < scene->num_models; i++) {
         RasSceneModel* model = &scene->models[i];
         if (strcmp(model->name, model_name->atom.val_symbol) == 0) {
-            scene_object->element_ref = &model->element;
+            scene_object->model_index = i;
             break;
         }
     }
 
-    RAS_CHECK_AND_LOG(scene_object->element_ref == NULL,
+    RAS_CHECK_AND_LOG(scene_object->model_index == -1,
         "Model %s referenced by object not found", model_name->atom.val_symbol);
 
     LarNode* position = lar_get_property_by_type(
@@ -288,6 +288,10 @@ RasResult hosted_script_map_gridmaps(LarNode* scene_exp, RasScene* scene)
     return RAS_RESULT_OK;
 }
 
+/**
+ * @deprecated
+ *
+ */
 RasResult hosted_script_map_map(
     RasScene* scene, LarNode* map_exp, RasSceneMap* scene_map)
 {
@@ -316,6 +320,10 @@ RasResult hosted_script_map_map(
     return RAS_RESULT_OK;
 }
 
+/**
+ * @deprecated
+ *
+ */
 RasResult hosted_script_map_maps(LarNode* scene_exp, RasScene* scene)
 {
     LarNode* maps_list = lar_get_list_by_symbol(

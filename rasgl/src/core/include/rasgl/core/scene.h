@@ -59,10 +59,10 @@ typedef struct {
 typedef struct {
     /**
      * @brief The model referenced via :name in script is converted to
-     * a pipeline element and referenced here.
+     * a pipeline element and referenced via index.
      *
      */
-    RasPipelineElement* element_ref;
+    int32_t model_index;
     RasVector3f position;
     RasVector3f rotation;       // Intialized from :orientation in scene script
     RasVector3f rotation_delta; // Rotation speed
@@ -75,6 +75,7 @@ typedef struct {
      * @brief The model referenced via :name in script is converted to
      * a pipeline element and referenced here.
      *
+     * @deprecated
      */
     RasPipelineElement* element_ref;
 } RasSceneMap;

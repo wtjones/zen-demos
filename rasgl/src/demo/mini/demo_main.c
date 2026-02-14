@@ -130,7 +130,7 @@ RasScene* build_scene()
     }
     RasSceneObject* obj = &scene->objects[0];
     memset(obj, 0, sizeof(RasSceneObject));
-    obj->element_ref = &model->element;
+    obj->model_index = 0;
     obj->position.x = RAS_FLOAT_TO_FIXED(0.0f);
     obj->position.y = RAS_FLOAT_TO_FIXED(0.0f);
     obj->position.z = RAS_FLOAT_TO_FIXED(-2.5f);
