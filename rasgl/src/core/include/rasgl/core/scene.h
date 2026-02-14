@@ -71,16 +71,6 @@ typedef struct {
 } RasSceneObject;
 
 typedef struct {
-    /**
-     * @brief The model referenced via :name in script is converted to
-     * a pipeline element and referenced here.
-     *
-     * @deprecated
-     */
-    RasPipelineElement* element_ref;
-} RasSceneMap;
-
-typedef struct {
     char name[MAX_SCENE_NAME];
     RasSceneModel* models;
     size_t num_models;
@@ -90,11 +80,8 @@ typedef struct {
     size_t num_gridmaps;
     RasSceneTombMap* tombmaps;
     size_t num_tombmaps;
-    RasSceneMap* maps;
-    size_t num_maps;
     RasCamera* cameras;
     size_t num_cameras;
-
 } RasScene;
 
 /**

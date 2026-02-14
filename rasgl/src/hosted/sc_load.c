@@ -288,81 +288,6 @@ RasResult hosted_script_map_gridmaps(LarNode* scene_exp, RasScene* scene)
     return RAS_RESULT_OK;
 }
 
-/**
- * @deprecated
- *
- */
-RasResult hosted_script_map_map(
-    RasScene* scene, LarNode* map_exp, RasSceneMap* scene_map)
-{
-
-    RasResult result = RAS_RESULT_OK;
-
-    LarNode* model_name = lar_get_property_by_type(
-        map_exp, SCRIPT_SYMBOL_MODEL_NAME, LAR_NODE_ATOM_STRING);
-
-    RAS_CHECK_AND_LOG(model_name == NULL,
-        "Failed to find property %s", SCRIPT_SYMBOL_MODEL_NAME);
-
-    // Look up the model by name and assign the reference
-    scene_map->element_ref = NULL;
-    for (size_t i = 0; i < scene->num_models; i++) {
-        RasSceneModel* model = &scene->models[i];
-        if (strcmp(model->name, model_name->atom.val_symbol) == 0) {
-            scene_map->element_ref = &model->element;
-            break;
-        }
-    }
-
-    RAS_CHECK_AND_LOG(scene_map->element_ref == NULL,
-        "Model %s referenced by map not found", model_name->atom.val_symbol);
-
-    return RAS_RESULT_OK;
-}
-
-/**
- * @deprecated
- *
- */
-RasResult hosted_script_map_maps(LarNode* scene_exp, RasScene* scene)
-{
-    LarNode* maps_list = lar_get_list_by_symbol(
-        scene_exp, SCRIPT_SYMBOL_MAPS);
-
-    if (maps_list == NULL) {
-        scene->num_maps = 0;
-        ras_log_info("Maps list not found in script");
-        return RAS_RESULT_OK;
-    }
-    size_t num_maps = maps_list->list.length - 1; // exclude the symbol
-
-    RasSceneMap* maps = (RasSceneMap*)malloc(
-        sizeof(RasSceneMap) * num_maps);
-
-    RAS_CHECK_AND_LOG(maps == NULL,
-        "Failed to allocate memory for scene maps");
-
-    for (size_t i = 0; i < num_maps; i++) {
-        // skip the symbol
-        LarNode* map_exp = lar_get_list_node_by_index(maps_list, i + 1);
-
-        RasSceneMap* map = &maps[i];
-
-        RasResult result = hosted_script_map_map(scene, map_exp, map);
-
-        if (result != RAS_RESULT_OK) {
-            ras_log_error("Failed to map object");
-            free(maps);
-            return RAS_RESULT_ERROR;
-        }
-    }
-
-    scene->maps = maps;
-    scene->num_maps = num_maps;
-
-    return RAS_RESULT_OK;
-}
-
 RasResult hosted_script_map_name(LarNode* scene_exp, RasScene* scene)
 {
 
@@ -493,14 +418,6 @@ RasResult hosted_script_map_scene(LarScript* script, RasScene** scene)
 
     if (result != RAS_RESULT_OK) {
         ras_log_error("Failed to map objects");
-        free(new_scene);
-        return RAS_RESULT_ERROR;
-    }
-
-    result = hosted_script_map_maps(scene_exp, new_scene);
-
-    if (result != RAS_RESULT_OK) {
-        ras_log_error("Failed to map maps");
         free(new_scene);
         return RAS_RESULT_ERROR;
     }
