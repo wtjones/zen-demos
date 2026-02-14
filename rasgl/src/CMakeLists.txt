@@ -1,4 +1,5 @@
 add_subdirectory(core)
+add_subdirectory(pack)
 if (NOT RAS_PLATFORM_TYPE STREQUAL "embedded")
     add_subdirectory(hosted)
     add_subdirectory(shell)

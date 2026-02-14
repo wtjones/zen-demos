@@ -10,5 +10,6 @@ void fov_scale_tests();
 void pipeline_scene_tests();
 void gridmap_scene_test();
 void tombmap_scene_test();
+void pack_tests();
 
 #endif

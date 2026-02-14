@@ -384,6 +384,7 @@ The [cmake variant file](https://vector-of-bool.github.io/docs/vscode-cmake-tool
 * [fpsqrt](https://github.com/chmike/fpsqrt)
 * [log.c](https://github.com/rxi/log.c)
 * [ps1-bare-metal](https://github.com/spicyjpeg/ps1-bare-metal)
+* [mpack](https://github.com/ludocode/mpack)
 
 ## References
 

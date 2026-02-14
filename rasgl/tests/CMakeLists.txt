@@ -3,13 +3,14 @@ add_executable(tests
     backface_tests.c
     gridmap_tests.c
     maths_tests.c
+    pack_tests.c
     pipeline_tests.c
     tombmap_tests.c)
 
 include(${CMAKE_SOURCE_DIR}/cmake/FindLarse.cmake)
 
 target_include_directories(tests PUBLIC include)
-target_link_libraries(tests PRIVATE m core hosted)
+target_link_libraries(tests PRIVATE m core hosted pack)
 
 add_compile_options(-fsanitize=address)
 add_link_options(-fsanitize=address)
