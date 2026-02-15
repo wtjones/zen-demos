@@ -17,9 +17,10 @@ void core_free_scene_models(RasScene* scene)
 void core_free_scene_objects(RasScene* scene)
 {
     for (size_t i = 0; i < scene->num_objects; i++) {
-        if (scene->objects[i].animation != NULL) {
-            free(scene->objects[i].animation);
-            scene->objects[i].animation = NULL;
+        if (scene->objects[i].animations != NULL) {
+            free(scene->objects[i].animations);
+            scene->objects[i].animations = NULL;
+            scene->objects[i].num_animations = 0;
         }
     }
 

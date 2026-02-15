@@ -119,7 +119,8 @@ RasResult hosted_script_map_animation(
 
     if (animation_exp == NULL) {
         ras_log_info("Scene object animation not present. Skipping...");
-        scene_object->animation = NULL;
+        scene_object->animations = NULL;
+        scene_object->num_animations = 0;
         return RAS_RESULT_OK;
     }
 
@@ -148,7 +149,8 @@ RasResult hosted_script_map_animation(
 
     animation->rotation.axis = axis;
     animation->rotation.speed = speed_exp->atom.val_fixed;
-    scene_object->animation = animation;
+    scene_object->animations = animation;
+    scene_object->num_animations = 1;
 
     return RAS_RESULT_OK;
 }

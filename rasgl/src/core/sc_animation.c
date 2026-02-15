@@ -3,10 +3,15 @@
 
 void core_update_animation(RasSceneObject* scene_object)
 {
-    if (!scene_object->animation) {
+    if (scene_object->num_animations == 0 || scene_object->animations == NULL) {
         return;
     }
-    RasSceneObjectAnimationRotation* rotation = &scene_object->animation->rotation;
+
+    if (scene_object->num_animations > 1) {
+        ras_log_warn("Multiple animations not supported yet. Only applying first animation.");
+    }
+
+    RasSceneObjectAnimationRotation* rotation = &scene_object->animations[0].rotation;
 
     RasVector3f* model_rotation = &scene_object->rotation;
 

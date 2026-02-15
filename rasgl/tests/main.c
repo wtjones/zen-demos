@@ -364,9 +364,9 @@ void scene_tests()
     pass = pass && scene->objects[0].model_index != -1;
     pass = pass && scene->objects[0].position.z == -float_to_fixed_16_16(2.5);
     pass = pass && scene->objects[0].rotation.y == float_to_fixed_16_16(0.5);
-    pass = pass && scene->objects[0].animation != NULL;
-    pass = pass && scene->objects[0].animation->rotation.speed == float_to_fixed_16_16(0.5);
-    pass = pass && scene->objects[0].animation->rotation.axis.y == float_to_fixed_16_16(1.0);
+    pass = pass && scene->objects[0].animations != NULL;
+    pass = pass && scene->objects[0].animations[0].rotation.speed == float_to_fixed_16_16(0.5);
+    pass = pass && scene->objects[0].animations[0].rotation.axis.y == float_to_fixed_16_16(1.0);
     pass = pass && scene->num_cameras == 1;
     pass = pass && scene->cameras[0].position.z == float_to_fixed_16_16(2.5);
     pass = pass && scene->cameras[0].angle == 180;

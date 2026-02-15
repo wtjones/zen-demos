@@ -66,7 +66,9 @@ typedef struct {
     RasVector3f position;
     RasVector3f rotation;       // Intialized from :orientation in scene script
     RasVector3f rotation_delta; // Rotation speed
-    RasSceneObjectAnimation* animation;
+    size_t num_animations;      // Currently only a single animation
+                                // is supported.
+    RasSceneObjectAnimation* animations;
     uint32_t mesh_index;
 } RasSceneObject;
 

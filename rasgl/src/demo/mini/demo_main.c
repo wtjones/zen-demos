@@ -138,9 +138,10 @@ RasScene* build_scene()
     obj->rotation.y = RAS_FLOAT_TO_FIXED(0.0f);
     obj->rotation.z = RAS_FLOAT_TO_FIXED(0.0f);
     obj->mesh_index = 0;
+
     // :animation (rotation :axis (vec 0.0 1.0 0.0) :speed 0.5))
-    obj->animation = malloc(sizeof(RasSceneObjectAnimation));
-    if (obj->animation == NULL) {
+    obj->animations = malloc(sizeof(RasSceneObjectAnimation));
+    if (obj->animations == NULL) {
         ras_log_error("Unable to malloc() scene object animation.");
         free(scene->objects);
         core_pipeline_element_free(&model->element);
@@ -149,11 +150,12 @@ RasScene* build_scene()
         free(scene);
         return NULL;
     }
-    RasSceneObjectAnimation* anim = obj->animation;
+    RasSceneObjectAnimation* anim = &obj->animations[0];
     anim->rotation.axis.x = RAS_FLOAT_TO_FIXED(0.0f);
     anim->rotation.axis.y = RAS_FLOAT_TO_FIXED(1.0f);
     anim->rotation.axis.z = RAS_FLOAT_TO_FIXED(0.0f);
     anim->rotation.speed = RAS_FLOAT_TO_FIXED(0.5f);
+    obj->num_animations = 1;
 
     return scene;
 }
