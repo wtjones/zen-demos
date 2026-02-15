@@ -1,6 +1,8 @@
 
 add_library(pack
+    common.c
     element_encode.c
+    element_decode.c
     model_encode.c
     model_decode.c
     scene_encode.c

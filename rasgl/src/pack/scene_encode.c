@@ -3,12 +3,12 @@
 
 char* pack_encode_scene(RasScene* scene, size_t* out_size)
 {
-
     char* data;
     mpack_writer_t writer;
     mpack_writer_init_growable(&writer, &data, out_size);
 
-    mpack_start_map(&writer, 3);
+    mpack_start_map(&writer, 4);
+
     mpack_write_cstr(&writer, "name");
     mpack_write_cstr(&writer, scene->name);
     mpack_write_cstr(&writer, "num_models");
@@ -21,9 +21,13 @@ char* pack_encode_scene(RasScene* scene, size_t* out_size)
     }
     ras_log_info("Finished encoding models");
     mpack_finish_array(&writer);
+
+    mpack_write_cstr(&writer, "num_objects");
+    mpack_write_uint(&writer, scene->num_objects);
+    // TODO encode objects
+
     mpack_finish_map(&writer);
 
-    // finish writing
     if (mpack_writer_destroy(&writer) != mpack_ok) {
         ras_log_error("An error occurred encoding the data!\n");
         return NULL;
