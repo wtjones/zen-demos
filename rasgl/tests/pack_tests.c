@@ -66,9 +66,9 @@ void pack_scene_tests()
         assert(scene->models[0].element.material_indexes[0] == decoded_scene->models[0].element.material_indexes[0]);
     }
 
-    // assert(scene->num_cameras == decoded_scene->num_cameras);
-    // assert(cmp_point3f((Point3f*)&scene->cameras[0].position, (Point3f*)&decoded_scene->cameras[0].position));
-    // assert(scene->cameras[0].angle == decoded_scene->cameras[0].angle);
+    assert(scene->num_cameras == decoded_scene->num_cameras);
+    assert(cmp_point3f((Point3f*)&scene->cameras[0].position, (Point3f*)&decoded_scene->cameras[0].position));
+    assert(scene->cameras[0].angle == decoded_scene->cameras[0].angle);
 
     ras_log_info("Test: Freeing decoded scene...");
     free(encoded_scene);

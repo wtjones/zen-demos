@@ -35,6 +35,9 @@ RasScene* pack_decode_scene(const char* data, size_t size);
 void pack_encode_model(mpack_writer_t* writer, RasSceneModel* model);
 RasResult pack_decode_scene_model(mpack_node_t node, RasSceneModel* model);
 
+void pack_encode_camera(mpack_writer_t* writer, RasCamera* camera);
+RasResult pack_decode_camera(mpack_node_t node, RasCamera* camera);
+
 void pack_encode_object(mpack_writer_t* writer, RasSceneObject* obj);
 RasResult pack_decode_scene_object(mpack_node_t node, RasSceneObject* obj);
 

@@ -78,6 +78,27 @@ RasScene* pack_decode_scene(const char* data, size_t size)
         core_free_scene(&scene);
         return NULL;
     }
+    /* cameras */
+    scene->num_cameras = mpack_node_i32(mpack_node_map_cstr(root, "num_cameras"));
+    if (scene->num_cameras > 0) {
+        scene->cameras = malloc(sizeof(RasCamera) * scene->num_cameras);
+        if (scene->cameras == NULL) {
+            ras_log_error("Failed to allocate memory for cameras");
+            core_free_scene(&scene);
+            mpack_tree_destroy(&tree);
+            return NULL;
+        }
+
+        mpack_node_t cams_node = mpack_node_map_cstr(root, "cameras");
+        for (size_t i = 0; i < scene->num_cameras; i++) {
+            if (pack_decode_camera(mpack_node_array_at(cams_node, i), &scene->cameras[i]) != RAS_RESULT_OK) {
+                ras_log_error("Failed to decode camera %zu", i);
+                core_free_scene(&scene);
+                mpack_tree_destroy(&tree);
+                return NULL;
+            }
+        }
+    }
 
     return scene;
 }
