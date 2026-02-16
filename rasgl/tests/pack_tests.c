@@ -70,6 +70,16 @@ void pack_scene_tests()
     assert(cmp_point3f((Point3f*)&scene->cameras[0].position, (Point3f*)&decoded_scene->cameras[0].position));
     assert(scene->cameras[0].angle == decoded_scene->cameras[0].angle);
 
+    // TombMap
+    assert(scene->num_tombmaps == decoded_scene->num_tombmaps);
+    if (scene->num_tombmaps > 0) {
+        assert(strcmp(scene->tombmaps[0].name, decoded_scene->tombmaps[0].name) == 0);
+        assert(scene->tombmaps[0].num_rooms == decoded_scene->tombmaps[0].num_rooms);
+        if (scene->tombmaps[0].num_rooms > 0) {
+            assert(strcmp(scene->tombmaps[0].rooms[0].name, decoded_scene->tombmaps[0].rooms[0].name) == 0);
+        }
+    }
+
     ras_log_info("Test: Freeing decoded scene...");
     free(encoded_scene);
     core_free_scene(&scene);

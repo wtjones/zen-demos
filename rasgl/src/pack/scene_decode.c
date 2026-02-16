@@ -71,6 +71,26 @@ RasScene* pack_decode_scene(const char* data, size_t size)
             scene->num_objects++;
         }
     }
+    /* tombmaps */
+    scene->num_tombmaps = mpack_node_i32(mpack_node_map_cstr(root, "num_tombmaps"));
+    if (scene->num_tombmaps > 0) {
+        scene->tombmaps = malloc(sizeof(RasSceneTombMap) * scene->num_tombmaps);
+        if (scene->tombmaps == NULL) {
+            ras_log_error("Failed to allocate memory for tombmaps.");
+            mpack_tree_destroy(&tree);
+            core_free_scene(&scene);
+            return NULL;
+        }
+        mpack_node_t tombs_node = mpack_node_map_cstr(root, "tombmaps");
+        for (size_t i = 0; i < scene->num_tombmaps; i++) {
+            if (pack_decode_tombmap(mpack_node_array_at(tombs_node, i), &scene->tombmaps[i]) != RAS_RESULT_OK) {
+                ras_log_error("Failed to decode tombmap %zu.", i);
+                mpack_tree_destroy(&tree);
+                core_free_scene(&scene);
+                return NULL;
+            }
+        }
+    }
 
     // clean up and check for errors
     if (mpack_tree_destroy(&tree) != mpack_ok) {

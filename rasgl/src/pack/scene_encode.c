@@ -30,6 +30,14 @@ char* pack_encode_scene(RasScene* scene, size_t* out_size)
         pack_encode_object(&writer, &scene->objects[i]);
     }
     mpack_finish_array(&writer); // objects
+    mpack_write_cstr(&writer, "num_tombmaps");
+    mpack_write_uint(&writer, scene->num_tombmaps);
+    mpack_write_cstr(&writer, "tombmaps");
+    mpack_start_array(&writer, scene->num_tombmaps);
+    for (size_t i = 0; i < scene->num_tombmaps; i++) {
+        pack_encode_tombmap(&writer, &scene->tombmaps[i]);
+    }
+    mpack_finish_array(&writer); // tombmaps
 
     mpack_write_cstr(&writer, "num_cameras");
     mpack_write_uint(&writer, scene->num_cameras);
