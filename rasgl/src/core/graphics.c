@@ -475,18 +475,26 @@ RasResult core_pipeline_element_alloc(
 
 void core_pipeline_element_free(RasPipelineElement* element)
 {
-    free(element->verts);
-    free(element->faces);
-    free(element->indexes);
-    free(element->material_indexes);
-    element->verts = NULL;
-    element->faces = NULL;
-    element->indexes = NULL;
-    element->material_indexes = NULL;
-    element->max_verts = element->num_verts = 0;
-    element->max_faces = element->num_faces = 0;
-    element->max_indexes = element->num_indexes = 0;
-    element->max_material_indexes = element->num_material_indexes = 0;
+    if (element->verts != NULL) {
+        free(element->verts);
+        element->verts = NULL;
+        element->num_verts = 0;
+    }
+    if (element->faces != NULL) {
+        free(element->faces);
+        element->faces = NULL;
+        element->num_faces = 0;
+    }
+    if (element->indexes != NULL) {
+        free(element->indexes);
+        element->indexes = NULL;
+        element->num_indexes = 0;
+    }
+    if (element->material_indexes != NULL) {
+        free(element->material_indexes);
+        element->material_indexes = NULL;
+        element->num_material_indexes = 0;
+    }
 }
 
 RasResult core_pipeline_mesh_alloc(

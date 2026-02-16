@@ -23,13 +23,16 @@ void core_free_scene_objects(RasScene* scene)
             scene->objects[i].num_animations = 0;
         }
     }
-
     free(scene->objects);
+    scene->objects = NULL;
+    scene->num_objects = 0;
 }
 
 void core_free_scene_cameras(RasScene* scene)
 {
     free(scene->cameras);
+    scene->cameras = NULL;
+    scene->num_cameras = 0;
 }
 
 void core_free_scene_gridmaps(RasScene* scene)
@@ -47,6 +50,9 @@ void core_free_scene_gridmaps(RasScene* scene)
 
 void core_free_scene(RasScene** scene)
 {
+    if (scene == NULL || *scene == NULL) {
+        return;
+    }
     RasScene* s = *scene;
     core_free_scene_models(s);
     core_free_scene_objects(s);

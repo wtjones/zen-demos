@@ -34,16 +34,28 @@ void pack_scene_tests()
     assert(strcmp(scene->models[0].path, decoded_scene->models[0].path) == 0);
     assert(scene->models[0].element.num_verts == decoded_scene->models[0].element.num_verts);
     assert(scene->num_objects == decoded_scene->num_objects);
-    // assert(scene->objects[0].model_index == decoded_scene->objects[0].model_index);
+    assert(scene->objects[0].model_index == decoded_scene->objects[0].model_index);
+    assert(scene->objects[0].rotation.y == decoded_scene->objects[0].rotation.y);
+    assert(scene->objects[0].position.z == decoded_scene->objects[0].position.z);
+    assert(cmp_point3f((Point3f*)&scene->objects[0].position, (Point3f*)&decoded_scene->objects[0].position));
+    assert(cmp_point3f((Point3f*)&scene->objects[0].rotation, (Point3f*)&decoded_scene->objects[0].rotation));
+
+    assert(scene->objects[0].num_animations == decoded_scene->objects[0].num_animations);
+    assert(scene->objects[0].animations[0].rotation.speed == decoded_scene->objects[0].animations[0].rotation.speed);
+    assert(cmp_point3f((Point3f*)&scene->objects[0].animations[0].rotation.axis,
+        (Point3f*)&decoded_scene->objects[0].animations[0].rotation.axis));
 
     assert(cmp_point3f(&scene->models[0].element.aabb.min, &decoded_scene->models[0].element.aabb.min));
     assert(cmp_point3f(&scene->models[0].element.aabb.max, &decoded_scene->models[0].element.aabb.max));
 
+    // assert(scene->num_cameras == decoded_scene->num_cameras);
+    // assert(cmp_point3f((Point3f*)&scene->cameras[0].position, (Point3f*)&decoded_scene->cameras[0].position));
+    // assert(scene->cameras[0].angle == decoded_scene->cameras[0].angle);
+
     ras_log_info("Test: Freeing decoded scene...");
     free(encoded_scene);
     core_free_scene(&scene);
-    // FIXME: Enable once full packing implemented.
-    // core_free_scene(&decoded_scene);
+    core_free_scene(&decoded_scene);
 }
 
 void pack_tests()
