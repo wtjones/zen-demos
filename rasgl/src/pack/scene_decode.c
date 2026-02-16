@@ -92,12 +92,6 @@ RasScene* pack_decode_scene(const char* data, size_t size)
         }
     }
 
-    // clean up and check for errors
-    if (mpack_tree_destroy(&tree) != mpack_ok) {
-        ras_log_error("An error occurred decoding scene with size %zu.", size);
-        core_free_scene(&scene);
-        return NULL;
-    }
     /* cameras */
     scene->num_cameras = mpack_node_i32(mpack_node_map_cstr(root, "num_cameras"));
     if (scene->num_cameras > 0) {
@@ -118,6 +112,13 @@ RasScene* pack_decode_scene(const char* data, size_t size)
                 return NULL;
             }
         }
+    }
+
+    /* clean up and check for errors */
+    if (mpack_tree_destroy(&tree) != mpack_ok) {
+        ras_log_error("An error occurred decoding scene with size %zu.", size);
+        core_free_scene(&scene);
+        return NULL;
     }
 
     return scene;

@@ -13,8 +13,8 @@ RasResult pack_decode_vector3f(mpack_node_t node, RasVector3f* vec);
 void pack_encode_vertex(mpack_writer_t* writer, RasVertex* vertex);
 RasResult pack_decode_vertex(mpack_node_t node, RasVertex* vertex);
 
-void pack_encode_face(mpack_writer_t* writer, RasPipelineFace* face);
-RasResult pack_decode_face(mpack_node_t node, RasPipelineFace* face);
+void pack_encode_face(mpack_writer_t* writer, RasElementFace* face);
+RasResult pack_decode_face(mpack_node_t node, RasElementFace* face);
 
 void pack_encode_aabb(mpack_writer_t* writer, RasAABB* aabb);
 RasResult pack_decode_aabb(mpack_node_t node, RasAABB* aabb);

@@ -53,7 +53,6 @@ void pack_scene_tests()
         assert(scene->models[0].element.faces[0].material_index == decoded_scene->models[0].element.faces[0].material_index);
         assert(scene->models[0].element.faces[0].outline_edges == decoded_scene->models[0].element.faces[0].outline_edges);
         assert(cmp_point3f(&scene->models[0].element.faces[0].normal, &decoded_scene->models[0].element.faces[0].normal));
-        assert(cmp_point3f(&scene->models[0].element.faces[0].view_space_normal, &decoded_scene->models[0].element.faces[0].view_space_normal));
     }
 
     assert(scene->models[0].element.num_indexes == decoded_scene->models[0].element.num_indexes);
@@ -76,7 +75,8 @@ void pack_scene_tests()
         assert(strcmp(scene->tombmaps[0].name, decoded_scene->tombmaps[0].name) == 0);
         assert(scene->tombmaps[0].num_rooms == decoded_scene->tombmaps[0].num_rooms);
         if (scene->tombmaps[0].num_rooms > 0) {
-            assert(strcmp(scene->tombmaps[0].rooms[0].name, decoded_scene->tombmaps[0].rooms[0].name) == 0);
+            assert(scene->tombmaps[0].rooms[0].x == decoded_scene->tombmaps[0].rooms[0].x);
+            assert(scene->tombmaps[0].rooms[0].z == decoded_scene->tombmaps[0].rooms[0].z);
         }
     }
 

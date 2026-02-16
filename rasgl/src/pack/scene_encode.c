@@ -7,7 +7,7 @@ char* pack_encode_scene(RasScene* scene, size_t* out_size)
     mpack_writer_t writer;
     mpack_writer_init_growable(&writer, &data, out_size);
 
-    mpack_start_map(&writer, 5);
+    mpack_start_map(&writer, 9);
 
     mpack_write_cstr(&writer, "name");
     mpack_write_cstr(&writer, scene->name);
