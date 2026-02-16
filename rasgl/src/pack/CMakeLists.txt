@@ -3,6 +3,8 @@ add_library(pack
     common.c
     element_encode.c
     element_decode.c
+    face_encode.c
+    face_decode.c
     object_encode.c
     object_decode.c
     model_encode.c

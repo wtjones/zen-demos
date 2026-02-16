@@ -48,6 +48,24 @@ void pack_scene_tests()
     assert(cmp_point3f(&scene->models[0].element.aabb.min, &decoded_scene->models[0].element.aabb.min));
     assert(cmp_point3f(&scene->models[0].element.aabb.max, &decoded_scene->models[0].element.aabb.max));
 
+    assert(scene->models[0].element.num_faces == decoded_scene->models[0].element.num_faces);
+    if (scene->models[0].element.num_faces > 0) {
+        assert(scene->models[0].element.faces[0].material_index == decoded_scene->models[0].element.faces[0].material_index);
+        assert(scene->models[0].element.faces[0].outline_edges == decoded_scene->models[0].element.faces[0].outline_edges);
+        assert(cmp_point3f(&scene->models[0].element.faces[0].normal, &decoded_scene->models[0].element.faces[0].normal));
+        assert(cmp_point3f(&scene->models[0].element.faces[0].view_space_normal, &decoded_scene->models[0].element.faces[0].view_space_normal));
+    }
+
+    assert(scene->models[0].element.num_indexes == decoded_scene->models[0].element.num_indexes);
+    if (scene->models[0].element.num_indexes > 0) {
+        assert(scene->models[0].element.indexes[0] == decoded_scene->models[0].element.indexes[0]);
+    }
+
+    assert(scene->models[0].element.num_material_indexes == decoded_scene->models[0].element.num_material_indexes);
+    if (scene->models[0].element.num_material_indexes > 0) {
+        assert(scene->models[0].element.material_indexes[0] == decoded_scene->models[0].element.material_indexes[0]);
+    }
+
     // assert(scene->num_cameras == decoded_scene->num_cameras);
     // assert(cmp_point3f((Point3f*)&scene->cameras[0].position, (Point3f*)&decoded_scene->cameras[0].position));
     // assert(scene->cameras[0].angle == decoded_scene->cameras[0].angle);

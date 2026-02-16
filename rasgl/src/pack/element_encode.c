@@ -6,7 +6,7 @@
 
 void pack_encode_element(mpack_writer_t* writer, RasPipelineElement* element)
 {
-    mpack_start_map(writer, 7);
+    mpack_start_map(writer, 10);
 
     mpack_write_cstr(writer, "num_verts");
     mpack_write_uint(writer, element->num_verts);
@@ -20,13 +20,36 @@ void pack_encode_element(mpack_writer_t* writer, RasPipelineElement* element)
 
     mpack_write_cstr(writer, "num_faces");
     mpack_write_uint(writer, element->num_faces);
+
+    mpack_write_cstr(writer, "faces");
+    mpack_start_array(writer, element->num_faces);
+    for (size_t i = 0; i < element->num_faces; i++) {
+        pack_encode_face(writer, &element->faces[i]);
+    }
+    mpack_finish_array(writer);
+
     mpack_write_cstr(writer, "num_indexes");
     mpack_write_uint(writer, element->num_indexes);
     mpack_write_cstr(writer, "max_indexes");
     mpack_write_uint(writer, element->max_indexes);
+
+    mpack_write_cstr(writer, "indexes");
+    mpack_start_array(writer, element->num_indexes);
+    for (size_t i = 0; i < element->num_indexes; i++) {
+        mpack_write_uint(writer, element->indexes[i]);
+    }
+    mpack_finish_array(writer);
+
     mpack_write_cstr(writer, "num_material_indexes");
     mpack_write_uint(writer, element->num_material_indexes);
-    // TODO faces, indexes, material indexes
+
+    mpack_write_cstr(writer, "material_indexes");
+    mpack_start_array(writer, element->num_material_indexes);
+    for (size_t i = 0; i < element->num_material_indexes; i++) {
+        mpack_write_int(writer, element->material_indexes[i]);
+    }
+    mpack_finish_array(writer);
+
     mpack_write_cstr(writer, "aabb");
     pack_encode_aabb(writer, &element->aabb);
 
