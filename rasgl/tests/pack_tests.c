@@ -2,7 +2,6 @@
 #include "rasgl/core/scene.h"
 #include "rasgl/pack/pack.h"
 #include "tests.h"
-#include <sanitizer/lsan_interface.h>
 
 void pack_scene_tests()
 {
@@ -89,8 +88,5 @@ void pack_scene_tests()
 void pack_tests()
 {
     ras_log_info("Running pack tests...");
-    // FIXME: Enable once full packing implemented.
-    __lsan_disable();
     pack_scene_tests();
-    __lsan_enable();
 }

@@ -30,6 +30,24 @@
                 "miDebuggerPath": "/usr/bin/gdb"
             },
             "preLaunchTask": "CMake: build"
+        },
+        {
+            "name": "rascli pack",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/rascli",
+            "cwd": "${workspaceFolder}",
+            "linux": {
+                "MIMode": "gdb",
+                "miDebuggerPath": "/usr/bin/gdb"
+            },
+            "preLaunchTask": "CMake: build",
+            "args": [
+                "-p",
+                "${input:scenePath}",
+                "-o",
+                "/tmp/ras.mp"
+            ]
         }
     ],
     "inputs": [

@@ -599,6 +599,7 @@ int main()
     rasterize_tri_tests();
     pipeline_scene_tests();
     event_summary_tests();
+    pack_tests();
 
     return 0;
 }
