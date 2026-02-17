@@ -1,4 +1,4 @@
-(scene :name "tri"
+(scene :name "multi"
   (models
     (model :name "tri" :path "./assets/models/tri.obj")
     (model :name "ico" :path "./assets/models/ico.obj")

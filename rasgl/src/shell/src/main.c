@@ -20,38 +20,60 @@ void print_usage()
 
 int handle_package_scene(const char* scene_path, const char* output_path)
 {
-    ras_log_info("Packaging scene from %s to %s\n", scene_path, output_path ? output_path : "default output");
+    RasResult result = RAS_RESULT_ERROR;
+    RasScene* scene = NULL;
+    char* encoded = NULL;
+    FILE* output_file = NULL;
+    size_t encoded_size = 0;
 
-    RasScene* scene;
-    RasResult result = core_load_scene(scene_path, &scene);
+    ras_log_info("Packaging scene from %s to %s\n",
+        scene_path, output_path ? output_path : "default output");
 
-    RAS_CHECK_RESULT_AND_LOG(result, "Failed to load scene from %s\n", scene_path);
+    result = core_load_scene(scene_path, &scene);
+    if (result != RAS_RESULT_OK) {
+        ras_log_error("Failed to load scene from %s\n", scene_path);
+        goto cleanup;
+    }
 
     ras_log_info("Successfully loaded scene: %s\n", scene->name);
 
-    size_t encoded_size;
-    char* encoded = pack_encode_scene(scene, &encoded_size);
-
-    if (encoded == NULL) {
+    encoded = pack_encode_scene(scene, &encoded_size);
+    if (!encoded) {
         ras_log_error("Failed to encode scene.\n");
-        core_free_scene(&scene);
-        return 1;
+        goto cleanup;
     }
 
-    FILE* output_file = fopen(output_path, "wb");
-    if (output_file == NULL) {
-        ras_log_error("Failed to open output file %s for writing.\n", output_path);
-        free(encoded);
-        core_free_scene(&scene);
-        return 1;
+    if (encoded_size == 0) {
+        ras_log_error("Encoded scene has size 0. Aborting.\n");
+        goto cleanup;
     }
-    fwrite(encoded, 1, encoded_size, output_file);
-    fclose(output_file);
+
+    output_file = fopen(output_path, "wb");
+    if (!output_file) {
+        ras_log_error("Failed to open output file %s for writing.\n", output_path);
+        goto cleanup;
+    }
+
+    size_t written = fwrite(encoded, 1, encoded_size, output_file);
+    if (written != encoded_size) {
+        ras_log_error("Failed to write entire encoded scene to output file.\n");
+        goto cleanup;
+    }
+
+    ras_log_info("Scene %s packaged successfully to %s with size %zu bytes",
+        scene->name, output_path, encoded_size);
+
+    result = RAS_RESULT_OK;
+
+cleanup:
+    if (output_file) {
+        fclose(output_file);
+    }
     free(encoded);
-    core_free_scene(&scene);
-    ras_log_info("Scene packaged successfully to %s with size %zu bytes",
-        output_path, encoded_size);
-    return 0;
+    if (scene) {
+        core_free_scene(&scene);
+    }
+    return result;
 }
 
 int main(int argc, char** argv)
