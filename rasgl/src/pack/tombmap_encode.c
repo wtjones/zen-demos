@@ -5,7 +5,7 @@
 
 void pack_encode_tombmap(mpack_writer_t* writer, RasSceneTombMap* tombmap)
 {
-    mpack_start_map(writer, 2);
+    mpack_start_map(writer, 3);
 
     mpack_write_cstr(writer, "name");
     mpack_write_cstr(writer, tombmap->name);
@@ -17,7 +17,7 @@ void pack_encode_tombmap(mpack_writer_t* writer, RasSceneTombMap* tombmap)
     mpack_start_array(writer, tombmap->num_rooms);
     for (size_t r = 0; r < tombmap->num_rooms; r++) {
         RasTombMapRoom* room = &tombmap->rooms[r];
-        mpack_start_map(writer, 9);
+        mpack_start_map(writer, 10);
         mpack_write_cstr(writer, "x");
         mpack_write_i32(writer, room->x);
         mpack_write_cstr(writer, "z");
