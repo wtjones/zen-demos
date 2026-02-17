@@ -9,4 +9,4 @@ set_target_properties(rascli PROPERTIES
 include(${CMAKE_SOURCE_DIR}/cmake/FindLarse.cmake)
 
 target_include_directories(rascli PUBLIC include)
-target_link_libraries(rascli PRIVATE m core hosted)
+target_link_libraries(rascli PRIVATE m core hosted pack)

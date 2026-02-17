@@ -374,6 +374,19 @@ run_posix.sh [world | poly] 1
 run_dos.sh [world | poly] 1
 ```
 
+## Ras CLI
+
+A command line tool for packaging scenes for embedded platforms.
+
+
+**Examples**
+
+Package scene `tri.lsp` to `/tmp/tri.mp`:
+
+```bash
+./run_cli.sh -p assets/scenes/tri.lsp -o /tmp/tri.mp
+```
+
 ## VS Code
 
 The [cmake variant file](https://vector-of-bool.github.io/docs/vscode-cmake-tools/variants.html) allows for the selection of a buildType/platform/demo combo. As more demos are added, it may be preferable to use build targets.

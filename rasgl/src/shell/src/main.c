@@ -1,6 +1,8 @@
 #include "log.c/src/log.h"
+#include "rasgl/core/debug.h"
 #include "rasgl/core/scene.h"
 #include "rasgl/hosted/sc_load.h"
+#include "rasgl/pack/pack.h"
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,16 +20,37 @@ void print_usage()
 
 int handle_package_scene(const char* scene_path, const char* output_path)
 {
-    printf("Packaging scene from %s to %s\n", scene_path, output_path ? output_path : "default output");
+    ras_log_info("Packaging scene from %s to %s\n", scene_path, output_path ? output_path : "default output");
 
     RasScene* scene;
     RasResult result = core_load_scene(scene_path, &scene);
 
-    if (result != RAS_RESULT_OK) {
-        fprintf(stderr, "Failed to load scene from %s\n", scene_path);
+    RAS_CHECK_RESULT_AND_LOG(result, "Failed to load scene from %s\n", scene_path);
+
+    ras_log_info("Successfully loaded scene: %s\n", scene->name);
+
+    size_t encoded_size;
+    char* encoded = pack_encode_scene(scene, &encoded_size);
+
+    if (encoded == NULL) {
+        ras_log_error("Failed to encode scene.\n");
+        core_free_scene(&scene);
         return 1;
     }
-    printf("Successfully loaded scene: %s\n", scene->name);
+
+    FILE* output_file = fopen(output_path, "wb");
+    if (output_file == NULL) {
+        ras_log_error("Failed to open output file %s for writing.\n", output_path);
+        free(encoded);
+        core_free_scene(&scene);
+        return 1;
+    }
+    fwrite(encoded, 1, encoded_size, output_file);
+    fclose(output_file);
+    free(encoded);
+    core_free_scene(&scene);
+    ras_log_info("Scene packaged successfully to %s with size %zu bytes",
+        output_path, encoded_size);
     return 0;
 }
 
