@@ -7,6 +7,7 @@
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/input.h"
 #include "rasgl/core/repr.h"
+#include "rasgl/core/scene.h"
 #include "render.h"
 #include "serial.h"
 #include <stdio.h>
@@ -33,6 +34,9 @@ int main(int argc, const char** argv)
 
     char buffer[256];
     int val = 99;
+
+    RasScene* scene;
+    core_load_scene("bld_psx/scene.mp", &scene);
 
     if ((GPU_GP1 & GP1_STAT_FB_MODE_BITMASK) == GP1_STAT_FB_MODE_PAL) {
         puts("Using PAL mode");

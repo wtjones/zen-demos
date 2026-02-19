@@ -509,14 +509,16 @@ RasResult core_pipeline_mesh_alloc(
     mesh->max_verts = max_verts;
     mesh->verts = malloc(sizeof(RasPipelineVertex) * mesh->max_verts);
     if (mesh->verts == NULL) {
-        ras_log_error("Failed to allocate memory for pipeline mesh verts");
+        ras_log_error("Failed to allocate %zu bytes for pipeline mesh verts",
+            sizeof(RasPipelineVertex) * mesh->max_verts);
         return RAS_RESULT_ERROR;
     }
 
     mesh->max_visible_indexes = max_visible_indexes;
     mesh->visible_indexes = malloc(sizeof(uint32_t) * mesh->max_visible_indexes);
     if (mesh->visible_indexes == NULL) {
-        ras_log_error("Failed to allocate memory for pipeline mesh visible indexes");
+        ras_log_error("Failed to allocate %zu bytes for pipeline mesh visible indexes",
+            sizeof(uint32_t) * mesh->max_visible_indexes);
         free(mesh->verts);
         return RAS_RESULT_ERROR;
     }
@@ -524,7 +526,8 @@ RasResult core_pipeline_mesh_alloc(
     mesh->max_visible_faces = max_visible_faces;
     mesh->visible_faces = malloc(sizeof(RasPipelineFace) * mesh->max_visible_faces);
     if (mesh->visible_faces == NULL) {
-        ras_log_error("Failed to allocate memory for pipeline mesh visible faces");
+        ras_log_error("Failed to allocate %zu bytes for pipeline mesh visible faces",
+            sizeof(RasPipelineFace) * mesh->max_visible_faces);
         free(mesh->verts);
         free(mesh->visible_indexes);
         return RAS_RESULT_ERROR;
@@ -533,7 +536,8 @@ RasResult core_pipeline_mesh_alloc(
     mesh->max_material_indexes = max_material_indexes;
     mesh->material_indexes = malloc(sizeof(int32_t) * mesh->max_material_indexes);
     if (mesh->material_indexes == NULL) {
-        ras_log_error("Failed to allocate memory for pipeline mesh material indexes");
+        ras_log_error("Failed to allocate %zu bytes for pipeline mesh material indexes",
+            sizeof(int32_t) * mesh->max_material_indexes);
         free(mesh->verts);
         free(mesh->visible_indexes);
         free(mesh->visible_faces);

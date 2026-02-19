@@ -257,12 +257,12 @@ Implementation is currently limited.
 #### Build
 
 ```bash
-./build_psx.sh
+./build_psx.sh poly 0 assets/scenes/multi01.lsp
 ```
 Optionally set max frames for testing:
 
 ```bash
-RAS_MAX_FRAMES=1000 ./build_psx.sh
+RAS_MAX_FRAMES=1 ./build_psx.sh poly 0 assets/scenes/multi01.lsp
 ```
 #### Run
 

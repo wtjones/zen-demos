@@ -52,11 +52,13 @@ addPS1Executable(ras_psx
 	src/platform/psx/serial.c
 	src/platform/psx/log_impl.c
 	src/platform/psx/render.c
+	src/platform/psx/sc_load.c
 )
 
-target_link_libraries(ras_psx PRIVATE common core demo)
+target_link_libraries(ras_psx PRIVATE common core pack demo)
 
 addBinaryFileWithSize(ras_psx textData textDataSize src/platform/psx/data.txt)
+addBinaryFileWithSize(ras_psx scene_data scene_data_size bld_psx/scene.mp)
 
 MESSAGE(STATUS "RAS_MAX_FRAMES: ${RAS_MAX_FRAMES}")
 

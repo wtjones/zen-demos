@@ -1,6 +1,24 @@
 #!/bin/bash
 
+set -euo pipefail
+
+DEMO=${1:-poly}
+DEBUG=${2:-0}
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+BUILD_DIR="${SCRIPT_DIR}/bld_psx"
+
+if [ ! -d "$BUILD_DIR" ]; then
+	mkdir -p "$BUILD_DIR"
+fi
+
+# Pack the scene data for embedded platforms.
+${SCRIPT_DIR}/run_cli.sh -p $3 -o ${BUILD_DIR}/scene.mp
+
+if [ $? -ne 0 ]; then
+  echo "run_cli.sh failed" >&2
+  exit 1
+fi
 
 if [ -n "${RAS_MAX_FRAMES:-}" ]; then
 	RAS_ARG="-DRAS_MAX_FRAMES=${RAS_MAX_FRAMES}"
@@ -19,7 +37,7 @@ CMAKE_CMD="cmake \
 	-DVENV_PATH=/work/env \
 	-DCMAKE_BUILD_TYPE=Debug \
 	-DRAS_PLATFORM=ras_psx \
-	-DRAS_DEMO=mini \
+	-DRAS_DEMO=${DEMO} \
 	${RAS_ARG} \
 	-GNinja \
 	-B bld_psx"

@@ -6,10 +6,13 @@
 
 void pack_encode_element(mpack_writer_t* writer, RasPipelineElement* element)
 {
-    mpack_start_map(writer, 10);
+    mpack_start_map(writer, 13);
 
     mpack_write_cstr(writer, "num_verts");
     mpack_write_uint(writer, element->num_verts);
+
+    mpack_write_cstr(writer, "max_verts");
+    mpack_write_uint(writer, element->max_verts);
 
     mpack_write_cstr(writer, "verts");
     mpack_start_array(writer, element->num_verts);
@@ -20,6 +23,9 @@ void pack_encode_element(mpack_writer_t* writer, RasPipelineElement* element)
 
     mpack_write_cstr(writer, "num_faces");
     mpack_write_uint(writer, element->num_faces);
+
+    mpack_write_cstr(writer, "max_faces");
+    mpack_write_uint(writer, element->max_faces);
 
     mpack_write_cstr(writer, "faces");
     mpack_start_array(writer, element->num_faces);
@@ -42,6 +48,9 @@ void pack_encode_element(mpack_writer_t* writer, RasPipelineElement* element)
 
     mpack_write_cstr(writer, "num_material_indexes");
     mpack_write_uint(writer, element->num_material_indexes);
+
+    mpack_write_cstr(writer, "max_material_indexes");
+    mpack_write_uint(writer, element->max_material_indexes);
 
     mpack_write_cstr(writer, "material_indexes");
     mpack_start_array(writer, element->num_material_indexes);

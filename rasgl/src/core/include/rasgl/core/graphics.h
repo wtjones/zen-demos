@@ -197,18 +197,30 @@ typedef struct RasPipelineElement {
 typedef struct RasPipelineMesh {
     RasPipelineVertex* verts;
     uint32_t num_verts;
+    /**
+     * @brief Allocated size for geometry created during clipping.
+     */
     size_t max_verts;
 
     uint32_t* visible_indexes;
     uint32_t num_visible_indexes;
+    /**
+     * @brief Allocated size for geometry created during clipping.
+     */
     size_t max_visible_indexes;
 
     RasPipelineFace* visible_faces;
     uint32_t num_visible_faces;
+    /**
+     * @brief Allocated size for geometry created during clipping.
+     */
     size_t max_visible_faces;
 
     int32_t* material_indexes;     // -1 if undefined
     uint32_t num_material_indexes; // Will be num_visible_indexes / 3
+    /**
+     * @brief Allocated size for geometry created during clipping.
+     */
     size_t max_material_indexes;
 } RasPipelineMesh;
 

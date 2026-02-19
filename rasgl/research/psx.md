@@ -81,6 +81,14 @@ Cons:
 
 ## Packing
 
+### Flow
+
+1. `build_psx.sh` takes path to scene.
+    - Build and call rascli to pack scene to `scene.mp`.
+2. `psx.cmake` passes path to `addBinaryFileWithSize()`
+3. Demo poly is chosen based on demo param.
+4. PSX-specific core_load_scene() implementation uses the pack library to decode the scene.
+
 ### RasScene Structure
 
 - `RasScene`

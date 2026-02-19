@@ -10,7 +10,12 @@ RasResult pack_decode_element(mpack_node_t node, RasPipelineElement* element)
 
     /* verts */
     tmp.num_verts = mpack_node_u32(mpack_node_map_cstr(node, "num_verts"));
-    tmp.verts = malloc(sizeof(RasVertex) * tmp.num_verts);
+    tmp.max_verts = mpack_node_u32(mpack_node_map_cstr(node, "max_verts"));
+    if (tmp.max_verts == 0) {
+        ras_log_warn("Element verts max not set, defaulting to num_verts (%d)", tmp.num_verts);
+        tmp.max_verts = tmp.num_verts;
+    }
+    tmp.verts = malloc(sizeof(RasVertex) * tmp.max_verts);
     if (tmp.verts == NULL) {
         ras_log_error("Failed to allocate memory for element verts");
         return RAS_RESULT_ERROR;
@@ -26,9 +31,12 @@ RasResult pack_decode_element(mpack_node_t node, RasPipelineElement* element)
 
     /* faces */
     tmp.num_faces = mpack_node_u32(mpack_node_map_cstr(node, "num_faces"));
+    tmp.max_faces = mpack_node_u32(mpack_node_map_cstr(node, "max_faces"));
+    if (tmp.max_faces == 0)
+        tmp.max_faces = tmp.num_faces;
     tmp.faces = NULL;
     if (tmp.num_faces > 0) {
-        tmp.faces = malloc(sizeof(RasPipelineFace) * tmp.num_faces);
+        tmp.faces = malloc(sizeof(RasPipelineFace) * tmp.max_faces);
         if (tmp.faces == NULL) {
             ras_log_error("Failed to allocate memory for element faces");
             goto fail;
@@ -47,9 +55,13 @@ RasResult pack_decode_element(mpack_node_t node, RasPipelineElement* element)
     /* indexes */
     tmp.num_indexes = mpack_node_u32(mpack_node_map_cstr(node, "num_indexes"));
     tmp.max_indexes = mpack_node_u32(mpack_node_map_cstr(node, "max_indexes"));
+    if (tmp.max_indexes == 0) {
+        ras_log_warn("Element max_indexes not set, defaulting to num_indexes (%d)", tmp.num_indexes);
+        tmp.max_indexes = tmp.num_indexes;
+    }
     tmp.indexes = NULL;
     if (tmp.num_indexes > 0) {
-        tmp.indexes = malloc(sizeof(uint32_t) * tmp.num_indexes);
+        tmp.indexes = malloc(sizeof(uint32_t) * tmp.max_indexes);
         if (tmp.indexes == NULL) {
             ras_log_error("Failed to allocate memory for element indexes");
             goto fail;
@@ -63,9 +75,15 @@ RasResult pack_decode_element(mpack_node_t node, RasPipelineElement* element)
 
     /* material indexes */
     tmp.num_material_indexes = mpack_node_u32(mpack_node_map_cstr(node, "num_material_indexes"));
+    tmp.max_material_indexes = mpack_node_u32(mpack_node_map_cstr(node, "max_material_indexes"));
+    if (tmp.max_material_indexes == 0) {
+        ras_log_warn("Element max_material_indexes not set, defaulting to num_material_indexes (%d)",
+            tmp.num_material_indexes);
+        tmp.max_material_indexes = tmp.num_material_indexes;
+    }
     tmp.material_indexes = NULL;
     if (tmp.num_material_indexes > 0) {
-        tmp.material_indexes = malloc(sizeof(int32_t) * tmp.num_material_indexes);
+        tmp.material_indexes = malloc(sizeof(int32_t) * tmp.max_material_indexes);
         if (tmp.material_indexes == NULL) {
             ras_log_error("Failed to allocate memory for element material indexes");
             goto fail;

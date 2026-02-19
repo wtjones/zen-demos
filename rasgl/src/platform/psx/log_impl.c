@@ -23,6 +23,10 @@ static void platform_log(
     (void)fmt;
     (void)args;
 
+    if (level < RAS_LOG_LEVEL_FILE) {
+        return;
+    }
+
     static char buffer[1000];
     static char buffer2[1000];
 
