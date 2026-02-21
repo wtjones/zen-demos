@@ -10,6 +10,7 @@
 #include "rasgl/core/scene.h"
 #include "render.h"
 #include "serial.h"
+#include <malloc.h>
 #include <stdio.h>
 
 extern const char textData[];
@@ -36,7 +37,13 @@ int main(int argc, const char** argv)
     int val = 99;
 
     RasScene* scene;
-    core_load_scene("bld_psx/scene.mp", &scene);
+    if (core_load_scene("bld_psx/scene.mp", &scene) != RAS_RESULT_OK) {
+        ras_log_error("Error loading scene, exiting...");
+        goto fail;
+    }
+
+    ras_log_info("PSX heap usage: %d bytes. Free: %d bytes\n",
+        mallinfo2().uordblks, mallinfo2().fordblks);
 
     if ((GPU_GP1 & GP1_STAT_FB_MODE_BITMASK) == GP1_STAT_FB_MODE_PAL) {
         puts("Using PAL mode");
@@ -52,18 +59,22 @@ int main(int argc, const char** argv)
     RasResult result = ras_app_init(argc, argv, &plat_settings);
     if (result != RAS_RESULT_OK) {
         ras_log_error("Error result from ras_app_init(), exiting...");
-        return 1;
+        goto fail;
     }
+
+    ras_log_info("PSX heap usage: %d bytes\n", mallinfo2().uordblks);
 
     if (render_renderstates_init(states) != RAS_RESULT_OK) {
         ras_log_error("Error result from render_renderstates_init(), exiting...");
-
-        return 1;
+        goto fail;
     }
+
+    ras_log_info("PSX heap usage: %d bytes\n", mallinfo2().uordblks);
 
     core_input_init(&plat_input_state);
 
     ras_log_info("RAS_MAX_FRAMES: %d\n", RAS_MAX_FRAMES);
+    ras_log_info("Initial PSX heap usage: %d bytes\n", mallinfo2().uordblks);
 
     for (;;) {
         char textBuffer[256];
@@ -102,4 +113,9 @@ int main(int argc, const char** argv)
     }
 
     return 0;
+
+fail:
+    ras_log_info("PSX heap usage: %d bytes. Free: %d bytes\n",
+        mallinfo2().uordblks, mallinfo2().fordblks);
+    return 1;
 }

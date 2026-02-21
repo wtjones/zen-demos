@@ -20,9 +20,10 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "malloc.h"
 
 #define _align(x, n) (((x) + ((n) - 1)) & ~((n) - 1))
-#define _updateHeapUsage(incr)
+#define _updateHeapUsage(incr) (total_alloc += (incr))
 
 /* Internal state */
 
@@ -35,6 +36,29 @@ typedef struct _Block {
 
 static void  *_mallocStart;
 static Block *_mallocHead, *_mallocTail;
+static size_t total_alloc = 0;
+
+struct mallinfo2 mallinfo2(void)
+{
+    struct mallinfo2 info = {
+        .arena = 0,
+        .ordblks = 0,
+        .smblks = 0,
+        .hblks = 0,
+        .hblkhd = 0,
+        .usmblks = 0,
+        .fsmblks = 0,
+        .uordblks = total_alloc,
+        .fordblks = 0,
+        .keepcost = 0
+    };
+
+    for (Block* cur = _mallocHead; cur; cur = cur->next) {
+        info.ordblks++;
+    }
+
+    return info;
+}
 
 /* Allocator implementation */
 
