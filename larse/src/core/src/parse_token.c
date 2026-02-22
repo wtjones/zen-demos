@@ -154,7 +154,7 @@ LarParseResult parse_token_atom_integer(
 
 LarFixed decimal_to_fixed(char sign, char* whole, char* frac)
 {
-    log_info("fractional part: %s, whole part: %s\n", frac, whole);
+    log_debug("fractional part: %s, whole part: %s\n", frac, whole);
 
     int64_t exp = pow(10, (int)strlen(frac));
     int64_t frac_part = (int64_t)atoi(frac) * INT64_C(65536) / exp;

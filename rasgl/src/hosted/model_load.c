@@ -345,6 +345,6 @@ RasModel* core_load_model(const char* path)
     }
     hosted_plat_free(&line);
     ras_log_trace("Model loaded: %s, bytes: %zu", model->name, sizeof *model);
-    ras_log_info("%s", core_repr_model(buffer, sizeof buffer, model));
+    ras_log_trace("%s", core_repr_model(buffer, sizeof buffer, model));
     return model;
 }

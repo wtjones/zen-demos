@@ -470,7 +470,7 @@ RasResult core_load_scene(const char* path, RasScene** scene)
         "Failed to parse scene file: %s", path);
 
     char* repr = lar_repr_script(script);
-    ras_log_info("Script: %s", repr);
+    ras_log_debug("Script: %s", repr);
     free(repr);
 
     result = hosted_script_map_scene(script, scene);
