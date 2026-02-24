@@ -309,8 +309,9 @@ void core_render_point(
     Point2i* screen_pos;
 
     if (*num_points >= MAX_RENDER_POINTS || *num_commands >= MAX_RENDER_COMMANDS) {
-        ras_log_error("Render state full, cannot render more points.");
-        assert(false);
+        ras_log_buffer_warn_ex(
+            RAS_EVENT_RS_ARRAY_OOB,
+            "Warning: Render state points full, cannot render more points.");
         return;
     }
     screen_pos = &render_state->points[*num_points];

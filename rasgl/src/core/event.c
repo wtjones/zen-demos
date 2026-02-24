@@ -16,6 +16,7 @@ static const char* g_repr_event_type[] = {
     "RS_OOB",
     "RS_HLINES",
     "RS_TRI_HLINES",
+    "RS_ARRAY_OOB",
     "CM_CHANGE",
     "INVALID_MATH",
     "BUFFER_OVERFLOW",

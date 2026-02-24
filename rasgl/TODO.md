@@ -21,6 +21,9 @@
 - [ ] Support render layers in DOS
 - [ ] Toggle UI layer
 - [ ] Fix naming or consolidate *projected_to_screen_point()
+- [ ] Deprecate old render commands or optimize memory usage.
+  - PSX requires special lower limit.
+  - This is only used for grid and AABB viz.
 
 ### Lighting
 

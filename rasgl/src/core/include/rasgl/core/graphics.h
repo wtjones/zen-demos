@@ -7,8 +7,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define MAX_RENDER_POINTS 10000
-#define MAX_RENDER_COMMANDS 10000
+#ifndef MAX_RENDER_POINTS
+#    define MAX_RENDER_POINTS 10000
+#endif
+#ifndef MAX_RENDER_COMMANDS
+#    define MAX_RENDER_COMMANDS 10000
+#endif
 #define MAX_COMMAND_POINTS 3
 #define MAX_PIPELINE_VERTS 1000
 #define MAX_PIPELINE_FACES (MAX_PIPELINE_VERTS)
