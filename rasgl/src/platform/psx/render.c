@@ -86,12 +86,12 @@ void render_mesh_solid(RenderState* state)
     RasVector4f* sv;
     for (uint32_t m = 0; m < state->num_visible_meshes; m++) {
         RasPipelineMesh* mesh = &state->meshes[state->visible_meshes[m]];
-        RasPipelineFace* face = &mesh->visible_faces[0];
 
         uint32_t i = 0;
         uint32_t material_index = 0;
         while (i < mesh->num_visible_indexes) {
             int32_t material = mesh->material_indexes[material_index];
+            RasPipelineFace* face = &mesh->visible_faces[material_index];
             if (material == -1) {
                 ras_log_buffer("Face %d has material = %d", i / 3, material);
             }
@@ -134,12 +134,12 @@ void render_mesh_wireframe(RenderState* state)
     RasVector4f* sv;
     for (uint32_t m = 0; m < state->num_visible_meshes; m++) {
         RasPipelineMesh* mesh = &state->meshes[state->visible_meshes[m]];
-        RasPipelineFace* face = &mesh->visible_faces[0];
 
         uint32_t i = 0;
         uint32_t material_index = 0;
         while (i < mesh->num_visible_indexes) {
             int32_t material = mesh->material_indexes[material_index];
+            RasPipelineFace* face = &mesh->visible_faces[material_index];
             if (material == -1) {
                 ras_log_buffer("Face %d has material = %d", i / 3, material);
             }
