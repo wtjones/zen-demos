@@ -1,4 +1,6 @@
 
+#include "controller.h"
+#include "input.h"
 #include "ps1/gpu.h"
 #include "ps1/gpucmd.h"
 #include "ps1/registers.h"
@@ -31,6 +33,8 @@ uint32_t ras_timer_get_ticks(void)
 int main(int argc, const char** argv)
 {
     serial_init();
+    initControllerBus();
+
     ras_log_init();
 
     char buffer[256];
@@ -70,11 +74,10 @@ int main(int argc, const char** argv)
     }
 
     ras_log_info("PSX heap usage: %d bytes\n", mallinfo2().uordblks);
-
     core_input_init(&plat_input_state);
+    input_init();
 
     ras_log_info("RAS_MAX_FRAMES: %d\n", RAS_MAX_FRAMES);
-    ras_log_info("Initial PSX heap usage: %d bytes\n", mallinfo2().uordblks);
 
     for (;;) {
         char textBuffer[256];
@@ -109,6 +112,8 @@ int main(int argc, const char** argv)
                 states[i].last_rasterize_ticks = 10;
             }
         }
+
+        input_map();
         render_flip();
     }
 

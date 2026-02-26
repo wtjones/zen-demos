@@ -52,6 +52,8 @@ target_include_directories(core PUBLIC
 
 addPS1Executable(ras_psx
 	src/platform/psx/main.c
+	src/platform/psx/controller.c
+	src/platform/psx/input.c
 	src/platform/psx/serial.c
 	src/platform/psx/log_impl.c
 	src/platform/psx/render.c
