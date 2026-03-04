@@ -116,7 +116,7 @@ int main(int argc, const char** argv)
         input_map();
         render_flip();
     }
-
+    ras_log_flush();
     return 0;
 
 fail:

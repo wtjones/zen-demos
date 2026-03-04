@@ -21,6 +21,8 @@ void input_init()
     // Up/down
     g_plat_to_app[PLAT_BUTTON_R1] = RAS_KEY_Z;
     g_plat_to_app[PLAT_BUTTON_R2] = RAS_KEY_C;
+
+    g_plat_to_app[PLAT_BUTTON_SELECT] = RAS_KEY_F;
 }
 
 void input_map()

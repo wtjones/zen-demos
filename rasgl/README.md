@@ -272,21 +272,21 @@ Refer to `run_psx.sh`.
 
 ### Common Controls
 
-| Action                        | Key          | Controller |
-| ----------------------------- | ------------ | --         |
-| Help                          | F1           | -          |
-| Toggle UI layer               | F3           | -          |
-| Toggle projection mode        | ctrl-p       | -          |
-| Toggle backface culling mode  | ctrl-b       | -          |
-| Cycle Z scale LUT modes       | ctrl-z       | -          |
-| Cycle polygon render modes    | ctrl-o       | -          |
-| Cycle polygon outline modes   | ctrl-shift-o | -          |
-| Cycle polygon clipping modes  | ctrl-c       | L1 + R2    |
-| Cycle polygon clip sides[^1]  | ctrl-shift-c | -          |
-| Cycle normal diagnostic modes | ctrl-n       | -          |
-| Cycle grid output modes       | ctrl-g       | -          |
-| Cycle pipeline modes          | ctrl-l       | -          |
-| Flush per-frame logs          | ctrl-f       | -          |
+| Action                        | Key          | Controller  |
+| ----------------------------- | ------------ | --          |
+| Help                          | F1           | -           |
+| Toggle UI layer               | F3           | -           |
+| Toggle projection mode        | ctrl-p       | -           |
+| Toggle backface culling mode  | ctrl-b       | -           |
+| Cycle Z scale LUT modes       | ctrl-z       | -           |
+| Cycle polygon render modes    | ctrl-o       | -           |
+| Cycle polygon outline modes   | ctrl-shift-o | -           |
+| Cycle polygon clipping modes  | ctrl-c       | L1 + R2     |
+| Cycle polygon clip sides[^1]  | ctrl-shift-c | -           |
+| Cycle normal diagnostic modes | ctrl-n       | -           |
+| Cycle grid output modes       | ctrl-g       | -           |
+| Cycle pipeline modes          | ctrl-l       | -           |
+| Flush per-frame logs          | ctrl-f       | L1 + select |
 
 [^1]: Far plane off (default), far plane on, near plane only
 
