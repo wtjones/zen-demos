@@ -10,4 +10,5 @@
 !.vscode/cmake-variants.yaml
 tools/dosbox.conf
 assets/scenes/scratc*.lsp
+assets/scenes/*.mp
 assets/**/scratch/*

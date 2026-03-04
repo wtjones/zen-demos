@@ -386,6 +386,11 @@ Package scene `tri.lsp` to `/tmp/tri.mp`:
 ```bash
 ./run_cli.sh -p assets/scenes/tri.lsp -o /tmp/tri.mp
 ```
+The posix platform can load the packed scene for testing:
+
+```bash
+./run_posix.sh poly 0 /tmp/tri.mp
+```
 
 ## VS Code
 

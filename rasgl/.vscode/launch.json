@@ -62,7 +62,9 @@
                 "./assets/scenes/multi01.lsp",
                 "./assets/scenes/gmap01.lsp",
                 "./assets/scenes/tmap01.lsp",
-                "./assets/scenes/scratch.lsp"
+                "./assets/scenes/tmap01.mp",
+                "./assets/scenes/scratch.lsp",
+                "./assets/scenes/scratch.mp"
             ]
         }
     ]
