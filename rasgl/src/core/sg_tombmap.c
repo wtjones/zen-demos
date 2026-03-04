@@ -19,7 +19,8 @@ void* core_sg_xform_tombmaps(void* input)
 
     for (size_t i = 0; i < tombmap->num_rooms; i++) {
         RasTombMapRoom* current_room = &tombmap->rooms[i];
-
+        assert(current_room->element.indexes != NULL);
+        assert(current_room->element.material_indexes != NULL);
         uint32_t mesh_index = current_room->mesh_index;
 
         RasFixed(*model_world_matrix)[4] = render_data->model_world_matrix[mesh_index];

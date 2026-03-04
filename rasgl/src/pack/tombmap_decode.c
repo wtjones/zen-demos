@@ -61,11 +61,12 @@ RasResult pack_decode_tombmap(mpack_node_t node, RasSceneTombMap* tombmap)
                 }
             }
 
-            /* element */
-            mpack_node_t element_node = mpack_node_map_cstr(room_node, "element");
-            memset(&room->element, 0, sizeof(RasPipelineElement));
-            if (pack_decode_element(element_node, &room->element) != RAS_RESULT_OK) {
-                ras_log_error("Failed to decode tombmap room element");
+            if (core_tombmap_to_element_alloc(&tmp) != RAS_RESULT_OK) {
+                ras_log_error("Failed to allocate tombmap pipeline element.");
+                goto fail;
+            }
+            if (core_tombmap_to_element_verts(&tmp) != RAS_RESULT_OK) {
+                ras_log_error("Failed to convert tombmap to pipeline verts.");
                 goto fail;
             }
         }
