@@ -459,66 +459,11 @@ RasResult hosted_script_map_scene(LarScript* script, RasScene** scene)
 }
 
 /**
- * @brief Implementation of core/scene.h
+ * @brief Load a scene from a script file path.
  *
- * @param path
- * @param scene
- * @return RasResult
  */
-RasResult core_load_scene(const char* path, RasScene** scene)
+RasResult script_load_scene(const char* path, RasScene** scene)
 {
-    /* If the path ends with the packed scene extension, decode it directly. */
-    size_t plen = strlen(path);
-    if (plen >= 3 && strcmp(path + plen - 3, ".mp") == 0) {
-        FILE* f = fopen(path, "rb");
-        if (f == NULL) {
-            ras_log_error("Failed to open packed scene: %s", path);
-            return RAS_RESULT_ERROR;
-        }
-
-        if (fseek(f, 0, SEEK_END) != 0) {
-            fclose(f);
-            ras_log_error("Failed to seek packed scene: %s", path);
-            return RAS_RESULT_ERROR;
-        }
-
-        long sz = ftell(f);
-        if (sz <= 0) {
-            fclose(f);
-            ras_log_error("Packed scene empty or ftell failed: %s", path);
-            return RAS_RESULT_ERROR;
-        }
-
-        rewind(f);
-
-        uint8_t* buf = (uint8_t*)malloc((size_t)sz);
-        if (buf == NULL) {
-            fclose(f);
-            ras_log_error("Out of memory reading packed scene: %s", path);
-            return RAS_RESULT_ERROR;
-        }
-
-        size_t read = fread(buf, 1, (size_t)sz, f);
-        fclose(f);
-
-        if (read != (size_t)sz) {
-            free(buf);
-            ras_log_error("Failed to read full packed scene: %s", path);
-            return RAS_RESULT_ERROR;
-        }
-
-        RasScene* decoded = pack_decode_scene((const char*)buf, (size_t)sz);
-        free(buf);
-
-        if (decoded == NULL) {
-            ras_log_error("Failed to decode packed scene: %s", path);
-            return RAS_RESULT_ERROR;
-        }
-
-        *scene = decoded;
-        return RAS_RESULT_OK;
-    }
-
     LarScript* script;
     LarParseResult result = lar_parse_file(path, &script);
 
@@ -540,4 +485,80 @@ RasResult core_load_scene(const char* path, RasScene** scene)
     lar_free_script(&script);
 
     return RAS_RESULT_OK;
+}
+
+/**
+ * @brief Load a packed scene (.mp) from disk and decode it.
+ *
+ * Uses the pack decoder which returns an allocated `RasScene*` on success.
+ */
+RasResult pack_load_scene(const char* path, RasScene** scene)
+{
+    FILE* f = fopen(path, "rb");
+    if (f == NULL) {
+        ras_log_error("Failed to open packed scene: %s", path);
+        return RAS_RESULT_ERROR;
+    }
+
+    if (fseek(f, 0, SEEK_END) != 0) {
+        fclose(f);
+        ras_log_error("Failed to seek packed scene: %s", path);
+        return RAS_RESULT_ERROR;
+    }
+
+    long sz = ftell(f);
+    if (sz <= 0) {
+        fclose(f);
+        ras_log_error("Packed scene empty or ftell failed: %s", path);
+        return RAS_RESULT_ERROR;
+    }
+
+    if (fseek(f, 0, SEEK_SET) != 0) {
+        fclose(f);
+        ras_log_error("Failed to rewind packed scene: %s", path);
+        return RAS_RESULT_ERROR;
+    }
+
+    uint8_t* buf = (uint8_t*)malloc((size_t)sz);
+    if (buf == NULL) {
+        fclose(f);
+        ras_log_error("Out of memory reading packed scene: %s", path);
+        return RAS_RESULT_ERROR;
+    }
+
+    size_t read = fread(buf, 1, (size_t)sz, f);
+    fclose(f);
+
+    if (read != (size_t)sz) {
+        free(buf);
+        ras_log_error("Failed to read full packed scene: %s", path);
+        return RAS_RESULT_ERROR;
+    }
+
+    RasScene* decoded = pack_decode_scene((const char*)buf, (size_t)sz);
+    free(buf);
+
+    if (decoded == NULL) {
+        ras_log_error("Failed to decode packed scene: %s", path);
+        return RAS_RESULT_ERROR;
+    }
+
+    *scene = decoded;
+    return RAS_RESULT_OK;
+}
+
+/**
+ * @brief Implementation of core/scene.h
+ *
+ * @param path
+ * @param scene
+ * @return RasResult
+ */
+RasResult core_load_scene(const char* path, RasScene** scene)
+{
+    size_t plen = strlen(path);
+    if (plen >= 3 && strcmp(path + plen - 3, ".mp") == 0) {
+        return pack_load_scene(path, scene);
+    }
+    return script_load_scene(path, scene);
 }
