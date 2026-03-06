@@ -1,6 +1,8 @@
 #include "gpu.h"
 #include "gpucmd.h"
 #include "registers.h"
+#include <assert.h>
+
 // Based on https://github.com/spicyjpeg/ps1-bare-metal/blob/main/src/01_basicGraphics/main.c
 
 void setupGPU(GP1VideoMode mode, int width, int height)
@@ -55,4 +57,46 @@ void waitForVSync(void)
         __asm__ volatile("");
 
     IRQ_STAT = ~(1 << IRQ_VSYNC);
+}
+
+void sendLinkedList(const void* data)
+{
+    // Wait until the GPU's DMA unit has finished sending data and is ready.
+    while (DMA_CHCR(DMA_GPU) & DMA_CHCR_ENABLE)
+        __asm__ volatile("");
+
+    // Make sure the pointer is aligned to 32 bits (4 bytes). The DMA engine is
+    // not capable of reading unaligned data.
+    assert(!((uint32_t)data % 4));
+
+    // Give DMA a pointer to the beginning of the data and tell it to send it in
+    // linked list mode. The DMA unit will start parsing a chain of "packets"
+    // from RAM, with each packet being made up of a 32-bit header followed by
+    // zero or more 32-bit commands to be sent to the GP0 register.
+    DMA_MADR(DMA_GPU) = (uint32_t)data;
+    DMA_CHCR(DMA_GPU) = 0
+        | DMA_CHCR_WRITE
+        | DMA_CHCR_MODE_LIST
+        | DMA_CHCR_ENABLE;
+}
+
+uint32_t* allocatePacket(DMAChain* chain, int numCommands)
+{
+    // Grab the current pointer to the next packet then increment it to allocate
+    // a new packet. We have to allocate an extra word for the packet's header,
+    // which will contain the number of GP0 commands the packet is made up of as
+    // well as a pointer to the next packet (or a special "terminator" value to
+    // tell the DMA unit to stop).
+    uint32_t* ptr = chain->nextPacket;
+    chain->nextPacket += numCommands + 1;
+
+    // Write the header and set its pointer to point to the next packet that
+    // will be allocated in the buffer.
+    *ptr = gp0_tag(numCommands, chain->nextPacket);
+
+    // Make sure we haven't yet run out of space for future packets or a linked
+    // list terminator, then return a pointer to the packet's first GP0 command.
+    assert(chain->nextPacket < &(chain->data)[CHAIN_BUFFER_SIZE]);
+
+    return &ptr[1];
 }

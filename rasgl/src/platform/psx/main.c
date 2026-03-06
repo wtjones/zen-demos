@@ -17,6 +17,11 @@
 
 extern const char textData[];
 extern const uint32_t textDataSize;
+extern int frame_x;
+extern int frame_y;
+extern DMAChain dma_chains[2];
+extern DMAChain* chain;
+extern bool using_second_frame;
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 240
@@ -58,6 +63,8 @@ int main(int argc, const char** argv)
     }
 
     // Turn on the video output.
+    DMA_DPCR |= DMA_DPCR_CH_ENABLE(DMA_GPU);
+    GPU_GP1 = gp1_dmaRequestMode(GP1_DREQ_GP0_WRITE);
     GPU_GP1 = gp1_dispBlank(false);
 
     RasResult result = ras_app_init(argc, argv, &plat_settings);
@@ -79,6 +86,8 @@ int main(int argc, const char** argv)
 
     ras_log_info("RAS_MAX_FRAMES: %d\n", RAS_MAX_FRAMES);
 
+    using_second_frame = false;
+
     for (;;) {
         char textBuffer[256];
 
@@ -89,6 +98,19 @@ int main(int argc, const char** argv)
 
         val = TIMER_VALUE(1);
         int timer_mode = TIMER_CTRL_SYNC_BITMASK & TIMER_CTRL(1);
+
+        frame_x = using_second_frame ? plat_settings.screen_width : 0;
+        frame_y = 0;
+        chain = &dma_chains[using_second_frame ? 1 : 0];
+        using_second_frame = !using_second_frame;
+
+        // Display the frame that was just drawn by the GPU (if any). We are
+        // going to overwrite its respective DMA chain afterwards, as the GPU no
+        // longer needs it.
+        GPU_GP1 = gp1_fbOffset(frame_x, frame_y);
+
+        // Reset the chain for this frame.
+        chain->nextPacket = chain->data;
 
         render_clear(&plat_settings);
 
@@ -112,6 +134,9 @@ int main(int argc, const char** argv)
                 states[i].last_rasterize_ticks = 10;
             }
         }
+
+        // Terminate the DMA chain
+        *(chain->nextPacket) = gp0_endTag(0);
 
         input_map();
         render_flip();

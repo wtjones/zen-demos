@@ -6,9 +6,15 @@
 #include "rasgl/core/color.h"
 #include "rasgl/core/debug.h"
 
-static bool using_second_frame = false;
-static int frame_x = 0;
-static int frame_y = 0;
+bool using_second_frame = false;
+int frame_x = 0;
+int frame_y = 0;
+/**
+ * @brief Allocate dma chain per frame.
+ *
+ */
+DMAChain dma_chains[2];
+DMAChain* chain;
 
 RasColor colors[256] = {
     // Grey ramp (gamma corrected)
@@ -83,6 +89,7 @@ RasResult render_renderstates_init(RenderState* states)
 
 void render_mesh_solid(RenderState* state)
 {
+    uint32_t* ptr;
     RasVector4f* sv;
     for (uint32_t m = 0; m < state->num_visible_meshes; m++) {
         RasPipelineMesh* mesh = &state->meshes[state->visible_meshes[m]];
@@ -119,10 +126,11 @@ void render_mesh_solid(RenderState* state)
 
             RasColor* color_rgb = get_shaded_color(material, face->diffuse_intensity);
 
-            GPU_GP0 = gp0_rgb(color_rgb->r, color_rgb->g, color_rgb->b) | gp0_triangle(false, false);
-            GPU_GP0 = gp0_xy(point0.x, point0.y);
-            GPU_GP0 = gp0_xy(point1.x, point1.y);
-            GPU_GP0 = gp0_xy(point2.x, point2.y);
+            ptr = allocatePacket(chain, 4);
+            ptr[0] = gp0_rgb(color_rgb->r, color_rgb->g, color_rgb->b) | gp0_triangle(false, false);
+            ptr[1] = gp0_xy(point0.x, point0.y);
+            ptr[2] = gp0_xy(point1.x, point1.y);
+            ptr[3] = gp0_xy(point2.x, point2.y);
 
             material_index++;
         }
@@ -131,6 +139,7 @@ void render_mesh_solid(RenderState* state)
 
 void render_mesh_wireframe(RenderState* state)
 {
+    uint32_t* ptr;
     RasVector4f* sv;
     for (uint32_t m = 0; m < state->num_visible_meshes; m++) {
         RasPipelineMesh* mesh = &state->meshes[state->visible_meshes[m]];
@@ -166,12 +175,13 @@ void render_mesh_wireframe(RenderState* state)
             };
 
             RasColor* color_rgb = get_shaded_color(material, face->diffuse_intensity);
-            GPU_GP0 = gp0_rgb(color_rgb->r, color_rgb->g, color_rgb->b) | gp0_polyLine(false, false);
-            GPU_GP0 = gp0_xy(point0.x, point0.y);
-            GPU_GP0 = gp0_xy(point1.x, point1.y);
-            GPU_GP0 = gp0_xy(point2.x, point2.y);
-            GPU_GP0 = gp0_xy(point0.x, point0.y);
-            GPU_GP0 = 0x55555555;
+            ptr = allocatePacket(chain, 6);
+            ptr[0] = gp0_rgb(color_rgb->r, color_rgb->g, color_rgb->b) | gp0_polyLine(false, false);
+            ptr[1] = gp0_xy(point0.x, point0.y);
+            ptr[2] = gp0_xy(point1.x, point1.y);
+            ptr[3] = gp0_xy(point2.x, point2.y);
+            ptr[4] = gp0_xy(point0.x, point0.y);
+            ptr[5] = 0x55555555;
 
             material_index++;
         }
@@ -188,32 +198,30 @@ void render_clear(ScreenSettings* plat_settings)
     // Determine the VRAM location of the current frame. We're going to
     // place the two frames next to each other in VRAM, at (0, 0) and
     // (320, 0) respectively.
-    frame_x = using_second_frame ? plat_settings->screen_width : 0;
-    frame_y = 0;
+
+    uint32_t* ptr;
 
     // Tell the GPU which area of VRAM belongs to the frame we're going to
     // use and enable dithering.
-    waitForGP0Ready();
-    GPU_GP0 = gp0_texpage(0, true, false);
-    GPU_GP0 = gp0_fbOffset1(frame_x, frame_y);
-    GPU_GP0 = gp0_fbOffset2(
+    ptr = allocatePacket(chain, 4);
+    ptr[0] = gp0_texpage(0, true, false);
+    ptr[1] = gp0_fbOffset1(frame_x, frame_y);
+    ptr[2] = gp0_fbOffset2(
         frame_x + plat_settings->screen_width - 1,
         frame_y + plat_settings->screen_height - 2);
-    GPU_GP0 = gp0_fbOrigin(frame_x, frame_y);
+    ptr[3] = gp0_fbOrigin(frame_x, frame_y);
 
-    // Fill the framebuffer with solid gray.
-    waitForGP0Ready();
-    GPU_GP0 = gp0_rgb(64, 64, 64) | gp0_vramFill();
-    GPU_GP0 = gp0_xy(frame_x, frame_y);
-    GPU_GP0 = gp0_xy(plat_settings->screen_width, plat_settings->screen_height);
+    ptr = allocatePacket(chain, 3);
+    ptr[0] = gp0_rgb(64, 64, 64) | gp0_vramFill();
+    ptr[1] = gp0_xy(frame_x, frame_y);
+    ptr[2] = gp0_xy(frame_x + plat_settings->screen_width, frame_y + plat_settings->screen_height);
 }
 
 void render_flip()
 {
     waitForGP0Ready();
     waitForVSync();
-    GPU_GP1 = gp1_fbOffset(frame_x, frame_y);
-    using_second_frame = !using_second_frame;
+    sendLinkedList(chain->data);
 }
 
 void (*g_render_fns[RAS_POLYGON_COUNT])(RenderState* state) = {
@@ -229,17 +237,18 @@ void render_state(RenderState* state)
         return;
     }
 
-    waitForGP0Ready();
     for (size_t i = 0; i < state->num_commands; i++) {
         RenderCommand* command = &state->commands[i];
 
         if (command->num_points == 1) {
             Point2i* point = &(state->points[command->point_indices[0]]);
 
-            GPU_GP0 = gp0_rgb(155, 100, 0) | gp0_rectangle1x1(false, true, false);
-            GPU_GP0 = gp0_xy(point->x, point->y);
-            GPU_GP0 = gp0_rgb(255, 0, 0);
-            GPU_GP0 = gp0_xy(point->x, point->y);
+            uint32_t* ptr;
+            ptr = allocatePacket(chain, 4);
+            ptr[0] = gp0_rgb(155, 100, 0) | gp0_rectangle1x1(false, true, false);
+            ptr[1] = gp0_xy(point->x, point->y);
+            ptr[2] = gp0_rgb(255, 0, 0);
+            ptr[3] = gp0_xy(point->x, point->y);
         }
     }
     state->current_frame++;
