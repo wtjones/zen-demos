@@ -139,3 +139,23 @@ Cons:
     - `projection_matrix` : `RasFixed[4][4]`
     - `last_changed_frame` : uint32_t
 
+## Symbol and memory reports
+
+The repository includes small helper scripts in `research/` to reproduce the ELF symbol and section-size reports used during PSX diagnostics. Run these from the repo root; they assume the PSX ELF is at `bld_psx/ras_psx.elf`.
+
+- `research/psx_generate_csv.sh` — produce `bld_psx/ras_psx_symbols.csv` (size,type,name)
+- `research/psx_prefix_summary.sh` — print a heuristic per-prefix summary (quick subsystem totals)
+ - `research/psx_list_objects.sh` — print top OBJECT symbols and a TOTAL_BYTES summary
+
+Each script includes a short top-of-file comment describing its purpose, usage, and output. Example invocations:
+
+```sh
+# Full symbol CSV
+bash research/psx_generate_csv.sh
+
+# Per-prefix summary
+bash research/psx_prefix_summary.sh
+
+# Top OBJECT symbols + total bytes
+bash research/psx_list_objects.sh
+```
