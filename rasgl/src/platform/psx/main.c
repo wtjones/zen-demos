@@ -12,7 +12,13 @@
 #include "rasgl/core/scene.h"
 #include "render.h"
 #include "serial.h"
+#include "usage.h"
+// clang-format off
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <malloc.h>
+// clang-format on
 #include <stdio.h>
 
 extern const char textData[];
@@ -22,6 +28,14 @@ extern int frame_y;
 extern DMAChain dma_chains[2];
 extern DMAChain* chain;
 extern bool using_second_frame;
+
+/* Linker-provided section symbols (from cmake-psx/executable.ld) */
+extern char _textStart[];
+extern char _textEnd[];
+extern char _dataStart[];
+extern char _dataEnd[];
+extern char _bssStart[];
+extern char _bssEnd[];
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 240
@@ -51,8 +65,7 @@ int main(int argc, const char** argv)
         goto fail;
     }
 
-    ras_log_info("PSX heap usage: %d bytes. Free: %d bytes\n",
-        mallinfo2().uordblks, mallinfo2().fordblks);
+    psx_log_usage_info();
 
     if ((GPU_GP1 & GP1_STAT_FB_MODE_BITMASK) == GP1_STAT_FB_MODE_PAL) {
         puts("Using PAL mode");
@@ -73,14 +86,13 @@ int main(int argc, const char** argv)
         goto fail;
     }
 
-    ras_log_info("PSX heap usage: %d bytes\n", mallinfo2().uordblks);
+    psx_log_heap();
 
     if (render_renderstates_init(states) != RAS_RESULT_OK) {
         ras_log_error("Error result from render_renderstates_init(), exiting...");
         goto fail;
     }
-
-    ras_log_info("PSX heap usage: %d bytes\n", mallinfo2().uordblks);
+    psx_log_heap();
     core_input_init(&plat_input_state);
     input_init();
 
@@ -145,7 +157,6 @@ int main(int argc, const char** argv)
     return 0;
 
 fail:
-    ras_log_info("PSX heap usage: %d bytes. Free: %d bytes\n",
-        mallinfo2().uordblks, mallinfo2().fordblks);
+    psx_log_heap();
     return 1;
 }
