@@ -159,3 +159,29 @@ bash research/psx_prefix_summary.sh
 # Top OBJECT symbols + total bytes
 bash research/psx_list_objects.sh
 ```
+
+Snippets:
+
+```sh
+nm --size-sort bld_psx/ras_psx.elf > bld_psx/nm.txt
+```
+
+## Static memory optimiazation
+
+### Behavior
+
+A small data addition can push a section to the next allocation boundary (often 4–8 KiB on your PSX link layout), producing an ~8 KiB jump in the final ELF even though the summed new symbols are only a few bytes.
+
+### Usage
+
+build_scene() statically in mini demo: about 6k with some malloc
+
+core_pipeline_init(&pipeline); about 300k when called
+
+### Options
+
+Optional `core_init_maths_tables()`. 20k savings.
+
+RasPipeline template uses 1k in the heap.
+
+Compile with `-ffunction-sections -fdata-sections` and link with `--gc-sections` so the linker can drop unused functions/data.

@@ -84,6 +84,7 @@ target_link_options(
 		-Wl,-gc-sections
 		-G8
 		"-T${CMAKE_CURRENT_LIST_DIR}/executable.ld"
+		-Wl,-Map=psx.map
 )
 
 # Define a helper function to embed binary data into executables and libraries.
