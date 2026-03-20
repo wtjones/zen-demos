@@ -33,10 +33,16 @@ else
 	RAS_ARG="${RAS_ARG} -DRAS_LOG_BUFFER_MODE=0"
 fi
 
+if [ "$DEBUG" -eq 1 ]; then
+	BUILD_TYPE="Debug"
+else
+	BUILD_TYPE="Release"
+fi
+
 CMAKE_CMD="cmake \
 	-DCMAKE_TOOLCHAIN_FILE=/work/r/cmake-psx/toolchain.cmake \
 	-DVENV_PATH=/work/env \
-	-DCMAKE_BUILD_TYPE=Debug \
+	-DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
 	-DRAS_PLATFORM=ras_psx \
 	-DRAS_DEMO=${DEMO} \
 	${RAS_ARG} \
