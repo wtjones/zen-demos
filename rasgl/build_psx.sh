@@ -7,6 +7,7 @@ DEBUG=${2:-0}
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 BUILD_DIR="${SCRIPT_DIR}/bld_psx"
+ELF_PATH="${BUILD_DIR}/ras_psx.elf"
 
 if [ ! -d "$BUILD_DIR" ]; then
 	mkdir -p "$BUILD_DIR"
@@ -48,3 +49,7 @@ docker run -it --rm \
 	-w /work/r \
 	--name psx-app ras-psx \
 	/bin/bash -c "${CMAKE_CMD} && cmake --build bld_psx"
+
+if [ -f "$ELF_PATH" ]; then
+  size "$ELF_PATH"
+fi
