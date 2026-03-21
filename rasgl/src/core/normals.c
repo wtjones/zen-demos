@@ -141,9 +141,17 @@ void core_draw_mesh_normals(
     RasFixed model_view_matrix[4][4],
     RasFixed proj_matrix[4][4])
 {
-    if (render_state->normal_mode == RAS_NORMAL_MODE_FAUX) {
-        draw_mesh_normals_faux(render_state, mesh, model_view_matrix, proj_matrix);
-    } else if (render_state->normal_mode == RAS_NORMAL_MODE_ORTHO) {
+    if (render_state->normal_mode == RAS_NORMAL_MODE_OFF) {
+        return;
+    }
+
+    if (render_state->normal_mode == RAS_NORMAL_MODE_ORTHO) {
         draw_mesh_normals_ortho(render_state, mesh, model_view_matrix, proj_matrix);
     }
+
+#ifndef RAS_PLATFORM_EMBEDDED
+    if (render_state->normal_mode == RAS_NORMAL_MODE_FAUX) {
+        draw_mesh_normals_faux(render_state, mesh, model_view_matrix, proj_matrix);
+    }
+#endif
 }

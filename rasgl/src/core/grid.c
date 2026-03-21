@@ -143,7 +143,7 @@ void core_draw_grid(
         core_draw_grid_origin(render_state, world_view_matrix, proj_matrix);
     }
 
-#ifdef RAS_PLATFORM_HOSTED
+#ifndef RAS_PLATFORM_EMBEDDED
     if ((render_state->grid_mode & RAS_GRID_MODE_GRID)) {
         core_draw_grid_points(render_state, world_view_matrix, proj_matrix);
     }
