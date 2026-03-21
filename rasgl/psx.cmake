@@ -41,7 +41,8 @@ include_directories(
 add_compile_definitions(
 	RAS_LOG_BUFFER_MODE=${RAS_LOG_BUFFER_MODE}
 	MAX_RENDER_POINTS=100
-	MAX_RENDER_COMMANDS=100)
+	MAX_RENDER_COMMANDS=100
+	RAS_PLATFORM_EMBEDDED)
 
 add_subdirectory(src)
 

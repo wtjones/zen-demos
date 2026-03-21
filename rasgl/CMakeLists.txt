@@ -10,13 +10,17 @@ if (NOT RAS_PLATFORM STREQUAL "ras_psx")
     DESCRIPTION ""
     LANGUAGES C)
 
-  add_compile_definitions(DEBUG=${DEBUG})
 
+  set (RAS_PLATFORM_TYPE "hosted" CACHE STRING "Platform type: hosted or embedded")
   set(RAS_LOG_BUFFER_MODE "1" CACHE STRING "Log buffer mode: 0=disabled, 1=enabled")
-  add_compile_definitions(RAS_LOG_BUFFER_MODE=${RAS_LOG_BUFFER_MODE})
+
+  add_compile_definitions(
+    DEBUG=${DEBUG}
+    RAS_LOG_BUFFER_MODE=${RAS_LOG_BUFFER_MODE}
+    RAS_PLATFORM_HOSTED)
 
   set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-  set (RAS_PLATFORM_TYPE "hosted")
+
   option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 
   if(ENABLE_ASAN)

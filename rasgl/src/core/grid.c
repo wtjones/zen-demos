@@ -42,66 +42,61 @@ void render_grid_points(
     }
 }
 
-void core_draw_grid(
+static void core_draw_grid_origin(
     RenderState* render_state,
     RasFixed world_view_matrix[4][4],
     RasFixed proj_matrix[4][4])
 {
     RasFixed model_view_matrix[4][4];
-    RasFixed combined_matrix[4][4];
     RasFixed model_world_matrix[4][4];
-    RasFixed model_space_position[4];
-    RasFixed screen_space_vec[4];
 
-    size_t points_count = 0;
-
-    if ((render_state->grid_mode == RAS_GRID_MODE_OFF)) {
-        return;
-    }
-
-    // Grid is world space.
+    // Grid is world space for origin markers.
     mat_set_identity_4x4(model_view_matrix);
     mat_set_identity_4x4(model_world_matrix);
-
-    // model -> view transform
     mat_mul_4x4_4x4(world_view_matrix, model_world_matrix, model_view_matrix);
 
-    if ((render_state->grid_mode & RAS_GRID_MODE_ORIGIN)) {
+    static RasVector3f points[RAS_GRID_ORIGIN_POINTS] = {
+        { .x = RAS_FIXED_ZERO,
+            .y = RAS_FIXED_ZERO,
+            .z = RAS_FIXED_ZERO }
+    };
 
-        static RasVector3f points[RAS_GRID_ORIGIN_POINTS] = {
-            { .x = RAS_FIXED_ZERO,
-                .y = RAS_FIXED_ZERO,
-                .z = RAS_FIXED_ZERO }
-        };
-
-        for (size_t i = 1; i < RAS_GRID_ORIGIN_AXIS_POINTS + 1; i++) {
-            RasVector3f* point_x = &points[i];
-            RasVector3f* point_y = &points[i + RAS_GRID_ORIGIN_AXIS_POINTS];
-            RasVector3f* point_z = &points[i + (2 * RAS_GRID_ORIGIN_AXIS_POINTS)];
-            RasFixed major_axis = i * float_to_fixed_16_16(0.03);
-            point_x->x = major_axis;
-            point_x->y = RAS_FIXED_ZERO;
-            point_x->z = RAS_FIXED_ZERO;
-            point_y->x = RAS_FIXED_ZERO;
-            point_y->y = major_axis;
-            point_y->z = RAS_FIXED_ZERO;
-            point_z->x = RAS_FIXED_ZERO;
-            point_z->y = RAS_FIXED_ZERO;
-            point_z->z = major_axis;
-        }
-
-        render_grid_points(
-            render_state,
-            model_view_matrix,
-            proj_matrix,
-            points,
-            RAS_GRID_ORIGIN_POINTS,
-            RAS_COLOR_RAMP_OFFSET_RED);
+    for (size_t i = 1; i < RAS_GRID_ORIGIN_AXIS_POINTS + 1; i++) {
+        RasVector3f* point_x = &points[i];
+        RasVector3f* point_y = &points[i + RAS_GRID_ORIGIN_AXIS_POINTS];
+        RasVector3f* point_z = &points[i + (2 * RAS_GRID_ORIGIN_AXIS_POINTS)];
+        RasFixed major_axis = i * float_to_fixed_16_16(0.03);
+        point_x->x = major_axis;
+        point_x->y = RAS_FIXED_ZERO;
+        point_x->z = RAS_FIXED_ZERO;
+        point_y->x = RAS_FIXED_ZERO;
+        point_y->y = major_axis;
+        point_y->z = RAS_FIXED_ZERO;
+        point_z->x = RAS_FIXED_ZERO;
+        point_z->y = RAS_FIXED_ZERO;
+        point_z->z = major_axis;
     }
 
-    if (!(render_state->grid_mode & RAS_GRID_MODE_GRID)) {
-        return;
-    }
+    render_grid_points(
+        render_state,
+        model_view_matrix,
+        proj_matrix,
+        points,
+        RAS_GRID_ORIGIN_POINTS,
+        RAS_COLOR_RAMP_OFFSET_RED);
+}
+
+static void core_draw_grid_points(
+    RenderState* render_state,
+    RasFixed world_view_matrix[4][4],
+    RasFixed proj_matrix[4][4])
+{
+    RasFixed model_view_matrix[4][4];
+    RasFixed model_world_matrix[4][4];
+
+    mat_set_identity_4x4(model_view_matrix);
+    mat_set_identity_4x4(model_world_matrix);
+    mat_mul_4x4_4x4(world_view_matrix, model_world_matrix, model_view_matrix);
 
     static RasVector3f grid_points[RAS_GRID_LINE_POINTS_COUNT];
     size_t count = 0;
@@ -133,4 +128,24 @@ void core_draw_grid(
         grid_points,
         count,
         RAS_COLOR_RAMP_OFFSET_GREY);
+}
+
+void core_draw_grid(
+    RenderState* render_state,
+    RasFixed world_view_matrix[4][4],
+    RasFixed proj_matrix[4][4])
+{
+    if ((render_state->grid_mode == RAS_GRID_MODE_OFF)) {
+        return;
+    }
+
+    if ((render_state->grid_mode & RAS_GRID_MODE_ORIGIN)) {
+        core_draw_grid_origin(render_state, world_view_matrix, proj_matrix);
+    }
+
+#ifdef RAS_PLATFORM_HOSTED
+    if ((render_state->grid_mode & RAS_GRID_MODE_GRID)) {
+        core_draw_grid_points(render_state, world_view_matrix, proj_matrix);
+    }
+#endif
 }
