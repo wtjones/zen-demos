@@ -76,3 +76,46 @@ RasResult hosted_script_map_gridmap(LarNode* gridmap_exp, RasSceneGridMap* gridm
 
     return RAS_RESULT_OK;
 }
+
+RasResult hosted_script_map_gridmaps(
+    LarNode* scene_exp,
+    RasSceneGridMap** out_gridmaps,
+    size_t* out_num_gridmaps)
+{
+    LarNode* list = lar_get_list_by_symbol(
+        scene_exp, SCRIPT_SYMBOL_GRIDMAPS);
+
+    if (list == NULL) {
+        *out_num_gridmaps = 0;
+        ras_log_info("Gridmaps list not found in script");
+        return RAS_RESULT_OK;
+    }
+
+    size_t num_gridmaps = list->list.length - 1; // exclude the symbol
+
+    RasSceneGridMap* gridmaps = (RasSceneGridMap*)malloc(
+        sizeof(RasSceneGridMap) * num_gridmaps);
+
+    RAS_CHECK_AND_LOG(gridmaps == NULL,
+        "Failed to allocate memory for scene gridmaps");
+
+    for (size_t i = 0; i < num_gridmaps; i++) {
+        // skip the symbol
+        LarNode* gridmap_exp = lar_get_list_node_by_index(list, i + 1);
+
+        RasSceneGridMap* gridmap = &gridmaps[i];
+
+        RasResult result = hosted_script_map_gridmap(gridmap_exp, gridmap);
+
+        if (result != RAS_RESULT_OK) {
+            ras_log_error("Failed to map gridmap");
+            free(gridmaps);
+            return RAS_RESULT_ERROR;
+        }
+    }
+
+    *out_gridmaps = gridmaps;
+    *out_num_gridmaps = num_gridmaps;
+
+    return RAS_RESULT_OK;
+}

@@ -13,9 +13,10 @@
 #include <larse/core/repr.h>
 #pragma GCC diagnostic pop
 
-RasResult hosted_script_map_gridmap(
-    LarNode* gridmap_exp,
-    RasSceneGridMap* gridmap);
+RasResult hosted_script_map_gridmaps(
+    LarNode* scene_exp,
+    RasSceneGridMap** out_gridmaps,
+    size_t* out_num_gridmaps);
 
 RasResult hosted_script_map_tombmaps(
     LarNode* scene_exp,
