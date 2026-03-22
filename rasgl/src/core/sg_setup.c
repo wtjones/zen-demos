@@ -8,34 +8,40 @@
 #include "rasgl/core/stages.h"
 #include "rasgl/core/tombmap.h"
 
+#define ADD_STAGE(p, add_fn)                         \
+    do {                                             \
+        (p)->stages[(p)->num_stages].name = #add_fn; \
+        (p)->stages[(p)->num_stages].fn = add_fn;    \
+        (p)->num_stages++;                           \
+    } while (0)
+
 void core_pipeline_init(RasPipeline* pipeline)
 {
-    memset(pipeline, 0, sizeof(RasPipeline));
+    pipeline->num_stages = 0;
 
-    RasPipeline template = {
-        .num_stages = 18,
-        .stages = {
-            { .name = "core_sg_setup", core_sg_setup },
-            { .name = "core_sg_xform_gridmaps", core_sg_xform_gridmaps },
-            { .name = "core_sg_xform_tombmaps", core_sg_xform_tombmaps },
-            { .name = "core_sg_xform_objects", core_sg_xform_objects },
-            { .name = "core_sg_xform_gridmap_aabb", core_sg_xform_gridmap_aabb },
-            { .name = "core_sg_xform_tombmap_aabb", core_sg_xform_tombmap_aabb },
-            { .name = "core_sg_xform_aabb", core_sg_xform_aabb },
-            { .name = "core_sg_render_aabb", core_sg_render_aabb },
-            { .name = "core_sg_xform_verts", core_sg_xform_verts },
-            { .name = "core_sg_project_to_clip_space", core_sg_project_to_clip_space },
-            { .name = "core_sg_clip_flag_verts", core_sg_clip_flag_verts },
-            { .name = "core_sg_visible_faces", core_sg_visible_faces },
-            { .name = "core_sg_project_to_screen_space", core_sg_project_to_screen_space },
-            { .name = "core_sg_cull_backfaces", core_sg_cull_backfaces },
-            { .name = "core_sg_xform_normals", core_sg_xform_normals },
-            { .name = "core_sg_lighting", core_sg_lighting },
-            { .name = "core_sg_draw_normals", core_sg_draw_normals },
-            { .name = "core_sg_draw_grid", core_sg_draw_grid } }
-    };
+    ADD_STAGE(pipeline, core_sg_setup);
+#ifndef RAS_PLATFORM_EMBEDDED
+    ADD_STAGE(pipeline, core_sg_xform_gridmaps);
+#endif
+    ADD_STAGE(pipeline, core_sg_xform_tombmaps);
+    ADD_STAGE(pipeline, core_sg_xform_objects);
+#ifndef RAS_PLATFORM_EMBEDDED
+    ADD_STAGE(pipeline, core_sg_xform_gridmap_aabb);
+#endif
+    ADD_STAGE(pipeline, core_sg_xform_tombmap_aabb);
+    ADD_STAGE(pipeline, core_sg_xform_aabb);
+    ADD_STAGE(pipeline, core_sg_render_aabb);
+    ADD_STAGE(pipeline, core_sg_xform_verts);
+    ADD_STAGE(pipeline, core_sg_project_to_clip_space);
+    ADD_STAGE(pipeline, core_sg_clip_flag_verts);
+    ADD_STAGE(pipeline, core_sg_visible_faces);
+    ADD_STAGE(pipeline, core_sg_project_to_screen_space);
+    ADD_STAGE(pipeline, core_sg_cull_backfaces);
+    ADD_STAGE(pipeline, core_sg_xform_normals);
+    ADD_STAGE(pipeline, core_sg_lighting);
+    ADD_STAGE(pipeline, core_sg_draw_normals);
+    ADD_STAGE(pipeline, core_sg_draw_grid);
 
-    memcpy(pipeline, &template, sizeof(RasPipeline));
     ras_log_info("Pipeline initialized with %d stages", pipeline->num_stages);
 }
 
