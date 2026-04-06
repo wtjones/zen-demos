@@ -259,11 +259,23 @@ Implementation is currently limited.
 ```bash
 ./build_psx.sh poly 0 assets/scenes/multi01.lsp
 ```
-Optionally set max frames for testing:
+Optionally set flags:
 
 ```bash
 RAS_MAX_FRAMES=1 ./build_psx.sh poly 0 assets/scenes/multi01.lsp
 ```
+PSX build flags:
+
+- `RAS_LOG_BUFFER_MODE`
+  - Enables frame-scoped buffered logging. Inflicts high memory and cpu overhead on PSX.
+  - Default: 0
+- `RAS_USE_MAIN_MIN`
+  - Uses a minimal main function that only initializes the renderer and runs a single frame. Useful for testing memory usage of the core library.
+  - Default: OFF (0)
+- `RAS_MAX_FRAMES`
+  - Max frames to run before exiting. Useful for testing memory usage and performance.
+  - Default: 0 (run indefinitely)
+
 #### Run
 
 Refer to `run_psx.sh`.

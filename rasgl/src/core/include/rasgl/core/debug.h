@@ -2,8 +2,11 @@
 #define DEBUG_H
 
 #include <stdarg.h>
-
-#define RAS_MAX_LOG_BUFFER 200000
+#if (RAS_LOG_BUFFER_MODE != 0)
+#    define RAS_MAX_LOG_BUFFER 8
+#else
+#    define RAS_MAX_LOG_BUFFER 1
+#endif
 
 // FIXME: needed for vscode intellisense
 #ifndef __FILE_NAME__

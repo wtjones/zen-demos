@@ -7,7 +7,6 @@
 
 void* core_sg_xform_tombmaps(void* input)
 {
-    char buffer[1000];
     RasRenderData* render_data = (RasRenderData*)input;
 
     RasSceneTombMap* tombmap = render_data->scene->num_tombmaps == 1

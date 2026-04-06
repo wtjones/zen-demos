@@ -51,8 +51,17 @@ target_include_directories(core PUBLIC
 	src/platform/psx/libc
 )
 
+option (RAS_USE_MAIN_MIN "Use a minimal main function for testing memory usage" OFF	)
+
+if (RAS_USE_MAIN_MIN)
+	message("Using main_min.c")
+	set(MAIN_CPP src/platform/psx/main_min.c)
+else()
+	set(MAIN_CPP src/platform/psx/main.c)
+endif()
+
 addPS1Executable(ras_psx
-	src/platform/psx/main.c
+	${MAIN_CPP}
 	src/platform/psx/controller.c
 	src/platform/psx/input.c
 	src/platform/psx/serial.c
