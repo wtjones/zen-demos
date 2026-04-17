@@ -445,8 +445,7 @@ void core_clip_face(
                 (*num_out_verts)++;
             }
             if (*num_out_verts >= max_out_verts) {
-                ras_log_buffer("Exceeded max_out_verts: %d", *num_out_verts);
-                ras_log_flush();
+                ras_log_error("Exceeded max_out_verts: %d", *num_out_verts);
                 assert(false);
             }
         } // for each edge

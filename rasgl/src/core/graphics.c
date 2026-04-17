@@ -442,12 +442,22 @@ RasResult core_pipeline_element_alloc(
 {
     memset(element, 0, sizeof(RasPipelineElement));
     element->max_verts = max_verts;
+    {
+        size_t bytes = sizeof(RasVertex) * element->max_verts;
+        ras_log_info("core_pipeline_element_alloc: allocating %zu bytes for verts (count=%zu)",
+            bytes, element->max_verts);
+    }
     element->verts = malloc(sizeof(RasVertex) * element->max_verts);
     if (element->verts == NULL) {
         ras_log_error("Failed to allocate memory for pipeline element verts");
         return RAS_RESULT_ERROR;
     }
     element->max_faces = max_faces;
+    {
+        size_t bytes = sizeof(RasElementFace) * element->max_faces;
+        ras_log_info("core_pipeline_element_alloc: allocating %zu bytes for faces (count=%zu)",
+            bytes, element->max_faces);
+    }
     element->faces = malloc(sizeof(RasElementFace) * element->max_faces);
     if (element->faces == NULL) {
         ras_log_error("Failed to allocate memory for pipeline element faces");
@@ -455,6 +465,11 @@ RasResult core_pipeline_element_alloc(
         return RAS_RESULT_ERROR;
     }
     element->max_indexes = max_indexes;
+    {
+        size_t bytes = sizeof(uint32_t) * element->max_indexes;
+        ras_log_info("core_pipeline_element_alloc: allocating %zu bytes for indexes (count=%zu)",
+            bytes, element->max_indexes);
+    }
     element->indexes = malloc(sizeof(uint32_t) * element->max_indexes);
     if (element->indexes == NULL) {
         ras_log_error("Failed to allocate memory for pipeline element indexes");
@@ -463,6 +478,11 @@ RasResult core_pipeline_element_alloc(
         return RAS_RESULT_ERROR;
     }
     element->max_material_indexes = max_material_indexes;
+    {
+        size_t bytes = sizeof(int32_t) * element->max_material_indexes;
+        ras_log_info("core_pipeline_element_alloc: allocating %zu bytes for material_indexes (count=%zu)",
+            bytes, element->max_material_indexes);
+    }
     element->material_indexes = malloc(sizeof(int32_t) * element->max_material_indexes);
     if (element->material_indexes == NULL) {
         ras_log_error("Failed to allocate memory for pipeline element material indexes");

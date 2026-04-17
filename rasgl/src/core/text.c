@@ -121,6 +121,11 @@ RasResult core_draw_text(
             continue;
         }
 
+        if (state->num_pipeline_verts + 4 > MAX_PIPELINE_VERTS) {
+            ras_log_debug("core_draw_text: pipeline verts capacity exceeded, skipping remaining text");
+            break;
+        }
+
         pv0 = &state->pipeline_verts[state->num_pipeline_verts];
         pv0_i = state->num_pipeline_verts;
         state->num_pipeline_verts++;
@@ -172,6 +177,11 @@ RasResult core_draw_text(
             cur_x += RAS_TEXT_LETTER_WIDTH + RAS_TEXT_LETTER_SPACING;
             ras_log_debug("Bitmap culled: %c", text[i]);
             continue;
+        }
+
+        if (state->num_material_indexes + 2 > MAX_VISIBLE_INDEXES || state->num_visible_indexes + 6 > MAX_VISIBLE_INDEXES) {
+            ras_log_debug("core_draw_text: index/material capacity exceeded, stopping text draw");
+            break;
         }
 
         state->material_indexes[state->num_material_indexes] = text[i];
