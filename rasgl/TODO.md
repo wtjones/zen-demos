@@ -73,6 +73,10 @@
 - [ ] Font colors
 - [ ] DOS support
 - [ ] Height metrics with wrapped text
+- [ ] Text uses legacy render state with unused static allocation. To resolve, do one of:
+  - Migrate to meses meshes.
+  - Dynamically allocate legacy render command data.
+    - See the PSX workaround for MAX_PIPELINE_VERTS.
 
 ### Console
 
