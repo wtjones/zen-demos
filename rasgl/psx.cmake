@@ -38,11 +38,13 @@ include_directories(
 	${CMAKE_SOURCE_DIR}/src/platform/psx
 	${CMAKE_SOURCE_DIR}/src/platform/psx/libc)
 
+set(RAS_NDC_LUT "0" CACHE STRING "Use NDC LUT: 0=disabled, 1=enabled")
 add_compile_definitions(
 	RAS_LOG_BUFFER_MODE=${RAS_LOG_BUFFER_MODE}
 	MAX_RENDER_POINTS=100
 	MAX_RENDER_COMMANDS=100
-	RAS_PLATFORM_EMBEDDED)
+	RAS_PLATFORM_EMBEDDED
+	RAS_NDC_LUT=${RAS_NDC_LUT})
 
 add_subdirectory(src)
 

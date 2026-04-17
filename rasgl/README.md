@@ -275,6 +275,9 @@ PSX build flags:
 - `RAS_MAX_FRAMES`
   - Max frames to run before exiting. Useful for testing memory usage and performance.
   - Default: 0 (run indefinitely)
+- `RAS_NDC_LUT`
+  - Enables the use of a LUT for clip space to NDC conversion. Disabled on PSX due to memory usage and lack of performance benefit.
+  - Default: 0
 
 #### Run
 

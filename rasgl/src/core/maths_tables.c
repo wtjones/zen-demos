@@ -37,8 +37,10 @@ void core_init_z_scale_table_shift()
 
 void core_init_maths_tables()
 {
+#if RAS_NDC_LUT == 1
     core_init_z_scale_table();
     core_init_z_scale_table_shift();
+#endif
 }
 
 RasFixed cos_table[360] = {

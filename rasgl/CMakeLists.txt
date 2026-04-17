@@ -11,12 +11,13 @@ if (NOT RAS_PLATFORM STREQUAL "ras_psx")
     LANGUAGES C)
 
 
-  set (RAS_PLATFORM_TYPE "hosted" CACHE STRING "Platform type: hosted or embedded")
+  set(RAS_PLATFORM_TYPE "hosted" CACHE STRING "Platform type: hosted or embedded")
   set(RAS_LOG_BUFFER_MODE "1" CACHE STRING "Log buffer mode: 0=disabled, 1=enabled")
-
+  set(RAS_NDC_LUT "1" CACHE STRING "Use NDC LUT: 0=disabled, 1=enabled")
   add_compile_definitions(
     DEBUG=${DEBUG}
     RAS_LOG_BUFFER_MODE=${RAS_LOG_BUFFER_MODE}
+    RAS_NDC_LUT=${RAS_NDC_LUT}
     RAS_PLATFORM_HOSTED)
 
   set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

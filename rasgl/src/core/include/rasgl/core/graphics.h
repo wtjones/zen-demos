@@ -43,8 +43,10 @@ typedef enum {
 
 typedef enum {
     RAS_Z_DIVIDE_MODE_RT,
+#if RAS_NDC_LUT == 1
     RAS_Z_DIVIDE_MODE_LUT,
     RAS_Z_DIVIDE_MODE_LUT_SHIFT,
+#endif
     RAS_Z_DIVIDE_MODE_COUNT
 } RasZDivideMode;
 
