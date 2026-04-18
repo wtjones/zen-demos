@@ -24,7 +24,7 @@ void draw_mesh_normals_faux(
     RasVector4f screen_origin;
     RasFixed model_space_position[4];
     RasFixed view_space_position[4];
-    char buffer[255];
+    char buffer[RAS_REPR_MATRIX_BUFFER];
 
     // Project model origin for faux mode
     core_vector3f_to_4x1(&origin_vec, model_space_position);
@@ -90,7 +90,7 @@ void draw_mesh_normals_ortho(
     RasFixed view_space_position[4];
     RasFixed projected_origin[4];
     RasVector4f screen_ortho_origin;
-    char buffer[255];
+    char buffer[RAS_REPR_MATRIX_BUFFER];
 
     view_space_position[0] = 0;
     view_space_position[1] = 0;

@@ -213,9 +213,9 @@ RasClipFlags core_point_in_frustum_planes(RasFrustum* frustum, RasVector3f* poin
 
 char* core_repr_frustum(char* buffer, size_t count, RasFrustum* frustum)
 {
-    char buffer2[255];
-    char buffer3[255];
-    char buffer4[255];
+    char buffer2[RAS_REPR_BUFFER_LARGE];
+    char buffer3[RAS_REPR_POINT_BUFFER];
+    char buffer4[RAS_REPR_POINT_BUFFER];
 
     buffer[0] = '\n';
     buffer[1] = '\0';

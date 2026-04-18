@@ -45,7 +45,7 @@ int hosted_parse_group_name(char* line, RasModelGroup* group)
  */
 int hosted_parse_vector(char* line, RasVector3f* dest)
 {
-    char buffer[255];
+    char buffer[RAS_REPR_POINT_BUFFER];
     char *token, *str, *tofree;
 
     // strsep() is destructive, so make a copy
@@ -129,7 +129,6 @@ int hosted_parse_face_material(char* line, RasModelMaterial* material)
  */
 int hosted_parse_face_index(char* line, RasModelFaceIndex* dest)
 {
-    char buffer[255];
     char *token, *str, *tofree;
 
     // strsep() is destructive, so make a copy
@@ -207,7 +206,6 @@ int hosted_parse_face_token(char** str, RasModelFaceIndex* dest)
  */
 int hosted_parse_face(char* line, RasModelFace* dest)
 {
-    char buffer[255];
     char *token, *str, *tofree;
     RasModelFaceIndex* face_index;
     // strsep() is destructive, so make a copy
@@ -235,7 +233,7 @@ int hosted_parse_face(char* line, RasModelFace* dest)
  */
 RasModel* core_load_model(const char* path)
 {
-    char buffer[255];
+    char buffer[RAS_REPR_BUFFER_LARGE];
     FILE* file;
     char* line = NULL;
     size_t linesize = 0;

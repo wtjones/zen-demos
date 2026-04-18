@@ -443,7 +443,7 @@ void* core_sg_project_verts(void* input)
                 projected_vec,
                 &pv->screen_space_position);
 
-            static char buffer[255];
+            static char buffer[RAS_REPR_MATRIX_BUFFER];
             ras_log_buffer_trace("pipeline screen space pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->screen_space_position));
         }
     }
@@ -543,7 +543,7 @@ void* core_sg_project_to_screen_space(void* input)
             core_4x1_to_vector4f(ndc_space_vec, &pv->ndc_space_position);
 
 #ifdef RAS_DEBUG_Z_DIVIDE
-            static char buffer[255];
+            static char buffer[RAS_REPR_MATRIX_BUFFER];
             ras_log_buffer_trace("ndc pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->ndc_space_position));
 #endif
 
@@ -635,7 +635,7 @@ void* core_sg_visible_faces(void* input)
                     &num_out_verts,
                     RAS_MAX_CLIP_OUT_VERTS);
 
-                static char buffer[255];
+                static char buffer[RAS_REPR_POINT_BUFFER];
                 ras_log_buffer_trace("clip2: num_out_verts: %d\n", num_out_verts);
                 for (size_t j = 0; j < num_out_verts; j++) {
                     ras_log_buffer_trace("clip2: out_verts[%zu]: %s\n", j, repr_point3f(buffer, sizeof buffer, &out_verts[j].view_space_position));

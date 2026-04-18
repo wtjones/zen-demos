@@ -259,7 +259,7 @@ void render_mesh_solid(RenderState* state)
             RasFixed max_shade = INT_32_TO_FIXED_16_16(7);
             RasFixed shade_fixed = mul_fixed_16_16_by_fixed_16_16(face->diffuse_intensity, max_shade);
 #ifdef RAS_DEBUG_SHADE_CALC
-            static char buffer[255];
+            static char buffer[RAS_REPR_POINT_BUFFER];
             ras_log_buffer("diffuse_intensity: %s", repr_fixed_16_16(buffer, sizeof buffer, face->diffuse_intensity));
             ras_log_buffer("shade_fixed: %s", repr_fixed_16_16(buffer, sizeof buffer, shade_fixed));
 #endif
@@ -287,9 +287,9 @@ void render_mesh_solid(RenderState* state)
             if (delta0 > INT_32_TO_FIXED_16_16(241)
                 || delta1 > INT_32_TO_FIXED_16_16(241)
                 || delta2 > INT_32_TO_FIXED_16_16(241)) {
-                static char buffer1[255];
-                static char buffer2[255];
-                static char buffer3[255];
+                static char buffer1[RAS_REPR_POINT_BUFFER];
+                static char buffer2[RAS_REPR_POINT_BUFFER];
+                static char buffer3[RAS_REPR_POINT_BUFFER];
                 ras_log_buffer_ex(
                     RAS_EVENT_RS_TRI_HLINES, "Tri Y delta exeeds screen: %s, %s, %s",
                     repr_fixed_16_16(buffer1, sizeof buffer1, delta0),
@@ -364,7 +364,7 @@ void render_polygon_solid(RenderState* state)
             ras_log_buffer("Face %d has material = %d", i / 3, material);
         }
 
-        char buffer[255];
+        char buffer[RAS_REPR_POINT_BUFFER];
         RasFixed max_shade = INT_32_TO_FIXED_16_16(7);
         RasFixed shade_fixed = mul_fixed_16_16_by_fixed_16_16(face->diffuse_intensity, max_shade);
         ras_log_buffer("diffuse_intensity: %s", repr_fixed_16_16(buffer, sizeof buffer, face->diffuse_intensity));

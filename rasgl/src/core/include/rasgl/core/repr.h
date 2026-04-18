@@ -7,6 +7,10 @@
 #include "maths.h"
 #include "maths_tables.h"
 #include "matrix.h"
+#define RAS_REPR_POINT_BUFFER 64
+#define RAS_REPR_VECTOR_BUFFER 64
+#define RAS_REPR_BUFFER_LARGE 256
+#define RAS_REPR_MATRIX_BUFFER RAS_REPR_BUFFER_LARGE
 
 char* repr_point2i(char* buffer, size_t count, Point2i* p);
 char* repr_point2f(char* buffer, size_t count, Point2f* p);

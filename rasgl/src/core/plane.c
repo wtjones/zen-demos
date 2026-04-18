@@ -108,9 +108,9 @@ bool core_get_3_plane_intersection(RasPlane* p1, RasPlane* p2, RasPlane* p3, Poi
 
 char* core_repr_plane(char* buffer, size_t count, RasPlane* plane)
 {
-    char buffer2[255];
-    char buffer3[255];
-    char buffer4[255];
+    char buffer2[RAS_REPR_BUFFER_LARGE];
+    char buffer3[RAS_REPR_POINT_BUFFER];
+    char buffer4[RAS_REPR_POINT_BUFFER];
 
     buffer[0] = '\0';
     snprintf(

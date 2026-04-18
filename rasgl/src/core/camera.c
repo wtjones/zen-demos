@@ -120,7 +120,7 @@ void ras_camera_update(RasCamera* camera, InputState* input_state)
         : camera->last_changed_frame;
 
     if (changed) {
-        char buffer[255];
+        char buffer[RAS_REPR_BUFFER_LARGE];
         ras_log_buffer_ex(
             RAS_EVENT_CM_CHANGE, "camera: %s", repr_camera(buffer, sizeof buffer, camera));
     }

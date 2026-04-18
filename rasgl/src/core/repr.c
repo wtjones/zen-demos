@@ -96,7 +96,7 @@ char* repr_fixed_16_16(char* buffer, size_t count, RasFixed f)
 }
 char* repr_mat_4x4(char* buffer, size_t count, RasFixed s1[4][4])
 {
-    char matrix_buffer[255];
+    char matrix_buffer[RAS_REPR_MATRIX_BUFFER];
     buffer[0] = '\0';
     strcat(buffer, "[");
 
@@ -127,7 +127,7 @@ char* repr_mat_4x4(char* buffer, size_t count, RasFixed s1[4][4])
 
 char* repr_mat_4x1(char* buffer, size_t count, RasFixed s[4])
 {
-    char matrix_buffer[255];
+    char matrix_buffer[RAS_REPR_MATRIX_BUFFER];
     buffer[0] = '\0';
     strcat(buffer, "[");
 
@@ -193,7 +193,7 @@ const char* repr_z_divide_mode(char* buffer, size_t count, RasZDivideMode mode)
 
 const char* repr_camera(char* buffer, size_t count, RasCamera* camera)
 {
-    char buffer2[255];
+    char buffer2[RAS_REPR_BUFFER_LARGE];
     snprintf(
         buffer,
         count,

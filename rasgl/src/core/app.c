@@ -4,7 +4,7 @@
 
 void ras_core_update(InputState* input_state, RenderState render_states[RAS_LAYER_COUNT])
 {
-    char buffer[255];
+    char buffer[RAS_REPR_BUFFER_LARGE];
 
     RenderState* scene_state = &render_states[RAS_LAYER_SCENE];
     RenderState* ui_state = &render_states[RAS_LAYER_UI];

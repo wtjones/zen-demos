@@ -94,7 +94,7 @@ void core_model_group_to_pipeline_element(RasModelGroup* group, RasPipelineEleme
 
 char* core_repr_model(char* buffer, size_t count, RasModel* model)
 {
-    char buffer2[255];
+    char buffer2[RAS_REPR_BUFFER_LARGE];
     buffer[0] = '\0';
     snprintf(buffer2, sizeof buffer2, "model obj: %s bytes: %zu\n", model->name, sizeof(model));
     strcat(buffer, buffer2);

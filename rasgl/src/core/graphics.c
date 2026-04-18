@@ -414,7 +414,7 @@ void core_light_poly(
         &face->view_space_normal, &light_dir);
 
     face->diffuse_intensity = face->diffuse_intensity < 0 ? 0 : face->diffuse_intensity;
-    char buffer[255];
+    char buffer[RAS_REPR_POINT_BUFFER];
     ras_log_buffer_trace("diffuse_intensity: %s", repr_fixed_16_16(buffer, sizeof buffer, face->diffuse_intensity));
 }
 
@@ -428,7 +428,7 @@ void core_get_element_aabb(RasPipelineElement* element, RasAABB* aabb)
         core_max_vector3f(&element->aabb.max, &element_vert->position, &element->aabb.max);
     }
 
-    char buffer[255];
+    char buffer[RAS_REPR_POINT_BUFFER];
     ras_log_trace("Model AABB min: %s\n", repr_point3f(buffer, sizeof buffer, &element->aabb.min));
     ras_log_trace("Model AABB max: %s\n", repr_point3f(buffer, sizeof buffer, &element->aabb.max));
 }

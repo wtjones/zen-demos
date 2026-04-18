@@ -93,7 +93,7 @@ void core_clip_face_scenario(
     RasPipelineVertex in_verts[3],
     RasClipFaceScenario* scenario)
 {
-    char buffer[255];
+    char buffer[RAS_REPR_POINT_BUFFER];
 
     scenario->num_in = 0;
     scenario->first_in = -1;
@@ -176,7 +176,7 @@ int32_t core_clip_face_a(
         return 0;
     }
 
-    char buffer[255];
+    char buffer[RAS_REPR_POINT_BUFFER];
     ras_log_buffer("clip a2: pv_b_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_b_alt->view_space_position));
     ras_log_buffer("clip a2: pv_c_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_c_alt->view_space_position));
     return 3;
@@ -284,7 +284,7 @@ int32_t core_clip_face_b(
         return 0;
     }
 
-    char buffer[255];
+    char buffer[RAS_REPR_POINT_BUFFER];
     ras_log_buffer("cpp: clip: pv_a_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_a_alt->view_space_position));
     ras_log_buffer("cpp: clip: pv_b_alt: %s\n", repr_point3f(buffer, sizeof buffer, &pv_b_alt->view_space_position));
 
