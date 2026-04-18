@@ -3,7 +3,7 @@
 
 #include <stdarg.h>
 #if (RAS_LOG_BUFFER_MODE != 0)
-#    define RAS_MAX_LOG_BUFFER 8
+#    define RAS_MAX_LOG_BUFFER 200000
 #else
 #    define RAS_MAX_LOG_BUFFER 1
 #endif
