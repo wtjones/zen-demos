@@ -85,7 +85,6 @@
 - [ ] Prompt echo
 - [ ] Size console to visible rows.
 - [ ] Scene should continue to animate when visible.
-- [ ] Flush is triggered when console option. Remap/disable?
 
 ### Input
 
@@ -119,7 +118,7 @@
 
 ### Logging
 
-- [ ] Summary: Added summary flush hotkey.
+- [ ] Summary: Add summary flush hotkey.
 
 ## Done ✓
 
@@ -204,6 +203,7 @@
 - [x] Trim whitespace
 - [x] Show cursor
 - [x] Add key repeat for backspace
+- [x] Flush is triggered when console open. Remap/disable?
 
 ### Grid overlay
 
