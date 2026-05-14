@@ -324,6 +324,9 @@ void* core_sg_xform_aabb(void* input)
         RasPipelineElement* element = &render_data->scene->models[current_object->model_index].element;
         const uint32_t mesh_index = current_object->mesh_index;
         RasAABB* view_aabb = &render_data->aabbs[mesh_index];
+        render_data->num_verts_in_frustum[mesh_index] = 0;
+        render_data->num_faces_in_frustum[mesh_index] = 0;
+        render_data->num_backfaces[mesh_index] = 0;
 
         core_aabb_xform(&element->aabb, render_data->model_view_matrix[mesh_index], view_aabb);
 
@@ -383,7 +386,6 @@ void* core_sg_xform_verts(void* input)
         RasFixed(*model_view_matrix)[4] = render_data->model_view_matrix[mesh_index];
         RasFixed(*normal_mvt_matrix)[4] = render_data->normal_mvt_matrix[mesh_index];
 
-        render_data->num_verts_in_frustum[mesh_index] = 0;
         mesh->num_verts = element->num_verts;
 
         for (uint32_t j = 0; j < element->num_verts; j++) {
@@ -574,6 +576,11 @@ void* core_sg_visible_faces(void* input)
         }
     }
 
+    ras_log_buffer_ex(
+        RAS_EVENT_SG_SUMMARY,
+        "Element faces:\n    In Model: %d. In frustum: %d. Visible: %d. Excluded: %d. To Clip: %d. Backfaces: %d.",
+        0, 0, 0, 0, 0, 0);
+
     for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
         uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
         RasPipelineElement* element = render_data->mesh_elements[i].element_ref;
@@ -583,8 +590,6 @@ void* core_sg_visible_faces(void* input)
         uint32_t* num_dest_materials = &mesh->num_material_indexes;
         *num_dest_materials = 0;
 
-        render_data->num_faces_in_frustum[mesh_index] = 0;
-        render_data->num_backfaces[mesh_index] = 0;
         uint32_t current_src_face_index = 0;
         uint16_t num_faces_excluded = 0;
 
