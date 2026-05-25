@@ -127,6 +127,16 @@ void mat_rotate_y(RasFixed m[4][4], int32_t angle, RasFixed dest[4][4]);
  */
 void mat_rotate_z(RasFixed m[4][4], int32_t angle, RasFixed dest[4][4]);
 
+/**
+ * @brief Init a projection matrix in homogenous coordinates.
+ * Clip-space Z in the range [-w, w].
+ *
+ * @param projection_matrix
+ * @param fov
+ * @param aspect_ratio
+ * @param near
+ * @param far
+ */
 void mat_projection_init(
     RasFixed projection_matrix[4][4],
     RasFixed fov,

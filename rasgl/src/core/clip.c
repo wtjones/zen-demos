@@ -27,7 +27,7 @@ void core_set_pv_clip_flags(
         pv->clip_flags |= core_to_clip_flag(PLANE_TOP);
     }
 
-    if (p->z < 0) {
+    if (p->z < -p->w) {
         pv->clip_flags |= core_to_clip_flag(PLANE_NEAR);
     }
 
