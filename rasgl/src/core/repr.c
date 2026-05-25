@@ -193,16 +193,20 @@ const char* repr_z_divide_mode(char* buffer, size_t count, RasZDivideMode mode)
 
 const char* repr_camera(char* buffer, size_t count, RasCamera* camera)
 {
-    char buffer2[RAS_REPR_BUFFER_LARGE];
+    char buffer0[RAS_REPR_POINT_BUFFER];
+    char buffer1[RAS_REPR_FIXED_BUFFER];
+    char buffer2[RAS_REPR_FIXED_BUFFER];
+    char buffer3[RAS_REPR_FIXED_BUFFER];
+    char buffer4[RAS_REPR_FIXED_BUFFER];
     snprintf(
         buffer,
         count,
-        "[pos: %s, angle: %d, fov: %f, aspect: %f, near: %f, far: %f]",
-        repr_point3f(buffer2, sizeof(buffer2), &camera->position),
+        "[pos: %s, angle: %d, fov: %s, aspect: %s, near: %s, far: %s]",
+        repr_point3f(buffer0, sizeof(buffer0), &camera->position),
         camera->angle,
-        camera->fov,
-        camera->aspect_ratio,
-        camera->near,
-        camera->far);
+        repr_fixed_16_16(buffer1, sizeof(buffer1), camera->fov),
+        repr_fixed_16_16(buffer2, sizeof(buffer2), camera->aspect_ratio),
+        repr_fixed_16_16(buffer3, sizeof(buffer3), camera->near),
+        repr_fixed_16_16(buffer4, sizeof(buffer4), camera->far));
     return buffer;
 }

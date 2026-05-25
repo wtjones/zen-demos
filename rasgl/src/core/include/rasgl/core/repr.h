@@ -7,6 +7,7 @@
 #include "maths.h"
 #include "maths_tables.h"
 #include "matrix.h"
+#define RAS_REPR_FIXED_BUFFER 32
 #define RAS_REPR_POINT_BUFFER 64
 #define RAS_REPR_VECTOR_BUFFER 64
 #define RAS_REPR_BUFFER_LARGE 256
