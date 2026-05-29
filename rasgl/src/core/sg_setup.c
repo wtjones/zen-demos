@@ -73,6 +73,11 @@ void core_renderdata_clear(
 
 RasResult core_renderdata_objects_alloc(RasRenderData* render_data)
 {
+    if (render_data->scene->num_objects + render_data->render_state->num_meshes > RAS_MAX_MESHES) {
+        ras_log_error("Too many meshes: scene has %zu objects, however RAS_MAX_MESHES = %d.",
+            render_data->scene->num_objects, RAS_MAX_MESHES);
+        return RAS_RESULT_ERROR;
+    }
     for (size_t i = 0; i < render_data->scene->num_objects; i++) {
         RasSceneObject* current_object = &render_data->scene->objects[i];
         uint32_t mesh_index = current_object->mesh_index = render_data->render_state->num_meshes++;
