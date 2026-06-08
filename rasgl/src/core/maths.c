@@ -214,6 +214,30 @@ void mat_projection_init(
     projection_matrix[3][2] = -RAS_FIXED_ONE;
 }
 
+void mat_projection_ortho_init(
+    RasFixed projection_matrix[4][4],
+    RasFixed left,
+    RasFixed right,
+    RasFixed bottom,
+    RasFixed top,
+    RasFixed near,
+    RasFixed far)
+{
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            projection_matrix[i][j] = 0;
+        }
+    }
+
+    projection_matrix[0][0] = div_fixed_16_16_by_fixed_16_16(RAS_FIXED_TWO, right - left);
+    projection_matrix[1][1] = div_fixed_16_16_by_fixed_16_16(RAS_FIXED_TWO, top - bottom);
+    projection_matrix[2][2] = div_fixed_16_16_by_fixed_16_16(-RAS_FIXED_TWO, far - near);
+    projection_matrix[0][3] = div_fixed_16_16_by_fixed_16_16(-(right + left), right - left);
+    projection_matrix[1][3] = div_fixed_16_16_by_fixed_16_16(-(top + bottom), top - bottom);
+    projection_matrix[2][3] = div_fixed_16_16_by_fixed_16_16(-(far + near), far - near);
+    projection_matrix[3][3] = RAS_FIXED_ONE;
+}
+
 void mat_mul_project(RasFixed projection_matrix[4][4], RasFixed v[4], RasFixed dest[4])
 {
     char buffer[100];

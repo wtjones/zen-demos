@@ -144,6 +144,15 @@ void mat_projection_init(
     RasFixed near,
     RasFixed far);
 
+void mat_projection_ortho_init(
+    RasFixed projection_matrix[4][4],
+    RasFixed left,
+    RasFixed right,
+    RasFixed top,
+    RasFixed bottom,
+    RasFixed near,
+    RasFixed far);
+
 /**
  * Multiply a 4x1 vector with a project matrix and perform perspective divide on
  * the carried over z -> w.

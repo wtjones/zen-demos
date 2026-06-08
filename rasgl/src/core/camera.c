@@ -2,10 +2,36 @@
 #include "rasgl/core/event.h"
 #include "rasgl/core/repr.h"
 
-void ras_camera_update(RasCamera* camera, InputState* input_state)
+void ras_camera_update_ortho(RasCamera* camera, InputState* input_state)
 {
     RasCamera camera_prev;
     memcpy(&camera_prev, camera, sizeof camera_prev);
+
+    Point2f delta = {
+        RAS_ORTHO_VIEWER_SPEED,
+        RAS_ORTHO_VIEWER_SPEED
+    };
+
+    if (input_state->current_frame % 8 == 0) {
+        if (input_state->mods == RAS_KMOD_NONE) {
+            if (input_state->keys[RAS_KEY_W] == 1) {
+                camera->position.y += delta.y;
+            }
+            if (input_state->keys[RAS_KEY_A] == 1) {
+                camera->position.x -= delta.x;
+            }
+            if (input_state->keys[RAS_KEY_S] == 1) {
+                camera->position.y -= delta.y;
+            }
+            if (input_state->keys[RAS_KEY_D] == 1) {
+                camera->position.x += delta.x;
+            }
+        }
+    }
+}
+
+void ras_camera_update_perspective(RasCamera* camera, InputState* input_state)
+{
     int32_t delta_angle = 0;
 
     if (input_state->keys[RAS_KEY_Q] == 1) {
@@ -76,10 +102,6 @@ void ras_camera_update(RasCamera* camera, InputState* input_state)
         } else if (camera->fov > RAS_FOV_MAX) {
             camera->fov = RAS_FOV_MAX;
         }
-
-        if (camera->fov != camera_prev.fov) {
-            ras_log_debug("FOV: %f\n", camera->fov);
-        }
     }
 
     if (input_state->keys[RAS_KEY_LEFTBRACKET] == RAS_KEY_EVENT_DOWN
@@ -107,6 +129,17 @@ void ras_camera_update(RasCamera* camera, InputState* input_state)
         && (input_state->mods & RAS_KMOD_SHIFT)) {
         camera->near += RAS_PLANE_SPEED;
     }
+}
+
+void ras_camera_update(RasCamera* camera, InputState* input_state)
+{
+    RasCamera camera_prev;
+    memcpy(&camera_prev, camera, sizeof camera_prev);
+    if (camera->projection_mode == RAS_PERSPECTIVE_MATRIX) {
+        ras_camera_update_perspective(camera, input_state);
+    } else if (camera->projection_mode == RAS_ORTHO_MATRIX) {
+        ras_camera_update_ortho(camera, input_state);
+    }
 
     if (input_state->keys[RAS_KEY_P] == RAS_KEY_EVENT_UP
         && input_state->mods & RAS_KMOD_CTRL) {
@@ -114,6 +147,7 @@ void ras_camera_update(RasCamera* camera, InputState* input_state)
             ? RAS_ORTHO_MATRIX
             : RAS_PERSPECTIVE_MATRIX;
     }
+
     bool changed = (memcmp(&camera_prev, camera, sizeof camera_prev) != 0);
     camera->last_changed_frame = changed
         ? input_state->current_frame
@@ -128,12 +162,36 @@ void ras_camera_update(RasCamera* camera, InputState* input_state)
 
 void ras_camera_projection_init(RasCamera* camera, RasFixed projection_matrix[4][4])
 {
-    mat_projection_init(
-        projection_matrix,
-        camera->fov,
-        camera->aspect_ratio,
-        camera->near,
-        camera->far);
+    if (camera->projection_mode == RAS_PERSPECTIVE_MATRIX) {
+        mat_projection_init(
+            projection_matrix,
+            camera->fov,
+            camera->aspect_ratio,
+            camera->near,
+            camera->far);
+    } else if (camera->projection_mode == RAS_ORTHO_MATRIX) {
+
+        // FIXME
+        RasFixed view_height = float_to_fixed_16_16(240.0f / 1.0f);
+        RasFixed view_width = float_to_fixed_16_16(320.0f / 1.0f);
+
+        mat_projection_ortho_init(
+            projection_matrix,
+            0,
+            view_width,
+            0,
+            view_height,
+            camera->near,
+            camera->far);
+
+    } else {
+        ras_log_error("Unsupported projection mode %d", camera->projection_mode);
+        return;
+    }
+
+    char buffer[RAS_REPR_MATRIX_BUFFER];
+    ras_log_buffer_info("Camera projection matrix initialized: %s\n",
+        repr_mat_4x4(buffer, sizeof buffer, projection_matrix));
 }
 
 void ras_camera_world_view_init(RasCamera* camera, RasFixed world_view_matrix[4][4])

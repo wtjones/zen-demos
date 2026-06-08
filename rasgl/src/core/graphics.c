@@ -367,6 +367,28 @@ void core_projected_to_screen_point(int32_t screen_width, int32_t screen_height,
     screen_point->w = projected_point[3];
 }
 
+void core_projected_to_screen_point_ortho(
+    int32_t screen_width,
+    int32_t screen_height,
+    RasFixed projected_point[4],
+    RasVector4f* screen_point)
+{
+    RasFixed half_screen_width = INT_32_TO_FIXED_16_16(screen_width / 2);
+    RasFixed half_screen_height = INT_32_TO_FIXED_16_16(screen_height / 2);
+
+    screen_point->x = mul_fixed_16_16_by_fixed_16_16(half_screen_width, projected_point[0]) + half_screen_width;
+    screen_point->y = -mul_fixed_16_16_by_fixed_16_16(half_screen_height, projected_point[1]) + half_screen_height;
+
+    screen_point->x = INT_32_TO_FIXED_16_16(
+        FIXED_16_16_TO_INT_32_ROUND(screen_point->x));
+
+    screen_point->y = INT_32_TO_FIXED_16_16(
+        FIXED_16_16_TO_INT_32_ROUND(screen_point->y));
+
+    screen_point->z = projected_point[2];
+    screen_point->w = projected_point[3];
+}
+
 void core_render_aabb(
     RenderState* render_state,
     RasFixed proj_matrix[4][4],

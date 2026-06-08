@@ -6,6 +6,7 @@
 
 - [ ] Support CTest
 - [ ] POSIX - screen resolution shouldn't be hard-coded
+  - Support via --scale 2
 - [ ] Log buffer overflow - DOS only?
   - Move model to left clip side to trigger.
 - [ ] Summary logs not working in DOS.
@@ -56,6 +57,7 @@
 - [ ] Support parameterized scene loading
 - [ ] Configurable background color
 - [ ] Objects should not be mandatory.
+- [ ] Support projection mode in scene file.
 
 ### Scene management
 

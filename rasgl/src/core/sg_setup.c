@@ -36,6 +36,7 @@ void core_pipeline_init(RasPipeline* pipeline)
     ADD_STAGE(pipeline, core_sg_clip_flag_verts);
     ADD_STAGE(pipeline, core_sg_visible_faces);
     ADD_STAGE(pipeline, core_sg_project_to_screen_space);
+    ADD_STAGE(pipeline, core_sg_ortho_to_screen_space);
     ADD_STAGE(pipeline, core_sg_cull_backfaces);
     ADD_STAGE(pipeline, core_sg_xform_normals);
     ADD_STAGE(pipeline, core_sg_lighting);
@@ -431,6 +432,11 @@ void* core_sg_project_to_screen_space(void* input)
     RasRenderData* render_data = (RasRenderData*)input;
     RenderState* render_state = render_data->render_state;
 
+    if (render_state->projection_mode != RAS_PERSPECTIVE_MATRIX) {
+        ras_log_buffer_info("Passing: Projection mode is not perspective.");
+        return NULL;
+    }
+
     RasClipSpaceToNDCFn clip_space_to_ndc_fn;
 
 #if RAS_NDC_LUT == 1
@@ -479,6 +485,52 @@ void* core_sg_project_to_screen_space(void* input)
                 render_state->screen_settings.screen_height,
                 ndc_space_vec,
                 &pv->screen_space_position);
+        }
+    }
+}
+
+void* core_sg_ortho_to_screen_space(void* input)
+{
+    RasRenderData* render_data = (RasRenderData*)input;
+    RenderState* render_state = render_data->render_state;
+
+    if (render_state->projection_mode != RAS_ORTHO_MATRIX) {
+        ras_log_buffer_info("Passing: Projection type is not orthographic.");
+        return NULL;
+    }
+    for (uint32_t i = 0; i < render_data->num_mesh_elements; i++) {
+        uint32_t mesh_index = render_data->mesh_elements[i].mesh_index;
+        RasPipelineMesh* mesh = &render_state->meshes[mesh_index];
+
+        render_data->num_verts_in_frustum[mesh_index] = 0;
+
+        for (uint32_t j = 0; j < mesh->num_verts; j++) {
+
+            RasPipelineVertex* pv = &mesh->verts[j];
+
+            render_data->num_verts_in_frustum[mesh_index]++;
+            RasFixed clip_space_position[4];
+            RasFixed ndc_space_vec[4];
+
+            char buffer[RAS_REPR_MATRIX_BUFFER];
+            ras_log_buffer_info("Ortho clip space pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->clip_space_position));
+
+            core_vector4f_to_4x1(&pv->clip_space_position, clip_space_position);
+
+            ndc_space_vec[0] = clip_space_position[0];
+            ndc_space_vec[1] = clip_space_position[1];
+            ndc_space_vec[2] = clip_space_position[2];
+            ndc_space_vec[3] = clip_space_position[3];
+
+            core_4x1_to_vector4f(ndc_space_vec, &pv->ndc_space_position);
+
+            core_projected_to_screen_point_ortho(
+                render_state->screen_settings.screen_width,
+                render_state->screen_settings.screen_height,
+                ndc_space_vec,
+                &pv->screen_space_position);
+
+            ras_log_buffer_info("Ortho screen space pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->screen_space_position));
         }
     }
 }

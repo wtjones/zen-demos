@@ -15,6 +15,7 @@
 #define RAS_NEAR_PLANE_MIN float_to_fixed_16_16(0.1f)
 #define RAS_FAR_PLANE_MIN float_to_fixed_16_16(1.0f)
 #define RAS_VIEWER_SPEED float_to_fixed_16_16(0.025)
+#define RAS_ORTHO_VIEWER_SPEED float_to_fixed_16_16(8.0)
 #define RAS_PROJECTION_RATIO -float_to_fixed_16_16(2.0)
 
 typedef struct RasCamera {

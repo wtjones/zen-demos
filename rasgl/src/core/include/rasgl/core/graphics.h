@@ -39,7 +39,6 @@ typedef enum {
 
 typedef enum {
     RAS_PERSPECTIVE_MATRIX,
-    RAS_PERSPECTIVE_ALT,
     RAS_ORTHO_MATRIX
 } RasProjectionMode;
 
@@ -339,6 +338,12 @@ bool core_aabb_in_frustum(
 bool core_is_backface(const RasVector4f* v0, const RasVector4f* v1, const RasVector4f* v2);
 
 void core_projected_to_screen_point(
+    int32_t screen_width,
+    int32_t screen_height,
+    RasFixed projected_point[4],
+    RasVector4f* screen_point);
+
+void core_projected_to_screen_point_ortho(
     int32_t screen_width,
     int32_t screen_height,
     RasFixed projected_point[4],
