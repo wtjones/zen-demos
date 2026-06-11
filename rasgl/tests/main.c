@@ -370,6 +370,10 @@ void scene_tests()
     pass = pass && scene->num_cameras == 1;
     pass = pass && scene->cameras[0].position.z == float_to_fixed_16_16(2.5);
     pass = pass && scene->cameras[0].angle == 180;
+    pass = pass && scene->cameras[0].fov == RAS_FIXED_ONE * 45;
+    pass = pass && scene->cameras[0].near == float_to_fixed_16_16(0.1f);
+    pass = pass && scene->cameras[0].far == RAS_FIXED_ONE * 100;
+    pass = pass && scene->cameras[0].aspect_ratio == RAS_FIXED_ONE;
     pass = pass && scene->cameras[0].projection_mode == RAS_PERSPECTIVE_MATRIX;
     assert(pass);
     core_free_scene(&scene);
@@ -393,6 +397,7 @@ void scene_camera_proj_tests()
     pass = pass && scene->cameras[1].projection_mode == RAS_ORTHO_MATRIX;
     // Should be default
     pass = pass && scene->cameras[2].projection_mode == RAS_PERSPECTIVE_MATRIX;
+    pass = pass && scene->cameras[2].far == RAS_CAMERA_DEFAULT_FAR;
     assert(pass);
     core_free_scene(&scene);
 }

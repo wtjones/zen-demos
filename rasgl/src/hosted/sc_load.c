@@ -22,6 +22,17 @@ RasResult hosted_script_map_int32(LarNode* exp, const char* symbol, int32_t* des
     return RAS_RESULT_OK;
 }
 
+RasResult hosted_script_map_fixed(LarNode* exp, const char* symbol, RasFixed* dest)
+{
+    LarNode* node = lar_get_property_by_type(exp, symbol, LAR_NODE_ATOM_FIXED);
+
+    RAS_CHECK_AND_LOG(node == NULL,
+        "Failed to find property %s", symbol);
+
+    *dest = node->atom.val_fixed;
+    return RAS_RESULT_OK;
+}
+
 RasResult hosted_script_map_vector(LarNode* vector_exp, RasVector3f* dest)
 {
     RAS_CHECK_AND_LOG(!lar_is_symbol(lar_get_first(vector_exp), "vec"),
@@ -72,6 +83,13 @@ RasResult hosted_script_map_projection_mode(LarNode* camera_exp, RasProjectionMo
 
 RasResult hosted_script_map_camera(RasScene* scene, LarNode* camera_exp, RasCamera* camera)
 {
+
+    camera->aspect_ratio = RAS_CAMERA_DEFAULT_ASPECT_RATIO;
+    camera->near = RAS_CAMERA_DEFAULT_NEAR;
+    camera->far = RAS_CAMERA_DEFAULT_FAR;
+    camera->fov = RAS_CAMERA_DEFAULT_FOV;
+    camera->projection_mode = RAS_CAMERA_DEFAULT_PROJECTION_MODE;
+
     LarNode* position = lar_get_property_by_type(
         camera_exp, SCRIPT_SYMBOL_POSITION, LAR_NODE_LIST);
 
@@ -88,6 +106,18 @@ RasResult hosted_script_map_camera(RasScene* scene, LarNode* camera_exp, RasCame
 
     RAS_CHECK_RESULT_AND_LOG(result,
         "Failed to map property %s", SCRIPT_SYMBOL_ANGLE);
+
+    hosted_script_map_fixed(
+        camera_exp, SCRIPT_SYMBOL_ASPECT_RATIO, &camera->aspect_ratio);
+
+    hosted_script_map_fixed(
+        camera_exp, SCRIPT_SYMBOL_FOV, &camera->fov);
+
+    hosted_script_map_fixed(
+        camera_exp, SCRIPT_SYMBOL_NEAR, &camera->near);
+
+    hosted_script_map_fixed(
+        camera_exp, SCRIPT_SYMBOL_FAR, &camera->far);
 
     result = hosted_script_map_projection_mode(camera_exp, &camera->projection_mode);
 

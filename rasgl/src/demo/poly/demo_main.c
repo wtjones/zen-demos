@@ -56,10 +56,6 @@ RasResult ras_app_init(int argc, const char** argv, ScreenSettings* init_setting
     RAS_CHECK_RESULT(result);
 
     camera = &scene->cameras[0];
-    camera->aspect_ratio = RAS_CAMERA_DEFAULT_ASPECT_RATIO;
-    camera->near = RAS_CAMERA_DEFAULT_NEAR;
-    camera->far = RAS_CAMERA_DEFAULT_FAR;
-    camera->fov = RAS_CAMERA_DEFAULT_FOV;
 
     selected_object = scene->num_objects > 0 ? &scene->objects[0] : NULL;
 
