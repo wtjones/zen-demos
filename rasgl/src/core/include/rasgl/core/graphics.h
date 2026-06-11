@@ -39,7 +39,8 @@ typedef enum {
 
 typedef enum {
     RAS_PERSPECTIVE_MATRIX,
-    RAS_ORTHO_MATRIX
+    RAS_ORTHO_MATRIX,
+    RAS_PROJECTION_MODE_COUNT
 } RasProjectionMode;
 
 typedef enum {

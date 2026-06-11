@@ -33,6 +33,7 @@
 #define SCRIPT_SYMBOL_ROTATION ":rotation"
 #define SCRIPT_SYMBOL_SPEED ":speed"
 #define SCRIPT_SYMBOL_AXIS ":axis"
+#define SCRIPT_SYMBOL_PROJECTION_MODE ":projection_mode"
 #define SCRIPT_SYMBOL_VEC "vec"
 #define SCRIPT_SYMBOL_NAME ":name"
 

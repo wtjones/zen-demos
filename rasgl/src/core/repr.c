@@ -37,6 +37,11 @@ static const char* g_repr_z_divide_mode[] = {
     "RAS_Z_DIVIDE_MODE_LUT_SHIFT"
 };
 
+static const char* g_repr_projection_mode[] = {
+    "RAS_PERSPECTIVE_MATRIX",
+    "RAS_ORTHO_MATRIX"
+};
+
 char* repr_point2i(char* buffer, size_t count, Point2i* p)
 {
     snprintf(
@@ -209,4 +214,9 @@ const char* repr_camera(char* buffer, size_t count, RasCamera* camera)
         repr_fixed_16_16(buffer3, sizeof(buffer3), camera->near),
         repr_fixed_16_16(buffer4, sizeof(buffer4), camera->far));
     return buffer;
+}
+
+const char* repr_projection_mode(RasProjectionMode mode)
+{
+    return g_repr_projection_mode[mode];
 }

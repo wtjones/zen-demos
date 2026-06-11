@@ -27,5 +27,6 @@ const char* repr_normal_mode(char* buffer, size_t count, RasNormalMode mode);
 const char* repr_grid_mode(char* buffer, size_t count, RasGridMode mode);
 const char* repr_z_divide_mode(char* buffer, size_t count, RasZDivideMode mode);
 const char* repr_camera(char* buffer, size_t count, RasCamera* camera);
+const char* repr_projection_mode(RasProjectionMode mode);
 
 #endif

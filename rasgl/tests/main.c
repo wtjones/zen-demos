@@ -370,8 +370,44 @@ void scene_tests()
     pass = pass && scene->num_cameras == 1;
     pass = pass && scene->cameras[0].position.z == float_to_fixed_16_16(2.5);
     pass = pass && scene->cameras[0].angle == 180;
+    pass = pass && scene->cameras[0].projection_mode == RAS_PERSPECTIVE_MATRIX;
     assert(pass);
     core_free_scene(&scene);
+}
+
+void scene_camera_proj_tests()
+{
+    // arrange
+    const char* expected_name = "cam_proj";
+    RasScene* scene = NULL;
+
+    // act
+    RasResult result = core_load_scene("./tests/data/camera_proj.lsp", &scene);
+
+    // assert
+    assert(result == RAS_RESULT_OK);
+    bool pass = strcmp(scene->name, expected_name) == 0;
+
+    pass = pass && scene->num_cameras == 3;
+    pass = pass && scene->cameras[0].projection_mode == RAS_PERSPECTIVE_MATRIX;
+    pass = pass && scene->cameras[1].projection_mode == RAS_ORTHO_MATRIX;
+    // Should be default
+    pass = pass && scene->cameras[2].projection_mode == RAS_PERSPECTIVE_MATRIX;
+    assert(pass);
+    core_free_scene(&scene);
+}
+
+void scene_camera_proj_invalid_tests()
+{
+    // arrange
+    // const char* expected_name = "cam_proj_bad";
+    RasScene* scene = NULL;
+
+    // act
+    RasResult result = core_load_scene("./tests/data/camera_proj_bad.lsp", &scene);
+
+    // assert
+    assert(result == RAS_RESULT_ERROR);
 }
 
 void rasterize_tri_tests()
@@ -596,6 +632,8 @@ int main()
     mat_ortho_tests();
     model_tests();
     scene_tests();
+    scene_camera_proj_tests();
+    scene_camera_proj_invalid_tests();
     rasterize_tri_tests();
     pipeline_scene_tests();
     event_summary_tests();

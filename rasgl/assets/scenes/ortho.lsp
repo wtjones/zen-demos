@@ -40,4 +40,4 @@
       :near 0.1
       :far 100.0
       :aspect 1.0
-      :projection perspective)))
+      :projection_mode RAS_ORTHO_MATRIX)))

@@ -165,6 +165,7 @@ RasResult core_renderdata_init(
     render_data->scene = scene;
     render_data->camera = camera;
     render_state->num_meshes = 0;
+    render_state->projection_mode = camera->projection_mode;
 
     RAS_CHECK_RESULT_AND_LOG(core_renderdata_alloc(render_data),
         "Failed to allocate render data meshes");
