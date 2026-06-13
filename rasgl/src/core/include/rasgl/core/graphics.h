@@ -123,6 +123,7 @@ typedef enum {
 typedef struct ScreenSettings {
     uint32_t screen_width;
     uint32_t screen_height;
+    uint32_t scale;
 } ScreenSettings;
 
 typedef struct RenderCommand {

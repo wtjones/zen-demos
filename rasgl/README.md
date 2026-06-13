@@ -157,6 +157,8 @@ Run `build_deps.sh` to build the script system.
 
 ### Posix/SDL
 
+Settings: `settings/app.lsp`
+
 ```bash
 cmake -S . -DRAS_PLATFORM=ras_sdl -B build
 cmake --build build
