@@ -8,6 +8,8 @@
   - <https://github.com/ThrowTheSwitch/Unity>
 - [ ] Add sanitizer build
 - [ ] Support dosbox.conf templating for param passing
+- [ ] Periods should be allowed in symbols if not a decimal.
+  - Example: `:version v1.1`
 
 ### In Progress
 

@@ -65,7 +65,8 @@
                 "TEST_REPR_SCRIPT",
                 "TEST_GET_PROPERTY",
                 "TEST_GET_LIST",
-                "TEST_CLONE_EXPRESSION"
+                "TEST_CLONE_EXPRESSION",
+                "TEST_MERGE_SCRIPT"
             ],
             "default": "TEST_PARSE"
         }

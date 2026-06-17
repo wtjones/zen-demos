@@ -103,4 +103,14 @@ bool lar_is_symbol(const LarNode* node, const char* symbol);
  */
 LarNode* lar_append_list_node(LarNode* node);
 
+/**
+ * @brief Apply script src1 onto src0 to produce dest.
+ *
+ *
+ * @param src0
+ * @param src1
+ * @param dest
+ */
+void lar_merge_script(LarScript* src0, LarScript* src1, LarScript* dest);
+
 #endif
