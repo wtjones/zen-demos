@@ -19,7 +19,7 @@ static const char* LAR_REPR_ATOM_FIXED = "[Atom: fixed 16.16]";
  * @param node
  * @return char* Formatted expression. Must be freed.
  */
-char* lar_repr_expression(LarNode* node);
+char* lar_repr_expression(const LarNode* node);
 
 /**
  * @brief Returns a formated script of s-expressions.
@@ -27,6 +27,6 @@ char* lar_repr_expression(LarNode* node);
  * @param script
  * @return char* Formatted script. Must be freed.
  */
-char* lar_repr_script(LarScript* script);
+char* lar_repr_script(const LarScript* script);
 
 #endif

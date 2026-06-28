@@ -23,7 +23,7 @@ char* strcat_alloc(char* str, const char* append)
     return strcat(result, append);
 }
 
-char* repr_expression_walk(LarNode* node, char* work, char* buffer, int depth)
+char* repr_expression_walk(const LarNode* node, char* work, char* buffer, int depth)
 {
     char* result = work;
     char* buffer_append = buffer;
@@ -121,7 +121,7 @@ char* repr_expression_walk(LarNode* node, char* work, char* buffer, int depth)
     return result;
 }
 
-char* lar_repr_expression(LarNode* node)
+char* lar_repr_expression(const LarNode* node)
 {
     char* buffer = malloc(LAR_REPR_MAX_LINE);
     if (buffer == NULL) {
@@ -132,7 +132,7 @@ char* lar_repr_expression(LarNode* node)
     return result;
 }
 
-char* lar_repr_script(LarScript* script)
+char* lar_repr_script(const LarScript* script)
 {
     char* result = NULL;
     char* buffer = malloc(LAR_REPR_MAX_LINE);
