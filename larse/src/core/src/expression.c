@@ -144,8 +144,8 @@ LarNode* lar_append_list_node(LarNode* node)
     if (temp == NULL) {
         return NULL;
     }
-    memset(temp, 0, sizeof(LarNode));
     node->list.nodes = temp;
-
-    return &node->list.nodes[node->list.length - 1];
+    LarNode* new_node = &node->list.nodes[node->list.length - 1];
+    memset(new_node, 0, sizeof(LarNode));
+    return new_node;
 }

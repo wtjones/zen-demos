@@ -289,11 +289,13 @@ int test_get_list()
 
 int test_clone_expression()
 {
-    // const char* exp1_in = "(this :here\n"
-    //                       "(is math)\n"
-    //                       "(+ 1 2))";
+    const char* exp1_in = "(this :here\n"
+                          "  (is math)\n"
+                          "  (+ 1 2)\n"
+                          "  (colors\n"
+                          "    (255 0 0) (0 255 0))\n"
+                          ")";
 
-    const char* exp1_in = "(this)";
     LarNode* node1;
     LarParseResult result;
     result = lar_parse_single(exp1_in, &node1);
