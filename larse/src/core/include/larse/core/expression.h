@@ -96,4 +96,11 @@ LarNode* lar_get_list_node_by_index(const LarNode* list, size_t index);
 
 bool lar_is_symbol(const LarNode* node, const char* symbol);
 
+/**
+ * @brief Add a blank element to the provided list node.
+ * Returns NULL if malloc() or realloc fails.
+ *
+ */
+LarNode* lar_append_list_node(LarNode* node);
+
 #endif

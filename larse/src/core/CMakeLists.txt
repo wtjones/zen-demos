@@ -1,4 +1,5 @@
 add_library(larse_core STATIC
+    src/clone.c
     src/expression.c
     src/io.c
     src/logging.c

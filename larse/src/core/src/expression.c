@@ -130,3 +130,22 @@ bool lar_is_symbol(const LarNode* node, const char* symbol)
         && node->node_type == LAR_NODE_ATOM_SYMBOL
         && strcmp(node->atom.val_symbol, symbol) == 0;
 }
+
+LarNode* lar_append_list_node(LarNode* node)
+{
+    LarNode* temp = NULL;
+    if (node->list.nodes == NULL) {
+        node->list.length = 1;
+        temp = calloc(node->list.length, sizeof(LarNode));
+    } else {
+        node->list.length++;
+        temp = realloc(node->list.nodes, sizeof(LarNode) * node->list.length);
+    }
+    if (temp == NULL) {
+        return NULL;
+    }
+    memset(temp, 0, sizeof(LarNode));
+    node->list.nodes = temp;
+
+    return &node->list.nodes[node->list.length - 1];
+}

@@ -1,3 +1,4 @@
+#include "larse/core/clone.h"
 #include "larse/core/expression.h"
 #include "larse/core/parse.h"
 #include "larse/core/repr.h"
@@ -283,6 +284,33 @@ int test_get_list()
     return !pass;
 }
 
+int test_clone_expression()
+{
+    // const char* exp1_in = "(this :here\n"
+    //                       "(is math)\n"
+    //                       "(+ 1 2))";
+
+    const char* exp1_in = "(this)";
+    LarNode* node1;
+    LarParseResult result;
+    result = lar_parse_single(exp1_in, &node1);
+    assert(result == LAR_PARSE_RESULT_OK);
+    LarNode* dest = calloc(1, sizeof(LarNode));
+
+    bool clone_result = lar_clone_expression(dest, node1);
+    assert(clone_result);
+    char* expected = lar_repr_expression(node1);
+    char* actual = lar_repr_expression(dest);
+
+    printf("clone test:\n\nexpected:\n%s\n\nactual:\n%s\n", expected, actual);
+    bool pass = (strcmp(expected, actual) == 0);
+    lar_free_expression(&node1);
+    lar_free_expression(&dest);
+    free(actual);
+    free(expected);
+    return !pass;
+}
+
 TestFn test_fns[] = {
     { "TEST_PARSE_COMMENT", test_parse_comment },
     { "TEST_PARSE_FILE", test_parse_file },
@@ -295,7 +323,8 @@ TestFn test_fns[] = {
     { "TEST_REPR_EXPRESSION", test_repr_expression },
     { "TEST_REPR_SCRIPT", test_repr_script },
     { "TEST_GET_PROPERTY", test_get_property },
-    { "TEST_GET_LIST", test_get_list }
+    { "TEST_GET_LIST", test_get_list },
+    { "TEST_CLONE_EXPRESSION", test_clone_expression }
 };
 
 int main(int argc, const char** argv)
