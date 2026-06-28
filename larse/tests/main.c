@@ -1,11 +1,14 @@
 #include "larse/core/clone.h"
 #include "larse/core/expression.h"
+#include "larse/core/logging.h"
 #include "larse/core/parse.h"
 #include "larse/core/repr.h"
 #include "test_support.h"
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
+
+#define LAR_DEFAULT_LOG_FILE "/tmp/larse.log"
 
 int test_parse_comment()
 {
@@ -333,6 +336,9 @@ int main(int argc, const char** argv)
         fprintf(stderr, "Test name required.\n");
         return 1;
     }
+
+    FILE* log_file = fopen(LAR_DEFAULT_LOG_FILE, "w");
+    lar_log_configure(log_file);
 
     printf("Test data directory: %s\n", TEST_DATA_DIR);
     size_t num_fns = sizeof(test_fns) / sizeof(test_fns[0]);
