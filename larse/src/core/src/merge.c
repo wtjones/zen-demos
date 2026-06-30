@@ -191,7 +191,7 @@ void lar_merge_object(const LarNode* src0, const LarNode* src1, LarNode* dest, i
 
     lar_clone_expression(dest, src1);
 
-    // Backfill proprties from src0 that do not exist in src1.
+    // Backfill properties from src0 that do not exist in src1.
     for (size_t i = 1; i < src0->list.length; i++) {
         LarNode* src0_item = &src0->list.nodes[i];
         const char* property_name = is_property(src0_item) && i < src0->list.length - 1
@@ -202,6 +202,8 @@ void lar_merge_object(const LarNode* src0, const LarNode* src1, LarNode* dest, i
             LarNode* src1_value = lar_get_property(src1, property_name);
             if (!src1_value) {
                 LarNode* new_node = NULL;
+                new_node = lar_append_list_node(dest);
+                lar_clone_expression(new_node, src0_item);
                 new_node = lar_append_list_node(dest);
                 lar_clone_expression(new_node, src0_value);
             }
