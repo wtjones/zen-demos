@@ -189,27 +189,48 @@ void lar_merge_object(const LarNode* src0, const LarNode* src1, LarNode* dest, i
         return;
     }
 
-    lar_clone_expression(dest, src1);
+    // Add head to dest
+    LarNode* new_node = NULL;
+    new_node = lar_append_list_node(dest);
+    assert(lar_clone_expression(new_node, head0));
 
-    // Backfill properties from src0 that do not exist in src1.
-    for (size_t i = 1; i < src0->list.length; i++) {
+    // Add properties from src0.
+    // Backfill if found in src1.
+    for (size_t i = 1; i < src0->list.length; i += 2) {
         LarNode* src0_item = &src0->list.nodes[i];
         const char* property_name = is_property(src0_item) && i < src0->list.length - 1
             ? src0_item->atom.val_symbol
             : NULL;
-        if (property_name) {
-            LarNode* src0_value = lar_get_property(src0, property_name);
-            LarNode* src1_value = lar_get_property(src1, property_name);
-            if (!src1_value) {
-                LarNode* new_node = NULL;
-                new_node = lar_append_list_node(dest);
-                lar_clone_expression(new_node, src0_item);
-                new_node = lar_append_list_node(dest);
-                lar_clone_expression(new_node, src0_value);
-            }
+        assert(property_name);
+        LarNode* src0_value = lar_get_property(src0, property_name);
+        LarNode* src1_value = lar_get_property(src1, property_name);
+        LarNode* dest_value = src1_value == NULL ? src0_value : src1_value;
+        assert(dest_value);
+
+        LarNode* new_node = NULL;
+        new_node = lar_append_list_node(dest);
+        lar_clone_expression(new_node, src0_item);
+        new_node = lar_append_list_node(dest);
+        lar_clone_expression(new_node, dest_value);
+    }
+
+    // Backfill properties from src1 that do not exist in src0.
+    for (size_t i = 1; i < src1->list.length; i += 2) {
+        LarNode* src1_item = &src1->list.nodes[i];
+        const char* property_name = is_property(src1_item) && i < src1->list.length - 1
+            ? src1_item->atom.val_symbol
+            : NULL;
+        assert(property_name);
+        LarNode* src0_value = lar_get_property(src0, property_name);
+        LarNode* src1_value = lar_get_property(src1, property_name);
+        if (!src0_value) {
+            LarNode* new_node = NULL;
+            new_node = lar_append_list_node(dest);
+            lar_clone_expression(new_node, src1_item);
+            new_node = lar_append_list_node(dest);
+            lar_clone_expression(new_node, src1_value);
         }
     }
-    // Here: maybe add head and copy both ways?
 }
 
 void lar_merge_map(const LarNode* src0, const LarNode* src1, LarNode* dest, int depth)
