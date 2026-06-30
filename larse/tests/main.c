@@ -1,6 +1,7 @@
 #include "larse/core/clone.h"
 #include "larse/core/expression.h"
 #include "larse/core/logging.h"
+#include "larse/core/merge.h"
 #include "larse/core/parse.h"
 #include "larse/core/repr.h"
 #include "test_support.h"
@@ -341,7 +342,7 @@ int test_merge_script()
     char* actual = lar_repr_script(dest);
     printf("repr test:\n\nexpected:\n%s\n\nactual:\n%s\n", expected, actual);
 
-    bool pass = true;
+    bool pass = strcmp(expected, actual) == 0;
     // dest->expressions->list.length == expected_expressions;
 
     lar_free_script(&script0);

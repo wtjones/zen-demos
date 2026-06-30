@@ -3,6 +3,7 @@ add_library(larse_core STATIC
     src/expression.c
     src/io.c
     src/logging.c
+    src/merge.c
     src/parse.c
     src/parse_token.c
     src/repr.c

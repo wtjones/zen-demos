@@ -1,6 +1,6 @@
 (my-package
   :name "Do not change"
-  :version v1_1
+  :version 4
   :memo "from merge")
 
 (platform0

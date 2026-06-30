@@ -12,6 +12,82 @@ Lisp-like language for scripting and configuration
 
 See [TODO](TODO.md) for roadmap.
 
+## Terms
+
+### head symbol
+
+The first symbol of a list.
+
+Example:
+
+```lisp
+(baz (boof 1 2 3))    ; baz and boof are both head symbols of their respective lists
+```
+
+### property
+
+A non-head symbol prefixed with `:` that is followed by a value.
+
+Example:
+
+```lisp
+(foo :my_prop 12) ; my_prop is a property
+```
+
+> **Note**
+>
+> This is only a convention and not enforced.
+
+### object
+
+A list with a head symbol and properties.
+
+```lisp
+(foo :my_prop 12); foo is an object
+```
+
+> **Note**
+>
+> This is only a convention and not enforced.
+
+### array
+
+An explicit array is not defined. By convention, it is a list that:
+
+- has a head symbol
+- remaining elements are exclusively lists that share a common head element
+
+Example:
+
+```lisp
+(objects
+    (object :name "foo")
+    (object :name "bar")
+    (object :name "baz"))
+```
+
+### qualified path
+
+An addressible path to an array or property.
+
+```lisp
+(settings
+    :bork_limit 4.5
+    :glagun_mode ultra_max
+    :soylents (red blue green))
+(trezelderfs
+    (trezelderf :val 1)
+    (trezelderf :val 1))
+```
+
+In this example, the qualified paths are:
+
+- `(settings)`
+- `(settings bork_limit)`
+- `(settings glagun_mode)`
+- `(settings soylents)`
+- `(trezelderfs)`
+
 ## Build
 
 ```bash

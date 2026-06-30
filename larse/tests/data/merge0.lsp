@@ -1,9 +1,9 @@
 (my-package
   :name "Do not change"
-  :version v1_0)
+  :version v1_1)
+
 
 (platform0
-  :use_widgets true
-  :turbo_val 4
-  :turbo_mode SUPER_MAX
-  :window_pos (vec 1.5 3.2))
+  :use_widgets false
+  :turbo_val 7
+  :turbo_mode DISABLED)
