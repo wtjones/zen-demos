@@ -249,6 +249,10 @@ void lar_merge_map(const LarNode* src0, const LarNode* src1, LarNode* dest, int 
             }
         }
         if (!item1) {
+            // Add to dest
+            LarNode* new_node = NULL;
+            new_node = lar_append_list_node(dest);
+            lar_clone_expression(new_node, item0);
             continue;
         }
 

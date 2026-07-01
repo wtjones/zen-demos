@@ -2,6 +2,7 @@
   :name "Do not change"
   :version v1_1)
 
+(super 1 2 3)
 
 (platform0
   :use_widgets false
