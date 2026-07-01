@@ -119,7 +119,6 @@ bool can_merge_properties(const LarNode* node)
 
 LarMergeBehavior get_merge_behavior(const LarNode* src0, const LarNode* src1)
 {
-
     if (src0->node_type != LAR_NODE_LIST) {
         log_error("Expected list.");
         return LAR_MERGE_SKIP;
@@ -261,6 +260,27 @@ void lar_merge_map(const LarNode* src0, const LarNode* src1, LarNode* dest, int 
 
         lar_merge_list(item0, item1, new_node, depth + 1);
     }
+
+    // Append lists from src1 not found in src0.
+    for (size_t i = 0; i < src1->list.length; i++) {
+        LarNode* item1 = &src1->list.nodes[i];
+        LarNode* head1 = get_head_symbol(item1);
+
+        LarNode* item0 = NULL;
+        for (size_t j = 0; j < src0->list.length; j++) {
+            LarNode* temp0 = &src0->list.nodes[j];
+            if (lar_get_symbol_index(temp0, head1->atom.val_symbol) == 0) {
+                item0 = temp0;
+                break;
+            }
+        }
+        if (!item0) {
+            // Add to dest
+            LarNode* new_node = NULL;
+            new_node = lar_append_list_node(dest);
+            lar_clone_expression(new_node, item1);
+        }
+    }
 }
 
 /**
@@ -282,9 +302,6 @@ void lar_merge_list(const LarNode* src0, const LarNode* src1, LarNode* dest, int
         return;
     }
 
-    // TODO: detect scenarios:
-    // src1 is null: clone from src0
-    //
     LarMergeBehavior behavior = get_merge_behavior(src0, src1);
 
     switch (behavior) {
@@ -298,6 +315,7 @@ void lar_merge_list(const LarNode* src0, const LarNode* src1, LarNode* dest, int
         break;
     case LAR_MERGE_CLONE0:
         log_info("Behavior: LAR_MERGE_CLONE0");
+        lar_clone_expression(dest, src0);
         break;
     default:
         log_error("Behavior: unsupported");
