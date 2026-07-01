@@ -34,3 +34,5 @@
 build
 bld_dos
 Testing
+
+tests/data/scratch*.lsp

@@ -42,6 +42,9 @@ void free_expression_walk(LarNode* node, int depth)
 
 void lar_free_expression(LarNode** node)
 {
+    if (*node == NULL) {
+        return;
+    }
     free_expression_walk(*node, 0);
     free(*node);
     *node = NULL;
@@ -82,22 +85,26 @@ LarNode* lar_get_list_by_symbol(const LarNode* list, const char* symbol)
     return NULL;
 }
 
-LarNode* lar_get_property(const LarNode* list, const char* property_name)
+int32_t lar_get_symbol_index(const LarNode* list, const char* name)
 {
-    LarNode* symbol_node = NULL;
+
     bool found_symbol = false;
-    size_t symbol_index = 0;
-    for (size_t i = 0; i < list->list.length; i++) {
+    for (int32_t i = 0; i < list->list.length; i++) {
         LarNode* node_item = &list->list.nodes[i];
         if (node_item->node_type == LAR_NODE_ATOM_SYMBOL
-            && strcmp(node_item->atom.val_symbol, property_name) == 0) {
-            symbol_node = node_item;
+            && strcmp(node_item->atom.val_symbol, name) == 0) {
             found_symbol = true;
-            symbol_index = i;
-            break;
+            return i;
         }
     }
-    if (!found_symbol) {
+    return -1;
+}
+
+LarNode* lar_get_property(const LarNode* list, const char* property_name)
+{
+    bool found_symbol = false;
+    int symbol_index = lar_get_symbol_index(list, property_name);
+    if (symbol_index < 0) {
         return NULL;
     }
     if (symbol_index + 1 >= list->list.length) {

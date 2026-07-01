@@ -73,7 +73,16 @@ void lar_free_script(LarScript** script);
 LarNode* lar_get_first(const LarNode* list);
 
 /**
- * @brief Get a ":property_name" from a list node
+ * @brief Get value of ":property_name" from a list node
+ *
+ * @param list
+ * @param property_name
+ * @return LarNode* NULL is not found
+ */
+LarNode* lar_get_property(const LarNode* list, const char* property_name);
+
+/**
+ * @brief Get value of ":property_name" from a list node.
  *
  * @param list
  * @param property_name
@@ -84,7 +93,7 @@ LarNode* lar_get_property_by_type(
     const LarNode* list, const char* property_name, LarNodeType type);
 
 /**
- * @brief Get the first list that starts with the given symbol
+ * @brief Get the first list that starts with the given symbol.
  *
  * @param list
  * @param symbol
@@ -94,12 +103,32 @@ LarNode* lar_get_list_by_symbol(const LarNode* list, const char* symbol);
 
 LarNode* lar_get_list_node_by_index(const LarNode* list, size_t index);
 
+int32_t lar_get_symbol_index(const LarNode* list, const char* name);
 bool lar_is_symbol(const LarNode* node, const char* symbol);
 
 /**
  * @brief Add a blank element to the provided list node.
  * Returns NULL if malloc() or realloc fails.
  *
+ */
+LarNode* lar_append_list_node(LarNode* node);
+
+/**
+ * @brief Apply script src1 onto src0 to produce dest.
+ *
+ *
+ * @param src0
+ * @param src1
+ * @param dest
+ */
+// void lar_merge_script(LarScript* src0, LarScript* src1, LarScript* dest);
+
+/**
+ * @brief Add a blank element to the provided list node.
+ * Returns NULL if malloc() or realloc fails.
+ *
+ * @param node
+ * @return LarNode*
  */
 LarNode* lar_append_list_node(LarNode* node);
 

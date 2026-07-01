@@ -1,6 +1,7 @@
 #include "larse/core/clone.h"
 #include "larse/core/expression.h"
 #include "larse/core/logging.h"
+#include "larse/core/merge.h"
 #include "larse/core/parse.h"
 #include "larse/core/repr.h"
 #include "test_support.h"
@@ -313,6 +314,45 @@ int test_clone_expression()
     lar_free_expression(&dest);
     free(actual);
     free(expected);
+
+    return !pass;
+}
+
+int test_merge_script()
+{
+    const char* file_path0 = TEST_DATA_DIR "/merge0.lsp";
+    const char* file_path1 = TEST_DATA_DIR "/merge1.lsp";
+
+    const char* file_path2 = TEST_DATA_DIR "/merge2.lsp";
+
+    const size_t expected_expressions = 2;
+    LarScript *script0, *script1, *script2, *dest;
+    dest = calloc(1, sizeof(LarScript));
+    // dest->expressions = NULL;
+    LarParseResult result;
+    result = lar_parse_file(file_path0, &script0);
+    assert(result == LAR_PARSE_RESULT_OK);
+    result = lar_parse_file(file_path1, &script1);
+    assert(result == LAR_PARSE_RESULT_OK);
+    result = lar_parse_file(file_path2, &script2);
+    assert(result == LAR_PARSE_RESULT_OK);
+
+    lar_merge_script(script0, script1, dest);
+    char* expected = lar_repr_script(script2);
+    char* actual = lar_repr_script(dest);
+    printf("repr test:\n\nexpected:\n%s\n\nactual:\n%s\n", expected, actual);
+
+    bool pass = strcmp(expected, actual) == 0;
+    // dest->expressions->list.length == expected_expressions;
+
+    lar_free_script(&script0);
+    lar_free_script(&script1);
+    lar_free_script(&script2);
+
+    lar_free_script(&dest);
+    free(actual);
+    free(expected);
+
     return !pass;
 }
 
@@ -329,7 +369,8 @@ TestFn test_fns[] = {
     { "TEST_REPR_SCRIPT", test_repr_script },
     { "TEST_GET_PROPERTY", test_get_property },
     { "TEST_GET_LIST", test_get_list },
-    { "TEST_CLONE_EXPRESSION", test_clone_expression }
+    { "TEST_CLONE_EXPRESSION", test_clone_expression },
+    { "TEST_MERGE_SCRIPT", test_merge_script }
 };
 
 int main(int argc, const char** argv)
