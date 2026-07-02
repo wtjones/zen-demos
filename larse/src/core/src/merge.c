@@ -178,7 +178,7 @@ LarNode* append_list_atom(LarNode* to_append, LarNode* to_copy)
     return new_node;
 }
 
-void lar_merge_object(const LarNode* src0, const LarNode* src1, LarNode* dest, int depth)
+void lar_merge_object(LarNode* dest, const LarNode* src0, const LarNode* src1, int depth)
 {
     // heads should match
     LarNode* head0 = get_head_symbol(src0);
@@ -232,7 +232,7 @@ void lar_merge_object(const LarNode* src0, const LarNode* src1, LarNode* dest, i
     }
 }
 
-void lar_merge_map(const LarNode* src0, const LarNode* src1, LarNode* dest, int depth)
+void lar_merge_map(LarNode* dest, const LarNode* src0, const LarNode* src1, int depth)
 {
 
     for (size_t i = 0; i < src0->list.length; i++) {
@@ -262,7 +262,7 @@ void lar_merge_map(const LarNode* src0, const LarNode* src1, LarNode* dest, int 
         new_node->node_type = LAR_NODE_LIST;
         new_node->list.length = 0;
 
-        lar_merge_list(item0, item1, new_node, depth + 1);
+        lar_merge_list(new_node, item0, item1, depth + 1);
     }
 
     // Append lists from src1 not found in src0.
@@ -294,7 +294,7 @@ void lar_merge_map(const LarNode* src0, const LarNode* src1, LarNode* dest, int 
  * @param src1
  * @param dest
  */
-void lar_merge_list(const LarNode* src0, const LarNode* src1, LarNode* dest, int depth)
+void lar_merge_list(LarNode* dest, const LarNode* src0, const LarNode* src1, int depth)
 {
     if (depth > 10) {
         log_error("Max depth reached.");
@@ -311,11 +311,11 @@ void lar_merge_list(const LarNode* src0, const LarNode* src1, LarNode* dest, int
     switch (behavior) {
     case LAR_MERGE_PROPERTY:
         log_info("Behavior: LAR_MERGE_PROPERTY");
-        lar_merge_object(src0, src1, dest, depth);
+        lar_merge_object(dest, src0, src1, depth);
         break;
     case LAR_MERGE_MAP:
         log_info("Behavior: LAR_MERGE_MAP");
-        lar_merge_map(src0, src1, dest, depth);
+        lar_merge_map(dest, src0, src1, depth);
         break;
     case LAR_MERGE_CLONE0:
         log_info("Behavior: LAR_MERGE_CLONE0");
@@ -328,11 +328,11 @@ void lar_merge_list(const LarNode* src0, const LarNode* src1, LarNode* dest, int
     }
 }
 
-void lar_merge_script(LarScript* src0, LarScript* src1, LarScript* dest)
+void lar_merge_script(LarScript* dest, LarScript* src0, LarScript* src1)
 {
 
     dest->expressions = calloc(1, sizeof(LarNode));
     dest->expressions->node_type = LAR_NODE_LIST;
 
-    lar_merge_list(src0->expressions, src1->expressions, dest->expressions, 0);
+    lar_merge_list(dest->expressions, src0->expressions, src1->expressions, 0);
 }

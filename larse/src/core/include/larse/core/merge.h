@@ -10,7 +10,7 @@
  * @param src1
  * @param dest
  */
-void lar_merge_list(const LarNode* src0, const LarNode* src1, LarNode* dest, int depth);
+void lar_merge_list(LarNode* dest, const LarNode* src0, const LarNode* src1, int depth);
 
 /**
  * @brief Apply script src1 onto src0 to produce dest.
@@ -20,6 +20,6 @@ void lar_merge_list(const LarNode* src0, const LarNode* src1, LarNode* dest, int
  * @param src1
  * @param dest
  */
-void lar_merge_script(LarScript* src0, LarScript* src1, LarScript* dest);
+void lar_merge_script(LarScript* dest, LarScript* src0, LarScript* src1);
 
 #endif

@@ -337,7 +337,7 @@ int test_merge_script()
     result = lar_parse_file(file_path2, &script2);
     assert(result == LAR_PARSE_RESULT_OK);
 
-    lar_merge_script(script0, script1, dest);
+    lar_merge_script(dest, script0, script1);
     char* expected = lar_repr_script(script2);
     char* actual = lar_repr_script(dest);
     printf("repr test:\n\nexpected:\n%s\n\nactual:\n%s\n", expected, actual);
