@@ -178,20 +178,21 @@ LarNode* append_list_atom(LarNode* to_append, LarNode* to_copy)
     return new_node;
 }
 
-void lar_merge_object(LarNode* dest, const LarNode* src0, const LarNode* src1, int depth)
+bool lar_merge_object(LarNode* dest, const LarNode* src0, const LarNode* src1, int depth)
 {
     // heads should match
     LarNode* head0 = get_head_symbol(src0);
     LarNode* head1 = get_head_symbol(src1);
     if (!head0 && !head1) {
         log_error("Invalid merge.");
-        return;
+        return false;
     }
 
     // Add head to dest
-    LarNode* new_node = NULL;
-    new_node = lar_append_list_node(dest);
-    assert(lar_clone_expression(new_node, head0));
+    LarNode* new_node = lar_append_list_node(dest);
+    if (!new_node || !lar_clone_expression(new_node, head0)) {
+        return false;
+    }
 
     // Add properties from src0.
     // Backfill if found in src1.
@@ -208,9 +209,13 @@ void lar_merge_object(LarNode* dest, const LarNode* src0, const LarNode* src1, i
 
         LarNode* new_node = NULL;
         new_node = lar_append_list_node(dest);
-        lar_clone_expression(new_node, src0_item);
+        if (!new_node || !lar_clone_expression(new_node, src0_item)) {
+            return false;
+        }
         new_node = lar_append_list_node(dest);
-        lar_clone_expression(new_node, dest_value);
+        if (!new_node || !lar_clone_expression(new_node, dest_value)) {
+            return false;
+        }
     }
 
     // Backfill properties from src1 that do not exist in src0.
@@ -225,14 +230,19 @@ void lar_merge_object(LarNode* dest, const LarNode* src0, const LarNode* src1, i
         if (!src0_value) {
             LarNode* new_node = NULL;
             new_node = lar_append_list_node(dest);
-            lar_clone_expression(new_node, src1_item);
+            if (!new_node || !lar_clone_expression(new_node, src1_item)) {
+                return false;
+            }
             new_node = lar_append_list_node(dest);
-            lar_clone_expression(new_node, src1_value);
+            if (!new_node || !lar_clone_expression(new_node, src1_value)) {
+                return false;
+            }
         }
     }
+    return true;
 }
 
-void lar_merge_map(LarNode* dest, const LarNode* src0, const LarNode* src1, int depth)
+bool lar_merge_map(LarNode* dest, const LarNode* src0, const LarNode* src1, int depth)
 {
 
     for (size_t i = 0; i < src0->list.length; i++) {
@@ -252,17 +262,24 @@ void lar_merge_map(LarNode* dest, const LarNode* src0, const LarNode* src1, int 
             // Add to dest
             LarNode* new_node = NULL;
             new_node = lar_append_list_node(dest);
-            lar_clone_expression(new_node, item0);
+            if (!new_node || !lar_clone_expression(new_node, item0)) {
+                return false;
+            }
             continue;
         }
 
         // Add an empty list to dest
         LarNode* new_node = NULL;
         new_node = lar_append_list_node(dest);
+        if (!new_node) {
+            return false;
+        }
         new_node->node_type = LAR_NODE_LIST;
         new_node->list.length = 0;
 
-        lar_merge_list(new_node, item0, item1, depth + 1);
+        if (!lar_merge_list(new_node, item0, item1, depth + 1)) {
+            return false;
+        }
     }
 
     // Append lists from src1 not found in src0.
@@ -282,9 +299,12 @@ void lar_merge_map(LarNode* dest, const LarNode* src0, const LarNode* src1, int 
             // Add to dest
             LarNode* new_node = NULL;
             new_node = lar_append_list_node(dest);
-            lar_clone_expression(new_node, item1);
+            if (!new_node || !lar_clone_expression(new_node, item1)) {
+                return false;
+            }
         }
     }
+    return true;
 }
 
 /**
@@ -294,16 +314,16 @@ void lar_merge_map(LarNode* dest, const LarNode* src0, const LarNode* src1, int 
  * @param src1
  * @param dest
  */
-void lar_merge_list(LarNode* dest, const LarNode* src0, const LarNode* src1, int depth)
+bool lar_merge_list(LarNode* dest, const LarNode* src0, const LarNode* src1, int depth)
 {
     if (depth > 10) {
         log_error("Max depth reached.");
-        return;
+        return false;
     }
 
     if (src0->node_type != LAR_NODE_LIST) {
         log_error("Input node must be list.");
-        return;
+        return false;
     }
 
     LarMergeBehavior behavior = get_merge_behavior(src0, src1);
@@ -311,28 +331,52 @@ void lar_merge_list(LarNode* dest, const LarNode* src0, const LarNode* src1, int
     switch (behavior) {
     case LAR_MERGE_PROPERTY:
         log_info("Behavior: LAR_MERGE_PROPERTY");
-        lar_merge_object(dest, src0, src1, depth);
+        if (!lar_merge_object(dest, src0, src1, depth)) {
+            return false;
+        }
         break;
     case LAR_MERGE_MAP:
         log_info("Behavior: LAR_MERGE_MAP");
-        lar_merge_map(dest, src0, src1, depth);
+        if (!lar_merge_map(dest, src0, src1, depth)) {
+            return false;
+        }
         break;
     case LAR_MERGE_CLONE0:
         log_info("Behavior: LAR_MERGE_CLONE0");
-        lar_clone_expression(dest, src0);
+        if (!lar_clone_expression(dest, src0)) {
+            return false;
+        }
+        break;
+    case LAR_MERGE_SKIP:
+        log_warn("Behavior: LAR_MERGE_SKIP - Unable to handle list with head: %s",
+            get_head_symbol(src0)->atom.val_symbol);
         break;
     default:
         log_error("Behavior: unsupported");
-        assert(false);
+        return false;
         break;
     }
+    return true;
 }
 
-void lar_merge_script(LarScript* dest, LarScript* src0, LarScript* src1)
+LarScript* lar_merge_script(const LarScript* src0, const LarScript* src1)
 {
 
-    dest->expressions = calloc(1, sizeof(LarNode));
-    dest->expressions->node_type = LAR_NODE_LIST;
+    LarScript* result = calloc(1, sizeof(LarScript));
+    if (!result) {
+        return NULL;
+    }
+    result->expressions = calloc(1, sizeof(LarNode));
+    if (!result->expressions) {
+        goto fail;
+    }
+    result->expressions->node_type = LAR_NODE_LIST;
 
-    lar_merge_list(dest->expressions, src0->expressions, src1->expressions, 0);
+    if (!lar_merge_list(result->expressions, src0->expressions, src1->expressions, 0)) {
+        goto fail;
+    }
+    return result;
+fail:
+    lar_free_script(&result);
+    return NULL;
 }

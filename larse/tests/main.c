@@ -327,8 +327,6 @@ int test_merge_script()
 
     const size_t expected_expressions = 2;
     LarScript *script0, *script1, *script2, *dest;
-    dest = calloc(1, sizeof(LarScript));
-    // dest->expressions = NULL;
     LarParseResult result;
     result = lar_parse_file(file_path0, &script0);
     assert(result == LAR_PARSE_RESULT_OK);
@@ -337,13 +335,75 @@ int test_merge_script()
     result = lar_parse_file(file_path2, &script2);
     assert(result == LAR_PARSE_RESULT_OK);
 
-    lar_merge_script(dest, script0, script1);
+    dest = lar_merge_script(script0, script1);
+    assert(dest);
     char* expected = lar_repr_script(script2);
     char* actual = lar_repr_script(dest);
     printf("repr test:\n\nexpected:\n%s\n\nactual:\n%s\n", expected, actual);
 
     bool pass = strcmp(expected, actual) == 0;
-    // dest->expressions->list.length == expected_expressions;
+
+    lar_free_script(&script0);
+    lar_free_script(&script1);
+    lar_free_script(&script2);
+
+    lar_free_script(&dest);
+    free(actual);
+    free(expected);
+
+    return !pass;
+}
+
+int test_merge_script_failure()
+{
+    return false; // disabled
+    const char* file_path0 = TEST_DATA_DIR "/merge-err0.lsp";
+    const char* file_path1 = TEST_DATA_DIR "/merge-err1.lsp";
+
+    LarScript *script0, *script1, *dest;
+    LarParseResult result;
+    result = lar_parse_file(file_path0, &script0);
+    assert(result == LAR_PARSE_RESULT_OK);
+    result = lar_parse_file(file_path1, &script1);
+    assert(result == LAR_PARSE_RESULT_OK);
+
+    dest = lar_merge_script(script0, script1);
+    bool pass = !dest;
+
+    if (dest) {
+        char* actual = lar_repr_script(dest);
+        printf("repr test:\n\nexpected a failure.\n\nactual:\n%s\n", actual);
+        free(actual);
+    }
+
+    lar_free_script(&script0);
+    lar_free_script(&script1);
+
+    return !pass;
+}
+
+int test_merge_script_skip()
+{
+    const char* file_path0 = TEST_DATA_DIR "/merge-skip0.lsp";
+    const char* file_path1 = TEST_DATA_DIR "/merge-skip1.lsp";
+    const char* file_path2 = TEST_DATA_DIR "/merge-skip2.lsp";
+
+    LarScript *script0, *script1, *script2, *dest;
+    LarParseResult result;
+    result = lar_parse_file(file_path0, &script0);
+    assert(result == LAR_PARSE_RESULT_OK);
+    result = lar_parse_file(file_path1, &script1);
+    assert(result == LAR_PARSE_RESULT_OK);
+    result = lar_parse_file(file_path2, &script2);
+    assert(result == LAR_PARSE_RESULT_OK);
+
+    dest = lar_merge_script(script0, script1);
+    assert(dest);
+    char* expected = lar_repr_script(script2);
+    char* actual = lar_repr_script(dest);
+    printf("repr test:\n\nexpected:\n%s\n\nactual:\n%s\n", expected, actual);
+
+    bool pass = strcmp(expected, actual) == 0;
 
     lar_free_script(&script0);
     lar_free_script(&script1);
@@ -370,7 +430,9 @@ TestFn test_fns[] = {
     { "TEST_GET_PROPERTY", test_get_property },
     { "TEST_GET_LIST", test_get_list },
     { "TEST_CLONE_EXPRESSION", test_clone_expression },
-    { "TEST_MERGE_SCRIPT", test_merge_script }
+    { "TEST_MERGE_SCRIPT", test_merge_script },
+    { "TEST_MERGE_SCRIPT_SKIP", test_merge_script_skip },
+    { "TEST_MERGE_SCRIPT_FAILURE", test_merge_script_failure }
 };
 
 int main(int argc, const char** argv)
