@@ -318,7 +318,7 @@ int test_clone_expression()
     return !pass;
 }
 
-int test_merge_script()
+int test_merge_script_basic()
 {
     const char* file_path0 = TEST_DATA_DIR "/merge0.lsp";
     const char* file_path1 = TEST_DATA_DIR "/merge1.lsp";
@@ -430,7 +430,7 @@ TestFn test_fns[] = {
     { "TEST_GET_PROPERTY", test_get_property },
     { "TEST_GET_LIST", test_get_list },
     { "TEST_CLONE_EXPRESSION", test_clone_expression },
-    { "TEST_MERGE_SCRIPT", test_merge_script },
+    { "TEST_MERGE_SCRIPT_BASIC", test_merge_script_basic },
     { "TEST_MERGE_SCRIPT_SKIP", test_merge_script_skip },
     { "TEST_MERGE_SCRIPT_FAILURE", test_merge_script_failure }
 };
