@@ -145,36 +145,20 @@ LarMergeBehavior get_merge_behavior(const LarNode* src0, const LarNode* src1)
 }
 
 /**
- * @brief Add an element to the provided list node and copy the provided atom.
+ * @brief Add an element to the provided list node and copy the provided expression.
  *
  * @param to_append
  * @param to_copy
  * @return LarNode*
  */
-LarNode* append_list_atom(LarNode* to_append, LarNode* to_copy)
+LarNode* append_list_expression(LarNode* to_append, LarNode* to_copy)
 {
     LarNode* new_node = lar_append_list_node(to_append);
 
-    switch (to_copy->node_type) {
-
-    case LAR_NODE_ATOM_SYMBOL:
-        new_node->node_type = LAR_NODE_ATOM_SYMBOL;
-        new_node->atom.val_symbol = malloc(strlen(to_copy->atom.val_symbol) + 1);
-        strcpy(new_node->atom.val_symbol, to_copy->atom.val_symbol);
-        break;
-
-    case LAR_NODE_ATOM_STRING:
-        log_info("Copy string %s", to_copy->atom.val_string);
-
-        new_node->node_type = LAR_NODE_ATOM_STRING;
-        new_node->atom.val_string = malloc(strlen(to_copy->atom.val_string) + 1);
-        strcpy(new_node->atom.val_string, to_copy->atom.val_string);
-        break;
-    case LAR_NODE_ATOM_INTEGER:
-        new_node->node_type = LAR_NODE_ATOM_INTEGER;
-        new_node->atom.val_integer = to_copy->atom.val_integer;
-        break;
+    if (!new_node || !lar_clone_expression(new_node, to_copy)) {
+        return NULL;
     }
+
     return new_node;
 }
 
@@ -207,13 +191,10 @@ bool lar_merge_object(LarNode* dest, const LarNode* src0, const LarNode* src1, i
         LarNode* dest_value = src1_value == NULL ? src0_value : src1_value;
         assert(dest_value);
 
-        LarNode* new_node = NULL;
-        new_node = lar_append_list_node(dest);
-        if (!new_node || !lar_clone_expression(new_node, src0_item)) {
+        if (!append_list_expression(dest, src0_item)) {
             return false;
         }
-        new_node = lar_append_list_node(dest);
-        if (!new_node || !lar_clone_expression(new_node, dest_value)) {
+        if (!append_list_expression(dest, dest_value)) {
             return false;
         }
     }
@@ -228,13 +209,10 @@ bool lar_merge_object(LarNode* dest, const LarNode* src0, const LarNode* src1, i
         LarNode* src0_value = lar_get_property(src0, property_name);
         LarNode* src1_value = lar_get_property(src1, property_name);
         if (!src0_value) {
-            LarNode* new_node = NULL;
-            new_node = lar_append_list_node(dest);
-            if (!new_node || !lar_clone_expression(new_node, src1_item)) {
+            if (!append_list_expression(dest, src1_item)) {
                 return false;
             }
-            new_node = lar_append_list_node(dest);
-            if (!new_node || !lar_clone_expression(new_node, src1_value)) {
+            if (!append_list_expression(dest, src1_value)) {
                 return false;
             }
         }

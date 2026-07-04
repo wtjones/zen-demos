@@ -7,4 +7,5 @@
 (platform0
   :use_widgets false
   :turbo_val 7
+  :widget_factor 4.5
   :turbo_mode DISABLED)

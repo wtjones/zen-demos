@@ -8,6 +8,7 @@
   :use_widgets true
   :turbo_val 7
   :turbo_mode DISABLED
+  :widget_factor 4.8
   :window_pos (vec 5.0 4.0))
 
 (more-stuff
