@@ -5,12 +5,42 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(gdb) Launch",
+            "name": "shell - pretty print",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/larse",
             "args": [
                 "${workspaceFolder}/tests/data/comment1.lsp"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "CMake: build"
+        },
+        {
+            "name": "shell - merge",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/larse",
+            "args": [
+                "${workspaceFolder}/tests/data/merge0.lsp",
+                "-m",
+                "${workspaceFolder}/tests/data/merge1.lsp",
+                "${workspaceFolder}/Testing/merge2.lsp"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

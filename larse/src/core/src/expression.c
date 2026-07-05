@@ -52,6 +52,9 @@ void lar_free_expression(LarNode** node)
 
 void lar_free_script(LarScript** script)
 {
+    if ((*script) == NULL) {
+        return;
+    }
     lar_free_expression(&(*script)->expressions);
     free(*script);
     *script = NULL;

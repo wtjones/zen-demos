@@ -10,7 +10,7 @@
 - [ ] Support dosbox.conf templating for param passing
 - [ ] Periods should be allowed in symbols if not a decimal.
   - Example: `:version v1.1`
-- [ ] Merge: Support merge in shell.
+- [ ] Merge: Support output to file.
 
 ### In Progress
 
@@ -27,3 +27,4 @@
 - [x] Free expression on error
 - [x] Support hex digits
 - [x] Merge: Support error checking.
+- [x] Merge: Support merge in shell.
