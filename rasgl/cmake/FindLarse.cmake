@@ -9,10 +9,11 @@ endif()
 
 set(LARSE_DIR ${LARSE_BUILD_DIR}/src/core)
 set(LARSE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/../larse/src/core/include)
-set(LARSE_LIB ${LARSE_DIR}/liblarse_core.a)
 
-message("LARSE_DIR: ${LARSE_DIR}")
-message("LARSE_INCLUDE_DIR: ${LARSE_INCLUDE_DIR}")
-message("LARSE_LIB: ${LARSE_LIB}")
+add_library(larse::core STATIC IMPORTED)
 
-include_directories(${LARSE_INCLUDE_DIR})
+set_target_properties(larse::core PROPERTIES
+    IMPORTED_LOCATION "${LARSE_DIR}/liblarse_core.a"
+    INTERFACE_INCLUDE_DIRECTORIES "${LARSE_INCLUDE_DIR}"
+    INTERFACE_LINK_LIBRARIES "m"
+)

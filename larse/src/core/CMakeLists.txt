@@ -11,4 +11,4 @@ add_library(larse_core STATIC
 
 target_include_directories(larse_core PUBLIC include)
 
-target_link_libraries(larse_core PRIVATE external m PUBLIC)
+target_link_libraries(larse_core PRIVATE external PUBLIC m)

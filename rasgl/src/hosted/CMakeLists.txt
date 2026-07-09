@@ -13,4 +13,4 @@ add_library(
 )
 
 target_include_directories(hosted PUBLIC include)
-target_link_libraries(hosted PUBLIC external_hosted m core pack ${LARSE_LIB})
+target_link_libraries(hosted PUBLIC external_hosted m core pack larse::core)
