@@ -13,17 +13,11 @@ RasResult hosted_script_map_settings(
     RAS_CHECK_AND_LOG(node == NULL,
         "Settings expression not found in script");
 
-    // RasSettings* new_settings = calloc(0, sizeof(RasSettings));
-
-    RAS_CHECK_AND_LOG(node == NULL,
-        "Failed to allocate memory for settings");
-
     LarNode* prop = NULL;
 
     prop = lar_get_property_by_type(node, RAS_SCRIPT_SETTINGS_SCREEN_WIDTH, LAR_NODE_ATOM_INTEGER);
     if (!prop) {
         ras_log_error("Property %s is required", RAS_SCRIPT_SETTINGS_SCREEN_WIDTH);
-        // free(new_settings);
         return RAS_RESULT_ERROR;
     }
     settings->screen.screen_width = prop->atom.val_integer;
@@ -31,7 +25,6 @@ RasResult hosted_script_map_settings(
     prop = lar_get_property_by_type(node, RAS_SCRIPT_SETTINGS_SCREEN_HEIGHT, LAR_NODE_ATOM_INTEGER);
     if (!prop) {
         ras_log_error("Property %s is required", RAS_SCRIPT_SETTINGS_SCREEN_HEIGHT);
-        // free(new_settings);
         return RAS_RESULT_ERROR;
     }
     settings->screen.screen_height = prop->atom.val_integer;

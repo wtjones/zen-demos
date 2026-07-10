@@ -561,10 +561,10 @@ int main(int argc, const char** argv)
 
     SDL_Window* win = SDL_CreateWindow(
         "Hello World!",
-        100,
-        100,
-        app_settings.base.screen.screen_width * 2,
-        app_settings.base.screen.screen_height * 2,
+        app_settings.posix.window.x,
+        app_settings.posix.window.y,
+        app_settings.base.screen.screen_width * app_settings.posix.window.scale_factor,
+        app_settings.base.screen.screen_height * app_settings.posix.window.scale_factor,
         SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
