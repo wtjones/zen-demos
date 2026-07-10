@@ -13,12 +13,12 @@
 #include "rasgl/core/repr.h"
 #include "rasgl/core/timer.h"
 #include "rasterize.h"
+#include "settings.h"
 #include <SDL2/SDL.h>
 #include <stdbool.h>
 #include <stdint.h>
 
-ScreenSettings plat_settings
-    = { .screen_width = 320, .screen_height = 240 };
+RasAppSettings app_settings;
 SDL_Renderer* renderer;
 /**
  * @brief Drawing surface with 8-bit color
@@ -546,6 +546,12 @@ int main(int argc, const char** argv)
     ras_log_init();
     ras_log_info("Set file log level: %s", log_level_string(RAS_LOG_LEVEL_FILE));
 
+    ras_log_info("Loading settings...");
+
+    if (posix_load_settings(&app_settings) != RAS_RESULT_OK) {
+        ras_log_error("Error loading settings.");
+        return 1;
+    }
     ras_log_info("Starting SDL...");
     SDL_bool should_quit = SDL_FALSE;
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -557,8 +563,8 @@ int main(int argc, const char** argv)
         "Hello World!",
         100,
         100,
-        plat_settings.screen_width * 2,
-        plat_settings.screen_height * 2,
+        app_settings.base.screen.screen_width * 2,
+        app_settings.base.screen.screen_height * 2,
         SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
@@ -566,8 +572,8 @@ int main(int argc, const char** argv)
 
     surface = SDL_CreateRGBSurface(
         0,
-        plat_settings.screen_width,
-        plat_settings.screen_height,
+        app_settings.base.screen.screen_width,
+        app_settings.base.screen.screen_height,
         8, 0, 0, 0, 0);
     if (!surface) {
         printf("SDL_CreateRGBSurface failed: %s\n", SDL_GetError());
@@ -649,7 +655,7 @@ int main(int argc, const char** argv)
         return 1;
     }
 
-    RasResult result = ras_app_init(argc, argv, &plat_settings);
+    RasResult result = ras_app_init(argc, argv, &app_settings.base.screen);
     if (result != RAS_RESULT_OK) {
         ras_log_error("Error result from ras_app_init(), exiting...");
 
@@ -672,7 +678,7 @@ int main(int argc, const char** argv)
     input_init();
     core_input_init(&plat_input_state);
 
-    console = core_console_init(&plat_settings);
+    console = core_console_init(&app_settings.base.screen);
     if (console == NULL) {
         ras_log_error("Error result from core_console_init(), exiting...");
 
@@ -740,8 +746,8 @@ int main(int argc, const char** argv)
                 }
             }
             for (size_t i = 0; i < RAS_LAYER_COUNT; i++) {
-                states[i].screen_settings.screen_width = plat_settings.screen_width;
-                states[i].screen_settings.screen_height = plat_settings.screen_height;
+                states[i].screen_settings.screen_width = app_settings.base.screen.screen_width;
+                states[i].screen_settings.screen_height = app_settings.base.screen.screen_height;
             }
             SDL_LockSurface(surface);
             uint32_t start_ticks = SDL_GetTicks();

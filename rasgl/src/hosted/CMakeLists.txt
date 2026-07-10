@@ -9,6 +9,7 @@ add_library(
     sc_load.c
     sc_gridmap_load.c
     sc_tombmap_load.c
+    settings_load.c
     string.c
 )
 
