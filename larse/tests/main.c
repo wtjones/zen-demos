@@ -354,6 +354,42 @@ int test_merge_script_basic()
     return !pass;
 }
 
+int test_merge_script_head()
+{
+    const char* file_path0 = TEST_DATA_DIR "/merge-head0.lsp";
+    const char* file_path1 = TEST_DATA_DIR "/merge-head1.lsp";
+
+    const char* file_path2 = TEST_DATA_DIR "/merge-head2.lsp";
+
+    const size_t expected_expressions = 2;
+    LarScript *script0, *script1, *script2, *dest;
+    LarParseResult result;
+    result = lar_parse_file(file_path0, &script0);
+    assert(result == LAR_PARSE_RESULT_OK);
+    result = lar_parse_file(file_path1, &script1);
+    assert(result == LAR_PARSE_RESULT_OK);
+    result = lar_parse_file(file_path2, &script2);
+    assert(result == LAR_PARSE_RESULT_OK);
+
+    dest = lar_merge_script(script0, script1);
+    assert(dest);
+    char* expected = lar_repr_script(script2);
+    char* actual = lar_repr_script(dest);
+    printf("repr test:\n\nexpected:\n%s\n\nactual:\n%s\n", expected, actual);
+
+    bool pass = strcmp(expected, actual) == 0;
+
+    lar_free_script(&script0);
+    lar_free_script(&script1);
+    lar_free_script(&script2);
+
+    lar_free_script(&dest);
+    free(actual);
+    free(expected);
+
+    return !pass;
+}
+
 int test_merge_script_failure()
 {
     return false; // disabled
@@ -431,6 +467,7 @@ TestFn test_fns[] = {
     { "TEST_GET_LIST", test_get_list },
     { "TEST_CLONE_EXPRESSION", test_clone_expression },
     { "TEST_MERGE_SCRIPT_BASIC", test_merge_script_basic },
+    { "TEST_MERGE_SCRIPT_HEAD", test_merge_script_head },
     { "TEST_MERGE_SCRIPT_SKIP", test_merge_script_skip },
     { "TEST_MERGE_SCRIPT_FAILURE", test_merge_script_failure }
 };

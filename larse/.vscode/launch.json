@@ -97,6 +97,7 @@
                 "TEST_GET_LIST",
                 "TEST_CLONE_EXPRESSION",
                 "TEST_MERGE_SCRIPT_BASIC",
+                "TEST_MERGE_SCRIPT_HEAD",
                 "TEST_MERGE_SCRIPT_SKIP",
                 "TEST_MERGE_SCRIPT_FAILURE"
             ],

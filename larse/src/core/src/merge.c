@@ -40,6 +40,14 @@ LarNode* get_head_symbol(const LarNode* node)
     return item_head;
 }
 
+/**
+ * @brief Does this list consist of lists with unique head symbols?
+ * Optional: Can have a head symbol.
+ *
+ * @param node
+ * @return true
+ * @return false
+ */
 bool can_merge_map(const LarNode* node)
 {
     if (node->node_type != LAR_NODE_LIST) {
@@ -49,9 +57,9 @@ bool can_merge_map(const LarNode* node)
     if (node->list.length == 0) {
         return false;
     }
-    // FIXME: support list with head symbol
     const char* check = NULL;
-    for (size_t i = 0; i < node->list.length; i++) {
+    size_t start_index = get_head_symbol(node) == NULL ? 0 : 1;
+    for (size_t i = start_index; i < node->list.length; i++) {
         LarNode* item = &node->list.nodes[i];
 
         if (item->node_type != LAR_NODE_LIST) {
@@ -222,14 +230,34 @@ bool lar_merge_object(LarNode* dest, const LarNode* src0, const LarNode* src1, i
 
 bool lar_merge_map(LarNode* dest, const LarNode* src0, const LarNode* src1, int depth)
 {
+    size_t src_start = 0;
+    LarNode* head0 = get_head_symbol(src0);
+    LarNode* head1 = get_head_symbol(src1);
+    if (head0) {
 
-    for (size_t i = 0; i < src0->list.length; i++) {
+        if (!head1) {
+            log_error("List src0 has head %s. However, src1 is headless.");
+            return false;
+        }
+
+        if (strcmp(head0->atom.val_symbol, head1->atom.val_symbol) != 0) {
+            log_error("List src0 has head %s. However, src1 has head %s.", head0->atom.val_symbol);
+        }
+
+        LarNode* new_head = lar_append_list_node(dest);
+        if (!lar_clone_expression(new_head, head0)) {
+            return false;
+        }
+        src_start = 1;
+    }
+
+    for (size_t i = src_start; i < src0->list.length; i++) {
         LarNode* item0 = &src0->list.nodes[i];
         LarNode* head0 = get_head_symbol(item0);
 
         // Find list in src1 with matching head symbol.
         LarNode* item1 = NULL;
-        for (size_t j = 0; j < src1->list.length; j++) {
+        for (size_t j = src_start; j < src1->list.length; j++) {
             LarNode* temp1 = &src1->list.nodes[j];
             if (lar_get_symbol_index(temp1, head0->atom.val_symbol) == 0) {
                 item1 = temp1;
@@ -261,12 +289,12 @@ bool lar_merge_map(LarNode* dest, const LarNode* src0, const LarNode* src1, int 
     }
 
     // Append lists from src1 not found in src0.
-    for (size_t i = 0; i < src1->list.length; i++) {
+    for (size_t i = src_start; i < src1->list.length; i++) {
         LarNode* item1 = &src1->list.nodes[i];
         LarNode* head1 = get_head_symbol(item1);
 
         LarNode* item0 = NULL;
-        for (size_t j = 0; j < src0->list.length; j++) {
+        for (size_t j = src_start; j < src0->list.length; j++) {
             LarNode* temp0 = &src0->list.nodes[j];
             if (lar_get_symbol_index(temp0, head1->atom.val_symbol) == 0) {
                 item0 = temp0;
