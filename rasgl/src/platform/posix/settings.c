@@ -8,6 +8,7 @@
 #pragma GCC diagnostic pop
 #include "rasgl/core/settings.h"
 #include "settings.h"
+#include <unistd.h>
 
 RasResult posix_script_map_settings(
     LarScript* script,
@@ -55,16 +56,24 @@ RasResult posix_load_settings(RasAppSettings* app_settings)
 {
     LarScript* base = NULL;
     LarScript* posix = NULL;
+    LarScript* local = NULL;
     LarScript* merged = NULL;
 
     if (lar_parse_file(RAS_SCRIPT_SETTINGS_PATH, &base) != LAR_PARSE_RESULT_OK) {
-        ras_log_error("Unable to load script");
+        ras_log_error("Unable to load script: %s", RAS_SCRIPT_SETTINGS_PATH);
         return RAS_RESULT_ERROR;
     }
 
     if (lar_parse_file(RAS_SCRIPT_POSIX_PATH, &posix) != LAR_PARSE_RESULT_OK) {
-        ras_log_error("Unable to load script");
+        ras_log_error("Unable to load script: %s", RAS_SCRIPT_POSIX_PATH);
         goto fail;
+    }
+
+    if (access(RAS_SCRIPT_POSIX_LOCAL_PATH, F_OK) == 0) {
+        if (lar_parse_file(RAS_SCRIPT_POSIX_LOCAL_PATH, &local) != LAR_PARSE_RESULT_OK) {
+            ras_log_error("Unable to load script: %s", RAS_SCRIPT_POSIX_LOCAL_PATH);
+            goto fail;
+        }
     }
 
     merged = lar_merge_script(base, posix);
@@ -72,8 +81,32 @@ RasResult posix_load_settings(RasAppSettings* app_settings)
         ras_log_error("Unable to merge script.");
         goto fail;
     }
+
     lar_free_script(&base);
     lar_free_script(&posix);
+
+#ifdef DEBUG
+    char* repr = lar_repr_script(merged);
+    ras_log_debug("Merged settings (base, posix):\n%s", repr);
+    free(repr);
+#endif
+
+    if (local) {
+        LarScript* new_merged = lar_merge_script(merged, local);
+        if (!new_merged) {
+            ras_log_error("Unable to merge script.");
+            goto fail;
+        }
+        lar_free_script(&local);
+        lar_free_script(&merged);
+        merged = new_merged;
+
+#ifdef DEBUG
+        repr = lar_repr_script(merged);
+        ras_log_debug("Merged settings (base, posix, local):\n%s", repr);
+        free(repr);
+#endif
+    }
 
     if (hosted_script_map_settings(merged, &app_settings->base) != RAS_RESULT_OK) {
         ras_log_error("Unable to map settings.");
@@ -85,17 +118,13 @@ RasResult posix_load_settings(RasAppSettings* app_settings)
         goto fail;
     }
 
-#ifdef DEBUG
-    char* repr = lar_repr_script(merged);
-    ras_log_debug("App settings:\n%s", repr);
-    free(repr);
-#endif
     lar_free_script(&merged);
     return RAS_RESULT_OK;
 
 fail:
     lar_free_script(&base);
     lar_free_script(&posix);
+    lar_free_script(&local);
     lar_free_script(&merged);
     return RAS_RESULT_ERROR;
 }

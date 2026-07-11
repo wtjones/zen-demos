@@ -12,3 +12,4 @@ tools/dosbox.conf
 assets/scenes/scratc*.lsp
 assets/scenes/*.mp
 assets/**/scratch/*
+config/posix-local.lsp
