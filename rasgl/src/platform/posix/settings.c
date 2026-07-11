@@ -54,6 +54,8 @@ RasResult posix_script_map_settings(
 
 RasResult posix_load_settings(RasAppSettings* app_settings)
 {
+    RasResult result = RAS_RESULT_ERROR;
+
     LarScript* base = NULL;
     LarScript* posix = NULL;
     LarScript* local = NULL;
@@ -66,20 +68,20 @@ RasResult posix_load_settings(RasAppSettings* app_settings)
 
     if (lar_parse_file(RAS_SCRIPT_POSIX_PATH, &posix) != LAR_PARSE_RESULT_OK) {
         ras_log_error("Unable to load script: %s", RAS_SCRIPT_POSIX_PATH);
-        goto fail;
+        goto cleanup;
     }
 
     if (access(RAS_SCRIPT_POSIX_LOCAL_PATH, F_OK) == 0) {
         if (lar_parse_file(RAS_SCRIPT_POSIX_LOCAL_PATH, &local) != LAR_PARSE_RESULT_OK) {
             ras_log_error("Unable to load script: %s", RAS_SCRIPT_POSIX_LOCAL_PATH);
-            goto fail;
+            goto cleanup;
         }
     }
 
     merged = lar_merge_script(base, posix);
     if (!merged) {
         ras_log_error("Unable to merge script.");
-        goto fail;
+        goto cleanup;
     }
 
     lar_free_script(&base);
@@ -95,9 +97,8 @@ RasResult posix_load_settings(RasAppSettings* app_settings)
         LarScript* new_merged = lar_merge_script(merged, local);
         if (!new_merged) {
             ras_log_error("Unable to merge script.");
-            goto fail;
+            goto cleanup;
         }
-        lar_free_script(&local);
         lar_free_script(&merged);
         merged = new_merged;
 
@@ -110,21 +111,20 @@ RasResult posix_load_settings(RasAppSettings* app_settings)
 
     if (hosted_script_map_settings(merged, &app_settings->base) != RAS_RESULT_OK) {
         ras_log_error("Unable to map settings.");
-        goto fail;
+        goto cleanup;
     }
 
     if (posix_script_map_settings(merged, &app_settings->posix) != RAS_RESULT_OK) {
         ras_log_error("Unable to map posix settings.");
-        goto fail;
+        goto cleanup;
     }
 
-    lar_free_script(&merged);
-    return RAS_RESULT_OK;
+    result = RAS_RESULT_OK;
 
-fail:
+cleanup:
     lar_free_script(&base);
     lar_free_script(&posix);
     lar_free_script(&local);
     lar_free_script(&merged);
-    return RAS_RESULT_ERROR;
+    return result;
 }
