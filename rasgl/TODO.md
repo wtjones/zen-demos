@@ -51,7 +51,6 @@
 
 ### Scene loading
 
-- [ ] Reference larse as a target or package
 - [ ] Add scene explanation to README
 - [ ] Support parameterized scene loading
 - [ ] Configurable background color
@@ -177,6 +176,7 @@
 - [x] Scene model position
 - [x] Render multiple scene objects
 - [x] DOS scene support
+- [x] Reference larse as a target or package
 
 ### Scene Management
 
