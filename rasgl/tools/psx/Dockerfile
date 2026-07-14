@@ -18,7 +18,7 @@ RUN set -ex; \
 	python3-venv \
 	ca-certificates \
 	wget \
-	&& rm -rf /ver/lib/apt/lists/*
+	&& rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt
 
@@ -36,6 +36,6 @@ RUN python3 -m venv env && \
     env/bin/pip install --upgrade pip && \
     env/bin/pip install -r tools/requirements.txt
 
-ENV PATH ="/work/env/bin:$PATH"
+ENV PATH="/work/env/bin:${PATH}"
 
 CMD ["/bin/bash"]
