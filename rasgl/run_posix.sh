@@ -1,7 +1,8 @@
 #!/bin/bash
 
-DEMO=${1:-world}
+DEMO=${1:-poly}
 DEBUG=${2:-0}
+SCENE=${3:-assets/scenes/multi01.lsp}
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
@@ -12,4 +13,4 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-ASAN_OPTIONS=detect_leaks=0 ./build/bin/demo $3
+ASAN_OPTIONS=detect_leaks=0 ./build/bin/demo $SCENE
