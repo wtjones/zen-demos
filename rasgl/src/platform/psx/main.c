@@ -3,6 +3,7 @@
 #include "input.h"
 #include "ps1/gpu.h"
 #include "ps1/gpucmd.h"
+#include "ps1/gte.h"
 #include "ps1/registers.h"
 #include "rasgl/core/app.h"
 #include "rasgl/core/debug.h"
@@ -77,6 +78,8 @@ int main(int argc, const char** argv)
         setupGPU(GP1_MODE_NTSC, SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 
+    setupGTE(SCREEN_WIDTH, SCREEN_HEIGHT);
+
     // Turn on the video output.
     DMA_DPCR |= DMA_DPCR_CH_ENABLE(DMA_GPU);
     GPU_GP1 = gp1_dmaRequestMode(GP1_DREQ_GP0_WRITE);
@@ -128,6 +131,9 @@ int main(int argc, const char** argv)
         // going to overwrite its respective DMA chain afterwards, as the GPU no
         // longer needs it.
         GPU_GP1 = gp1_fbOffset(frame_x, frame_y);
+
+        // FIXME
+        // clearOrderingTable(chain->orderingTable, ORDERING_TABLE_SIZE);
 
         // Reset the chain for this frame.
         chain->nextPacket = chain->data;

@@ -22,6 +22,8 @@ add_library(
 	src/platform/psx/libc/string.s
 	src/platform/psx/ps1/cache.s
 	src/platform/psx/ps1/gpu.c
+	src/platform/psx/ps1/gte.c
+	src/platform/psx/ps1/trig.c
 	src/platform/psx/vendor/printf.c
 )
 

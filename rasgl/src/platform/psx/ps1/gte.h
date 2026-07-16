@@ -18,6 +18,8 @@
 
 #include <stdint.h>
 
+// clang-format off
+
 #define DEF(type) static inline type __attribute__((always_inline))
 
 /* GTE data types */
@@ -334,3 +336,7 @@ DEF(void) gte_setColumnVectors(
 }
 
 #undef DEF
+
+void setupGTE(int width, int height);
+
+// clang-format on
