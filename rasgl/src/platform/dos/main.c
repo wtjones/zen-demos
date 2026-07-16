@@ -4,6 +4,7 @@
 #include "rasgl/core/graphics.h"
 #include "rasgl/core/input.h"
 #include "rasgl/core/maths.h"
+#include "rasgl/core/stages.h"
 #include "rasgl/core/timer.h"
 #include "timer.h"
 #include <allegro.h>
@@ -311,7 +312,14 @@ int main(int argc, const char** argv)
         return 1;
     }
     g_screen_buffer = create_bitmap(SCREEN_W, SCREEN_H);
-    RasResult result = ras_app_init(argc, argv, &plat_settings);
+    RasPipeline pipeline = { 0 };
+    core_pipeline_init(&pipeline);
+    RasInitSettings init_settings = {
+        .screen = &plat_settings,
+        .pipeline = &pipeline
+    };
+
+    RasResult result = ras_app_init(argc, argv, &init_settings);
     if (result != RAS_RESULT_OK) {
         ras_log_error("Error result from ras_app_init(), exiting...");
         return 1;

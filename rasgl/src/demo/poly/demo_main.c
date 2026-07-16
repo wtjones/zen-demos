@@ -16,11 +16,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-ScreenSettings* settings;
+ScreenSettings* screen_settings;
 RasScene* scene;
 RasFont* ui_font;
 RasFixed delta_rotation = RAS_FIXED_ONE;
-RasPipeline pipeline = { 0 };
+RasPipeline* pipeline;
 RasRenderData render_data = { 0 };
 
 Point3f delta = {
@@ -40,13 +40,14 @@ bool animation_enabled = true;
 
 char* default_scene = "./assets/scenes/tri.lsp";
 
-RasResult ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
+RasResult ras_app_init(int argc, const char** argv, RasInitSettings* settings)
 {
     ras_log_info("ras_app_init()... argc: %d argv: %s\n", argc, argv[0]);
-    ras_log_info("ras_app_init()... screen_width.x: %d\n", init_settings->screen_width);
-    settings = init_settings;
+    ras_log_info("ras_app_init()... screen_width.x: %d\n", settings->screen->screen_width);
+    screen_settings = settings->screen;
+    pipeline = settings->pipeline;
     core_init_maths_tables();
-    core_pipeline_init(&pipeline);
+
     const char* scene_path = (argc > 1) ? argv[1] : default_scene;
 
     ui_font = core_get_font_system(RAS_SYSTEM_FONT_DEFAULT);
@@ -236,7 +237,7 @@ void ras_app_update(__attribute__((unused)) InputState* input_state)
 
         text_pos.x = (text_pos.x + RAS_FIXED_ONE);
 
-        if (text_pos.x == (INT_32_TO_FIXED_16_16(settings->screen_width))) {
+        if (text_pos.x == (INT_32_TO_FIXED_16_16(screen_settings->screen_width))) {
             text_pos.x = -core_get_font_width(ui_font, str);
         }
     }
@@ -257,7 +258,7 @@ void render_scene_pipeline(__attribute__((unused)) RenderState* render_state)
     core_renderdata_clear(&render_data);
 
     core_pipeline_run(
-        &pipeline,
+        pipeline,
         &render_data);
 }
 

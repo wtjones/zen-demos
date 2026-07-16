@@ -11,6 +11,7 @@
 #include "rasgl/core/maths.h"
 #include "rasgl/core/rasterize.h"
 #include "rasgl/core/repr.h"
+#include "rasgl/core/stages.h"
 #include "rasgl/core/timer.h"
 #include "rasterize.h"
 #include "settings.h"
@@ -655,7 +656,14 @@ int main(int argc, const char** argv)
         return 1;
     }
 
-    RasResult result = ras_app_init(argc, argv, &app_settings.base.screen);
+    RasPipeline pipeline = { 0 };
+    core_pipeline_init(&pipeline);
+    RasInitSettings init_settings = {
+        .screen = &app_settings.base.screen,
+        .pipeline = &pipeline
+    };
+
+    RasResult result = ras_app_init(argc, argv, &init_settings);
     if (result != RAS_RESULT_OK) {
         ras_log_error("Error result from ras_app_init(), exiting...");
 

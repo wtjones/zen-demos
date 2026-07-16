@@ -13,10 +13,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-ScreenSettings* settings;
+ScreenSettings* screen_settings;
 RasScene* scene;
 RasFixed delta_rotation = RAS_FIXED_ONE;
-RasPipeline pipeline = { 0 };
+RasPipeline* pipeline;
 RasRenderData render_data = { 0 };
 
 Point3f delta = {
@@ -160,18 +160,18 @@ RasScene* build_scene()
     return scene;
 }
 
-RasResult ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
+RasResult ras_app_init(int argc, const char** argv, RasInitSettings* settings)
 {
     ras_log_info("ras_app_init()... argc: %d argv: %s\n", argc, argv[0]);
-    ras_log_info("ras_app_init()... screen_width.x: %d\n", init_settings->screen_width);
-    settings = init_settings;
+    ras_log_info("ras_app_init()... screen_width.x: %d\n", settings->screen.screen_width);
+    screen_settings = settings->screen;
+    pipeline = settings->pipeline;
     core_init_maths_tables();
 
     scene = build_scene();
     if (scene == NULL) {
         return RAS_RESULT_ERROR;
     }
-    core_pipeline_init(&pipeline);
 
     camera = &scene->cameras[0];
 

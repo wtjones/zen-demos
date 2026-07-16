@@ -4,8 +4,15 @@
 #include "debug.h"
 #include "graphics.h"
 #include "input.h"
+#include "pipeline.h"
 
-RasResult ras_app_init(int argc, const char** argv, ScreenSettings* video_settings);
+typedef struct RasInitSettings {
+    ScreenSettings* screen;
+    RasPipeline* pipeline;
+} RasInitSettings;
+
+RasResult ras_app_init(int argc, const char** argv, RasInitSettings* settings);
+
 /**
  * @brief Allow the app to allocate meshes.
  *

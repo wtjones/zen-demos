@@ -10,6 +10,7 @@
 #include "rasgl/core/input.h"
 #include "rasgl/core/repr.h"
 #include "rasgl/core/scene.h"
+#include "rasgl/core/stages.h"
 #include "render.h"
 #include "serial.h"
 #include "usage.h"
@@ -41,6 +42,7 @@ extern char _bssEnd[];
 #define SCREEN_HEIGHT 240
 ScreenSettings plat_settings
     = { .screen_width = SCREEN_WIDTH, .screen_height = SCREEN_HEIGHT };
+RasPipeline plat_pipeline;
 RenderState states[RAS_LAYER_COUNT];
 InputState plat_input_state;
 
@@ -80,7 +82,13 @@ int main(int argc, const char** argv)
     GPU_GP1 = gp1_dmaRequestMode(GP1_DREQ_GP0_WRITE);
     GPU_GP1 = gp1_dispBlank(false);
 
-    RasResult result = ras_app_init(argc, argv, &plat_settings);
+    core_pipeline_init(&plat_pipeline);
+    RasInitSettings init_settings = {
+        .pipeline = &plat_pipeline,
+        .screen = &plat_settings
+    };
+
+    RasResult result = ras_app_init(argc, argv, &init_settings);
     if (result != RAS_RESULT_OK) {
         ras_log_error("Error result from ras_app_init(), exiting...");
         goto fail;

@@ -38,7 +38,7 @@ RasCamera camera = {
 
 bool viewer_changed = true;
 
-ScreenSettings* settings;
+ScreenSettings* screen_settings;
 WorldState world_state;
 RasFrustum frustum;
 
@@ -164,7 +164,7 @@ void xform_to_view_mode_persp_matrix(
             RenderCommand* command = &render_state->commands[*num_commands];
             Point2i* screen_point = &render_state->points[*num_points];
 
-            projected_to_screen_point(settings->screen_width, settings->screen_height, projected_point, screen_point);
+            projected_to_screen_point(screen_settings->screen_width, screen_settings->screen_height, projected_point, screen_point);
 
             ras_log_trace("screen point: %s\n", repr_point2i(buffer, sizeof buffer, screen_point));
 
@@ -182,11 +182,11 @@ void xform_to_view(WorldState* world_state, RenderState* render_state, RasCamera
     xform_to_view_mode_persp_matrix(world_state, render_state, camera);
 }
 
-RasResult ras_app_init(int argc, const char** argv, ScreenSettings* init_settings)
+RasResult ras_app_init(int argc, const char** argv, RasInitSettings* settings)
 {
     ras_log_info("ras_app_init()... argc: %d argv: %s\n", argc, argv[0]);
-    ras_log_info("ras_app_init()... screen_width.x: %d\n", init_settings->screen_width);
-    settings = init_settings;
+    ras_log_info("ras_app_init()... screen_width.x: %d\n", settings->screen.screen_width);
+    screen_settings = settings->screen;
 
     camera.position.x = INT_32_TO_FIXED_16_16(0);
     camera.position.y = INT_32_TO_FIXED_16_16(2);
@@ -218,8 +218,8 @@ void render_point(RenderState* render_state, Point3f world_pos)
 
     screen_pos = &render_state->points[*num_points];
     xform_to_screen(
-        settings->screen_width,
-        settings->screen_height,
+        screen_settings->screen_width,
+        screen_settings->screen_height,
         &camera.position, &world_pos, &dest);
 
     screen_pos->x = FIXED_16_16_TO_INT_32(dest.x);
@@ -243,8 +243,8 @@ void push_world_point(RenderState* render_state, Point3f world_pos)
 
     screen_pos = &render_state->points[*num_points];
     xform_to_screen(
-        settings->screen_width,
-        settings->screen_height,
+        screen_settings->screen_width,
+        screen_settings->screen_height,
         &camera.position, &world_pos, &dest);
 
     screen_pos->x = FIXED_16_16_TO_INT_32(dest.x);
