@@ -3,6 +3,7 @@
 #include "larse/core/merge.h"
 #include "larse/core/parse.h"
 #include "larse/core/repr.h"
+#include "larse/core/version.h"
 #include "log.c/src/log.h"
 #ifndef __MSDOS__
 #    include <getopt.h>
@@ -19,15 +20,17 @@
 
 void print_usage()
 {
-    printf("Larse is a configuration language based on lisp\n"
+    printf("Larse %s is a configuration language based on lisp\n"
            "Usage: larse [options] [scriptfile]\n"
            " When 'scriptfile' is given, it is loaded.\n"
            "Informative output:\n"
            " -h, --help    - print this help and exit\n"
-           " -v            - verbose output\n"
+           " -d            - verbose output\n"
+           " -v            - print the version\n"
            "Actions:\n"
            " -x expressions - execute the expressions, then exit\n"
-           " -m file-to-merge - apply a 2nd [scriptfile]\n");
+           " -m file-to-merge - apply a 2nd [scriptfile]\n",
+        LAR_VERSION_STRING);
 }
 
 int handle_parse_result(LarParseResult result, LarScript** script)
@@ -57,9 +60,14 @@ int main(int argc, char** argv)
     lar_log_configure(log_file);
     while ((c = getopt(argc, argv, "vm:x:")) != -1) {
         switch (c) {
-        case 'v':
+        case 'd':
             vflag = 1;
             log_set_level(LOG_INFO);
+            break;
+        case 'v':
+            vflag = 1;
+            printf("Larse %s\n", LAR_VERSION_STRING);
+            return 0;
             break;
         case 'm':
             merge = true;

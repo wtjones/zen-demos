@@ -99,13 +99,17 @@ cmake --build build
 
 ## Shell Usage
 
+```text
 Usage: larse [options] [scriptfile]
  When 'scriptfile' is given, it is loaded.
 Informative output:
  -h, --help    - print this help and exit
- -v            - verbose output
+ -d            - verbose output
+ -v            - print the version
 Actions:
  -x expressions - execute the expressions, then exit
+ -m file-to-merge - apply a 2nd [scriptfile]
+```
 
 ### Expression example
 
