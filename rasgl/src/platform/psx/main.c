@@ -81,7 +81,7 @@ int main(int argc, const char** argv)
     setupGTE(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     // Turn on the video output.
-    DMA_DPCR |= DMA_DPCR_CH_ENABLE(DMA_GPU);
+    DMA_DPCR |= 0 | DMA_DPCR_CH_ENABLE(DMA_GPU) | DMA_DPCR_CH_ENABLE(DMA_OTC);
     GPU_GP1 = gp1_dmaRequestMode(GP1_DREQ_GP0_WRITE);
     GPU_GP1 = gp1_dispBlank(false);
 
@@ -122,6 +122,7 @@ int main(int argc, const char** argv)
         val = TIMER_VALUE(1);
         int timer_mode = TIMER_CTRL_SYNC_BITMASK & TIMER_CTRL(1);
 
+        // Both frames of double buffer are side by side in VRAM.
         frame_x = using_second_frame ? plat_settings.screen_width : 0;
         frame_y = 0;
         chain = &dma_chains[using_second_frame ? 1 : 0];
@@ -132,8 +133,7 @@ int main(int argc, const char** argv)
         // longer needs it.
         GPU_GP1 = gp1_fbOffset(frame_x, frame_y);
 
-        // FIXME
-        // clearOrderingTable(chain->orderingTable, ORDERING_TABLE_SIZE);
+        clearOrderingTable(chain->orderingTable, ORDERING_TABLE_SIZE);
 
         // Reset the chain for this frame.
         chain->nextPacket = chain->data;

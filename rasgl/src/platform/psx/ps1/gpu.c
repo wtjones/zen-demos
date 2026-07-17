@@ -95,22 +95,26 @@ void clearOrderingTable(uint32_t* table, int numEntries)
         __asm__ volatile("");
 }
 
-uint32_t* allocatePacket(DMAChain* chain, int numCommands)
+// As we're using an ordering table, allocatePacket() now takes the packet's Z
+// index (i.e. the index of the "bucket" to link it to) as an argument. The
+// table is reversed, so packets with higher Z values will be drawn first and
+// between two packets with the same Z index the most recently added one will
+// take precedence.
+uint32_t* allocatePacket(DMAChain* chain, int zIndex, int numCommands)
 {
-    // Grab the current pointer to the next packet then increment it to allocate
-    // a new packet. We have to allocate an extra word for the packet's header,
-    // which will contain the number of GP0 commands the packet is made up of as
-    // well as a pointer to the next packet (or a special "terminator" value to
-    // tell the DMA unit to stop).
     uint32_t* ptr = chain->nextPacket;
     chain->nextPacket += numCommands + 1;
 
-    // Write the header and set its pointer to point to the next packet that
-    // will be allocated in the buffer.
-    *ptr = gp0_tag(numCommands, chain->nextPacket);
+    // Ensure the index is within valid range.
+    assert((zIndex >= 0) && (zIndex < ORDERING_TABLE_SIZE));
 
-    // Make sure we haven't yet run out of space for future packets or a linked
-    // list terminator, then return a pointer to the packet's first GP0 command.
+    // Splice the new packet into the ordering table by:
+    // - taking the address the ordering table entry currently points to;
+    // - replacing that address with a pointer to the packet;
+    // - linking the packet to the old address.
+    *ptr = gp0_tag(numCommands, (void*)chain->orderingTable[zIndex]);
+    chain->orderingTable[zIndex] = gp0_tag(0, ptr);
+
     assert(chain->nextPacket < &(chain->data)[CHAIN_BUFFER_SIZE]);
 
     return &ptr[1];
