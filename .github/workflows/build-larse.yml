@@ -2,27 +2,59 @@ name: Build Larse
 
 on:
   workflow_dispatch:
+
   push:
-    branches: [main]
+    branches:
+      - master 
     paths:
       - 'larse/**'
       - '.github/workflows/build-larse.yml'
+
   pull_request:
     paths:
       - 'larse/**'
       - '.github/workflows/build-larse.yml'
 
+permissions:
+  contents: write
+
 jobs:
   posix:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: larse
+
     steps:
       - uses: actions/checkout@main
-        with:
-          fetch-depth: 0
-          fetch-tags: true
+
       - name: Configure
-        run: cmake -S larse -B build
+        run: cmake -S . -B build
+
+      - name: Get version
+        id: version
+        shell: bash
+        run: |
+          BASE_VERSION=$(grep '^CMAKE_PROJECT_VERSION:STATIC=' build/CMakeCache.txt | cut -d= -f2)
+          SHORT_SHA="${GITHUB_SHA::7}"
+          VERSION="${BASE_VERSION}+${GITHUB_RUN_NUMBER}.${SHORT_SHA}"
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Build
-        run: cmake --build build
+        run: cmake --build build --config Release
+
+      - name: Package
+        run: |
+          tar -czf "larse-${{ steps.version.outputs.version }}-linux.tar.gz" -C build/bin .
+
+      - name: Create GitHub Release
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: larse-${{ steps.version.outputs.version }}
+          name: Larse ${{ steps.version.outputs.version }}
+          generate_release_notes: true
+          files: |
+            larse/larse-${{ steps.version.outputs.version }}-linux.tar.gz
