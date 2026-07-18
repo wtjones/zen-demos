@@ -4,7 +4,8 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - master 
+      - master
+      - lar-ci
     paths:
       - 'larse/**'
       - '.github/workflows/build-larse.yml'
@@ -49,7 +50,9 @@ jobs:
           tar -czf "larse-${{ steps.version.outputs.version }}-linux.tar.gz" -C build/bin .
 
       - name: List files
-        run: find . -name '*.tar.gz'      - name: Upload artifact
+        run: find . -name '*.tar.gz'
+
+      - name: Upload artifact
         uses: actions/upload-artifact@main
         with:
           name: larse-${{ steps.version.outputs.version }}-linux
