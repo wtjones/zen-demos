@@ -48,7 +48,11 @@ jobs:
       - name: Package
         run: |
           tar -czf "larse-${{ steps.version.outputs.version }}-linux.tar.gz" -C build/bin .
-
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: larse-${{ steps.version.outputs.version }}-linux
+          path: larse-${{ steps.version.outputs.version }}-linux.tar.gz
       - name: Create GitHub Release
         if: github.event_name == 'push'
         uses: softprops/action-gh-release@v2
