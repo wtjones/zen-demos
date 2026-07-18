@@ -1,0 +1,27 @@
+name: Build Larse
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'larse/**'
+      - '.github/workflows/build-larse.yml'
+  pull_request:
+    paths:
+      - 'larse/**'
+      - '.github/workflows/build-larse.yml'
+
+jobs:
+  posix:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Configure
+        run: cmake -S larse -B build
+
+      - name: Build
+        run: cmake --build build
