@@ -135,4 +135,3 @@ jobs:
           makeLatest: false
           artifacts: |
             artifacts/**/*.tar.gz
-            artifacts/**/*.zip
