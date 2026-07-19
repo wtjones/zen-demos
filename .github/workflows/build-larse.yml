@@ -40,10 +40,14 @@ jobs:
       - name: Run tests
         run: ctest --test-dir build --output-on-failure --output-junit tests.xml
 
+      - name: List files
+        run: find . -name '*.xml'
+      - name: List files
+        run: find . -name '*.lsp'
       - name: Test Summary
         uses: test-summary/action@v2
         with:
-          paths: "build/**/tests*.xml"
+          paths: "larse/build/**/tests*.xml"
         if: always()
 
   posix:
