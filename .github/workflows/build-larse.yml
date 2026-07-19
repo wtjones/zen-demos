@@ -2,6 +2,7 @@ name: Build Larse
 
 on:
   workflow_dispatch:
+
   push:
     branches:
       - master
@@ -27,7 +28,7 @@ jobs:
         working-directory: larse
 
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v5
 
       - name: Configure
         run: cmake -S . -B build
@@ -49,21 +50,26 @@ jobs:
         run: |
           tar -czf "larse-${{ steps.version.outputs.version }}-linux.tar.gz" -C build/bin .
 
-      - name: List files
-        run: find . -name '*.tar.gz'
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@main
+      - name: Upload CI Artifact
+        uses: actions/upload-artifact@v4
         with:
           name: larse-${{ steps.version.outputs.version }}-linux
           path: larse/larse-${{ steps.version.outputs.version }}-linux.tar.gz
- 
-      - name: Create GitHub Release
+
+      - name: Update Continuous Release
         if: github.event_name == 'push'
-        uses: softprops/action-gh-release@v2
+        uses: ncipollo/release-action@v1
         with:
-          tag_name: larse-${{ steps.version.outputs.version }}
-          name: Larse ${{ steps.version.outputs.version }}
-          generate_release_notes: true
-          files: |
-            larse/larse-${{ steps.version.outputs.version }}-linux.tar.gz
+          tag: ci
+          name: Continuous Build
+          prerelease: true
+          allowUpdates: true
+          removeArtifacts: true
+          replacesArtifacts: true
+          makeLatest: false
+          body: |
+            Latest successful build.
+
+            Version: ${{ steps.version.outputs.version }}
+            Commit: ${{ github.sha }}
+          artifacts: larse/larse-${{ steps.version.outputs.version }}-linux.tar.gz
