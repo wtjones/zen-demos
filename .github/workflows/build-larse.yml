@@ -38,7 +38,13 @@ jobs:
         run: cmake --build build
 
       - name: Run tests
-        run: ctest --test-dir build --output-on-failure
+        run: ctest --test-dir build --output-on-failure --output-junit tests.xml
+
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: "build/**/tests*.xml"
+        if: always()
 
   posix:
     runs-on: ubuntu-latest
