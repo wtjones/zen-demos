@@ -81,7 +81,7 @@ jobs:
         run: |
           tar -czf \
             "larse-${{ steps.version.outputs.version }}-linux.tar.gz" \
-            build/bin tests/data
+            -C build/bin .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
