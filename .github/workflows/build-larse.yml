@@ -127,7 +127,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           tag: ci
-          name: Continuous Build
+          name: Larse: Continuous Build
           prerelease: true
           allowUpdates: true
           removeArtifacts: true
