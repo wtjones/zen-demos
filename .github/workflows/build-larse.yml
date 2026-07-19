@@ -80,14 +80,14 @@ jobs:
       - name: Package
         run: |
           tar -czf \
-            "larse-${{ steps.version.outputs.version }}-posix.tar.gz" \
-            -C build/bin .
+            "larse-${{ steps.version.outputs.version }}-linux.tar.gz" \
+            build/bin tests/data
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
           name: posix
-          path: larse/larse-${{ steps.version.outputs.version }}-posix.tar.gz
+          path: larse/larse-${{ steps.version.outputs.version }}-linux.tar.gz
 
   dos:
     runs-on: ubuntu-latest
