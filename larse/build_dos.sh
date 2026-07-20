@@ -10,7 +10,7 @@ main() {
         -DCMAKE_TOOLCHAIN_FILE=tools/djgpp.cmake \
         -B bld_dos"
 
-    docker run -it --rm \
+    docker run -i --rm \
         --user $(id -u):$(id -g) \
         -v "$SCRIPT_DIR":/work/r \
         -w /work/r \
