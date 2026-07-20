@@ -175,8 +175,37 @@ lar_log_configure(log_file);
 
 `./run_tests.sh`
 
+## DOS
 
-## DOSBox
+### Build - Docker option
+
+`./build_docker_dos.sh`
+`./build_dos.sh`
+
+Optional: Inspect container:
+
+`docker run --rm -it larse-dos bash`
+
+### Build - Local DJGPP option
+
+Build or get DJGPP binaries from <https://github.com/andrewwutw/build-djgpp>.
+
+Extract somewhere such as `/opt/djgpp`.
+
+Set variable `DJGPP_PREFIX` in shell or profile:
+
+```bash
+export DJGPP_PREFIX="/opt/djgpp"
+# if building with defaults:
+export DJGPP_PREFIX="/usr/local/djgpp"
+
+```
+
+Optional: Set PATH or use provided shell script.
+
+`PATH="${DJGPP_PREFIX}/bin:${PATH}"`
+
+### DOSBox
 
 [DOSBox-X](https://github.com/joncampbell123/dosbox-x/) is recommended due to the built-in 32-bit extender.
 

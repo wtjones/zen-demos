@@ -1,0 +1,27 @@
+FROM ubuntu:24.04
+
+RUN apt update && apt install -y \
+    wget \
+    unzip \
+    cmake \
+    ninja-build \
+    make \
+    gcc \
+    flex \
+    lbzip2
+
+RUN mkdir -p /opt && \
+    cd /opt && \
+    wget https://github.com/andrewwutw/build-djgpp/releases/download/v3.4/djgpp-linux64-gcc1220.tar.bz2 && \
+    tar xf djgpp-linux64-gcc1220.tar.bz2
+
+SHELL ["/bin/bash", "-c"]
+
+RUN ls -R /opt/djgpp
+
+ENV DJGPP_PREFIX=/opt/djgpp
+ENV PATH="/opt/djgpp/bin:${PATH}"
+
+RUN source $DJGPP_PREFIX/setenv
+
+WORKDIR /work
