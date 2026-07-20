@@ -6,8 +6,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 main() {
 
-    CMAKE_CMD="source \$DJGPP_PREFIX/setenv && \
-        cmake \
+    CMAKE_CMD="cmake \
         -DCMAKE_TOOLCHAIN_FILE=tools/djgpp.cmake \
         -B bld_dos"
 
