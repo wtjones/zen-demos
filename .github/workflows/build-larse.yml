@@ -6,7 +6,7 @@ on:
   push:
     branches:
       - master
-      - lar-ci
+      - lar-ci-dos
     paths:
       - 'larse/**'
       - '.github/workflows/build-larse.yml'
@@ -94,9 +94,31 @@ jobs:
     needs: tests
 
     steps:
+      - uses: actions/checkout@v5
+
+      - name: Run build_docker_dos.sh
+        run: |
+          ./build_docker_dos.sh
+
+      - name: Run build_dos.sh
+        run: |
+          ./build_dos.sh
+
       - name: Placeholder
         run: |
           echo "DOS build not implemented yet"
+
+      - name: Package
+        run: |
+          tar -czf \
+            "larse-${{ steps.version.outputs.version }}-dos.tar.gz" \
+            -C bld_dos/bin .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: posix
+          path: larse/larse-${{ steps.version.outputs.version }}-dos.tar.gz
 
       # Future:
       #
