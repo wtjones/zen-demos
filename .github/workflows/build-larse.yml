@@ -108,15 +108,11 @@ jobs:
         run: |
           ./build_dos.sh
 
-      - name: Placeholder
-        run: |
-          echo "DOS build not implemented yet"
-
       - name: Package
         run: |
           tar -czf \
             "larse-${{ steps.version.outputs.version }}-dos.tar.gz" \
-            -C bld_dos/bin .
+            README.md -C bld_dos/bin .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
