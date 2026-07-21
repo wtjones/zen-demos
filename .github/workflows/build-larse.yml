@@ -6,7 +6,6 @@ on:
   push:
     branches:
       - master
-      - lar-ci
     paths:
       - 'larse/**'
       - '.github/workflows/build-larse.yml'
@@ -50,7 +49,7 @@ jobs:
           paths: "larse/build/**/tests*.xml"
         if: always()
 
-  posix:
+  linux:
     runs-on: ubuntu-latest
     needs: tests
 
@@ -86,31 +85,46 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: posix
+          name: linux
           path: larse/larse-${{ steps.version.outputs.version }}-linux.tar.gz
 
   dos:
     runs-on: ubuntu-latest
     needs: tests
 
-    steps:
-      - name: Placeholder
-        run: |
-          echo "DOS build not implemented yet"
+    defaults:
+      run:
+        working-directory: larse
 
-      # Future:
-      #
-      # - uses: actions/checkout@v5
-      # - build DOS
-      # - zip artifacts
-      # - upload artifact
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Run build_docker_dos.sh
+        run: |
+          ./build_docker_dos.sh
+
+      - name: Run build_dos.sh
+        run: |
+          ./build_dos.sh
+
+      - name: Package
+        run: |
+          tar -czf \
+            "larse-${{ steps.version.outputs.version }}-dos.tar.gz" \
+            README.md -C bld_dos/bin .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: dos
+          path: larse/larse-${{ steps.version.outputs.version }}-dos.tar.gz
 
   release:
     runs-on: ubuntu-latest
 
     needs:
       - tests
-      - posix
+      - linux
       - dos
 
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
