@@ -4,8 +4,9 @@ set -euo pipefail
 
 DEMO=${1:-poly}
 DEBUG=${2:-0}
+SCENE=${3:-assets/scenes/tri.lsp}
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 BUILD_DIR="${SCRIPT_DIR}/bld_psx"
 ELF_PATH="${BUILD_DIR}/ras_psx.elf"
 
@@ -14,7 +15,7 @@ if [ ! -d "$BUILD_DIR" ]; then
 fi
 
 # Pack the scene data for embedded platforms.
-${SCRIPT_DIR}/run_cli.sh -p $3 -o ${BUILD_DIR}/scene.mp
+${SCRIPT_DIR}/run_cli.sh -p ${SCENE} -o ${BUILD_DIR}/scene.mp
 
 if [ $? -ne 0 ]; then
   echo "run_cli.sh failed" >&2
