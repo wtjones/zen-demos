@@ -11,9 +11,9 @@
 #include "rasgl/core/input.h"
 #include "rasgl/core/repr.h"
 #include "rasgl/core/scene.h"
-#include "rasgl/core/stages.h"
 #include "render.h"
 #include "serial.h"
+#include "stages.h"
 #include "usage.h"
 // clang-format off
 #include <stdbool.h>
@@ -85,7 +85,7 @@ int main(int argc, const char** argv)
     GPU_GP1 = gp1_dmaRequestMode(GP1_DREQ_GP0_WRITE);
     GPU_GP1 = gp1_dispBlank(false);
 
-    core_pipeline_init(&plat_pipeline);
+    psx_pipeline_init(&plat_pipeline);
     RasInitSettings init_settings = {
         .pipeline = &plat_pipeline,
         .screen = &plat_settings

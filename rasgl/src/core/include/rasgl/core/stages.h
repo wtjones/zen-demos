@@ -5,6 +5,13 @@
 #include "pipeline.h"
 #include "scene.h"
 
+#define ADD_STAGE(p, add_fn)                         \
+    do {                                             \
+        (p)->stages[(p)->num_stages].name = #add_fn; \
+        (p)->stages[(p)->num_stages].fn = add_fn;    \
+        (p)->num_stages++;                           \
+    } while (0)
+
 typedef struct {
     uint32_t mesh_index;
     RasPipelineElement* element_ref;

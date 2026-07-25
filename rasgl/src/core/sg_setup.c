@@ -8,13 +8,6 @@
 #include "rasgl/core/stages.h"
 #include "rasgl/core/tombmap.h"
 
-#define ADD_STAGE(p, add_fn)                         \
-    do {                                             \
-        (p)->stages[(p)->num_stages].name = #add_fn; \
-        (p)->stages[(p)->num_stages].fn = add_fn;    \
-        (p)->num_stages++;                           \
-    } while (0)
-
 void core_pipeline_init(RasPipeline* pipeline)
 {
     pipeline->num_stages = 0;
