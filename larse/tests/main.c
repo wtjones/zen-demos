@@ -132,6 +132,8 @@ int test_parse_fixed()
     assert(fixed_02->node_type == LAR_NODE_ATOM_FIXED);
     assert(fixed_02->atom.val_fixed == -123206);
     lar_free_expression(&node);
+
+    return 0;
 }
 
 int test_parse_script()

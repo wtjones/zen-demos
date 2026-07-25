@@ -28,6 +28,12 @@
 typedef int32_t RasFixed;
 
 /**
+ * Represents a 20.12 fixed-point value.
+ * Allows for a differentiation between int32_t and fixed-point.
+ */
+typedef RasFixed RasFixed_20_12;
+
+/**
  * Multiply fixed-point by fixed-point.
  *
  * Handles underflow by rounding to smallest fractional value with the
@@ -72,6 +78,28 @@ static inline float fixed_16_16_to_float(RasFixed n)
     int32_t whole = n / 65536;
     int32_t fixed_frac = n - (whole * 65536);
     return (float)(whole + (float)fixed_frac / 65536);
+}
+
+// Fixed 20.12
+#define INT_32_TO_FIXED_20_12(n) (RasFixed_20_12)((n) << 20)
+#define RAS_FIXED_20_12_ONE INT_32_TO_FIXED_20_12(1)
+
+#define RAS_FIXED_16_16_TO_20_12(n) (RasFixed_20_12)((n) << 4)
+#define RAS_FIXED_20_12_TO_16_16(n) (RasFixed)((n) >> 4)
+
+static inline float fixed_20_12_to_float(RasFixed_20_12 n)
+{
+    int32_t whole = n / RAS_FIXED_20_12_ONE;
+    int32_t fixed_frac = n - (whole * RAS_FIXED_20_12_ONE);
+    return (float)(whole + (float)fixed_frac / RAS_FIXED_20_12_ONE);
+}
+
+static inline RasFixed_20_12 float_to_fixed_20_12(float n)
+{
+    int32_t whole = (int32_t)n;
+    float frac = n - (float)whole;
+    int32_t fixed_frac = frac * RAS_FIXED_20_12_ONE;
+    return (whole * RAS_FIXED_20_12_ONE) + fixed_frac;
 }
 
 #endif

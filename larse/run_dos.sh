@@ -2,18 +2,12 @@
 
 set -euo pipefail
 
-
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 main() {
 
-    source $DJGPP_PREFIX/setenv
-    SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+    ${SCRIPT_DIR}/build_dos.sh
 
-    cmake -S . \
-        -DCMAKE_TOOLCHAIN_FILE=tools/djgpp.cmake \
-        -B bld_dos
-    cmake --build bld_dos
     if [ $? -ne 0 ]; then
         echo "build failed"
         exit 1

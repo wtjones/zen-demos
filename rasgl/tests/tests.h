@@ -7,6 +7,7 @@ void backface_tests();
 void backface_tests2();
 void pipeline_tests();
 void fov_scale_tests();
+void fixed_20_tests();
 void pipeline_scene_tests();
 void gridmap_scene_test();
 void tombmap_scene_test();
