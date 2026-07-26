@@ -30,8 +30,6 @@ fi
 
 if [ -n "${RAS_USE_MAIN_MIN:-}" ]; then
 	RAS_ARG="${RAS_ARG} -DRAS_USE_MAIN_MIN=${RAS_USE_MAIN_MIN}"
-else
-	RAS_ARG=""
 fi
 
 if [ -n "${RAS_LOG_BUFFER_MODE:-}" ]; then
@@ -55,6 +53,8 @@ CMAKE_CMD="cmake \
 	${RAS_ARG} \
 	-GNinja \
 	-B bld_psx"
+
+echo "CMAKE_CMD: ${CMAKE_CMD}"
 
 docker run -it --rm \
 	--user $(id -u):$(id -g) \
