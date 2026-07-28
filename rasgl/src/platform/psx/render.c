@@ -218,7 +218,6 @@ void render_flip()
 {
     waitForGP0Ready();
     waitForVSync();
-    sendLinkedList(chain->data);
     sendLinkedList(&(chain->orderingTable)[ORDERING_TABLE_SIZE - 1]);
 }
 
