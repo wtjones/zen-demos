@@ -14,6 +14,9 @@ void input_init()
     g_plat_to_app[PLAT_BUTTON_LEFT] = RAS_KEY_A;
     g_plat_to_app[PLAT_BUTTON_RIGHT] = RAS_KEY_D;
 
+    g_plat_to_app[PLAT_BUTTON_L3] = RAS_KEY_LEFT;
+    g_plat_to_app[PLAT_BUTTON_R3] = RAS_KEY_RIGHT;
+
     // Rotation
     g_plat_to_app[PLAT_BUTTON_SQUARE] = RAS_KEY_Q;
     g_plat_to_app[PLAT_BUTTON_CIRCLE] = RAS_KEY_E;
@@ -50,7 +53,14 @@ void input_map()
     plat_input_state.mods = (buttons & (1 << PLAT_BUTTON_L1))
         ? RAS_KMOD_CTRL
         : RAS_KMOD_NONE;
+
+    // Belt and suspenders
+    plat_input_state.keys[RAS_KEY_LCTRL] = plat_input_state.mods & RAS_KMOD_CTRL ? 1 : 0;
+
     plat_input_state.mods = (buttons & (1 << PLAT_BUTTON_L2))
         ? plat_input_state.mods | RAS_KMOD_SHIFT
         : plat_input_state.mods;
+
+    // Belt and suspenders
+    plat_input_state.keys[RAS_KEY_LSHIFT] = plat_input_state.mods & RAS_KMOD_SHIFT ? 1 : 0;
 }

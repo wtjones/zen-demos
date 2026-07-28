@@ -368,16 +368,16 @@ Provide a scene file as an optional param.
 
 #### Controls
 
-| Action                        | Key                    |
-| ----------------------------- | ---------------------- |
-| Toggle selected model         | j                      |
-| Toggle model animation        | k                      |
-| Move model left/right along X | key left/right         |
-| Move model up/down along Y    | key up/down            |
-| Move model in/out along Z     | key up/down + shift    |
-| Tilt model around X           | up/down + ctrl + shift |
-| Rotate model around Y         | left/right + ctrl      |
-| Tilt model around Z           | up/down + ctrl         |
+| Action                        | Key                    | Controller |
+| ----------------------------- | ---------------------- | ---------- |
+| Toggle selected model         | j                      |            |
+| Toggle model animation        | k                      |            |
+| Move model left/right along X | key left/right         |   L3/R3    |
+| Move model up/down along Y    | key up/down            |            |
+| Move model in/out along Z     | key up/down + shift    |            |
+| Tilt model around X           | up/down + ctrl + shift |            |
+| Rotate model around Y         | left/right + ctrl      | L1 + L3/R3 |
+| Tilt model around Z           | up/down + ctrl         |            |
 
 ## Debug output
 
