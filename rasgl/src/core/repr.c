@@ -96,7 +96,7 @@ char* repr_fixed_16_16(char* buffer, size_t count, RasFixed f)
 }
 char* repr_mat_4x4(char* buffer, size_t count, RasFixed s1[4][4])
 {
-    char matrix_buffer[RAS_REPR_MATRIX_BUFFER];
+    char value_buffer[RAS_REPR_FIXED_BUFFER];
     buffer[0] = '\0';
     strcat(buffer, "[");
 
@@ -109,12 +109,12 @@ char* repr_mat_4x4(char* buffer, size_t count, RasFixed s1[4][4])
                 strcat(buffer, "\n[");
             }
             snprintf(
-                matrix_buffer,
-                sizeof matrix_buffer,
+                value_buffer,
+                sizeof value_buffer,
                 "%12.5f",
                 fixed_16_16_to_float(s1[i][j]));
 
-            strcat(buffer, matrix_buffer);
+            strcat(buffer, value_buffer);
 
             if (j == 3) {
                 strcat(buffer, "]");
@@ -127,7 +127,7 @@ char* repr_mat_4x4(char* buffer, size_t count, RasFixed s1[4][4])
 
 char* repr_mat_4x1(char* buffer, size_t count, RasFixed s[4])
 {
-    char matrix_buffer[RAS_REPR_MATRIX_BUFFER];
+    char value_buffer[RAS_REPR_FIXED_BUFFER];
     buffer[0] = '\0';
     strcat(buffer, "[");
 
@@ -135,12 +135,12 @@ char* repr_mat_4x1(char* buffer, size_t count, RasFixed s[4])
         strcat(buffer, "\n[");
 
         snprintf(
-            matrix_buffer,
-            sizeof matrix_buffer,
+            value_buffer,
+            sizeof value_buffer,
             "%12.5f",
             fixed_16_16_to_float(s[i]));
 
-        strcat(buffer, matrix_buffer);
+        strcat(buffer, value_buffer);
 
         if (i == 3) {
             strcat(buffer, "]");

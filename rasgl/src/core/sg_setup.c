@@ -319,6 +319,9 @@ void* core_sg_xform_verts(void* input)
             mat_mul_4x4_4x1(model_view_matrix, model_space_position, view_space_position);
             core_4x1_to_vector3f(view_space_position, &pv->view_space_position);
 
+            char buffer[RAS_REPR_VECTOR_BUFFER];
+            ras_log_buffer_info("view space pos: %s",
+                repr_point3f(buffer, sizeof buffer, &pv->view_space_position));
             pv->color = vertex->color;
             pv->u = vertex->u;
             pv->v = vertex->v;
@@ -363,7 +366,7 @@ void* core_sg_project_verts(void* input)
                 projected_vec,
                 &pv->screen_space_position);
 
-            static char buffer[RAS_REPR_MATRIX_BUFFER];
+            static char buffer[RAS_REPR_VECTOR_BUFFER];
             ras_log_buffer_trace("pipeline screen space pos: %s\n", repr_vector4f(buffer, sizeof buffer, &pv->screen_space_position));
         }
     }
