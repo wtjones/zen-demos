@@ -338,5 +338,6 @@ DEF(void) gte_setColumnVectors(
 #undef DEF
 
 void setupGTE(int width, int height);
+void multiplyCurrentMatrixByVectors(GTEMatrix* output);
 
 // clang-format on

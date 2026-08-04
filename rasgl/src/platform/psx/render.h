@@ -15,6 +15,7 @@ typedef struct RasColor {
     uint8_t a;
 } RasColor;
 
+RasColor* get_shaded_color(int32_t material, RasFixed diffuse_intensity);
 RasResult render_renderstates_init(RenderState* states);
 
 void render_mesh_solid(RenderState* state);

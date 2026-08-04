@@ -58,7 +58,7 @@ RasColor colors[256] = {
     { 0x00, 0x00, 0xFF, 255 } // Brightest blue
 };
 
-static RasColor* get_shaded_color(int32_t material, RasFixed diffuse_intensity)
+RasColor* get_shaded_color(int32_t material, RasFixed diffuse_intensity)
 {
     RasFixed max_shade = INT_32_TO_FIXED_16_16(7);
     RasFixed shade_fixed = mul_fixed_16_16_by_fixed_16_16(diffuse_intensity, max_shade);

@@ -2,6 +2,29 @@
 
 To avoid WinXP: <https://github.com/Lameguy64/PSn00bSDK>
 
+## Coordinate system
+
+* Right-handed camera, looking down +Z (ras is -Z)
+* +Y is down (ras is -Y)
+
+```text
+            -Y
+            |
+            |     +Z
+            |   /
+            | /
+-X ------------------- +X
+           /|
+         /  |
+       /    |
+    -Z      |
+           +Y
+```
+
+## GTE
+
+GTE's matrix storage is column-oriented, vs row-oriented in ras core.
+
 ## Library Refactoring Option
 
 **Goal**: Split `rasgl/core` to support PSX platform which:

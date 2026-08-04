@@ -81,11 +81,11 @@ static inline float fixed_16_16_to_float(RasFixed n)
 }
 
 // Fixed 20.12
-#define INT_32_TO_FIXED_20_12(n) (RasFixed_20_12)((n) << 20)
+#define INT_32_TO_FIXED_20_12(n) (RasFixed_20_12)((n) << 12)
 #define RAS_FIXED_20_12_ONE INT_32_TO_FIXED_20_12(1)
 
-#define RAS_FIXED_16_16_TO_20_12(n) (RasFixed_20_12)((n) << 4)
-#define RAS_FIXED_20_12_TO_16_16(n) (RasFixed)((n) >> 4)
+#define RAS_FIXED_16_16_TO_20_12(n) (RasFixed_20_12)((n) >> 4)
+#define RAS_FIXED_20_12_TO_16_16(n) (RasFixed)((n) << 4)
 
 static inline float fixed_20_12_to_float(RasFixed_20_12 n)
 {
