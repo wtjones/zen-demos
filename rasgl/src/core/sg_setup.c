@@ -201,12 +201,16 @@ void* core_sg_xform_objects(void* input)
 
         mat_set_identity_4x4(model_world1);
 
-        core_translate_apply(model_world1, model_pos);
+        core_rotate_x_apply(model_world1,
+            FIXED_16_16_TO_INT_32(model_rotation->x));
 
-        // FIXME: Should rotate around model origin
-        core_rotate_x_apply(model_world1, FIXED_16_16_TO_INT_32(model_rotation->x));
-        mat_rotate_y(model_world1, FIXED_16_16_TO_INT_32(model_rotation->y), model_world2);
-        mat_rotate_z(model_world2, FIXED_16_16_TO_INT_32(model_rotation->z), model_world_matrix);
+        mat_rotate_y(model_world1,
+            FIXED_16_16_TO_INT_32(model_rotation->y),
+            model_world2);
+
+        mat_rotate_z(model_world2,
+            FIXED_16_16_TO_INT_32(model_rotation->z),
+            model_world_matrix);
 
         core_translate_apply(model_world_matrix, model_pos);
 
