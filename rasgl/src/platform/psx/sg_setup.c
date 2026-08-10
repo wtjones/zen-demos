@@ -5,6 +5,7 @@
 #include "render.h"
 #include "repr.h"
 #include "stages.h"
+#include <stdlib.h>
 
 #define RAS_PSX_VERT_SCALE 64
 #define RAS_PSX_ONE (1 << 12)
@@ -19,29 +20,252 @@ extern DMAChain* chain;
  * @param v
  * @return GTEVector16
  */
-static inline GTEVector16 vert3f_to_gte_vertex(const RasVertex* v)
+static inline GTEVector16 vert3f_to_gte_vertex(const RasVector3f* v)
 {
     return (GTEVector16) {
-        .x = (int16_t)((v->position.x * RAS_PSX_VERT_SCALE) >> 16),
-        .y = -(int16_t)((v->position.y * RAS_PSX_VERT_SCALE) >> 16),
-        .z = -(int16_t)((v->position.z * RAS_PSX_VERT_SCALE) >> 16),
+        .x = (int16_t)((v->x * RAS_PSX_VERT_SCALE) >> 16),
+        .y = -(int16_t)((v->y * RAS_PSX_VERT_SCALE) >> 16),
+        .z = -(int16_t)((v->z * RAS_PSX_VERT_SCALE) >> 16),
     };
+}
+
+static inline void psx_angle_to_sin_cos(int16_t* s, int16_t* c, int32_t angle)
+{
+    char buffer[255];
+    *s = (int16_t)-RAS_FIXED_16_16_TO_20_12(
+        RAS_SIN(angle));
+    *c = (int16_t)RAS_FIXED_16_16_TO_20_12(
+        RAS_COS(angle));
+    ras_log_buffer_info("PSX sin: %s", repr_fixed_16_16(buffer, sizeof(buffer), RAS_SIN(angle)));
+}
+
+void psx_mat_rotate(GTEMatrix* multiplied, RasVector3f* rotation)
+{
+    int32_t angle;
+    int16_t s, c;
+    char buffer[255];
+
+    // Rotate X
+    angle = FIXED_16_16_TO_INT_32(rotation->x);
+    psx_angle_to_sin_cos(&s, &c, angle);
+
+    gte_setColumnVectors(
+        c, -s, 0,
+        s, c, 0,
+        0, 0, RAS_PSX_ONE);
+
+    multiplyCurrentMatrixByVectors(multiplied);
+
+    ras_log_buffer_info("PSX matrix x: %s",
+        repr_gte_matrix(buffer, sizeof(buffer), multiplied));
+    gte_loadRotationMatrix(multiplied);
+
+    // Rotate Y
+    angle = FIXED_16_16_TO_INT_32(rotation->y);
+    psx_angle_to_sin_cos(&s, &c, angle);
+
+    gte_setColumnVectors(
+        c, 0, s,
+        0, RAS_PSX_ONE, 0,
+        -s, 0, c);
+
+    multiplyCurrentMatrixByVectors(multiplied);
+    ras_log_buffer_info("PSX matrix y: %s",
+        repr_gte_matrix(buffer, sizeof(buffer), multiplied));
+    gte_loadRotationMatrix(multiplied);
+
+    // Rotate Z
+    angle = FIXED_16_16_TO_INT_32(rotation->z);
+    ras_log_buffer_info("psx angle z: %d", angle);
+    psx_angle_to_sin_cos(&s, &c, angle);
+
+    gte_setColumnVectors(
+        RAS_PSX_ONE, 0, 0,
+        0, c, -s,
+        0, s, c);
+
+    multiplyCurrentMatrixByVectors(multiplied);
+    ras_log_buffer_info("PSX matrix z: %s",
+        repr_gte_matrix(buffer, sizeof(buffer), multiplied));
+    gte_loadRotationMatrix(multiplied);
+}
+
+void psx_camera_world_view_init(GTEMatrix* multiplied, RasCamera* camera)
+{
+    RasFixed translate_to_viewer[4][4];
+
+    int32_t angle = (camera->angle + 180) % 360;
+    if (angle < 0) {
+        angle += 360;
+    }
+
+    // Combine world to viewer translate and rotate operations
+    Point3f trans_pos = {
+        -camera->position.x,
+        -camera->position.y,
+        -camera->position.z
+    };
+
+    RasVector3f rotation = { .x = 0, .y = INT_32_TO_FIXED_16_16(angle), .z = 0 };
+    char buffer[255];
+    ras_log_buffer_info("cam to psx rot: %s",
+        repr_point3f(buffer, sizeof(buffer), &rotation));
+    psx_mat_rotate(multiplied, &rotation);
 }
 
 void* psx_sg_setup(void* input)
 {
+    char buffer[1000];
     RasRenderData* render_data = (RasRenderData*)input;
     if (render_data == NULL || render_data->scene == NULL || render_data->camera == NULL) {
         ras_log_error("Invalid render data or scene/camera not set.");
         return NULL;
     }
+
+    if (!render_data->plat) {
+        render_data->plat = malloc(sizeof(RasPSXRenderData));
+        if (!render_data->plat) {
+            ras_log_error("Unable to malloc() PSX render data");
+            return NULL;
+        }
+    }
+    RasPSXRenderData* psx = render_data->plat;
+
+    ras_camera_projection_init(render_data->camera, render_data->projection_matrix);
+    mat_set_identity_4x4(render_data->world_view_matrix);
+    ras_camera_world_view_init(render_data->camera, render_data->world_view_matrix);
+    core_frustum_init(render_data->projection_matrix, &render_data->frustum);
+
+    // Set identity to registers
+    gte_setRotationMatrix(
+        RAS_PSX_ONE, 0, 0,
+        0, RAS_PSX_ONE, 0,
+        0, 0, RAS_PSX_ONE);
+
+    psx_camera_world_view_init(&psx->world_view_matrix, render_data->camera);
+
+    ras_log_buffer_info("Core world_view_matrix: %s",
+        repr_mat_4x4(buffer, sizeof buffer, render_data->world_view_matrix));
+
+    ras_log_buffer_info("PSX world_view_matrix: %s",
+        repr_gte_matrix(buffer, sizeof(buffer), &psx->world_view_matrix));
+
     return render_data;
 }
 
 void* psx_sg_xform_objects(void* input)
 {
+    char buffer[1000];
     RasRenderData* render_data = (RasRenderData*)input;
-    return render_data;
+    RasPSXRenderData* psx = render_data->plat;
+
+    for (size_t i = 0; i < render_data->scene->num_objects; i++) {
+        RasSceneObject* current_object = &render_data->scene->objects[i];
+
+        uint32_t mesh_index = current_object->mesh_index;
+        RasVector3f* model_pos = &current_object->position;
+        RasVector3f* model_rotation = &current_object->rotation;
+        RasFixed(*model_world_matrix)[4] = render_data->model_world_matrix[mesh_index];
+        RasFixed(*model_view_matrix)[4] = render_data->model_view_matrix[mesh_index];
+        RasFixed(*normal_mvt_matrix)[4] = render_data->normal_mvt_matrix[mesh_index];
+
+        RasFixed model_world1[4][4];
+        RasFixed model_world2[4][4];
+        RasFixed model_world3[4][4];
+
+        // Build model world matrix
+        mat_set_identity_4x4(model_world1);
+
+        core_rotate_x_apply(model_world1,
+            FIXED_16_16_TO_INT_32(model_rotation->x));
+        ras_log_buffer_info("Model world matrix x: %s",
+            repr_mat_4x4(buffer, sizeof buffer, model_world1));
+
+        mat_rotate_y(model_world1,
+            FIXED_16_16_TO_INT_32(model_rotation->y),
+            model_world2);
+        ras_log_buffer_info("Model world matrix y: %s",
+            repr_mat_4x4(buffer, sizeof buffer, model_world2));
+
+        mat_rotate_z(model_world2,
+            FIXED_16_16_TO_INT_32(model_rotation->z),
+            model_world_matrix);
+        ras_log_buffer_info("Model world matrix z: %s",
+            repr_mat_4x4(buffer, sizeof buffer, model_world_matrix));
+
+        core_translate_apply(model_world_matrix, model_pos);
+
+        // Model view matrix = world view matrix(from camera) * model world matrix
+        mat_mul_4x4_4x4(
+            render_data->world_view_matrix,
+            model_world_matrix, model_view_matrix);
+
+        //
+        // PSX: Build model world matrix
+        //
+        GTEMatrix* psx_wvm = &psx->world_view_matrix;
+        GTEMatrix* psx_mwm = &psx->model_world_matrix[mesh_index];
+        GTEMatrix* psx_mvm = &psx->model_view_matrix[mesh_index];
+
+        // Set identity to registers
+        gte_setRotationMatrix(
+            RAS_PSX_ONE, 0, 0,
+            0, RAS_PSX_ONE, 0,
+            0, 0, RAS_PSX_ONE);
+
+        // Combine world to viewer translate and rotate operations
+        Point3f trans_pos = {
+            -render_data->camera->position.x,
+            -render_data->camera->position.y,
+            -render_data->camera->position.z
+        };
+        trans_pos.x += model_pos->x;
+        trans_pos.y += model_pos->y;
+        trans_pos.z += model_pos->z;
+
+        GTEVector16 trv = vert3f_to_gte_vertex(&trans_pos);
+
+        gte_setControlReg(GTE_TRX, trv.x);
+        gte_setControlReg(GTE_TRY, trv.y);
+        gte_setControlReg(GTE_TRZ, trv.z);
+
+        psx_mat_rotate(psx_mwm, model_rotation);
+
+        ras_log_buffer_info("Core Model world matrix: %s",
+            repr_mat_4x4(buffer, sizeof buffer, model_world_matrix));
+        ras_log_buffer_info("PSX Model world matrix: %s",
+            repr_gte_matrix(buffer, sizeof(buffer), psx_mwm));
+
+        //
+        // PSX: Model view matrix = world view matrix * model world matrix
+        //
+        // Here: How to multiple the two matricies?
+
+        // Load world view matrix from camera
+        ras_log_buffer_info("BEFORE -- PSX world_view_matrix: %s",
+            repr_gte_matrix(buffer, sizeof(buffer), &psx->world_view_matrix));
+
+        gte_loadRotationMatrix(psx_wvm);
+
+        // Load model world marix to registers
+
+        ras_log_buffer_info("BEFORE -- PSX Model view matrix: %s",
+            repr_gte_matrix(buffer, sizeof(buffer), psx_mvm));
+        gte_setColumnVectors(
+            psx_mwm->values[0][0], psx_mwm->values[0][1], psx_mwm->values[0][2],
+            psx_mwm->values[1][0], psx_mwm->values[1][1], psx_mwm->values[1][2],
+            psx_mwm->values[2][0], psx_mwm->values[2][1], psx_mwm->values[2][2]);
+
+        multiplyCurrentMatrixByVectors(psx_mvm);
+
+        ras_log_buffer_info("Core Model view matrix: %s",
+            repr_mat_4x4(buffer, sizeof buffer, model_view_matrix));
+        ras_log_buffer_info("PSX Model view matrix: %s",
+            repr_gte_matrix(buffer, sizeof(buffer), psx_mvm));
+
+        core_mat_normal_init(model_view_matrix, normal_mvt_matrix);
+        ras_log_buffer_trace("normal mvt: %s", repr_mat_4x4(buffer, sizeof buffer, normal_mvt_matrix));
+    }
 }
 
 void* psx_sg_xform_verts(void* input)
@@ -105,18 +329,18 @@ void* psx_sg_xform_verts(void* input)
             RasPipelineVertex* pv2 = &mesh->verts[element->indexes[i + 1]];
             RasPipelineVertex* pv3 = &mesh->verts[element->indexes[i + 2]];
 
-            RasVertex* v0 = &element->verts[element->indexes[i]];
-            RasVertex* v1 = &element->verts[element->indexes[i + 1]];
-            RasVertex* v2 = &element->verts[element->indexes[i + 2]];
+            RasVector3f* v0 = &element->verts[element->indexes[i]].position;
+            RasVector3f* v1 = &element->verts[element->indexes[i + 1]].position;
+            RasVector3f* v2 = &element->verts[element->indexes[i + 2]].position;
 
             char buffer[255];
-            ras_log_buffer_info("psx v0: %s", repr_point3f(buffer, sizeof(buffer), &v0->position));
-            ras_log_buffer_info("psx v1: %s", repr_point3f(buffer, sizeof(buffer), &v1->position));
-            ras_log_buffer_info("psx v2: %s", repr_point3f(buffer, sizeof(buffer), &v2->position));
+            ras_log_buffer_info("psx v0: %s", repr_point3f(buffer, sizeof(buffer), v0));
+            ras_log_buffer_info("psx v1: %s", repr_point3f(buffer, sizeof(buffer), v1));
+            ras_log_buffer_info("psx v2: %s", repr_point3f(buffer, sizeof(buffer), v2));
 
-            int32_t temp = v2->position.x;
+            int32_t temp = v2->x;
             ras_log_buffer_info("psx start: %d", temp);
-            temp = v2->position.x * RAS_PSX_VERT_SCALE;
+            temp = v2->x * RAS_PSX_VERT_SCALE;
             ras_log_buffer_info("psx scale: %d", temp);
 
             GTEVector16 gv0 = vert3f_to_gte_vertex(v0);
@@ -192,12 +416,12 @@ void psx_pipeline_init(RasPipeline* pipeline)
 {
     pipeline->num_stages = 0;
 
-    ADD_STAGE(pipeline, core_sg_setup);
+    // ADD_STAGE(pipeline, core_sg_setup);
     ADD_STAGE(pipeline, psx_sg_setup);
 
     ADD_STAGE(pipeline, core_sg_xform_tombmaps);
 
-    ADD_STAGE(pipeline, core_sg_xform_objects);
+    // ADD_STAGE(pipeline, core_sg_xform_objects);
     ADD_STAGE(pipeline, psx_sg_xform_objects);
 
     ADD_STAGE(pipeline, core_sg_xform_tombmap_aabb);

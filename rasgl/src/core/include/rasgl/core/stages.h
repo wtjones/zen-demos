@@ -30,6 +30,7 @@ typedef struct {
 typedef struct {
     RenderState* render_state;
     RasScene* scene;
+    void* plat;
     /**
      * @brief Should point to a camera in the scene.
      *
