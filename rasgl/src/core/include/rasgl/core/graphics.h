@@ -309,6 +309,8 @@ void core_renderstates_clear(RenderState states[]);
 
 void core_aabb_init(RasAABB* aabb);
 
+void core_aabb_to_points(RasAABB* aabb, RasVector3f points[8]);
+
 /**
  * Rotate the 8 points of the AABB and generate a new AABB from the result.
  */

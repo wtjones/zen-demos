@@ -105,12 +105,19 @@ RasResult core_renderdata_init(
     RasScene* scene,
     RasCamera* camera);
 
+/**
+ * @brief Create scene world view matrix.
+ *
+ * @param input
+ * @return void*
+ */
 void* core_sg_setup(void* input);
 
 void* core_sg_xform_gridmaps(void* input);
 void* core_sg_xform_tombmaps(void* input);
+
 /**
- * @brief Transform object matrices
+ * @brief Create per-object model world matrix, model view matrix.
  *
  * @param input
  * @return void*

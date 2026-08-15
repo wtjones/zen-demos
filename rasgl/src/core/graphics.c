@@ -81,6 +81,14 @@ void core_aabb_xform(RasAABB* aabb, RasFixed matrix[4][4], RasAABB* dest)
         mat_mul_4x4_4x1(matrix, vec_src, vec_dest);
         core_4x1_to_vector3f(vec_dest, &points_rotated[i]);
 
+        char buffer[255];
+        if (i == 0) {
+            ras_log_buffer("core AABB before: %s",
+                repr_point3f(buffer, sizeof buffer, &points[i]));
+            ras_log_buffer("core AABB rotated: %s",
+                repr_point3f(buffer, sizeof buffer, &points_rotated[i]));
+        }
+
         dest->min.x = vec_dest[0] < dest->min.x
             ? vec_dest[0]
             : dest->min.x;

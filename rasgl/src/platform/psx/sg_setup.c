@@ -13,6 +13,11 @@
 extern DMAChain dma_chains[2];
 extern DMAChain* chain;
 
+static inline RasFixed gte_scale_to_fixed(int16_t gte)
+{
+    return (RasFixed)((gte << 16) / RAS_PSX_VERT_SCALE);
+}
+
 /**
  * @brief Pack to a 16 bit scaled vertex for the GTE.
  * Y/Z flipped due to match the GTE coordinate system.
@@ -26,6 +31,15 @@ static inline GTEVector16 vert3f_to_gte_vertex(const RasVector3f* v)
         .x = (int16_t)((v->x * RAS_PSX_VERT_SCALE) >> 16),
         .y = -(int16_t)((v->y * RAS_PSX_VERT_SCALE) >> 16),
         .z = -(int16_t)((v->z * RAS_PSX_VERT_SCALE) >> 16),
+    };
+}
+
+static inline GTEVector16 fixed_to_gte_vector(const RasVector3f* v)
+{
+    return (GTEVector16) {
+        .x = (int16_t)((v->x * RAS_PSX_VERT_SCALE) >> 16),
+        .y = (int16_t)((v->y * RAS_PSX_VERT_SCALE) >> 16),
+        .z = (int16_t)((v->z * RAS_PSX_VERT_SCALE) >> 16),
     };
 }
 
@@ -90,7 +104,7 @@ void psx_mat_rotate(GTEMatrix* multiplied, RasVector3f* rotation)
     gte_loadRotationMatrix(multiplied);
 }
 
-void psx_camera_world_view_init(GTEMatrix* multiplied, RasCamera* camera)
+void psx_camera_world_view_init(RasPSXMatrix* multiplied, RasCamera* camera)
 {
     RasFixed translate_to_viewer[4][4];
 
@@ -99,6 +113,12 @@ void psx_camera_world_view_init(GTEMatrix* multiplied, RasCamera* camera)
         angle += 360;
     }
 
+    RasVector3f rotation = { .x = 0, .y = INT_32_TO_FIXED_16_16(angle), .z = 0 };
+    char buffer[255];
+    ras_log_buffer_info("cam to psx rot: %s",
+        repr_point3f(buffer, sizeof(buffer), &rotation));
+    psx_mat_rotate(&multiplied->m, &rotation);
+
     // Combine world to viewer translate and rotate operations
     Point3f trans_pos = {
         -camera->position.x,
@@ -106,13 +126,49 @@ void psx_camera_world_view_init(GTEMatrix* multiplied, RasCamera* camera)
         -camera->position.z
     };
 
-    RasVector3f rotation = { .x = 0, .y = INT_32_TO_FIXED_16_16(angle), .z = 0 };
-    char buffer[255];
-    ras_log_buffer_info("cam to psx rot: %s",
-        repr_point3f(buffer, sizeof(buffer), &rotation));
-    psx_mat_rotate(multiplied, &rotation);
+    GTEVector16 trv = fixed_to_gte_vector(&trans_pos);
+
+    ras_log_buffer_info(
+        "camera trans_pos: %s",
+        repr_point3f(buffer, sizeof buffer, &trans_pos));
+
+    ras_log_buffer_info(
+        "camera trv: [%d, %d, %d]",
+        trv.x, trv.y, trv.z);
+
+    // Load V0 with camera pos
+    gte_setDataReg(
+        GTE_VXY0,
+        ((uint32_t)(uint16_t)trv.x)
+            | ((uint32_t)(uint16_t)trv.y << 16));
+
+    gte_setDataReg(GTE_VZ0, trv.z);
+
+    // Calculate the translation component of the WVM.
+    // Basically the translation part of the 4x4 in core pipeline.
+    gte_command(
+        GTE_CMD_MVMVA | GTE_SF | GTE_MX_RT | GTE_V_V0 | GTE_CV_NONE);
+
+    multiplied->translation.x = (int16_t)gte_getDataReg(GTE_IR1);
+    multiplied->translation.y = (int16_t)gte_getDataReg(GTE_IR2);
+    multiplied->translation.z = (int16_t)gte_getDataReg(GTE_IR3);
+
+    RasVector3f result = {
+        .x = gte_scale_to_fixed(multiplied->translation.x),
+        .y = gte_scale_to_fixed(multiplied->translation.y),
+        .z = gte_scale_to_fixed(multiplied->translation.z),
+    };
+
+    ras_log_buffer_info("psx world view result: %s\n",
+        repr_point3f(buffer, sizeof buffer, &result));
 }
 
+/**
+ * @brief Create scene world view matrix.
+ *
+ * @param input
+ * @return void*
+ */
 void* psx_sg_setup(void* input)
 {
     char buffer[1000];
@@ -131,28 +187,32 @@ void* psx_sg_setup(void* input)
     }
     RasPSXRenderData* psx = render_data->plat;
 
-    ras_camera_projection_init(render_data->camera, render_data->projection_matrix);
-    mat_set_identity_4x4(render_data->world_view_matrix);
-    ras_camera_world_view_init(render_data->camera, render_data->world_view_matrix);
-    core_frustum_init(render_data->projection_matrix, &render_data->frustum);
-
     // Set identity to registers
     gte_setRotationMatrix(
         RAS_PSX_ONE, 0, 0,
         0, RAS_PSX_ONE, 0,
         0, 0, RAS_PSX_ONE);
 
+    // PSX: Set world view matrix
     psx_camera_world_view_init(&psx->world_view_matrix, render_data->camera);
 
     ras_log_buffer_info("Core world_view_matrix: %s",
         repr_mat_4x4(buffer, sizeof buffer, render_data->world_view_matrix));
 
     ras_log_buffer_info("PSX world_view_matrix: %s",
-        repr_gte_matrix(buffer, sizeof(buffer), &psx->world_view_matrix));
+        repr_gte_matrix(buffer, sizeof(buffer), &psx->world_view_matrix.m));
 
     return render_data;
 }
 
+/**
+ * @brief Create per-object:
+ *  - model world matrix
+ *  - model view matrix
+ *
+ * @param input
+ * @return void*
+ */
 void* psx_sg_xform_objects(void* input)
 {
     char buffer[1000];
@@ -169,43 +229,13 @@ void* psx_sg_xform_objects(void* input)
         RasFixed(*model_view_matrix)[4] = render_data->model_view_matrix[mesh_index];
         RasFixed(*normal_mvt_matrix)[4] = render_data->normal_mvt_matrix[mesh_index];
 
-        RasFixed model_world1[4][4];
-        RasFixed model_world2[4][4];
-        RasFixed model_world3[4][4];
-
-        // Build model world matrix
-        mat_set_identity_4x4(model_world1);
-
-        core_rotate_x_apply(model_world1,
-            FIXED_16_16_TO_INT_32(model_rotation->x));
-        ras_log_buffer_info("Model world matrix x: %s",
-            repr_mat_4x4(buffer, sizeof buffer, model_world1));
-
-        mat_rotate_y(model_world1,
-            FIXED_16_16_TO_INT_32(model_rotation->y),
-            model_world2);
-        ras_log_buffer_info("Model world matrix y: %s",
-            repr_mat_4x4(buffer, sizeof buffer, model_world2));
-
-        mat_rotate_z(model_world2,
-            FIXED_16_16_TO_INT_32(model_rotation->z),
-            model_world_matrix);
-        ras_log_buffer_info("Model world matrix z: %s",
-            repr_mat_4x4(buffer, sizeof buffer, model_world_matrix));
-
-        core_translate_apply(model_world_matrix, model_pos);
-
-        // Model view matrix = world view matrix(from camera) * model world matrix
-        mat_mul_4x4_4x4(
-            render_data->world_view_matrix,
-            model_world_matrix, model_view_matrix);
-
         //
-        // PSX: Build model world matrix
+        // PSX: Build model world matrix - rotation
         //
-        GTEMatrix* psx_wvm = &psx->world_view_matrix;
-        GTEMatrix* psx_mwm = &psx->model_world_matrix[mesh_index];
-        GTEMatrix* psx_mvm = &psx->model_view_matrix[mesh_index];
+
+        RasPSXMatrix* psx_wvm = &psx->world_view_matrix;
+        RasPSXMatrix* psx_mwm = &psx->model_world_matrix[mesh_index];
+        RasPSXMatrix* psx_mvm = &psx->model_view_matrix[mesh_index];
 
         // Set identity to registers
         gte_setRotationMatrix(
@@ -213,58 +243,195 @@ void* psx_sg_xform_objects(void* input)
             0, RAS_PSX_ONE, 0,
             0, 0, RAS_PSX_ONE);
 
-        // Combine world to viewer translate and rotate operations
+        psx_mat_rotate(&psx_mwm->m, model_rotation);
+
+        //
+        // PSX: Build model world matrix - translation
+        //
+
+        ras_log_buffer_info("PSX: model pos: %s\n",
+            repr_point3f(buffer, sizeof buffer, model_pos));
+        // Combine model to world translate and rotate operations
         Point3f trans_pos = {
-            -render_data->camera->position.x,
-            -render_data->camera->position.y,
-            -render_data->camera->position.z
+            -model_pos->x,
+            -model_pos->y,
+            -model_pos->z
         };
-        trans_pos.x += model_pos->x;
-        trans_pos.y += model_pos->y;
-        trans_pos.z += model_pos->z;
 
         GTEVector16 trv = vert3f_to_gte_vertex(&trans_pos);
 
-        gte_setControlReg(GTE_TRX, trv.x);
-        gte_setControlReg(GTE_TRY, trv.y);
-        gte_setControlReg(GTE_TRZ, trv.z);
+        psx_mwm->translation.x = trv.x;
+        psx_mwm->translation.y = trv.y;
+        psx_mwm->translation.z = trv.z;
 
-        psx_mat_rotate(psx_mwm, model_rotation);
+        RasVector3f result = {
+            .x = gte_scale_to_fixed(psx_mwm->translation.x),
+            .y = gte_scale_to_fixed(psx_mwm->translation.y),
+            .z = gte_scale_to_fixed(psx_mwm->translation.z),
+        };
+
+        ras_log_buffer_info("PSX: model world translation result: %s\n",
+            repr_point3f(buffer, sizeof buffer, &result));
 
         ras_log_buffer_info("Core Model world matrix: %s",
             repr_mat_4x4(buffer, sizeof buffer, model_world_matrix));
         ras_log_buffer_info("PSX Model world matrix: %s",
-            repr_gte_matrix(buffer, sizeof(buffer), psx_mwm));
+            repr_gte_matrix(buffer, sizeof(buffer), &psx_mwm->m));
 
         //
-        // PSX: Model view matrix = world view matrix * model world matrix
+        // PSX: Model view matrix - rotation
+        // MVM = world view matrix * model world matrix
         //
         // Here: How to multiple the two matricies?
 
         // Load world view matrix from camera
         ras_log_buffer_info("BEFORE -- PSX world_view_matrix: %s",
-            repr_gte_matrix(buffer, sizeof(buffer), &psx->world_view_matrix));
+            repr_gte_matrix(buffer, sizeof(buffer), &psx_wvm->m));
 
-        gte_loadRotationMatrix(psx_wvm);
+        gte_loadRotationMatrix(&psx_wvm->m);
 
-        // Load model world marix to registers
+        // Load model world matrix to registers
 
         ras_log_buffer_info("BEFORE -- PSX Model view matrix: %s",
-            repr_gte_matrix(buffer, sizeof(buffer), psx_mvm));
+            repr_gte_matrix(buffer, sizeof(buffer), &psx_mvm->m));
         gte_setColumnVectors(
-            psx_mwm->values[0][0], psx_mwm->values[0][1], psx_mwm->values[0][2],
-            psx_mwm->values[1][0], psx_mwm->values[1][1], psx_mwm->values[1][2],
-            psx_mwm->values[2][0], psx_mwm->values[2][1], psx_mwm->values[2][2]);
+            psx_mwm->m.values[0][0], psx_mwm->m.values[0][1], psx_mwm->m.values[0][2],
+            psx_mwm->m.values[1][0], psx_mwm->m.values[1][1], psx_mwm->m.values[1][2],
+            psx_mwm->m.values[2][0], psx_mwm->m.values[2][1], psx_mwm->m.values[2][2]);
 
-        multiplyCurrentMatrixByVectors(psx_mvm);
+        multiplyCurrentMatrixByVectors(&psx_mvm->m);
 
         ras_log_buffer_info("Core Model view matrix: %s",
             repr_mat_4x4(buffer, sizeof buffer, model_view_matrix));
         ras_log_buffer_info("PSX Model view matrix: %s",
-            repr_gte_matrix(buffer, sizeof(buffer), psx_mvm));
+            repr_gte_matrix(buffer, sizeof(buffer), &psx_mvm->m));
 
-        core_mat_normal_init(model_view_matrix, normal_mvt_matrix);
-        ras_log_buffer_trace("normal mvt: %s", repr_mat_4x4(buffer, sizeof buffer, normal_mvt_matrix));
+        //
+        // PSX: Model view matrix - translation
+        // MVM translation = R_w × T_m + T_w
+        //
+        // Load V0 with model world translation
+        gte_setDataReg(
+            GTE_VXY0,
+            ((uint32_t)(uint16_t)psx_mwm->translation.x)
+                | ((uint32_t)(uint16_t)psx_mwm->translation.y << 16));
+
+        gte_setDataReg(GTE_VZ0, psx_mwm->translation.z);
+
+        // Calculate R_w * T_m
+        gte_command(
+            GTE_CMD_MVMVA | GTE_SF | GTE_MX_RT | GTE_V_V0 | GTE_CV_NONE);
+
+        psx_mvm->translation.x = (int16_t)gte_getDataReg(GTE_IR1);
+        psx_mvm->translation.y = (int16_t)gte_getDataReg(GTE_IR2);
+        psx_mvm->translation.z = (int16_t)gte_getDataReg(GTE_IR3);
+
+        result.x = gte_scale_to_fixed(psx_mvm->translation.x);
+        result.y = gte_scale_to_fixed(psx_mvm->translation.y);
+        result.z = gte_scale_to_fixed(psx_mvm->translation.z);
+
+        ras_log_buffer_info("psx model view translation result before add: %s\n",
+            repr_point3f(buffer, sizeof buffer, &result));
+
+        // Calculate (R_w × T_m ) + T_w
+        psx_mvm->translation.x += psx_wvm->translation.x;
+        psx_mvm->translation.y += psx_wvm->translation.y;
+        psx_mvm->translation.z += psx_wvm->translation.z;
+
+        result.x = gte_scale_to_fixed(psx_mvm->translation.x);
+        result.y = gte_scale_to_fixed(psx_mvm->translation.y);
+        result.z = gte_scale_to_fixed(psx_mvm->translation.z);
+
+        ras_log_buffer_info("psx model view translation result: %s\n",
+            repr_point3f(buffer, sizeof buffer, &result));
+    }
+}
+
+void psx_aabb_xform(RasAABB* aabb, GTEMatrix* matrix, RasAABB* dest)
+{
+    RasFixed vec_src[4];
+    RasFixed vec_dest[4];
+
+    RasVector3f points[RAS_MAX_AABB_POINTS];
+    RasVector3f points_rotated[RAS_MAX_AABB_POINTS];
+    core_aabb_init(dest);
+
+    // Rotate the 8 points of the box to get the full extent of the resulting box
+    core_aabb_to_points(aabb, points);
+
+    gte_loadRotationMatrix(matrix);
+
+    for (int i = 0; i < RAS_MAX_AABB_POINTS; i++) {
+
+        GTEVector16 gte_point = vert3f_to_gte_vertex(&points[i]);
+
+        gte_setDataReg(
+            GTE_VXY0,
+            ((uint32_t)(uint16_t)gte_point.x) | ((uint32_t)(uint16_t)gte_point.y << 16));
+        gte_setDataReg(GTE_VZ0, gte_point.z);
+
+        gte_command(
+            GTE_CMD_MVMVA | GTE_SF | GTE_MX_RT | GTE_V_V0 | GTE_CV_TR);
+
+        uint32_t x = (int16_t)gte_getDataReg(GTE_IR1);
+        uint32_t y = (int16_t)gte_getDataReg(GTE_IR2);
+        uint32_t z = (int16_t)gte_getDataReg(GTE_IR3);
+
+        RasVector3f result = {
+            .x = gte_scale_to_fixed(x),
+            .y = gte_scale_to_fixed(y),
+            .z = gte_scale_to_fixed(z),
+        };
+
+        char buffer[255];
+        if (i == 0) {
+
+            ras_log_buffer_info("psx AABB result: %s\n",
+                repr_point3f(buffer, sizeof buffer, &result));
+        }
+
+        continue;
+        dest->min.x = vec_dest[0] < dest->min.x
+            ? vec_dest[0]
+            : dest->min.x;
+        dest->min.y = vec_dest[1] < dest->min.y
+            ? vec_dest[1]
+            : dest->min.y;
+        dest->min.z = vec_dest[2] < dest->min.z
+            ? vec_dest[2]
+            : dest->min.z;
+
+        dest->max.x = vec_dest[0] > dest->max.x
+            ? vec_dest[0]
+            : dest->max.x;
+        dest->max.y = vec_dest[1] > dest->max.y
+            ? vec_dest[1]
+            : dest->max.y;
+        dest->max.z = vec_dest[2] > dest->max.z
+            ? vec_dest[2]
+            : dest->max.z;
+    }
+}
+
+void* psx_sg_xform_aabb(void* input)
+{
+    char buffer[1000];
+    RasRenderData* render_data = (RasRenderData*)input;
+    RasPSXRenderData* psx = render_data->plat;
+
+    for (size_t i = 0; i < render_data->scene->num_objects; i++) {
+        RasSceneObject* current_object = &render_data->scene->objects[i];
+        RasPipelineElement* element = &render_data->scene->models[current_object->model_index].element;
+        const uint32_t mesh_index = current_object->mesh_index;
+        RasAABB* view_aabb = &render_data->aabbs[mesh_index];
+
+        GTEMatrix* psx_mvm = &psx->model_view_matrix[mesh_index].m;
+
+        // FIXME: Use translation component
+        psx_aabb_xform(
+            &element->aabb,
+            psx_mvm,
+            view_aabb);
     }
 }
 
@@ -416,15 +583,16 @@ void psx_pipeline_init(RasPipeline* pipeline)
 {
     pipeline->num_stages = 0;
 
-    // ADD_STAGE(pipeline, core_sg_setup);
+    ADD_STAGE(pipeline, core_sg_setup);
     ADD_STAGE(pipeline, psx_sg_setup);
 
     ADD_STAGE(pipeline, core_sg_xform_tombmaps);
 
-    // ADD_STAGE(pipeline, core_sg_xform_objects);
+    ADD_STAGE(pipeline, core_sg_xform_objects);
     ADD_STAGE(pipeline, psx_sg_xform_objects);
 
     ADD_STAGE(pipeline, core_sg_xform_tombmap_aabb);
+    ADD_STAGE(pipeline, psx_sg_xform_aabb);
     ADD_STAGE(pipeline, core_sg_xform_aabb);
     ADD_STAGE(pipeline, core_sg_render_aabb);
 
