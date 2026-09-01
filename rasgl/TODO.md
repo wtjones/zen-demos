@@ -84,6 +84,8 @@
 - [ ] Prompt echo
 - [ ] Size console to visible rows.
 - [ ] Scene should continue to animate when visible.
+- [ ] Fix overflow in `line_buffer_trim()`
+  - Consider removing newline trimming structure.
 
 ### Input
 
