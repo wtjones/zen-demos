@@ -12,7 +12,8 @@ RasResult history_init(RasConsole* console)
     return RAS_RESULT_OK;
 }
 
-RasConsole* core_console_init(ScreenSettings* settings)
+RasConsole* core_console_init(
+    RasConsoleSettings* console_settings)
 {
     RasConsole* console = malloc(sizeof(RasConsole));
     if (console == NULL) {
@@ -30,6 +31,7 @@ RasConsole* core_console_init(ScreenSettings* settings)
     console->screen_pos.x = RAS_FIXED_ZERO;
     console->screen_pos.y = RAS_FIXED_ZERO;
     console->prompt_text[0] = '\0';
+    console->settings.bg_color = console_settings->bg_color;
 
     return console;
 }
@@ -272,7 +274,8 @@ RasResult draw_console_bg(RenderState* state, RasFont* font, RasConsole* console
     pv3->u = 1;
     pv3->v = 1;
 
-    RasPipelineVertex* pvs[4] = { pv0, pv1, pv2, pv3 };
+    // Use first pv for color
+    pv0->color = console->settings.bg_color;
 
     state->material_indexes[state->num_material_indexes] = 0x2592;
     state->material_indexes[state->num_material_indexes + 1] = 0x2592;

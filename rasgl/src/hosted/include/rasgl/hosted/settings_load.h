@@ -15,8 +15,14 @@
 #define RAS_SCRIPT_SETTINGS_SCREEN "screen"
 #define RAS_SCRIPT_SETTINGS_SCREEN_WIDTH ":width"
 #define RAS_SCRIPT_SETTINGS_SCREEN_HEIGHT ":height"
+#define RAS_SCRIPT_SETTINGS_CONSOLE "console"
+#define RAS_SCRIPT_SETTINGS_CONSOLE_COLOR ":bg_color"
 
-RasResult hosted_script_map_settings(
+RasResult hosted_script_map_screen_settings(
+    LarScript* script,
+    RasSettings* settings);
+
+RasResult hosted_script_map_console_settings(
     LarScript* script,
     RasSettings* settings);
 

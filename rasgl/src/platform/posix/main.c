@@ -462,8 +462,7 @@ void render_polygon_bitmap(RenderState* state)
             .y = FIXED_16_16_TO_INT_32(sv->y)
         };
 
-        uint8_t fg_color = 14;
-        uint8_t bg_color = 0;
+        uint8_t bg_color = 14;
 
         char* font_base;
 
@@ -471,7 +470,7 @@ void render_polygon_bitmap(RenderState* state)
             font_base = &font8x8_basic[material][0];
         } else if (material >= 0x2580) {
             font_base = &font8x8_block[material - 0x2580][0];
-            fg_color = 4; // FIXME: console shade
+            bg_color = pv0->color;
         } else {
             ras_log_error("Invalid font material: %d", material);
             return;
@@ -487,7 +486,7 @@ void render_polygon_bitmap(RenderState* state)
 
                 uint8_t bit = (*font_index) & 1 << c;
                 if (bit) {
-                    RAS_PLOT_PIXEL(surface, cur_x, cur_y, fg_color);
+                    RAS_PLOT_PIXEL(surface, cur_x, cur_y, bg_color);
                 }
             }
         }
@@ -686,7 +685,7 @@ int main(int argc, const char** argv)
     input_init();
     core_input_init(&plat_input_state);
 
-    console = core_console_init(&app_settings.base.screen);
+    console = core_console_init(&app_settings.base.console);
     if (console == NULL) {
         ras_log_error("Error result from core_console_init(), exiting...");
 

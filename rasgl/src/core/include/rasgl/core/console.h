@@ -17,6 +17,10 @@
 #define RAS_CONSOLE_BLINK_RATE 30
 #define RAS_CONSOLE_HISTORY_DEPTH_DEFAULT 1
 
+typedef struct RasConsoleSettings {
+    int8_t bg_color;
+} RasConsoleSettings;
+
 typedef struct RasConsole {
     int32_t visible_rows;
     int32_t visible_cols;
@@ -35,6 +39,7 @@ typedef struct RasConsole {
     int32_t history_recall_depth;
     Point2f screen_pos;
     char prompt_text[RAS_CONSOLE_DEFAULT_CAPACITY];
+    RasConsoleSettings settings;
 } RasConsole;
 
 /**
@@ -44,7 +49,8 @@ typedef struct RasConsole {
  * @param settings
  * @return RasConsole*
  */
-RasConsole* core_console_init(ScreenSettings* settings);
+RasConsole* core_console_init(RasConsoleSettings* console_settings);
+
 void core_console_free(RasConsole* console);
 
 void core_console_update(RasConsole* console, InputState* input_state);

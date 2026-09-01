@@ -2,7 +2,7 @@
 #include "rasgl/core/debug.h"
 #include "rasgl/core/settings.h"
 
-RasResult hosted_script_map_settings(
+RasResult hosted_script_map_screen_settings(
     LarScript* script,
     RasSettings* settings)
 {
@@ -11,7 +11,7 @@ RasResult hosted_script_map_settings(
         script->expressions, RAS_SCRIPT_SETTINGS_SCREEN);
 
     RAS_CHECK_AND_LOG(node == NULL,
-        "Settings expression not found in script");
+        "Path (settings screen) expression not found in script");
 
     LarNode* prop = NULL;
 
@@ -32,6 +32,29 @@ RasResult hosted_script_map_settings(
     return RAS_RESULT_OK;
 }
 
+RasResult hosted_script_map_console_settings(
+    LarScript* script,
+    RasSettings* settings)
+{
+
+    LarNode* node = lar_get_list_by_symbol(
+        script->expressions, RAS_SCRIPT_SETTINGS_CONSOLE);
+
+    RAS_CHECK_AND_LOG(node == NULL,
+        "Path (settings console) expression not found in script");
+
+    LarNode* prop = NULL;
+
+    prop = lar_get_property_by_type(node, RAS_SCRIPT_SETTINGS_CONSOLE_COLOR, LAR_NODE_ATOM_INTEGER);
+    if (!prop) {
+        ras_log_error("Property %s is required", RAS_SCRIPT_SETTINGS_CONSOLE_COLOR);
+        return RAS_RESULT_ERROR;
+    }
+    settings->console.bg_color = prop->atom.val_integer;
+
+    return RAS_RESULT_OK;
+}
+
 /**
  * @brief Load base settings from a script file path.
  *
@@ -48,7 +71,8 @@ RasResult script_load_settings(const char* path, RasSettings* settings)
     ras_log_debug("Script: %s", repr);
     free(repr);
 
-    result = hosted_script_map_settings(script, settings);
+    result = hosted_script_map_screen_settings(script, settings);
+    result = hosted_script_map_console_settings(script, settings);
 
     if (result != RAS_RESULT_OK) {
         ras_log_error("Failed to map script to settings");

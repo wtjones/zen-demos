@@ -109,8 +109,13 @@ RasResult posix_load_settings(RasAppSettings* app_settings)
 #endif
     }
 
-    if (hosted_script_map_settings(merged, &app_settings->base) != RAS_RESULT_OK) {
-        ras_log_error("Unable to map settings.");
+    if (hosted_script_map_screen_settings(merged, &app_settings->base) != RAS_RESULT_OK) {
+        ras_log_error("Unable to map screen settings.");
+        goto cleanup;
+    }
+
+    if (hosted_script_map_console_settings(merged, &app_settings->base) != RAS_RESULT_OK) {
+        ras_log_error("Unable to map console settings.");
         goto cleanup;
     }
 
