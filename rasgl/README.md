@@ -153,7 +153,13 @@ Run `build_deps.sh` to build the script system.
 
 ### Tests
 
+#### Run all tests
+
 `run_tests.sh`
+
+#### Run specific test
+
+`DEBUG=0 run_tests.sh TEST_MODEL`
 
 ### Posix/SDL
 
@@ -288,7 +294,7 @@ Refer to `run_psx.sh`.
 ### Common Controls
 
 | Action                        | Key          | Controller  |
-| ----------------------------- | ------------ | --          |
+| ----------------------------- | ------------ | ----------- |
 | Help                          | F1           | -           |
 | Toggle UI layer               | F3           | -           |
 | Toggle projection mode        | ctrl-p       | -           |

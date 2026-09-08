@@ -30,6 +30,7 @@ if (NOT RAS_PLATFORM STREQUAL "ras_psx")
   endif()
 
   add_subdirectory(src)
+  include(CTest)
   add_subdirectory(tests)
 
 else()
