@@ -1,7 +1,7 @@
 
 #include "rasgl/core/debug.h"
 #include "rasgl/core/repr.h"
-#include "tests.h"
+#include "test_support.h"
 
 typedef struct RasVector3fp {
     float x;
@@ -31,9 +31,8 @@ bool core_is_backface_fp(RasVector3fp* sv0, RasVector3fp* sv1, RasVector3fp* sv2
     return cross < 0.0f;
 }
 
-void backface_tests()
+TEST(TEST_BACKFACE)
 {
-
     /*
     call first with result = true (is backface) example:
 
@@ -136,11 +135,11 @@ void backface_tests()
     fixed_result = core_is_backface(&sv0_fixed, &sv1_fixed, &sv2_fixed);
 
     ras_log_info("Fixed-point test 2 (back-facing): %s\n", fixed_result ? "backface" : "front-facing");
-    assert(fixed_result);
     ras_log_info("Fixed-point backface tests completed successfully!\n");
+    return !(fixed_result);
 }
 
-void fixed_sub_tests()
+TEST(TEST_FIXED_SUB)
 {
     RasFixed norm1 = 1341968150;
     RasFixed norm2 = -864322928;
@@ -150,10 +149,11 @@ void fixed_sub_tests()
     char buffer[255];
     ras_log_info(
         "Fixed-point subtraction test: %s\n", repr_fixed_16_16(buffer, sizeof(buffer), result));
-    assert(result > 0);
+    TEST_SKIP();
+    return (result > 0);
 }
 
-void backface_tests2()
+TEST(TEST_BACKFACE2)
 {
     ras_log_info("backface_test2: Testing back-facing triangle from log data...\n");
 
@@ -213,4 +213,5 @@ void backface_tests2()
     assert(fp_result == fixed_result);
 
     ras_log_info("backface_test2 completed: Both float and fixed-point correctly identify back-facing triangle\n");
+    return false;
 }

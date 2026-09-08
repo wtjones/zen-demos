@@ -4,7 +4,6 @@
 
 ### General
 
-- [ ] Support CTest
 - [ ] POSIX - screen resolution shouldn't be hard-coded
 - [ ] Log buffer overflow - DOS only?
   - Move model to left clip side to trigger.
@@ -128,6 +127,7 @@
 - [x] Consider macro for check result pattern
 - [x] Add frustum repr function
 - [x] Frame-based log buffering
+- [x] Support CTest
 
 ### Camera
 

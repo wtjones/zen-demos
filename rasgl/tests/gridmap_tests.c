@@ -1,9 +1,9 @@
 #include "rasgl/core/debug.h"
 #include "rasgl/core/repr.h"
 #include "rasgl/core/scene.h"
-#include "tests.h"
+#include "test_support.h"
 
-void gridmap_scene_test()
+TEST(TEST_GRIDMAP_SCENE)
 {
     // arrange
     RasScene* scene = NULL;
@@ -15,4 +15,5 @@ void gridmap_scene_test()
     assert(strcmp(gridmap->name, "gmap01") == 0);
     assert(gridmap->element.num_verts > 0);
     core_free_scene(&scene);
+    return false;
 }

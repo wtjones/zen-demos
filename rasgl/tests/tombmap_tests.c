@@ -1,9 +1,9 @@
 #include "rasgl/core/debug.h"
 #include "rasgl/core/repr.h"
 #include "rasgl/core/scene.h"
-#include "tests.h"
+#include "test_support.h"
 
-void tombmap_scene_test()
+TEST(TEST_TOMBMAP_SCENE)
 {
     // arrange
     RasScene* scene = NULL;
@@ -15,4 +15,5 @@ void tombmap_scene_test()
     assert(strcmp(tombmap->name, "tmap01") == 0);
     assert(tombmap->num_rooms > 0);
     core_free_scene(&scene);
+    return false;
 }

@@ -8,7 +8,6 @@
 #include "rasgl/core/string.h"
 #include "rasgl/core/timer.h"
 #include "test_support.h"
-#include "tests.h"
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -148,12 +147,4 @@ int main(int argc, const char** argv)
         return 1;
     }
     return test_fn->fn();
-
-    // FIXME: Convert to ctest
-    backface_tests();
-    backface_tests2();
-    pipeline_scene_tests();
-    pack_tests();
-
-    return 0;
 }

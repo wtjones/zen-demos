@@ -3,7 +3,7 @@
 #include "rasgl/core/repr.h"
 #include "rasgl/core/scene.h"
 #include "rasgl/core/stages.h"
-#include "tests.h"
+#include "test_support.h"
 
 typedef struct TestData {
     int value;
@@ -26,7 +26,7 @@ void* bar(void* input)
     return input;
 }
 
-void pipeline_tests()
+TEST(TEST_PIPELINE)
 {
 
     RasPipeline pipeline = {
@@ -37,6 +37,7 @@ void pipeline_tests()
     };
     TestData data = { .value = 67 };
     core_pipeline_run(&pipeline, &data);
+    return false;
 }
 
 void pipeline_scene_test(const char* scene_path)
@@ -89,9 +90,10 @@ void pipeline_scene_test(const char* scene_path)
     ras_log_flush();
 }
 
-void pipeline_scene_tests()
+TEST(TEST_PIPELINE_SCENE)
 {
     // FIXME: Fix test or remove.
     // pipeline_scene_test("./tests/data/clip_a.lsp");
     // pipeline_scene_test("./tests/data/clip_b.lsp");
+    return false;
 }

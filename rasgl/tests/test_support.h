@@ -5,6 +5,7 @@
 #include <string.h>
 
 #define TEST(name) int name(void)
+#define TEST_SKIP() return 77
 
 typedef struct TestFn {
     char* name;

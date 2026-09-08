@@ -37,4 +37,9 @@ foreach(line ${TEST_LINES})
     add_test(NAME ${test}
              COMMAND $<TARGET_FILE:tests> ${test}
               WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+    set_tests_properties(${test}
+      PROPERTIES SKIP_RETURN_CODE 77
+    )
+
 endforeach()

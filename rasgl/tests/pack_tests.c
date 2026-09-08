@@ -1,9 +1,9 @@
 #include "rasgl/core/debug.h"
 #include "rasgl/core/scene.h"
 #include "rasgl/pack/pack.h"
-#include "tests.h"
+#include "test_support.h"
 
-void pack_scene_tests()
+TEST(TEST_PACK_SCENE)
 {
     // arrange
     RasScene* scene = NULL;
@@ -83,10 +83,5 @@ void pack_scene_tests()
     free(encoded_scene);
     core_free_scene(&scene);
     core_free_scene(&decoded_scene);
-}
-
-void pack_tests()
-{
-    ras_log_info("Running pack tests...");
-    pack_scene_tests();
+    return false;
 }
