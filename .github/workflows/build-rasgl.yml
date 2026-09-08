@@ -30,6 +30,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Build larse
+        working-directory: larse
+        run: |
+          cmake -S . -B build
+          cmake --build build
+
       - name: Configure
         run: cmake -S . -B build -DDEBUG=0
 
