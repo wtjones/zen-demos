@@ -6,7 +6,7 @@ if (NOT RAS_PLATFORM STREQUAL "ras_psx")
 
   project(
     RasGL
-    VERSION 1.0
+    VERSION 0.1.0
     DESCRIPTION ""
     LANGUAGES C)
 

@@ -1,6 +1,7 @@
 #include "log.c/src/log.h"
 #include "rasgl/core/debug.h"
 #include "rasgl/core/scene.h"
+#include "rasgl/core/version.h"
 #include "rasgl/hosted/sc_load.h"
 #include "rasgl/pack/pack.h"
 #include <getopt.h>
@@ -9,13 +10,14 @@
 
 void print_usage()
 {
-    printf("rascli is a command-line tool for rasgl\n"
+    printf("rascli %s is a command-line tool for rasgl\n"
            "Usage: rascli [options]\n"
            "Informative output:\n"
            " -h, --help             - print this help and exit\n"
            "Actions:\n"
            " -p, --package <path>   - package a scene file\n"
-           " -o, --output <path>    - specify output path for the packaged scene\n");
+           " -o, --output <path>    - specify output path for the packaged scene\n",
+        RAS_VERSION_STRING);
 }
 
 int handle_package_scene(const char* scene_path, const char* output_path)

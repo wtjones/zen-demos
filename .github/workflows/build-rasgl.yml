@@ -39,6 +39,17 @@ jobs:
       - name: Configure
         run: cmake -S . -B build -DDEBUG=0
 
+      - name: Get version
+        id: version
+        shell: bash
+        run: |
+          BASE_VERSION=$(grep '^CMAKE_PROJECT_VERSION:STATIC=' build/CMakeCache.txt | cut -d= -f2)
+          SHORT_SHA="${GITHUB_SHA::7}"
+          VERSION="${BASE_VERSION}+${GITHUB_RUN_NUMBER}.${SHORT_SHA}"
+
+          echo "VERSION: $VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
       - name: Build tests
         run: cmake --build build
 

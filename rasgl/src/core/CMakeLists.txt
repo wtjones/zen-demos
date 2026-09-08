@@ -1,3 +1,8 @@
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/rasgl/core/version.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/generated/rasgl/core/version.h
+    @ONLY
+)
 
 add_library(core
     app.c
@@ -32,5 +37,7 @@ add_library(core
     text.c
     string.c)
 
-target_include_directories(core PUBLIC include)
+target_include_directories(core PUBLIC
+    include
+    ${CMAKE_CURRENT_BINARY_DIR}/generated)
 target_link_libraries(core PUBLIC external)
